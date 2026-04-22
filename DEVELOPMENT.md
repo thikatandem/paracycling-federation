@@ -448,14 +448,6 @@ npm outdated            # Check for outdated packages
 npm audit fix           # Fix security vulnerabilities
 ```
 
-### Change Template Version
-
-```bash
-npm run change-version 5.4.0
-```
-
-This updates version numbers across all files.
-
 ### Create Distribution Package
 
 ```bash

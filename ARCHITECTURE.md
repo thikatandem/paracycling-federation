@@ -128,8 +128,7 @@ coreui-free-bootstrap-admin-template/
 ├── build/                        # Build scripts
 │   ├── pug.mjs                   # Pug compilation script
 │   ├── postcss.config.mjs        # PostCSS configuration
-│   ├── vendors.mjs               # Vendor file bundling
-│   └── change-version.mjs        # Version management
+│   └── vendors.mjs               # Vendor file bundling
 │
 ├── node_modules/                 # npm dependencies (ignored)
 │
