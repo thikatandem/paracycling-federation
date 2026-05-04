@@ -97,6 +97,16 @@
       items: [
         { href: 'authentication/login.html', label: 'Login', target: '_top' },
         { href: 'authentication/register.html', label: 'Register', target: '_top' },
+        { href: 'authentication/check-email.html', label: 'Check Email', target: '_top' },
+        {
+          type: 'group',
+          label: 'Forgot password',
+          items: [
+            { href: 'authentication/reset-password.html', label: 'Reset Password', target: '_top' },
+            { href: 'authentication/change-password.html', label: 'Change Password', target: '_top' },
+            { href: 'authentication/password-changed.html', label: 'Password Changed', target: '_top' },
+          ]
+        },
       ]
     },
     {
@@ -147,11 +157,18 @@ mixin navItem(item)
 mixin navGroup(group)
   li.nav-group
     a.nav-link.nav-group-toggle(href='#')
-      +inlineSvg(group.icon).nav-icon
+      if group.icon
+        +inlineSvg(group.icon).nav-icon
+      else
+        span.nav-icon
+          span.nav-icon-bullet
       |  #{group.label}
     ul.nav-group-items.compact
       each item in group.items
-        +navItem(item)
+        if item.type === 'group'
+          +navGroup(item)
+        else
+          +navItem(item)
 
 ul.sidebar-nav(data-coreui="navigation" data-simplebar)
   each item in nav
