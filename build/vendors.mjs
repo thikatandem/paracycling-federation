@@ -18,7 +18,13 @@ const getNewUrl = url => {
 }
 
 const copyFile = (src, dest) => {
+  if (!fs.existsSync(src)) {
+    console.warn(`Missing vendor asset skipped: ${src}`)
+    return
+  }
+
   fs.mkdirSync(path.dirname(dest), { recursive: true })
+
   if (!fs.existsSync(dest)) {
     fs.copyFileSync(src, dest)
   }
@@ -26,8 +32,10 @@ const copyFile = (src, dest) => {
 
 const processCssAssets = (cssUrl, newCssUrl) => {
   const content = fs.readFileSync(cssUrl, 'utf8')
+
   for (const match of content.matchAll(/url\((['"]?)(.*?)\1\)/g)) {
     const assetPath = match[2]
+
     if (
       assetPath.startsWith('http://') ||
       assetPath.startsWith('https://') ||
@@ -37,6 +45,7 @@ const processCssAssets = (cssUrl, newCssUrl) => {
     }
 
     const cleanPath = assetPath.replace(/[?#].*/, '')
+
     if (!path.basename(cleanPath).includes('.')) {
       continue
     }
@@ -83,4 +92,6 @@ const processHtmlFile = async file => {
   fs.writeFileSync(file, await formatHtml(html))
 }
 
-await Promise.all(globbySync(`${DIST}/**/*.html`).map(file => processHtmlFile(file)))
+await Promise.all(
+  globbySync(`${DIST}/**/*.html`).map(file => processHtmlFile(file))
+)
