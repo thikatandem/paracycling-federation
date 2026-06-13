@@ -1,0 +1,232 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            strong Rankings
+
+            button.btn.btn-primary(
+              type='button'
+              id='btnAddRanking'
+            )
+              i.fa.fa-plus.me-2
+              | Add Ranking
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='rankingLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-4
+
+                input.form-control(
+                  type='text'
+                  id='searchRanking'
+                  placeholder='Search Ranking Type, Team or Remarks'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+                    th Ranking Type
+                    th Team
+                    th Position
+                    th Points
+                    th Date
+                    th Remarks
+                    th Actions
+
+                tbody#rankingsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshRankings'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousPage'
+                )
+                  | Previous
+
+                span#paginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextPage'
+                )
+                  | Next
+
+  .modal.fade(
+    id='rankingModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-lg
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Ranking
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='rankingId'
+          )
+
+          .row.g-3
+
+            .col-md-6
+
+              label.form-label Ranking Type
+
+              select.form-select(
+                id='rankingTypeId'
+              )
+
+            .col-md-6
+
+              label.form-label Team
+
+              select.form-select(
+                id='teamId'
+              )
+
+            .col-md-4
+
+              label.form-label Position
+
+              input.form-control(
+                type='number'
+                min='1'
+                id='rankingPosition'
+              )
+
+            .col-md-4
+
+              label.form-label Points
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='rankingPoints'
+              )
+
+            .col-md-4
+
+              label.form-label Date
+
+              input.form-control(
+                type='date'
+                id='rankingDate'
+              )
+
+            .col-md-12
+
+              label.form-label Remarks
+
+              textarea.form-control(
+                rows='3'
+                id='remarks'
+              )
+
+          .mt-3.text-danger(
+            id='rankingFormError'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveRanking'
+          )
+            | Save Ranking
+
+  .modal.fade(
+    id='deleteRankingModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Delete Ranking
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          p
+            | Are you sure you want to delete this ranking?
+
+          input(
+            type='hidden'
+            id='deleteRankingId'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmDeleteRanking'
+          )
+            | Delete Ranking
+
+append pageScripts
+
+  script(src='js/rankings.js')

@@ -1,0 +1,82 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+
+      .col-12
+
+        .card.mb-4
+
+          .card-header
+
+            strong Training Rankings
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='trainingRankingLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-4
+
+                input.form-control(
+                  type='text'
+                  id='searchTrainingRanking'
+                  placeholder='Search Team'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+                    th Position
+                    th Team
+                    th Total Score
+                    th Attendance
+                    th Distance
+                    th Duration
+                    th Speed
+                    th Power
+                    th Recovery
+
+                tbody#trainingRankingsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshTrainingRankings'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousPage'
+                )
+                  | Previous
+
+                span#paginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextPage'
+                )
+                  | Next
+
+append pageScripts
+
+  script(src='js/training-rankings.js')

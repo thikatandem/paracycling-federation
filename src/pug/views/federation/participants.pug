@@ -1,0 +1,209 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            strong Event Participants
+
+            button.btn.btn-primary(
+              type='button'
+              id='btnAddParticipant'
+            )
+              i.fa.fa-plus.me-2
+              | Add Participant
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='participantLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-4
+
+                input.form-control(
+                  type='text'
+                  id='searchParticipant'
+                  placeholder='Search Event, Team or Status'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+                    th Event
+                    th Team
+                    th Registration Date
+                    th Status
+                    th Actions
+
+                tbody#participantsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshParticipants'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousPage'
+                )
+                  | Previous
+
+                span#paginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextPage'
+                )
+                  | Next
+
+  .modal.fade(
+    id='participantModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-lg
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Participant Registration
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='participantId'
+          )
+
+          .row.g-3
+
+            .col-md-6
+
+              label.form-label Event
+
+              select.form-select(
+                id='eventId'
+              )
+
+            .col-md-6
+
+              label.form-label Team
+
+              select.form-select(
+                id='teamId'
+              )
+
+            .col-md-6
+
+              label.form-label Registration Date
+
+              input.form-control(
+                type='date'
+                id='registrationDate'
+              )
+
+            .col-md-6
+
+              label.form-label Status
+
+              select.form-select(
+                id='statusId'
+              )
+
+          .mt-3.text-danger(
+            id='participantFormError'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveParticipant'
+          )
+            | Save Participant
+
+  .modal.fade(
+    id='deleteParticipantModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Delete Participant
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          p
+            | Are you sure you want to delete this participant registration?
+
+          input(
+            type='hidden'
+            id='deleteParticipantId'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmDeleteParticipant'
+          )
+            | Delete Participant
+
+append pageScripts
+
+  script(src='js/participants.js')
