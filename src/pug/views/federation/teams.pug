@@ -1,4 +1,4 @@
-extends ../../_layout/default
+﻿extends ../../_layout/default
 
 block view
 
@@ -33,7 +33,7 @@ block view
                 input.form-control(
                   type='text'
                   id='searchTeam'
-                  placeholder='Search Teams'
+                  placeholder='Search Team Name, Code, Pilot or Stoker'
                 )
 
             .table-responsive
@@ -45,11 +45,10 @@ block view
                   tr
                     th Team Code
                     th Team Name
-                    th Team Nick Name
-                    th Team Members
-                    th Pilot
-                    th Stoker
-                    th Formed Date
+                    th Team Nickname
+                    th Current Pilot
+                    th Current Stoker
+                    th Effective Date
                     th Status
                     th Actions
 
@@ -82,6 +81,8 @@ block view
                 )
                   | Next
 
+  // TEAM CREATE / EDIT MODAL
+
   .modal.fade(
     id='teamModal'
     tabindex='-1'
@@ -111,62 +112,131 @@ block view
 
           .row.g-3
 
-            .col-md-4
+            .col-md-3
+
               label.form-label Team Code
+
               input.form-control(
                 id='teamCode'
                 readonly
               )
 
-            .col-md-4
+            .col-md-5
+
               label.form-label Team Name
+
               input.form-control(
                 type='text'
                 id='teamName'
-                placeholder='Enter Official Team Name'
+                placeholder='Official Team Name'
               )
 
             .col-md-4
+
               label.form-label Team Nickname
+
               input.form-control(
                 id='teamNickname'
+                placeholder='Optional Nickname'
               )
 
             .col-md-4
-              label.form-label Status
+
+              label.form-label Team Status
+
               select.form-select(
                 id='teamStatus'
               )
-                option(value='Active' selected) Active
-                option(value='Inactive') Inactive
-                option(value='Suspended') Suspended
-                option(value='Disbanded') Disbanded
+                option(
+                  value='Active'
+                  selected
+                ) Active
+
+                option(
+                  value='Inactive'
+                ) Inactive
+
+                option(
+                  value='Suspended'
+                ) Suspended
+
+                option(
+                  value='Disbanded'
+                ) Disbanded
+
+            .col-md-4
+
+              label.form-label Effective Date
+
+              input.form-control(
+                type='date'
+                id='effectiveDate'
+              )
+
+            .col-md-4
+
+              label.form-label Change Reason
+
+              input.form-control(
+                type='text'
+                id='changeReason'
+                placeholder='Initial Formation / Reassignment'
+              )
 
             .col-md-6
+
               label.form-label Pilot Athlete
+
               select.form-select(
                 id='pilotAthleteId'
               )
 
             .col-md-6
+
               label.form-label Stoker Athlete
+
               select.form-select(
                 id='stokerAthleteId'
               )
 
-            .col-md-6
-              label.form-label Formed Date
-              input.form-control(
-                type='date'
-                id='formedDate'
-              )
+          .mt-4
 
-            .col-md-6
-              label.form-label Dissolved Date
-              input.form-control(
-                type='date'
-                id='dissolvedDate'
-              )
+            h6.mb-3
+              | Current Pairing
+
+            .table-responsive
+
+              table.table.table-bordered
+
+                thead
+
+                  tr
+                    th Role
+                    th Athlete
+                    th Active Since
+
+                tbody#currentPairingBody
+
+          .mt-4
+
+            h6.mb-3
+              | Team Pairing History
+
+            .table-responsive
+
+              table.table.table-striped
+
+                thead
+
+                  tr
+                    th Role
+                    th Athlete
+                    th Start Date
+                    th End Date
+                    th Active
+                    th Change Reason
+
+                tbody#teamHistoryBody
 
           .mt-3.text-danger(
             id='teamFormError'
@@ -185,6 +255,8 @@ block view
             id='btnSaveTeam'
           )
             | Save Team
+
+  // DELETE MODAL
 
   .modal.fade(
     id='deleteTeamModal'
@@ -231,4 +303,5 @@ block view
             | Delete Team
 
 append pageScripts
+
   script(src='js/teams.js')

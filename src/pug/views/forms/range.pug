@@ -1,4 +1,4 @@
-extends ../../_layout/default.pug
+﻿extends ../../_layout/default.pug
 
 block canonical
   link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/range/')
@@ -55,7 +55,7 @@ block view
             code min
             |  and 
             code max
-            | — 
+            | â€” 
             code 0
             |  and 
             code 100
@@ -74,7 +74,7 @@ block view
           span.small.ms-1 Steps
         .card-body
           p.text-body-secondary.small
-            | By default, range inputs “snap” to integer values. To change this, you can specify a 
+            | By default, range inputs â€œsnapâ€ to integer values. To change this, you can specify a 
             code step
             |  value. In the example below, we double the number of steps by using 
             code step="0.5"
@@ -82,3 +82,4 @@ block view
           +example('https://coreui.io/bootstrap/docs/forms/range/#steps')
             label.form-label(for='customRange3') Example range
             input.form-range#customRange3(type='range' min='0' max='5' step='0.5')
+

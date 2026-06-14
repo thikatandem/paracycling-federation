@@ -1,4 +1,4 @@
-extends ../../_layout/default.pug
+﻿extends ../../_layout/default.pug
 
 block canonical
   link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/navs-tabs/')
@@ -183,7 +183,7 @@ block view
           p.text-body-secondary.small
             | Force your 
             code .nav
-            | ’s contents to extend the full available width one of two modifier classes. To proportionately fill all available space with your 
+            | â€™s contents to extend the full available width one of two modifier classes. To proportionately fill all available space with your 
             code .nav-item
             | s, use 
             code .nav-fill
@@ -325,9 +325,9 @@ block view
           span.small.ms-1 JavaScript behavior
         .card-body
           p.text-body-secondary.small
-            | Use the tab JavaScript plugin—include it individually or through the compiled 
+            | Use the tab JavaScript pluginâ€”include it individually or through the compiled 
             code coreui.js
-            |  file—to extend our navigational tabs and pills to create tabbable panes of local content, even via dropdown menus.
+            |  fileâ€”to extend our navigational tabs and pills to create tabbable panes of local content, even via dropdown menus.
           p.text-body-secondary.small
             | Dynamic tabbed interfaces, as described in the 
             a(href='https://www.w3.org/TR/wai-aria-practices/#tabpanel')
@@ -349,7 +349,7 @@ block view
           p.text-body-secondary.small
             | Note that dynamic tabbed interfaces should 
             em not
-            |  contain dropdown menus, as this causes both usability and accessibility issues. From a usability perspective, the fact that the currently displayed tab’s trigger element is not immediately visible (as it’s inside the closed dropdown menu) can cause confusion. From an accessibility point of view, there is currently no sensible way to map this sort of construct to a standard WAI ARIA pattern, meaning that it cannot be easily made understandable to users of assistive technologies.
+            |  contain dropdown menus, as this causes both usability and accessibility issues. From a usability perspective, the fact that the currently displayed tabâ€™s trigger element is not immediately visible (as itâ€™s inside the closed dropdown menu) can cause confusion. From an accessibility point of view, there is currently no sensible way to map this sort of construct to a standard WAI ARIA pattern, meaning that it cannot be easily made understandable to users of assistive technologies.
           +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#javascript-behavior')
             ul#myTab.nav.nav-tabs.mb-3(role='tablist')
               li.nav-item(role='presentation')
@@ -361,7 +361,7 @@ block view
             #myTabContent.tab-content
               #home.tab-pane.fade.active.show(role='tabpanel' aria-labelledby='home-tab')
                 p
-                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause she’s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. ‘Cause I, I’m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
+                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause sheâ€™s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. â€˜Cause I, Iâ€™m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
               #profile.tab-pane.fade(role='tabpanel' aria-labelledby='profile-tab')
                 p
                   | Placeholder content for the tab panel. This one relates to the profile tab. You got the finest architecture. Passport stamps, she's cosmopolitan. Fine, fresh, fierce, we got it on lock. Never planned that one day I'd be losing you. She eats your heart out. Your kiss is cosmic, every move is magic. I mean the ones, I mean like she's the one. Greetings loved ones let's take a journey. Just own the night like the 4th of July! But you'd rather get wasted.
@@ -372,12 +372,12 @@ block view
             | To help fit your needs, this works with 
             code 
               = '<ul>'
-            | -based markup, as shown above, or with any arbitrary “roll your own” markup. Note that if you’re using 
+            | -based markup, as shown above, or with any arbitrary â€œroll your ownâ€ markup. Note that if youâ€™re using 
             code 
               = '<nav>'
-            | , you shouldn’t add 
+            | , you shouldnâ€™t add 
             code role="tablist"
-            |  directly to it, as this would override the element’s native role as a navigation landmark. Instead, switch to an alternative element (in the example below, a simple 
+            |  directly to it, as this would override the elementâ€™s native role as a navigation landmark. Instead, switch to an alternative element (in the example below, a simple 
             code 
               = '<div>'
             | ) and wrap the 
@@ -393,7 +393,7 @@ block view
             #nav-tabContent.tab-content
               #nav-home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='nav-home-tab')
                 p
-                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause she’s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. ‘Cause I, I’m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
+                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause sheâ€™s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. â€˜Cause I, Iâ€™m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
               #nav-profile.tab-pane.fade(role='tabpanel' aria-labelledby='nav-profile-tab')
                 p
                   | Placeholder content for the tab panel. This one relates to the profile tab. You got the finest architecture. Passport stamps, she's cosmopolitan. Fine, fresh, fierce, we got it on lock. Never planned that one day I'd be losing you. She eats your heart out. Your kiss is cosmic, every move is magic. I mean the ones, I mean like she's the one. Greetings loved ones let's take a journey. Just own the night like the 4th of July! But you'd rather get wasted.
@@ -412,7 +412,7 @@ block view
             #pills-tabContent.tab-content
               #pills-home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='pills-home-tab')
                 p
-                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause she’s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. ‘Cause I, I’m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
+                  | Placeholder content for the tab panel. This one relates to the home tab. Takes you miles high, so high, 'cause sheâ€™s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. â€˜Cause I, Iâ€™m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
               #pills-profile.tab-pane.fade(role='tabpanel' aria-labelledby='pills-profile-tab')
                 p
                   | Placeholder content for the tab panel. This one relates to the profile tab. You got the finest architecture. Passport stamps, she's cosmopolitan. Fine, fresh, fierce, we got it on lock. Never planned that one day I'd be losing you. She eats your heart out. Your kiss is cosmic, every move is magic. I mean the ones, I mean like she's the one. Greetings loved ones let's take a journey. Just own the night like the 4th of July! But you'd rather get wasted.
@@ -430,14 +430,15 @@ block view
               #v-pills-tabContent.tab-content
                 #v-pills-home.tab-pane.fade(role='tabpanel' aria-labelledby='v-pills-home-tab')
                   p
-                    | Placeholder content for the tab panel. This one relates to the home tab. Saw you downtown singing the Blues. Watch you circle the drain. Why don't you let me stop by? Heavy is the head that wears the crown. Yes, we make angels cry, raining down on earth from up above. Wanna see the show in 3D, a movie. Do you ever feel, feel so paper thin. It’s a yes or no, no maybe.
+                    | Placeholder content for the tab panel. This one relates to the home tab. Saw you downtown singing the Blues. Watch you circle the drain. Why don't you let me stop by? Heavy is the head that wears the crown. Yes, we make angels cry, raining down on earth from up above. Wanna see the show in 3D, a movie. Do you ever feel, feel so paper thin. Itâ€™s a yes or no, no maybe.
                 #v-pills-profile.tab-pane.fade(role='tabpanel' aria-labelledby='v-pills-profile-tab')
                   p
-                    | Placeholder content for the tab panel. This one relates to the profile tab. Takes you miles high, so high, 'cause she’s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. ‘Cause I, I’m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
+                    | Placeholder content for the tab panel. This one relates to the profile tab. Takes you miles high, so high, 'cause sheâ€™s got that one international smile. There's a stranger in my bed, there's a pounding in my head. Oh, no. In another life I would make you stay. â€˜Cause I, Iâ€™m capable of anything. Suiting up for my crowning battle. Used to steal your parents' liquor and climb to the roof. Tone, tan fit and ready, turn it up cause its gettin' heavy. Her love is like a drug. I guess that I forgot I had a choice.
                 #v-pills-messages.tab-pane.fade(role='tabpanel' aria-labelledby='v-pills-messages-tab')
                   p
                     | Placeholder content for the tab panel. This one relates to the messages tab. You got the finest architecture. Passport stamps, she's cosmopolitan. Fine, fresh, fierce, we got it on lock. Never planned that one day I'd be losing you. She eats your heart out. Your kiss is cosmic, every move is magic. I mean the ones, I mean like she's the one. Greetings loved ones let's take a journey. Just own the night like the 4th of July! But you'd rather get wasted.
                 #v-pills-settings.tab-pane.fade.active.show(role='tabpanel' aria-labelledby='v-pills-settings-tab')
                   p
                     | Placeholder content for the tab panel. This one relates to the settings tab. Her love is like a drug. All my girls vintage Chanel baby. Got a motel and built a fort out of sheets. 'Cause she's the muse and the artist. (This is how we do) So you wanna play with magic. So just be sure before you give it all to me. I'm walking, I'm walking on air (tonight). Skip the talk, heard it all, time to walk the walk. Catch her if you can. Stinging like a bee I earned my stripes.
+
 

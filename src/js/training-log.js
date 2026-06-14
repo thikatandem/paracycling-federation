@@ -106,6 +106,96 @@ function setValue(
   }
 
 }
+
+function calculateDuration() {
+
+  const start =
+    getValue(
+      'startTime'
+    )
+
+  const end =
+    getValue(
+      'endTime'
+    )
+
+  if (
+    !start ||
+    !end
+  ) {
+    return
+  }
+
+  const startDate =
+    new Date(
+      `1970-01-01T${start}`
+    )
+
+  const endDate =
+    new Date(
+      `1970-01-01T${end}`
+    )
+
+  const minutes =
+    Math.round(
+      (
+        endDate -
+        startDate
+      ) / 60000
+    )
+
+  if (
+    minutes >= 0
+  ) {
+
+    setValue(
+      'durationMinutes',
+      minutes
+    )
+
+    calculateAverageSpeed()
+  }
+}
+
+function calculateAverageSpeed() {
+
+  const distance =
+    Number(
+      getValue(
+        'distanceKm'
+      )
+    )
+
+  const duration =
+    Number(
+      getValue(
+        'durationMinutes'
+      )
+    )
+
+  if (
+    !distance ||
+    !duration
+  ) {
+
+    setValue(
+      'avgSpeedKmh',
+      ''
+    )
+
+    return
+  }
+
+  const speed =
+    distance /
+    (duration / 60)
+
+  setValue(
+    'avgSpeedKmh',
+    speed.toFixed(2)
+  )
+}
+
 async function loadTeams() {
 
   try {
@@ -470,6 +560,26 @@ function clearTrainingForm() {
     'sessionType',
     ''
   )
+  
+  setValue(
+  'startTime',
+  ''
+)
+
+setValue(
+  'endTime',
+  ''
+)
+
+setValue(
+  'avgSpeedKmh',
+  ''
+)
+
+setValue(
+  'indoorSession',
+  'false'
+)
 
   setValue(
     'distanceKm',
@@ -614,11 +724,33 @@ async function saveTraining() {
       )
 
     const payload = {
+      
 
       training_date:
         getValue(
           'trainingDate'
         ),
+      start_time:
+  getValue(
+    'startTime'
+  ),
+
+end_time:
+  getValue(
+    'endTime'
+  ),
+
+avg_speed_kmh:
+  Number(
+    getValue(
+      'avgSpeedKmh'
+    )
+  ),
+
+indoor_session:
+  getValue(
+    'indoorSession'
+  ) === 'true',
 
       team_id:
         getValue(
@@ -762,6 +894,28 @@ function (
     'teamId',
     training.team_id
   )
+   
+   setValue(
+  'startTime',
+  training.start_time
+)
+
+setValue(
+  'endTime',
+  training.end_time
+)
+
+setValue(
+  'avgSpeedKmh',
+  training.avg_speed_kmh
+)
+
+setValue(
+  'indoorSession',
+  training.indoor_session
+    ? 'true'
+    : 'false'
+) 
 
   setValue(
     'sessionType',
@@ -896,6 +1050,33 @@ function wireEvents() {
       'click',
       saveTraining
     )
+   
+  document
+  .getElementById(
+    'startTime'
+  )
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById(
+    'endTime'
+  )
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById(
+    'distanceKm'
+  )
+  ?.addEventListener(
+    'input',
+    calculateAverageSpeed
+  )
 
   document
     .getElementById(

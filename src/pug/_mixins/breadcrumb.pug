@@ -1,4 +1,4 @@
-mixin breadcrumb(items)
+﻿mixin breadcrumb(items)
   nav(aria-label="breadcrumb")
     ol.breadcrumb.my-0
       each item, index in items
@@ -10,3 +10,4 @@ mixin breadcrumb(items)
             a(href=(href ? href : '#'))= label ? label : item
           else
             span= label ? label : item
+

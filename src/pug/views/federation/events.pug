@@ -1,4 +1,4 @@
-extends ../../_layout/default
+﻿extends ../../_layout/default
 
 block view
 
@@ -52,8 +52,8 @@ block view
                     th Organizer
                     th Event Type
                     th Sponsors
-                    th Start Date
-                    th End Date
+                    th Start
+                    th End
                     th Status
                     th Actions
 
@@ -173,7 +173,7 @@ block view
                 multiple
               )
 
-            .col-md-4
+            .col-md-3
 
               label.form-label Start Date
 
@@ -182,7 +182,16 @@ block view
                 id='startDate'
               )
 
-            .col-md-4
+            .col-md-3
+
+              label.form-label Start Time
+
+              input.form-control(
+                type='time'
+                id='startTime'
+              )
+
+            .col-md-3
 
               label.form-label End Date
 
@@ -191,12 +200,23 @@ block view
                 id='endDate'
               )
 
+            .col-md-3
+
+              label.form-label End Time
+
+              input.form-control(
+                type='time'
+                id='endTime'
+              )
+
             .col-md-4
 
               label.form-label Status
 
-              select.form-select(
-                id='statusId'
+              input.form-control(
+                id='eventStatus'
+                readonly
+                value='Automatic'
               )
 
           .mt-3.text-danger(

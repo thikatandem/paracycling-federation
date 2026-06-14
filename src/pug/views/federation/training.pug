@@ -1,4 +1,4 @@
-extends ../../_layout/default
+﻿extends ../../_layout/default
 
 block view
 
@@ -49,10 +49,10 @@ block view
                     th Training Date
                     th Team
                     th Session Type
-                    th Distance (KM)
-                    th Duration (Minutes)
-                    th Attendance
-                    th Notes
+                    th Indoor
+                    th Distance
+                    th Duration
+                    th Avg Speed
                     th Actions
 
                 tbody#trainingTableBody
@@ -139,7 +139,35 @@ block view
                 placeholder='Road, Track, Recovery, Sprint'
               )
 
-            .col-md-4
+            .col-md-3
+
+              label.form-label Start Time
+
+              input.form-control(
+                type='time'
+                id='startTime'
+              )
+
+            .col-md-3
+
+              label.form-label End Time
+
+              input.form-control(
+                type='time'
+                id='endTime'
+              )
+
+            .col-md-3
+
+              label.form-label Duration (Minutes)
+
+              input.form-control(
+                type='number'
+                id='durationMinutes'
+                readonly
+              )
+
+            .col-md-3
 
               label.form-label Distance (KM)
 
@@ -152,13 +180,27 @@ block view
 
             .col-md-4
 
-              label.form-label Duration (Minutes)
+              label.form-label Average Speed (KM/H)
 
               input.form-control(
                 type='number'
-                min='0'
-                id='durationMinutes'
+                id='avgSpeedKmh'
+                readonly
               )
+
+            .col-md-4
+
+              label.form-label Indoor Session
+
+              select.form-select(
+                id='indoorSession'
+              )
+
+                option(value='false')
+                  | No
+
+                option(value='true')
+                  | Yes
 
             .col-md-4
 

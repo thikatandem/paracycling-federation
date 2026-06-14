@@ -25,6 +25,77 @@ function getMedal(position) {
 
   return '';
 }
+
+function calculateDuration() {
+
+  const start =
+    $('startTime').value;
+
+  const end =
+    $('endTime').value;
+
+  if (!start || !end) {
+    return;
+  }
+
+  const startDate =
+    new Date(
+      `1970-01-01T${start}`
+    );
+
+  const endDate =
+    new Date(
+      `1970-01-01T${end}`
+    );
+
+  const minutes =
+    Math.round(
+      (
+        endDate -
+        startDate
+      ) / 60000
+    );
+
+  if (minutes >= 0) {
+
+    $('durationMinutes').value =
+      minutes;
+
+    calculateAverageSpeed();
+  }
+}
+
+function calculateAverageSpeed() {
+
+  const distance =
+    Number(
+      $('distanceKm').value
+    );
+
+  const duration =
+    Number(
+      $('durationMinutes').value
+    );
+
+  if (
+    !distance ||
+    !duration
+  ) {
+
+    $('avgSpeedKmh').value =
+      '';
+
+    return;
+  }
+
+  const speed =
+    distance /
+    (duration / 60);
+
+  $('avgSpeedKmh').value =
+    speed.toFixed(2);
+}
+
 function showLoading() {
   $('resultLoading').classList.remove('d-none');
 }
@@ -121,10 +192,16 @@ async function loadResults() {
       result_id,
       event_id,
       team_id,
-      position,
-      finish_time,
-      points,
-      medal,
+      competition_date,
+start_time,
+end_time,
+duration_minutes,
+distance_km,
+avg_speed_kmh,
+max_speed_kmh,
+position,
+points,
+medal,
 
       events (
         event_name
@@ -177,16 +254,24 @@ function renderResults() {
         </td>
 
         <td>
-          ${result.position || ''}
-        </td>
+  ${result.distance_km || ''}
+</td>
 
-        <td>
-          ${result.finish_time || ''}
-        </td>
+<td>
+  ${result.duration_minutes || ''}
+</td>
 
-        <td>
-          ${result.points || 0}
-        </td>
+<td>
+  ${result.avg_speed_kmh || ''}
+</td>
+
+<td>
+  ${result.position || ''}
+</td>
+
+<td>
+  ${result.points || 0}
+</td>
 
         <td>
           ${result.medal || ''}
@@ -294,8 +379,34 @@ async function saveResult() {
         $('position').value
       );
 
-    const finishTime =
-      $('finishTime').value;
+   const competitionDate =
+  $('competitionDate').value;
+
+const startTime =
+  $('startTime').value;
+
+const endTime =
+  $('endTime').value;
+
+const durationMinutes =
+  Number(
+    $('durationMinutes').value
+  );
+
+const distanceKm =
+  Number(
+    $('distanceKm').value
+  );
+
+const avgSpeedKmh =
+  Number(
+    $('avgSpeedKmh').value
+  );
+
+const maxSpeedKmh =
+  Number(
+    $('maxSpeedKmh').value
+  );
 
     const points =
       Number(
@@ -303,22 +414,54 @@ async function saveResult() {
       );
 
     if (!eventId) {
-      throw new Error(
-        'Event is required'
-      );
-    }
+  throw new Error(
+    'Event is required'
+  );
+}
 
-    if (!teamId) {
-      throw new Error(
-        'Team is required'
-      );
-    }
+if (!teamId) {
+  throw new Error(
+    'Team is required'
+  );
+}
 
-    if (!position) {
-      throw new Error(
-        'Position is required'
-      );
-    }
+if (!competitionDate) {
+
+  throw new Error(
+    'Competition Date is required'
+  );
+
+}
+
+if (!startTime) {
+
+  throw new Error(
+    'Start Time is required'
+  );
+
+}
+
+if (!endTime) {
+
+  throw new Error(
+    'End Time is required'
+  );
+
+}
+
+if (!distanceKm) {
+
+  throw new Error(
+    'Distance is required'
+  );
+
+}
+
+if (!position) {
+  throw new Error(
+    'Position is required'
+  );
+}
 
     const duplicateQuery =
       db
@@ -356,21 +499,39 @@ async function saveResult() {
 
     const payload = {
 
-      event_id:
-        eventId,
+  event_id:
+    eventId,
 
-      team_id:
-        teamId,
+  team_id:
+    teamId,
 
-      position:
-        position,
+  competition_date:
+    competitionDate,
 
-      finish_time:
-        finishTime,
+  start_time:
+    startTime,
 
-      points:
-        points
-    };
+  end_time:
+    endTime,
+
+  duration_minutes:
+    durationMinutes,
+
+  distance_km:
+    distanceKm,
+
+  avg_speed_kmh:
+    avgSpeedKmh,
+
+  max_speed_kmh:
+    maxSpeedKmh,
+
+  position:
+    position,
+
+  points:
+    points
+};
 
     let error;
 
@@ -454,12 +615,30 @@ async function (
   $('position').value =
     result.position || '';
 
-  $('finishTime').value =
-    result.finish_time || '';
+
 
   $('points').value =
     result.points || '';
+   $('competitionDate').value =
+  result.competition_date || '';
 
+$('startTime').value =
+  result.start_time || '';
+
+$('endTime').value =
+  result.end_time || '';
+
+$('durationMinutes').value =
+  result.duration_minutes || '';
+
+$('distanceKm').value =
+  result.distance_km || '';
+
+$('avgSpeedKmh').value =
+  result.avg_speed_kmh || '';
+
+$('maxSpeedKmh').value =
+  result.max_speed_kmh || '';
   $('medal').value =
     getMedal(
       result.position
@@ -542,7 +721,23 @@ function wireButtons() {
       'click',
       loadResults
     );
+   $('startTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  );
 
+$('endTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  );
+
+$('distanceKm')
+  ?.addEventListener(
+    'input',
+    calculateAverageSpeed
+  );
   $('btnSaveResult')
     ?.addEventListener(
       'click',
@@ -573,7 +768,19 @@ function wireButtons() {
 
         $('position').value = '';
 
-        $('finishTime').value = '';
+        $('competitionDate').value = '';
+
+$('startTime').value = '';
+
+$('endTime').value = '';
+
+$('durationMinutes').value = '';
+
+$('distanceKm').value = '';
+
+$('avgSpeedKmh').value = '';
+
+$('maxSpeedKmh').value = '';
 
         $('points').value = '';
 

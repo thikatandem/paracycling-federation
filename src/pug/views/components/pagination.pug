@@ -1,4 +1,4 @@
-extends ../../_layout/default.pug
+﻿extends ../../_layout/default.pug
 
 block canonical
   link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/pagination/')
@@ -23,12 +23,12 @@ block view
           span.small.ms-1 Overview
         .card-body
           p.text-body-secondary.small
-            | We use a large block of connected links for our pagination, making links hard to miss and easily scalable—all while providing large hit areas. Pagination is built with list HTML elements so screen readers can announce the number of available links. Use a wrapping 
+            | We use a large block of connected links for our pagination, making links hard to miss and easily scalableâ€”all while providing large hit areas. Pagination is built with list HTML elements so screen readers can announce the number of available links. Use a wrapping 
             code 
               = '<nav>'
             |  element to identify it as a navigation section to screen readers and other assistive technologies.
           p.text-body-secondary.small
-            | In addition, as pages likely have more than one such navigation section, it’s advisable to provide a descriptive 
+            | In addition, as pages likely have more than one such navigation section, itâ€™s advisable to provide a descriptive 
             code aria-label
             |  for the 
             code 
@@ -64,7 +64,7 @@ block view
               ul.pagination
                 li.page-item
                   a.page-link(href='#' aria-label='Previous')
-                    span(aria-hidden='true') «
+                    span(aria-hidden='true') Â«
                 li.page-item
                   a.page-link(href='#') 1
                 li.page-item
@@ -73,7 +73,7 @@ block view
                   a.page-link(href='#') 3
                 li.page-item
                   a.page-link(href='#' aria-label='Next')
-                    span(aria-hidden='true') »
+                    span(aria-hidden='true') Â»
     .col-12
       .card.mb-4
         .card-header
@@ -96,7 +96,7 @@ block view
             |  to disable the link functionality of 
             code 
               = '<a>'
-            | s, that CSS property is not yet standardized and doesn’t account for keyboard navigation. As such, you should always add 
+            | s, that CSS property is not yet standardized and doesnâ€™t account for keyboard navigation. As such, you should always add 
             code tabindex="-1"
             |  on disabled links and use custom JavaScript to fully disable their functionality.
           +example('https://coreui.io/bootstrap/docs/components/pagination/#disabled-and-active-states')
@@ -196,3 +196,4 @@ block view
                   a.page-link(href='#') 3
                 li.page-item
                   a.page-link(href='#') Next
+

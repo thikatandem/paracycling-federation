@@ -1,0 +1,849 @@
+src\pug\views\authentication\change-password.pug:6:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\change-password.pug:18:                  button.bg-transparent.border-0.p-0.link-secondary(type='button' data-coreui-toggle='tooltip' aria-label='Show password' data-coreui-original-title='Show password')
+src\pug\views\authentication\change-password.pug:28:                  button.bg-transparent.border-0.p-0.link-secondary(type='button' data-coreui-toggle='tooltip' aria-label='Show password' data-coreui-original-title='Show password')
+src\pug\views\authentication\check-email.pug:6:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\login.pug:5:    const tooltipTriggerList = document.querySelectorAll('[data-coreui-toggle="tooltip"]')
+src\pug\views\authentication\login.pug:6:    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new coreui.Tooltip(tooltipTriggerEl))
+src\pug\views\authentication\login.pug:11:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\login.pug:26:                  button.bg-transparent.border-0.p-0.link-secondary(type='button' data-coreui-toggle='tooltip' aria-label='Show password' data-coreui-original-title='Show password')
+src\pug\views\authentication\password-changed.pug:6:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\register.pug:6:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\register.pug:22:                  button.bg-transparent.border-0.p-0.link-secondary(type='button' data-coreui-toggle='tooltip' aria-label='Show password' data-coreui-original-title='Show password')
+src\pug\views\authentication\reset-password.pug:6:      +inlineSvg(src='assets/brand/coreui-full.svg' height='48' alt='Thika Tandem Paracycling Logo')
+src\pug\views\authentication\reset-password.pug:18:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-envelope-closed.svg').icon.me-2
+src\pug\views\charts.pug:4:  link(href='node_modules/@coreui/chartjs/dist/css/coreui-chartjs.css', rel='stylesheet')
+src\pug\views\charts.pug:8:  script(src='node_modules/@coreui/chartjs/dist/js/coreui-chartjs.js')
+src\pug\views\components\accordion.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/accordion/')
+src\pug\views\components\accordion.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/accordion/')
+src\pug\views\components\accordion.pug:26:          +example('https://coreui.io/bootstrap/docs/components/accordion/#how-it-works')
+src\pug\views\components\accordion.pug:30:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#collapseOne' aria-expanded='false' aria-controls='collapseOne')
+src\pug\views\components\accordion.pug:32:                #collapseOne.accordion-collapse.collapse(aria-labelledby='headingOne' data-coreui-parent='#accordionExample' style='')
+src\pug\views\components\accordion.pug:40:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#collapseTwo' aria-expanded='false' aria-controls='collapseTwo')
+src\pug\views\components\accordion.pug:42:                #collapseTwo.accordion-collapse.collapse(aria-labelledby='headingTwo' data-coreui-parent='#accordionExample' style='')
+src\pug\views\components\accordion.pug:50:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#collapseThree' aria-expanded='false' aria-controls='collapseThree')
+src\pug\views\components\accordion.pug:52:                #collapseThree.accordion-collapse.collapse(aria-labelledby='headingThree' data-coreui-parent='#accordionExample' style='')
+src\pug\views\components\accordion.pug:70:          +example('https://coreui.io/bootstrap/docs/components/accordion/#flush')
+src\pug\views\components\accordion.pug:74:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#flush-collapseOne' aria-expanded='false' aria-controls='flush-collapseOne')
+src\pug\views\components\accordion.pug:76:                #flush-collapseOne.accordion-collapse.collapse(aria-labelledby='flush-headingOne' data-coreui-parent='#accordionFlushExample')
+src\pug\views\components\accordion.pug:81:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#flush-collapseTwo' aria-expanded='false' aria-controls='flush-collapseTwo')
+src\pug\views\components\accordion.pug:83:                #flush-collapseTwo.accordion-collapse.collapse(aria-labelledby='flush-headingTwo' data-coreui-parent='#accordionFlushExample')
+src\pug\views\components\accordion.pug:88:                  button.accordion-button.collapsed(type='button' data-coreui-toggle='collapse' data-coreui-target='#flush-collapseThree' aria-expanded='false' aria-controls='flush-collapseThree')
+src\pug\views\components\accordion.pug:90:                #flush-collapseThree.accordion-collapse.collapse(aria-labelledby='flush-headingThree' data-coreui-parent='#accordionFlushExample')
+src\pug\views\components\alerts.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/alerts/')
+src\pug\views\components\alerts.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/alerts/')
+src\pug\views\components\alerts.pug:29:          +example('https://coreui.io/bootstrap/docs/components/alerts/#examples')
+src\pug\views\components\alerts.pug:56:          +example('https://coreui.io/bootstrap/docs/components/alerts/#link-color')
+src\pug\views\components\alerts.pug:100:          +example('https://coreui.io/bootstrap/docs/components/alerts/#additional-content')
+src\pug\views\components\alerts.pug:116:          +example('https://coreui.io/bootstrap/docs/components/alerts/#dismissing')
+src\pug\views\components\alerts.pug:120:              button.btn-close(type='button', data-coreui-dismiss='alert', aria-label='Close')
+src\pug\views\components\badge.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/badge/')
+src\pug\views\components\badge.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/badge/')
+src\pug\views\components\badge.pug:27:          +example('https://coreui.io/bootstrap/docs/components/badge/#headings')
+src\pug\views\components\badge.pug:48:          +example('https://coreui.io/bootstrap/docs/components/badge/#headings')
+src\pug\views\components\badge.pug:66:          +example('https://coreui.io/bootstrap/docs/components/badge/#contextual-variations')
+src\pug\views\components\badge.pug:91:          +example('https://coreui.io/bootstrap/docs/components/badge/#pill-badges')
+src\pug\views\components\breadcrumb.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/breadcrumb/')
+src\pug\views\components\breadcrumb.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/breadcrumb/')
+src\pug\views\components\breadcrumb.pug:32:          +example('https://coreui.io/bootstrap/docs/components/breadcrumb/#example')
+src\pug\views\components\button-group.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/button-group/')
+src\pug\views\components\button-group.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/button-group/')
+src\pug\views\components\button-group.pug:30:            a(href='https://coreui.io/bootstrap/docs/components/buttons/#button-plugin') our buttons plugin
+src\pug\views\components\button-group.pug:32:          +example('https://coreui.io/bootstrap/docs/components/button-group/#basic-example')
+src\pug\views\components\button-group.pug:39:            a(href='https://coreui.io/bootstrap/docs/components/navs-tabs/')
+src\pug\views\components\button-group.pug:43:          +example('https://coreui.io/bootstrap/docs/components/button-group/#basic-example')
+src\pug\views\components\button-group.pug:54:          +example('https://coreui.io/bootstrap/docs/components/button-group/#mixed-styles')
+src\pug\views\components\button-group.pug:64:          +example('https://coreui.io/bootstrap/docs/components/button-group/#outlined-styles')
+src\pug\views\components\button-group.pug:77:            a(href='https://coreui.io/bootstrap/docs/forms/checks-radios/') toggle buttons
+src\pug\views\components\button-group.pug:79:          +example('https://coreui.io/bootstrap/docs/components/button-group/#checkbox-and-radio-button-groups')
+src\pug\views\components\button-group.pug:87:          +example('https://coreui.io/bootstrap/docs/components/button-group/#checkbox-and-radio-button-groups')
+src\pug\views\components\button-group.pug:103:          +example('https://coreui.io/bootstrap/docs/components/button-group/#button-toolbar')
+src\pug\views\components\button-group.pug:118:          +example('https://coreui.io/bootstrap/docs/components/button-group/#button-toolbar')
+src\pug\views\components\button-group.pug:149:          +example('https://coreui.io/bootstrap/docs/components/button-group/#sizing')
+src\pug\views\components\button-group.pug:177:          +example('https://coreui.io/bootstrap/docs/components/button-group/#nesting')
+src\pug\views\components\button-group.pug:182:                button#btnGroupDrop1.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\button-group.pug:198:          +example('https://coreui.io/bootstrap/docs/components/button-group/#vertical-variation')
+src\pug\views\components\button-group.pug:206:          +example('https://coreui.io/bootstrap/docs/components/button-group/#vertical-variation')
+src\pug\views\components\button-group.pug:211:                button#btnGroupVerticalDrop1.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\button-group.pug:221:                button#btnGroupVerticalDrop2.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\button-group.pug:229:                button#btnGroupVerticalDrop3.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\button-group.pug:237:                button#btnGroupVerticalDrop4.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\button-group.pug:244:          +example('https://coreui.io/bootstrap/docs/components/button-group/#vertical-variation')
+src\pug\views\components\buttons.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/buttons/')
+src\pug\views\components\buttons.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/buttons/')
+src\pug\views\components\buttons.pug:22:        | CoreUI includes a bunch of predefined Bootstrap buttons, each serving its own semantic purpose. CoreUI also offers some unique buttons styles.
+src\pug\views\components\buttons.pug:25:      +example('https://coreui.io/bootstrap/docs/components/buttons/#examples')
+src\pug\views\components\buttons.pug:66:        a(href='https://coreui.io/icons/') CoreUI Icons
+src\pug\views\components\buttons.pug:68:      +example('https://coreui.io/bootstrap/docs/components/buttons/#with-icons')
+src\pug\views\components\buttons.pug:74:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:77:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:80:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:83:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:86:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:89:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:92:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:99:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:102:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:105:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:108:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:111:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:114:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:117:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:124:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:127:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:130:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:133:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:136:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:139:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:142:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.me-2
+src\pug\views\components\buttons.pug:171:      +example('https://coreui.io/bootstrap/docs/components/buttons/#button-tags')
+src\pug\views\components\buttons.pug:188:      +example('https://coreui.io/bootstrap/docs/components/buttons/#outline-buttons')
+src\pug\views\components\buttons.pug:228:      +example('https://coreui.io/bootstrap/docs/components/buttons/#ghost-buttons')
+src\pug\views\components\buttons.pug:270:      +example('https://coreui.io/bootstrap/docs/components/buttons/#sizes')
+src\pug\views\components\buttons.pug:273:      +example('https://coreui.io/bootstrap/docs/components/buttons/#sizes')
+src\pug\views\components\buttons.pug:281:      +example('https://coreui.io/bootstrap/docs/components/buttons/#pill-buttons')
+src\pug\views\components\buttons.pug:293:      +example('https://coreui.io/bootstrap/docs/components/buttons/#square-buttons')
+src\pug\views\components\buttons.pug:314:      +example('https://coreui.io/bootstrap/docs/components/buttons/#disabled-state')
+src\pug\views\components\buttons.pug:332:      +example('https://coreui.io/bootstrap/docs/components/buttons/#disabled-state')
+src\pug\views\components\buttons.pug:341:      +example('https://coreui.io/bootstrap/docs/components/buttons/#block-buttons')
+src\pug\views\components\buttons.pug:355:      +example('https://coreui.io/bootstrap/docs/components/buttons/#block-buttons')
+src\pug\views\components\buttons.pug:365:      +example('https://coreui.io/bootstrap/docs/components/buttons/#block-buttons')
+src\pug\views\components\buttons.pug:371:      +example('https://coreui.io/bootstrap/docs/components/buttons/#block-buttons')
+src\pug\views\components\cards.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/card/')
+src\pug\views\components\cards.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/card/')
+src\pug\views\components\cards.pug:25:        a(href='https://coreui.io/bootstrap/docs/utilities/spacing/') spacing utilities
+src\pug\views\components\cards.pug:31:      +example('https://coreui.io/bootstrap/docs/components/card/#example')
+src\pug\views\components\cards.pug:48:      +example('https://coreui.io/bootstrap/docs/components/card/#body')
+src\pug\views\components\cards.pug:82:      +example('https://coreui.io/bootstrap/docs/components/card/#titles-text-and-links')
+src\pug\views\components\cards.pug:103:      +example('https://coreui.io/bootstrap/docs/components/card/#titles-text-and-links')
+src\pug\views\components\cards.pug:115:      +example('https://coreui.io/bootstrap/docs/components/card/#list-groups')
+src\pug\views\components\cards.pug:146:      +example('https://coreui.io/bootstrap/docs/components/card/#kitchen-sink')
+src\pug\views\components\cards.pug:166:      +example('https://coreui.io/bootstrap/docs/components/card/#header-and-footer')
+src\pug\views\components\cards.pug:181:      +example('https://coreui.io/bootstrap/docs/components/card/#header-and-footer')
+src\pug\views\components\cards.pug:188:      +example('https://coreui.io/bootstrap/docs/components/card/#header-and-footer')
+src\pug\views\components\cards.pug:198:      +example('https://coreui.io/bootstrap/docs/components/card/#header-and-footer')
+src\pug\views\components\cards.pug:214:      +example('https://coreui.io/bootstrap/docs/components/card/#using-grid-markup')
+src\pug\views\components\cards.pug:235:        a(href='https://coreui.io/bootstrap/docs/utilities/sizing/') available sizing utilities
+src\pug\views\components\cards.pug:237:      +example('https://coreui.io/bootstrap/docs/components/card/#using-utilities')
+src\pug\views\components\cards.pug:254:      +example('https://coreui.io/bootstrap/docs/components/card/#using-custom-css')
+src\pug\views\components\cards.pug:267:        a(href='https://coreui.io/bootstrap/docs/utilities/text/#text-alignment') text align classes
+src\pug\views\components\cards.pug:269:      +example('https://coreui.io/bootstrap/docs/components/card/#text-alignment')
+src\pug\views\components\cards.pug:292:        a(href='https://coreui.io/bootstrap/docs/components/navs-tabs/') nav components
+src\pug\views\components\cards.pug:294:      +example('https://coreui.io/bootstrap/docs/components/card/#navigation')
+src\pug\views\components\cards.pug:308:      +example('https://coreui.io/bootstrap/docs/components/card/#navigation')
+src\pug\views\components\cards.pug:330:      +example('https://coreui.io/bootstrap/docs/components/card/#image-caps')
+src\pug\views\components\cards.pug:357:      +example('https://coreui.io/bootstrap/docs/components/card/#image-overlays')
+src\pug\views\components\cards.pug:378:      +example('https://coreui.io/bootstrap/docs/components/card/#horizontal')
+src\pug\views\components\cards.pug:398:        a(href='https://coreui.io/bootstrap/docs/utilities/colors/') text color
+src\pug\views\components\cards.pug:400:        a(href='https://coreui.io/bootstrap/docs/utilities/background/') background utilities
+src\pug\views\components\cards.pug:402:      +example('https://coreui.io/bootstrap/docs/components/card/#background-and-color')
+src\pug\views\components\cards.pug:467:        a(href='https://coreui.io/bootstrap/docs/utilities/borders/') border utilities
+src\pug\views\components\cards.pug:475:      +example('https://coreui.io/bootstrap/docs/components/card/#border')
+src\pug\views\components\cards.pug:540:        a(href='https://coreui.io/bootstrap/docs/utilities/borders/') border utilities
+src\pug\views\components\cards.pug:548:      +example('https://coreui.io/bootstrap/docs/components/card/#top-border')
+src\pug\views\components\cards.pug:617:      +example('https://coreui.io/bootstrap/docs/components/card/#mixins-utilities')
+src\pug\views\components\cards.pug:663:      +example('https://coreui.io/bootstrap/docs/components/card/#card-groups')
+src\pug\views\components\cards.pug:695:        a(href='https://coreui.io/bootstrap/docs/layout/grid/#row-columns')
+src\pug\views\components\cards.pug:703:      +example('https://coreui.io/bootstrap/docs/components/card/#grid-cards')
+src\pug\views\components\cards.pug:737:      +example('https://coreui.io/bootstrap/docs/components/card/#grid-cards')
+src\pug\views\components\cards.pug:773:      +example('https://coreui.io/bootstrap/docs/components/card/#grid-cards')
+src\pug\views\components\cards.pug:803:      +example('https://coreui.io/bootstrap/docs/components/card/#grid-cards')
+src\pug\views\components\carousel.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/carousel/')
+src\pug\views\components\carousel.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/carousel/')
+src\pug\views\components\carousel.pug:29:      +example('https://coreui.io/bootstrap/docs/components/carousel/#slides-only')
+src\pug\views\components\carousel.pug:30:        #carouselExampleSlidesOnly.carousel.slide(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:62:      +example('https://coreui.io/bootstrap/docs/components/carousel/#with-controls')
+src\pug\views\components\carousel.pug:63:        #carouselExampleControls.carousel.slide(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:80:          button.carousel-control-prev(type='button' data-coreui-target='#carouselExampleControls' data-coreui-slide='prev')
+src\pug\views\components\carousel.pug:83:          button.carousel-control-next(type='button' data-coreui-target='#carouselExampleControls' data-coreui-slide='next')
+src\pug\views\components\carousel.pug:92:      +example('https://coreui.io/bootstrap/docs/components/carousel/#with-indicators')
+src\pug\views\components\carousel.pug:93:        #carouselExampleIndicators.carousel.slide(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:95:            button(type='button' data-coreui-target='#carouselExampleIndicators' data-coreui-slide-to='0' aria-label='Slide 1')
+src\pug\views\components\carousel.pug:96:            button(type='button' data-coreui-target='#carouselExampleIndicators' data-coreui-slide-to='1' aria-label='Slide 2')
+src\pug\views\components\carousel.pug:97:            button.active(type='button' data-coreui-target='#carouselExampleIndicators' data-coreui-slide-to='2' aria-label='Slide 3' aria-current='true')
+src\pug\views\components\carousel.pug:114:          button.carousel-control-prev(type='button' data-coreui-target='#carouselExampleIndicators' data-coreui-slide='prev')
+src\pug\views\components\carousel.pug:117:          button.carousel-control-next(type='button' data-coreui-target='#carouselExampleIndicators' data-coreui-slide='next')
+src\pug\views\components\carousel.pug:131:        a(href='https://coreui.io/bootstrap/docs/utilities/display/') display utilities
+src\pug\views\components\carousel.pug:137:      +example('https://coreui.io/bootstrap/docs/components/carousel/#with-captions')
+src\pug\views\components\carousel.pug:138:        #carouselExampleCaptions.carousel.slide(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:140:            button(type='button' data-coreui-target='#carouselExampleCaptions' data-coreui-slide-to='0' aria-label='Slide 1')
+src\pug\views\components\carousel.pug:141:            button(type='button' data-coreui-target='#carouselExampleCaptions' data-coreui-slide-to='1' aria-label='Slide 2')
+src\pug\views\components\carousel.pug:142:            button.active(type='button' data-coreui-target='#carouselExampleCaptions' data-coreui-slide-to='2' aria-label='Slide 3' aria-current='true')
+src\pug\views\components\carousel.pug:168:          button.carousel-control-prev(type='button' data-coreui-target='#carouselExampleCaptions' data-coreui-slide='prev')
+src\pug\views\components\carousel.pug:171:          button.carousel-control-next(type='button' data-coreui-target='#carouselExampleCaptions' data-coreui-slide='next')
+src\pug\views\components\carousel.pug:183:      +example('https://coreui.io/bootstrap/docs/components/carousel/#crossfade')
+src\pug\views\components\carousel.pug:184:        #carouselExampleFade.carousel.slide.carousel-fade(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:201:          button.carousel-control-prev(type='button' data-coreui-target='#carouselExampleFade' data-coreui-slide='prev')
+src\pug\views\components\carousel.pug:204:          button.carousel-control-next(type='button' data-coreui-target='#carouselExampleFade' data-coreui-slide='next')
+src\pug\views\components\carousel.pug:224:      +example('https://coreui.io/bootstrap/docs/components/carousel/#dark-variant')
+src\pug\views\components\carousel.pug:225:        #carouselExampleDark.carousel.carousel-dark.slide(data-coreui-ride='carousel')
+src\pug\views\components\carousel.pug:227:            button(type='button' data-coreui-target='#carouselExampleDark' data-coreui-slide-to='0' aria-label='Slide 1')
+src\pug\views\components\carousel.pug:228:            button(type='button' data-coreui-target='#carouselExampleDark' data-coreui-slide-to='1' aria-label='Slide 2')
+src\pug\views\components\carousel.pug:229:            button.active(type='button' data-coreui-target='#carouselExampleDark' data-coreui-slide-to='2' aria-label='Slide 3' aria-current='true')
+src\pug\views\components\carousel.pug:231:            .carousel-item(data-coreui-interval='10000')
+src\pug\views\components\carousel.pug:239:            .carousel-item(data-coreui-interval='2000')
+src\pug\views\components\carousel.pug:255:          button.carousel-control-prev(type='button' data-coreui-target='#carouselExampleDark' data-coreui-slide='prev')
+src\pug\views\components\carousel.pug:258:          button.carousel-control-next(type='button' data-coreui-target='#carouselExampleDark' data-coreui-slide='next')
+src\pug\views\components\chip.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/chip/')
+src\pug\views\components\chip.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/chip/')
+src\pug\views\components\chip.pug:25:            | Chips are compact UI elements for labels, filters, and quick selections. Below are simple examples and outline variants based on the CoreUI component API.
+src\pug\views\components\chip.pug:26:          +example('https://coreui.io/bootstrap/docs/components/chip/#basic-chips')
+src\pug\views\components\chip.pug:36:          +example('https://coreui.io/bootstrap/docs/components/chip/#outline-chips')
+src\pug\views\components\chip.pug:49:          +example('https://coreui.io/bootstrap/docs/components/chip/#chips-with-icons')
+src\pug\views\components\chip.pug:61:          +example('https://coreui.io/bootstrap/docs/components/chip/#chips-with-avatars')
+src\pug\views\components\chip.pug:83:          +example('https://coreui.io/bootstrap/docs/components/chip/#variants')
+src\pug\views\components\chip.pug:103:            code data-coreui-chip
+src\pug\views\components\chip.pug:105:          +example('https://coreui.io/bootstrap/docs/components/chip/#data-attributes')
+src\pug\views\components\chip.pug:107:              span.chip(data-coreui-chip data-coreui-selectable='true') Selectable
+src\pug\views\components\chip.pug:108:              span.chip(data-coreui-chip data-coreui-selectable='true' data-coreui-selected='true') Selected
+src\pug\views\components\chip.pug:109:              span.chip(data-coreui-chip data-coreui-removable='true') Removable
+src\pug\views\components\chip.pug:110:              span.chip.disabled(data-coreui-chip) Disabled
+src\pug\views\components\chip.pug:118:              span.chip.chip-outline.chip-info(data-coreui-chip data-coreui-selectable='true') Filter: Priority
+src\pug\views\components\chip.pug:119:              span.chip.chip-outline.chip-success(data-coreui-chip data-coreui-selectable='true' data-coreui-selected='true') Filter: Ready
+src\pug\views\components\collapse.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/collapse/')
+src\pug\views\components\collapse.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/collapse/')
+src\pug\views\components\collapse.pug:26:        code data-coreui-target
+src\pug\views\components\collapse.pug:28:        code data-coreui-toggle="collapse""
+src\pug\views\components\collapse.pug:30:      +example('https://coreui.io/bootstrap/docs/components/collapse/#example')
+src\pug\views\components\collapse.pug:32:          a.btn.btn-primary(data-coreui-toggle='collapse', href='#collapseExample', aria-expanded='false', aria-controls='collapseExample')
+src\pug\views\components\collapse.pug:34:          button.btn.btn-primary(type='button', data-coreui-toggle='collapse', data-coreui-target='#collapseExample', aria-expanded='false', aria-controls='collapseExample')
+src\pug\views\components\collapse.pug:56:      +example('https://coreui.io/bootstrap/docs/components/collapse/#horizontal')
+src\pug\views\components\collapse.pug:58:          button.btn.btn-primary(type='button' data-coreui-toggle='collapse' data-coreui-target='#collapseWidthExample' aria-expanded='false' aria-controls='collapseWidthExample')
+src\pug\views\components\collapse.pug:79:        code data-coreui-target
+src\pug\views\components\collapse.pug:89:        code data-coreui-target
+src\pug\views\components\collapse.pug:91:      +example('https://coreui.io/bootstrap/docs/components/collapse/#multiple-targets')
+src\pug\views\components\collapse.pug:93:          a.btn.btn-primary(data-coreui-toggle='collapse', href='#multiCollapseExample1', aria-expanded='false', aria-controls='multiCollapseExample1') Toggle first element
+src\pug\views\components\collapse.pug:94:          button.btn.btn-primary(type='button', data-coreui-toggle='collapse', data-coreui-target='#multiCollapseExample2', aria-expanded='false', aria-controls='multiCollapseExample1') Toggle second element
+src\pug\views\components\collapse.pug:95:          button.btn.btn-primary(type='button', data-coreui-toggle='collapse', data-coreui-target='.multi-collapse', aria-expanded='false', aria-controls='multiCollapseExample1 multiCollapseExample2') Toggle both elements
+src\pug\views\components\dropdowns.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/dropdowns/')
+src\pug\views\components\dropdowns.pug:16:  +docs-components('https://coreui.io/bootstrap/docs/components/dropdowns/')
+src\pug\views\components\dropdowns.pug:31:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#single-button')
+src\pug\views\components\dropdowns.pug:33:              button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:47:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#single-button')
+src\pug\views\components\dropdowns.pug:49:              a#dropdownMenuLink.btn.btn-secondary.dropdown-toggle(href='#' role='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:59:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#single-button')
+src\pug\views\components\dropdowns.pug:61:              button.btn.btn-primary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Primary
+src\pug\views\components\dropdowns.pug:74:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Secondary
+src\pug\views\components\dropdowns.pug:87:              button.btn.btn-success.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Success
+src\pug\views\components\dropdowns.pug:100:              button.btn.btn-info.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Info
+src\pug\views\components\dropdowns.pug:113:              button.btn.btn-warning.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Warning
+src\pug\views\components\dropdowns.pug:126:              button.btn.btn-danger.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Danger
+src\pug\views\components\dropdowns.pug:154:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#split-button')
+src\pug\views\components\dropdowns.pug:157:              button.btn.btn-primary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:172:              button.btn.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:187:              button.btn.btn-success.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:202:              button.btn.btn-info.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:217:              button.btn.btn-warning.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:232:              button.btn.btn-danger.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:253:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#sizing')
+src\pug\views\components\dropdowns.pug:255:              button.btn.btn-secondary.btn-lg.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:270:              button.btn.btn-lg.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:283:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#sizing')
+src\pug\views\components\dropdowns.pug:285:              button.btn.btn-secondary.btn-sm.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:300:              button.btn.btn-sm.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:325:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dark-dropdowns')
+src\pug\views\components\dropdowns.pug:327:              button#dropdownMenuButton2.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:341:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dark-dropdowns')
+src\pug\views\components\dropdowns.pug:345:                button.navbar-toggler(type='button' data-coreui-toggle='collapse' data-coreui-target='#navbarNavDarkDropdown' aria-controls='navbarNavDarkDropdown' aria-expanded='false' aria-label='Toggle navigation')
+src\pug\views\components\dropdowns.pug:350:                      a#navbarDarkDropdownMenuLink.nav-link.dropdown-toggle(href='#' role='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:369:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dropup')
+src\pug\views\components\dropdowns.pug:371:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:387:              button.btn.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:410:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dropright')
+src\pug\views\components\dropdowns.pug:412:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:428:              button.btn.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:451:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dropleft')
+src\pug\views\components\dropdowns.pug:453:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:468:                button.btn.btn-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:499:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#menu-items')
+src\pug\views\components\dropdowns.pug:501:              button#dropdownMenu2.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:514:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#menu-items')
+src\pug\views\components\dropdowns.pug:542:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#active')
+src\pug\views\components\dropdowns.pug:562:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#disabled')
+src\pug\views\components\dropdowns.pug:582:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#menu-alignment')
+src\pug\views\components\dropdowns.pug:584:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:601:            code data-coreui-display="static"
+src\pug\views\components\dropdowns.pug:609:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#responsive-alignment')
+src\pug\views\components\dropdowns.pug:611:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' data-coreui-display='static' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:620:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#responsive-alignment')
+src\pug\views\components\dropdowns.pug:622:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' data-coreui-display='static' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:631:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#responsive-alignment')
+src\pug\views\components\dropdowns.pug:633:              button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:643:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:653:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' data-coreui-display='static' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:663:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' data-coreui-display='static' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:673:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:683:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:693:              button.btn.btn-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\components\dropdowns.pug:709:            +example('https://coreui.io/bootstrap/docs/components/dropdowns/#headers')
+src\pug\views\components\dropdowns.pug:724:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#dividers')
+src\pug\views\components\dropdowns.pug:744:            a(href='https://coreui.io/bootstrap/docs/utilities/spacing/') spacing utilities
+src\pug\views\components\dropdowns.pug:746:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#text')
+src\pug\views\components\dropdowns.pug:760:            a(href='https://coreui.io/bootstrap/docs/utilities/spacing/') margin or padding utilities
+src\pug\views\components\dropdowns.pug:762:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#forms')
+src\pug\views\components\dropdowns.pug:780:          +example('https://coreui.io/bootstrap/docs/components/dropdowns/#forms')
+src\pug\views\components\list-group.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/list-group/')
+src\pug\views\components\list-group.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/list-group/')
+src\pug\views\components\list-group.pug:26:          +example('https://coreui.io/bootstrap/docs/components/list-group/#basic-example')
+src\pug\views\components\list-group.pug:45:          +example('https://coreui.io/bootstrap/docs/components/list-group/#active-items')
+src\pug\views\components\list-group.pug:66:          +example('https://coreui.io/bootstrap/docs/components/list-group/#disabled-items')
+src\pug\views\components\list-group.pug:105:            +example('https://coreui.io/bootstrap/docs/components/list-group/#links-and-buttons')
+src\pug\views\components\list-group.pug:131:            +example('https://coreui.io/bootstrap/docs/components/list-group/#links-and-buttons')
+src\pug\views\components\list-group.pug:149:          +example('https://coreui.io/bootstrap/docs/components/list-group/#flush')
+src\pug\views\components\list-group.pug:177:            +example('https://coreui.io/bootstrap/docs/components/list-group/#horizontal')
+src\pug\views\components\list-group.pug:209:          +example('https://coreui.io/bootstrap/docs/components/list-group/#contextual-classes')
+src\pug\views\components\list-group.pug:234:          +example('https://coreui.io/bootstrap/docs/components/list-group/#contextual-classes')
+src\pug\views\components\list-group.pug:269:            a(href='https://coreui.io/bootstrap/docs/utilities/flex/') utilities
+src\pug\views\components\list-group.pug:271:          +example('https://coreui.io/bootstrap/docs/components/list-group/#with-badges')
+src\pug\views\components\list-group.pug:290:            a(href='https://coreui.io/bootstrap/docs/utilities/flex/') flexbox utilities
+src\pug\views\components\list-group.pug:292:          +example('https://coreui.io/bootstrap/docs/components/list-group/#custom-content')
+src\pug\views\components\list-group.pug:324:            code coreui.js
+src\pug\views\components\list-group.pug:326:          +example('https://coreui.io/bootstrap/docs/components/list-group/#javascript-behavior')
+src\pug\views\components\list-group.pug:330:                  a#list-home-list.list-group-item.list-group-item-action(data-coreui-toggle='tab', href='#list-home', role='tab', aria-controls='list-home', aria-selected='false') Home
+src\pug\views\components\list-group.pug:331:                  a#list-profile-list.list-group-item.list-group-item-action.active(data-coreui-toggle='tab', href='#list-profile', role='tab', aria-controls='list-profile', aria-selected='true') Profile
+src\pug\views\components\list-group.pug:332:                  a#list-messages-list.list-group-item.list-group-item-action(data-coreui-toggle='tab', href='#list-messages', role='tab', aria-controls='list-messages') Messages
+src\pug\views\components\list-group.pug:333:                  a#list-settings-list.list-group-item.list-group-item-action(data-coreui-toggle='tab', href='#list-settings', role='tab', aria-controls='list-settings') Settings
+src\pug\views\components\modals.pug:9:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/modal/')
+src\pug\views\components\modals.pug:21:  +docs-components('https://coreui.io/bootstrap/docs/components/modal/')
+src\pug\views\components\modals.pug:38:          +example('https://coreui.io/bootstrap/docs/components/modal/#modal-components')
+src\pug\views\components\modals.pug:45:                      button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:49:                      button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:59:          +example('https://coreui.io/bootstrap/docs/components/modal/#live-demo')
+src\pug\views\components\modals.pug:65:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:69:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:71:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalLive')
+src\pug\views\components\modals.pug:81:          +example('https://coreui.io/bootstrap/docs/components/modal/#static-backdrop')
+src\pug\views\components\modals.pug:82:            #staticBackdropLive.modal.fade(data-coreui-backdrop='static' data-coreui-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLiveLabel' aria-hidden='true')
+src\pug\views\components\modals.pug:87:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:91:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:93:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#staticBackdropLive')
+src\pug\views\components\modals.pug:103:          +example('https://coreui.io/bootstrap/docs/components/modal/#scrolling-long-content')
+src\pug\views\components\modals.pug:109:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:128:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:130:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalLong')
+src\pug\views\components\modals.pug:138:          +example('https://coreui.io/bootstrap/docs/components/modal/#scrolling-long-content')
+src\pug\views\components\modals.pug:144:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:163:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:165:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalScrollable')
+src\pug\views\components\modals.pug:179:          +example('https://coreui.io/bootstrap/docs/components/modal/#vertically-centered')
+src\pug\views\components\modals.pug:185:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:189:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:196:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:206:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:208:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalCenter')
+src\pug\views\components\modals.pug:210:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalCenteredScrollable')
+src\pug\views\components\modals.pug:219:            a(href='https://coreui.io/bootstrap/docs/components/tooltips/') Tooltips
+src\pug\views\components\modals.pug:221:            a(href='https://coreui.io/bootstrap/docs/components/popovers/') popovers
+src\pug\views\components\modals.pug:223:          +example('https://coreui.io/bootstrap/docs/components/modal/#tooltips-and-popovers')
+src\pug\views\components\modals.pug:229:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:234:                      button.btn.btn-secondary.popover-test(href='#' role='button' title='' data-coreui-toggle="popover" data-coreui-content='Popover body content is set in this attribute.' data-coreui-container='#exampleModalPopovers' data-coreui-original-title='Popover title') button
+src\pug\views\components\modals.pug:239:                      a.tooltip-test(href='#' title='' data-coreui-toggle="tooltip" data-coreui-container='#exampleModalPopovers' data-coreui-original-title='Tooltip') This link
+src\pug\views\components\modals.pug:241:                      a.tooltip-test(href='#' title='' data-coreui-toggle="tooltip" data-coreui-container='#exampleModalPopovers' data-coreui-original-title='Tooltip') that link
+src\pug\views\components\modals.pug:244:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:246:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalPopovers')
+src\pug\views\components\modals.pug:260:          +example('https://coreui.io/bootstrap/docs/components/modal/#using-the-grid')
+src\pug\views\components\modals.pug:266:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:286:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:288:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#gridSystemModal')
+src\pug\views\components\modals.pug:302:              code data-coreui-*
+src\pug\views\components\modals.pug:311:          +example('https://coreui.io/bootstrap/docs/components/modal/#varying-modal-content')
+src\pug\views\components\modals.pug:312:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModal' data-coreui-whatever='@mdo') Open modal for @mdo
+src\pug\views\components\modals.pug:313:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModal' data-coreui-whatever='@fat') Open modal for @fat
+src\pug\views\components\modals.pug:314:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModal' data-coreui-whatever='@getbootstrap') Open modal for @getbootstrap
+src\pug\views\components\modals.pug:320:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:330:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:373:          +example('https://coreui.io/bootstrap/docs/components/modal/#optional-sizes')
+src\pug\views\components\modals.pug:374:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalXl') Extra large modal
+src\pug\views\components\modals.pug:375:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalLg') Large modal
+src\pug\views\components\modals.pug:376:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalSm') Small modal
+src\pug\views\components\modals.pug:382:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:390:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:398:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:451:          +example('https://coreui.io/bootstrap/docs/components/modal/#fullscreen-modal')
+src\pug\views\components\modals.pug:452:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreen') Full screen
+src\pug\views\components\modals.pug:453:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreenSm') Full screen below sm
+src\pug\views\components\modals.pug:454:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreenMd') Full screen below md
+src\pug\views\components\modals.pug:455:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreenLg') Full screen below lg
+src\pug\views\components\modals.pug:456:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreenXl') Full screen below xl
+src\pug\views\components\modals.pug:457:            button.btn.btn-primary(type='button' data-coreui-toggle='modal' data-coreui-target='#exampleModalFullscreenXxl') Full screen below xxl
+src\pug\views\components\modals.pug:463:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:482:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:488:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:492:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:498:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:502:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:508:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:512:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:518:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:522:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\modals.pug:528:                    button.btn-close(type='button' data-coreui-dismiss='modal' aria-label='Close')
+src\pug\views\components\modals.pug:532:                    button.btn.btn-secondary(type='button' data-coreui-dismiss='modal') Close
+src\pug\views\components\navs-tabs.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/navs-tabs/')
+src\pug\views\components\navs-tabs.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/navs-tabs/')
+src\pug\views\components\navs-tabs.pug:33:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#base-nav')
+src\pug\views\components\navs-tabs.pug:58:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#base-nav')
+src\pug\views\components\navs-tabs.pug:72:            a(href='https://coreui.io/bootstrap/docs/layout/grid/#horizontal-alignment') flexbox utilities
+src\pug\views\components\navs-tabs.pug:78:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#horizontal-alignment')
+src\pug\views\components\navs-tabs.pug:92:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#horizontal-alignment')
+src\pug\views\components\navs-tabs.pug:114:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#vertical')
+src\pug\views\components\navs-tabs.pug:129:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#vertical')
+src\pug\views\components\navs-tabs.pug:147:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#tabs')
+src\pug\views\components\navs-tabs.pug:167:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#pills')
+src\pug\views\components\navs-tabs.pug:191:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#fill-and-justify')
+src\pug\views\components\navs-tabs.pug:213:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#fill-and-justify')
+src\pug\views\components\navs-tabs.pug:225:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#fill-and-justify')
+src\pug\views\components\navs-tabs.pug:242:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#fill-and-justify')
+src\pug\views\components\navs-tabs.pug:256:            a(href='https://coreui.io/bootstrap/docs/utilities/flex/') flexbox utilities
+src\pug\views\components\navs-tabs.pug:258:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#working-with-flex-utilities')
+src\pug\views\components\navs-tabs.pug:271:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#tabs-with-dropdowns')
+src\pug\views\components\navs-tabs.pug:276:                a.nav-link.dropdown-toggle(data-coreui-toggle='dropdown' href='#' role='button' aria-expanded='false') Dropdown
+src\pug\views\components\navs-tabs.pug:299:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#pills-with-dropdowns')
+src\pug\views\components\navs-tabs.pug:304:                a.nav-link.dropdown-toggle(data-coreui-toggle='dropdown' href='#' role='button' aria-expanded='false') Dropdown
+src\pug\views\components\navs-tabs.pug:329:            code coreui.js
+src\pug\views\components\navs-tabs.pug:353:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#javascript-behavior')
+src\pug\views\components\navs-tabs.pug:356:                button#home-tab.nav-link.active(data-coreui-toggle='tab' data-coreui-target='#home' type='button' role='tab' aria-controls='home' aria-selected='true') Home
+src\pug\views\components\navs-tabs.pug:358:                button#profile-tab.nav-link(data-coreui-toggle='tab' data-coreui-target='#profile' type='button' role='tab' aria-controls='profile' aria-selected='false') Profile
+src\pug\views\components\navs-tabs.pug:360:                button#contact-tab.nav-link(data-coreui-toggle='tab' data-coreui-target='#contact' type='button' role='tab' aria-controls='contact' aria-selected='false') Contact
+src\pug\views\components\navs-tabs.pug:387:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#javascript-behavior')
+src\pug\views\components\navs-tabs.pug:390:                button#nav-home-tab.nav-link.active(data-coreui-toggle='tab' data-coreui-target='#nav-home' type='button' role='tab' aria-controls='nav-home' aria-selected='true') Home
+src\pug\views\components\navs-tabs.pug:391:                button#nav-profile-tab.nav-link(data-coreui-toggle='tab' data-coreui-target='#nav-profile' type='button' role='tab' aria-controls='nav-profile' aria-selected='false') Profile
+src\pug\views\components\navs-tabs.pug:392:                button#nav-contact-tab.nav-link(data-coreui-toggle='tab' data-coreui-target='#nav-contact' type='button' role='tab' aria-controls='nav-contact' aria-selected='false') Contact
+src\pug\views\components\navs-tabs.pug:404:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#javascript-behavior')
+src\pug\views\components\navs-tabs.pug:407:                button#pills-home-tab.nav-link.active(data-coreui-toggle='pill' data-coreui-target='#pills-home' type='button' role='tab' aria-controls='pills-home' aria-selected='true') Home
+src\pug\views\components\navs-tabs.pug:409:                button#pills-profile-tab.nav-link(data-coreui-toggle='pill' data-coreui-target='#pills-profile' type='button' role='tab' aria-controls='pills-profile' aria-selected='false') Profile
+src\pug\views\components\navs-tabs.pug:411:                button#pills-contact-tab.nav-link(data-coreui-toggle='pill' data-coreui-target='#pills-contact' type='button' role='tab' aria-controls='pills-contact' aria-selected='false') Contact
+src\pug\views\components\navs-tabs.pug:423:          +example('https://coreui.io/bootstrap/docs/components/navs-tabs/#javascript-behavior')
+src\pug\views\components\navs-tabs.pug:426:                button#v-pills-home-tab.nav-link(data-coreui-toggle='pill' data-coreui-target='#v-pills-home' type='button' role='tab' aria-controls='v-pills-home' aria-selected='false') Home
+src\pug\views\components\navs-tabs.pug:427:                button#v-pills-profile-tab.nav-link(data-coreui-toggle='pill' data-coreui-target='#v-pills-profile' type='button' role='tab' aria-controls='v-pills-profile' aria-selected='false') Profile
+src\pug\views\components\navs-tabs.pug:428:                button#v-pills-messages-tab.nav-link(data-coreui-toggle='pill' data-coreui-target='#v-pills-messages' type='button' role='tab' aria-controls='v-pills-messages' aria-selected='false') Messages
+src\pug\views\components\navs-tabs.pug:429:                button#v-pills-settings-tab.nav-link.active(data-coreui-toggle='pill' data-coreui-target='#v-pills-settings' type='button' role='tab' aria-controls='v-pills-settings' aria-selected='true') Settings
+src\pug\views\components\pagination.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/pagination/')
+src\pug\views\components\pagination.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/pagination/')
+src\pug\views\components\pagination.pug:39:          +example('https://coreui.io/bootstrap/docs/components/pagination/#overview')
+src\pug\views\components\pagination.pug:62:          +example('https://coreui.io/bootstrap/docs/components/pagination/#working-with-icons')
+src\pug\views\components\pagination.pug:102:          +example('https://coreui.io/bootstrap/docs/components/pagination/#disabled-and-active-states')
+src\pug\views\components\pagination.pug:120:          +example('https://coreui.io/bootstrap/docs/components/pagination/#disabled-and-active-states')
+src\pug\views\components\pagination.pug:145:          +example('https://coreui.io/bootstrap/docs/components/pagination/#sizing')
+src\pug\views\components\pagination.pug:154:          +example('https://coreui.io/bootstrap/docs/components/pagination/#sizing')
+src\pug\views\components\pagination.pug:171:            a(href='https://coreui.io/bootstrap/docs/utilities/flex/') flexbox utilities
+src\pug\views\components\pagination.pug:173:          +example('https://coreui.io/bootstrap/docs/components/pagination/#alignment')
+src\pug\views\components\pagination.pug:186:          +example('https://coreui.io/bootstrap/docs/components/pagination/#alignment')
+src\pug\views\components\placeholders.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/placeholders/')
+src\pug\views\components\placeholders.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/placeholders/')
+src\pug\views\components\placeholders.pug:26:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#example')
+src\pug\views\components\placeholders.pug:63:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#how-it-works')
+src\pug\views\components\placeholders.pug:76:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#width')
+src\pug\views\components\placeholders.pug:91:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#color')
+src\pug\views\components\placeholders.pug:116:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#sizing')
+src\pug\views\components\placeholders.pug:134:          +example('https://coreui.io/bootstrap/docs/components/placeholders/#animation')
+src\pug\views\components\popovers.pug:8:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/popovers/')
+src\pug\views\components\popovers.pug:21:  +docs-components('https://coreui.io/bootstrap/docs/components/popovers/')
+src\pug\views\components\popovers.pug:29:          +example('https://coreui.io/bootstrap/docs/components/popovers/#example')
+src\pug\views\components\popovers.pug:30:            button.btn.btn-lg.btn-danger(type='button' data-coreui-toggle='popover' title='' data-coreui-content="And here's some amazing content. It's very engaging. Right?" data-coreui-original-title='Popover title') Click to toggle popover
+src\pug\views\components\popovers.pug:40:          +example('https://coreui.io/bootstrap/docs/components/popovers/#four-directions')
+src\pug\views\components\popovers.pug:41:            button.btn.btn-secondary(type='button' data-coreui-container='body' data-coreui-toggle='popover' data-coreui-placement='top' data-coreui-content='Top popover' data-coreui-original-title='' title='')
+src\pug\views\components\popovers.pug:43:            button.btn.btn-secondary(type='button' data-coreui-container='body' data-coreui-toggle='popover' data-coreui-placement='right' data-coreui-content='Right popover' data-coreui-original-title='' title='')
+src\pug\views\components\popovers.pug:45:            button.btn.btn-secondary(type='button' data-coreui-container='body' data-coreui-toggle='popover' data-coreui-placement='bottom' data-coreui-content='Bottom popover' data-coreui-original-title='' title='')
+src\pug\views\components\popovers.pug:47:            button.btn.btn-secondary(type='button' data-coreui-container='body' data-coreui-toggle='popover' data-coreui-placement='left' data-coreui-content='Left popover' data-coreui-original-title='' title='')
+src\pug\views\components\popovers.pug:59:          +example('https://coreui.io/bootstrap/docs/components/popovers/#dismiss-on-next-click')
+src\pug\views\components\popovers.pug:60:            a.btn.btn-lg.btn-danger(tabindex='0' role='button' data-coreui-toggle='popover' data-coreui-trigger='focus' title='' data-coreui-content="And here's some amazing content. It's very engaging. Right?" data-coreui-original-title='Dismissible popover') Dismissible popover
+src\pug\views\components\popovers.pug:81:            code data-coreui-trigger="hover focus"
+src\pug\views\components\popovers.pug:85:          +example('https://coreui.io/bootstrap/docs/components/popovers/#disabled-elements')
+src\pug\views\components\popovers.pug:86:            span.d-inline-block(tabindex='0' data-coreui-toggle='popover' data-coreui-trigger='hover focus' data-coreui-content='Disabled popover' data-coreui-original-title='' title='')
+src\pug\views\components\progress.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/progress/')
+src\pug\views\components\progress.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/progress/')
+src\pug\views\components\progress.pug:33:          +example('https://coreui.io/bootstrap/docs/components/progress/#how-it-works')
+src\pug\views\components\progress.pug:46:            a(href='https://coreui.io/bootstrap/docs/utilities/sizing/') utilities for setting width
+src\pug\views\components\progress.pug:48:          +example('https://coreui.io/bootstrap/docs/components/progress/#how-it-works')
+src\pug\views\components\progress.pug:61:          +example('https://coreui.io/bootstrap/docs/components/progress/#labels')
+src\pug\views\components\progress.pug:78:          +example('https://coreui.io/bootstrap/docs/components/progress/#height')
+src\pug\views\components\progress.pug:91:          +example('https://coreui.io/bootstrap/docs/components/progress/#backgrounds')
+src\pug\views\components\progress.pug:107:          +example('https://coreui.io/bootstrap/docs/components/progress/#multiple-bars')
+src\pug\views\components\progress.pug:124:          +example('https://coreui.io/bootstrap/docs/components/progress/#striped')
+src\pug\views\components\progress.pug:147:          +example('https://coreui.io/bootstrap/docs/components/progress/#animated-stripes')
+src\pug\views\components\progress.pug:150:            button#btnToggleAnimatedProgress.btn.btn-secondary.mt-3(type='button' data-coreui-toggle='button' aria-pressed='false' autocomplete='off')
+src\pug\views\components\spinners.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/spinners/')
+src\pug\views\components\spinners.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/spinners/')
+src\pug\views\components\spinners.pug:26:          +example('https://coreui.io/bootstrap/docs/components/spinners/#border-spinner')
+src\pug\views\components\spinners.pug:41:            a(href='https://coreui.io/bootstrap/docs/utilities/colors/') text color utilities
+src\pug\views\components\spinners.pug:43:          +example('https://coreui.io/bootstrap/docs/components/spinners/#colors')
+src\pug\views\components\spinners.pug:68:          +example('https://coreui.io/bootstrap/docs/components/spinners/#growing-spinner')
+src\pug\views\components\spinners.pug:75:            a(href='https://coreui.io/bootstrap/docs/utilities/colors/') text color utilities
+src\pug\views\components\spinners.pug:77:          +example('https://coreui.io/bootstrap/docs/components/spinners/#growing-spinner')
+src\pug\views\components\spinners.pug:116:            a(href='https://coreui.io/bootstrap/docs/utilities/spacing/') margin utilities
+src\pug\views\components\spinners.pug:120:          +example('https://coreui.io/bootstrap/docs/components/spinners/#alignment')
+src\pug\views\components\spinners.pug:131:            a(href='https://coreui.io/bootstrap/docs/utilities/flex/') flexbox utilities
+src\pug\views\components\spinners.pug:133:            a(href='https://coreui.io/bootstrap/docs/utilities/float/') float utilities
+src\pug\views\components\spinners.pug:135:            a(href='https://coreui.io/bootstrap/docs/content/typography/') text alignment
+src\pug\views\components\spinners.pug:140:          +example('https://coreui.io/bootstrap/docs/components/spinners/#flex')
+src\pug\views\components\spinners.pug:144:          +example('https://coreui.io/bootstrap/docs/components/spinners/#flex')
+src\pug\views\components\spinners.pug:151:          +example('https://coreui.io/bootstrap/docs/components/spinners/#floats')
+src\pug\views\components\spinners.pug:158:          +example('https://coreui.io/bootstrap/docs/components/spinners/#text-align')
+src\pug\views\components\spinners.pug:174:          +example('https://coreui.io/bootstrap/docs/components/spinners/#size')
+src\pug\views\components\spinners.pug:180:          +example('https://coreui.io/bootstrap/docs/components/spinners/#size')
+src\pug\views\components\spinners.pug:193:          +example('https://coreui.io/bootstrap/docs/components/spinners/#buttons')
+src\pug\views\components\spinners.pug:200:          +example('https://coreui.io/bootstrap/docs/components/spinners/#buttons')
+src\pug\views\components\tables.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/content/tables/')
+src\pug\views\components\tables.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/components/tables/')
+src\pug\views\components\tables.pug:27:      +example('https://coreui.io/bootstrap/docs/content/tables/#overview')
+src\pug\views\components\tables.pug:57:      +example('https://coreui.io/bootstrap/docs/content/tables/#variants')
+src\pug\views\components\tables.pug:113:      +example('https://coreui.io/bootstrap/docs/content/tables/#striped-rows')
+src\pug\views\components\tables.pug:137:      +example('https://coreui.io/bootstrap/docs/content/tables/#striped-rows')
+src\pug\views\components\tables.pug:160:      +example('https://coreui.io/bootstrap/docs/content/tables/#striped-rows')
+src\pug\views\components\tables.pug:195:      +example('https://coreui.io/bootstrap/docs/content/tables/#hoverable-rows')
+src\pug\views\components\tables.pug:218:      +example('https://coreui.io/bootstrap/docs/content/tables/#hoverable-rows')
+src\pug\views\components\tables.pug:242:      +example('https://coreui.io/bootstrap/docs/content/tables/#hoverable-rows')
+src\pug\views\components\tables.pug:274:      +example('https://coreui.io/bootstrap/docs/content/tables/#active-tables')
+src\pug\views\components\tables.pug:297:      +example('https://coreui.io/bootstrap/docs/content/tables/#active-tables')
+src\pug\views\components\tables.pug:329:      +example('https://coreui.io/bootstrap/docs/content/tables/#bordered-tables')
+src\pug\views\components\tables.pug:353:        a(href='https://coreui.io/bootstrap/docs/utilities/borders/#border-color') Border color utilities
+src\pug\views\components\tables.pug:355:      +example('https://coreui.io/bootstrap/docs/content/tables/#bordered-tables')
+src\pug\views\components\tables.pug:387:      +example('https://coreui.io/bootstrap/docs/content/tables/#tables-without-borders')
+src\pug\views\components\tables.pug:410:      +example('https://coreui.io/bootstrap/docs/content/tables/#tables-without-borders')
+src\pug\views\components\tables.pug:446:      +example('https://coreui.io/bootstrap/docs/content/tables/#small-tables')
+src\pug\views\components\tables.pug:469:      +example('https://coreui.io/bootstrap/docs/content/tables/#small-tables')
+src\pug\views\components\tables.pug:508:        a(href='https://coreui.io/bootstrap/docs/utilities/vertical-align/') vertical align
+src\pug\views\components\tables.pug:510:      +example('https://coreui.io/bootstrap/docs/content/tables/#vertical-alignment')
+src\pug\views\components\tables.pug:569:      +example('https://coreui.io/bootstrap/docs/content/tables/#nesting')
+src\pug\views\components\tables.pug:624:      +example('https://coreui.io/bootstrap/docs/content/tables/#table-head')
+src\pug\views\components\tables.pug:648:      +example('https://coreui.io/bootstrap/docs/content/tables/#table-head')
+src\pug\views\components\tables.pug:678:      +example('https://coreui.io/bootstrap/docs/content/tables/#table-foot')
+src\pug\views\components\tables.pug:719:      +example('https://coreui.io/bootstrap/docs/content/tables/#captions')
+src\pug\views\components\tables.pug:750:      +example('https://coreui.io/bootstrap/docs/content/tables/#captions')
+src\pug\views\components\toasts.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/toasts/')
+src\pug\views\components\toasts.pug:20:  +docs-components('https://coreui.io/bootstrap/docs/components/toasts/')
+src\pug\views\components\toasts.pug:28:      +example('https://coreui.io/bootstrap/docs/components/toasts/#basic')
+src\pug\views\components\toasts.pug:35:            button.btn-close(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:47:      +example('https://coreui.io/bootstrap/docs/components/toasts/#live-example')
+src\pug\views\components\toasts.pug:55:              button.btn-close(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:66:      +example('https://coreui.io/bootstrap/docs/components/toasts/#translucent', 'bg-dark')
+src\pug\views\components\toasts.pug:73:            button.btn-close(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:83:      +example('https://coreui.io/bootstrap/docs/components/toasts/#stacking')
+src\pug\views\components\toasts.pug:91:              button.btn-close(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:100:              button.btn-close(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:110:        a(href='https://coreui.io/bootstrap/docs/utilities/api/') utilities
+src\pug\views\components\toasts.pug:114:        a(href='https://coreui.io/icons/') CoreUI Icons
+src\pug\views\components\toasts.pug:116:        a(href='https://coreui.io/bootstrap/docs/utilities/flex/') flexbox utilities
+src\pug\views\components\toasts.pug:118:      +example('https://coreui.io/bootstrap/docs/components/toasts/#custom-content')
+src\pug\views\components\toasts.pug:123:            button.btn-close.me-2.m-auto(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\toasts.pug:125:      +example('https://coreui.io/bootstrap/docs/components/toasts/#custom-content')
+src\pug\views\components\toasts.pug:131:              button.btn.btn-secondary.btn-sm(type='button' data-coreui-dismiss='toast') Close
+src\pug\views\components\toasts.pug:139:        a(href='https://coreui.io/bootstrap/docs/utilities/colors/') color
+src\pug\views\components\toasts.pug:141:        a(href='https://coreui.io/bootstrap/docs/utilities/background/') background
+src\pug\views\components\toasts.pug:153:      +example('https://coreui.io/bootstrap/docs/components/toasts/#color-schemes')
+src\pug\views\components\toasts.pug:158:            button.btn-close.btn-close-white.me-2.m-auto(type='button' data-coreui-dismiss='toast' aria-label='Close')
+src\pug\views\components\tooltips.pug:8:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/components/tooltips/')
+src\pug\views\components\tooltips.pug:21:  +docs-components('https://coreui.io/bootstrap/docs/components/tooltips/')
+src\pug\views\components\tooltips.pug:29:          +example('https://coreui.io/bootstrap/docs/components/tooltips/#examples')
+src\pug\views\components\tooltips.pug:32:              a(href='#' data-coreui-toggle='tooltip' data-coreui-original-title='Default tooltip') inline links
+src\pug\views\components\tooltips.pug:34:              a(href='#' data-coreui-toggle='tooltip' data-coreui-original-title='Another tooltip') real text
+src\pug\views\components\tooltips.pug:36:              a(href='#' data-coreui-toggle='tooltip' data-coreui-original-title='Another one here too') these tooltips on links
+src\pug\views\components\tooltips.pug:38:              a(href='#' data-coreui-toggle='tooltip' title='The last tip!') your own
+src\pug\views\components\tooltips.pug:42:          +example('https://coreui.io/bootstrap/docs/components/tooltips/#examples')
+src\pug\views\components\tooltips.pug:43:            button.btn.btn-secondary(type='button' data-coreui-toggle='tooltip' data-coreui-placement='top' data-coreui-original-title='Tooltip on top') Tooltip on top
+src\pug\views\components\tooltips.pug:44:            button.btn.btn-secondary(type='button' data-coreui-toggle='tooltip' data-coreui-placement='right' data-coreui-original-title='Tooltip on right') Tooltip on right
+src\pug\views\components\tooltips.pug:45:            button.btn.btn-secondary(type='button' data-coreui-toggle='tooltip' data-coreui-placement='bottom' data-coreui-original-title='Tooltip on bottom') Tooltip on bottom
+src\pug\views\components\tooltips.pug:46:            button.btn.btn-secondary(type='button' data-coreui-toggle='tooltip' data-coreui-placement='left' data-coreui-original-title='Tooltip on left') Tooltip on left
+src\pug\views\components\tooltips.pug:47:            button.btn.btn-secondary(type='button' data-coreui-toggle='tooltip' data-coreui-html='true' data-coreui-original-title='<em>Tooltip</em> <u>with</u> <b>HTML</b>') Tooltip with HTML
+src\pug\views\components\tooltips.pug:66:          +example('https://coreui.io/bootstrap/docs/components/tooltips/#disabled-elements')
+src\pug\views\components\tooltips.pug:67:            span.d-inline-block(tabindex='0' data-coreui-toggle='tooltip' data-coreui-original-title='Disabled tooltip')
+src\pug\views\error-pages\404.pug:13:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-magnifying-glass.svg').icon
+src\pug\views\error-pages\500.pug:13:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-magnifying-glass.svg').icon
+src\pug\views\federation\athletes.pug:102:            data-coreui-dismiss='modal'
+src\pug\views\federation\athletes.pug:234:            data-coreui-dismiss='modal'
+src\pug\views\federation\athletes.pug:261:            data-coreui-dismiss='modal'
+src\pug\views\federation\athletes.pug:278:            data-coreui-dismiss='modal'
+src\pug\views\federation\documents.pug:99:            data-coreui-dismiss='modal'
+src\pug\views\federation\documents.pug:192:            data-coreui-dismiss='modal'
+src\pug\views\federation\documents.pug:219:            data-coreui-dismiss='modal'
+src\pug\views\federation\documents.pug:236:            data-coreui-dismiss='modal'
+src\pug\views\federation\equipment.pug:100:            data-coreui-dismiss='modal'
+src\pug\views\federation\equipment.pug:173:            data-coreui-dismiss='modal'
+src\pug\views\federation\equipment.pug:200:            data-coreui-dismiss='modal'
+src\pug\views\federation\equipment.pug:217:            data-coreui-dismiss='modal'
+src\pug\views\federation\events.pug:106:            data-coreui-dismiss='modal'
+src\pug\views\federation\events.pug:210:            data-coreui-dismiss='modal'
+src\pug\views\federation\events.pug:237:            data-coreui-dismiss='modal'
+src\pug\views\federation\events.pug:254:            data-coreui-dismiss='modal'
+src\pug\views\federation\medical.pug:99:            data-coreui-dismiss='modal'
+src\pug\views\federation\medical.pug:179:            data-coreui-dismiss='modal'
+src\pug\views\federation\medical.pug:206:            data-coreui-dismiss='modal'
+src\pug\views\federation\medical.pug:223:            data-coreui-dismiss='modal'
+src\pug\views\federation\participants.pug:100:            data-coreui-dismiss='modal'
+src\pug\views\federation\participants.pug:153:            data-coreui-dismiss='modal'
+src\pug\views\federation\participants.pug:180:            data-coreui-dismiss='modal'
+src\pug\views\federation\participants.pug:197:            data-coreui-dismiss='modal'
+src\pug\views\federation\performance.pug:106:            data-coreui-dismiss='modal'
+src\pug\views\federation\performance.pug:218:            data-coreui-dismiss='modal'
+src\pug\views\federation\performance.pug:245:            data-coreui-dismiss='modal'
+src\pug\views\federation\performance.pug:262:            data-coreui-dismiss='modal'
+src\pug\views\federation\race-results.pug:102:            data-coreui-dismiss='modal'
+src\pug\views\federation\race-results.pug:182:            data-coreui-dismiss='modal'
+src\pug\views\federation\race-results.pug:209:            data-coreui-dismiss='modal'
+src\pug\views\federation\race-results.pug:226:            data-coreui-dismiss='modal'
+src\pug\views\federation\rankings.pug:102:            data-coreui-dismiss='modal'
+src\pug\views\federation\rankings.pug:176:            data-coreui-dismiss='modal'
+src\pug\views\federation\rankings.pug:203:            data-coreui-dismiss='modal'
+src\pug\views\federation\rankings.pug:220:            data-coreui-dismiss='modal'
+src\pug\views\federation\teams.pug:102:            data-coreui-dismiss='modal'
+src\pug\views\federation\teams.pug:179:            data-coreui-dismiss='modal'
+src\pug\views\federation\teams.pug:206:            data-coreui-dismiss='modal'
+src\pug\views\federation\teams.pug:223:            data-coreui-dismiss='modal'
+src\pug\views\federation\training.pug:104:            data-coreui-dismiss='modal'
+src\pug\views\federation\training.pug:194:            data-coreui-dismiss='modal'
+src\pug\views\federation\training.pug:221:            data-coreui-dismiss='modal'
+src\pug\views\federation\training.pug:238:            data-coreui-dismiss='modal'
+src\pug\views\federation\travel.pug:101:            data-coreui-dismiss='modal'
+src\pug\views\federation\travel.pug:178:            data-coreui-dismiss='modal'
+src\pug\views\federation\travel.pug:205:            data-coreui-dismiss='modal'
+src\pug\views\federation\travel.pug:222:            data-coreui-dismiss='modal'
+src\pug\views\forms\checks-radios.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/checks-radios/')
+src\pug\views\forms\checks-radios.pug:23:  +docs-components('https://coreui.io/bootstrap/docs/forms/checks-radios/')
+src\pug\views\forms\checks-radios.pug:30:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#checks')
+src\pug\views\forms\checks-radios.pug:46:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#indeterminate')
+src\pug\views\forms\checks-radios.pug:63:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#disabled')
+src\pug\views\forms\checks-radios.pug:76:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#radios')
+src\pug\views\forms\checks-radios.pug:96:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#disabled-1')
+src\pug\views\forms\checks-radios.pug:115:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#switches')
+src\pug\views\forms\checks-radios.pug:134:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#sizes')
+src\pug\views\forms\checks-radios.pug:155:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#default-stacked')
+src\pug\views\forms\checks-radios.pug:162:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#default-stacked')
+src\pug\views\forms\checks-radios.pug:184:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#inline')
+src\pug\views\forms\checks-radios.pug:194:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#inline')
+src\pug\views\forms\checks-radios.pug:216:            a(href='https://coreui.io/bootstrap/docs/forms/overview/#accessibility') forms overview accessibility
+src\pug\views\forms\checks-radios.pug:218:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#without-labels')
+src\pug\views\forms\checks-radios.pug:238:            a(href='https://coreui.io/bootstrap/docs/components/button-group/') button group
+src\pug\views\forms\checks-radios.pug:243:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#toggle-buttons')
+src\pug\views\forms\checks-radios.pug:246:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#toggle-buttons')
+src\pug\views\forms\checks-radios.pug:249:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#toggle-buttons')
+src\pug\views\forms\checks-radios.pug:258:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#radio-toggle-buttons')
+src\pug\views\forms\checks-radios.pug:274:          +example('https://coreui.io/bootstrap/docs/forms/checks-radios/#radio-toggle-buttons')
+src\pug\views\forms\chip-input.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/chip-input/')
+src\pug\views\forms\chip-input.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/chip-input/')
+src\pug\views\forms\chip-input.pug:27:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#basic-example')
+src\pug\views\forms\chip-input.pug:28:            .chip-input(data-coreui-chip-input data-coreui-name='skills' data-coreui-placeholder='Add a skill...')
+src\pug\views\forms\chip-input.pug:40:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#variants')
+src\pug\views\forms\chip-input.pug:41:            .chip-input(data-coreui-chip-input data-coreui-name='issues' data-coreui-placeholder='Add label...')
+src\pug\views\forms\chip-input.pug:57:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#sizes')
+src\pug\views\forms\chip-input.pug:58:            .chip-input.chip-input-sm.mb-3(data-coreui-chip-input data-coreui-placeholder='Add small tag...')
+src\pug\views\forms\chip-input.pug:61:            .chip-input.mb-3(data-coreui-chip-input data-coreui-placeholder='Add default tag...')
+src\pug\views\forms\chip-input.pug:64:            .chip-input.chip-input-lg(data-coreui-chip-input data-coreui-placeholder='Add large tag...')
+src\pug\views\forms\chip-input.pug:75:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#empty-state')
+src\pug\views\forms\chip-input.pug:76:            .chip-input.mb-3(data-coreui-chip-input data-coreui-name='tags' data-coreui-placeholder='Start typing tags...')
+src\pug\views\forms\chip-input.pug:79:              .chip-input(data-coreui-chip-input data-coreui-name='techStack' data-coreui-placeholder='Add package...')
+src\pug\views\forms\chip-input.pug:90:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#disabled')
+src\pug\views\forms\chip-input.pug:91:            .chip-input.mb-3(data-coreui-chip-input data-coreui-disabled='true' data-coreui-removable='false' data-coreui-placeholder='Input disabled')
+src\pug\views\forms\chip-input.pug:94:            .chip-input(data-coreui-chip-input data-coreui-readonly='true' data-coreui-placeholder='Read-only values')
+src\pug\views\forms\chip-input.pug:104:          +example('https://coreui.io/bootstrap/docs/forms/chip-input/#with-label')
+src\pug\views\forms\chip-input.pug:108:                .chip-input(data-coreui-chip-input data-coreui-name='recipients' data-coreui-placeholder='Add email...')
+src\pug\views\forms\chip-input.pug:109:                  span.chip olivia@coreui.io
+src\pug\views\forms\chip-input.pug:110:                  span.chip ethan@coreui.io
+src\pug\views\forms\chip-input.pug:114:                .chip-input(data-coreui-chip-input data-coreui-name='categories' data-coreui-placeholder='Add category...')
+src\pug\views\forms\floating-labels.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/floating-labels/')
+src\pug\views\forms\floating-labels.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/floating-labels/')
+src\pug\views\forms\floating-labels.pug:47:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#example')
+src\pug\views\forms\floating-labels.pug:61:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#example')
+src\pug\views\forms\floating-labels.pug:66:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#example')
+src\pug\views\forms\floating-labels.pug:86:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#textareas')
+src\pug\views\forms\floating-labels.pug:99:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#textareas')
+src\pug\views\forms\floating-labels.pug:127:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#selects')
+src\pug\views\forms\floating-labels.pug:141:          p.text-body-secondary.small When working with the CoreUI for Bootstrap grid system, be sure to place form elements within column classes.
+src\pug\views\forms\floating-labels.pug:142:          +example('https://coreui.io/bootstrap/docs/forms/floating-labels/#layout')
+src\pug\views\forms\form-control.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/form-control/')
+src\pug\views\forms\form-control.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/form-control/')
+src\pug\views\forms\form-control.pug:25:          +example('https://coreui.io/bootstrap/docs/forms/form-control/')
+src\pug\views\forms\form-control.pug:44:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#sizing')
+src\pug\views\forms\form-control.pug:58:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#disabled')
+src\pug\views\forms\form-control.pug:71:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#readonly')
+src\pug\views\forms\form-control.pug:86:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#readonly-plain-text')
+src\pug\views\forms\form-control.pug:95:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#readonly-plain-text')
+src\pug\views\forms\form-control.pug:111:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#file-input')
+src\pug\views\forms\form-control.pug:133:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#color')
+src\pug\views\forms\form-control.pug:160:          +example('https://coreui.io/bootstrap/docs/forms/form-control/#datalists')
+src\pug\views\forms\input-group.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/input-group/')
+src\pug\views\forms\input-group.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/input-group/')
+src\pug\views\forms\input-group.pug:30:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#basic-example')
+src\pug\views\forms\input-group.pug:64:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#wrapping')
+src\pug\views\forms\input-group.pug:80:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#sizing')
+src\pug\views\forms\input-group.pug:102:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#checkboxes-and-radios')
+src\pug\views\forms\input-group.pug:125:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#multiple-inputs')
+src\pug\views\forms\input-group.pug:137:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#multiple-addons')
+src\pug\views\forms\input-group.pug:152:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#button-addons')
+src\pug\views\forms\input-group.pug:173:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#buttons-with-dropdowns')
+src\pug\views\forms\input-group.pug:175:              button.btn.btn-outline-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Dropdown
+src\pug\views\forms\input-group.pug:190:              button.btn.btn-outline-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Dropdown
+src\pug\views\forms\input-group.pug:203:              button.btn.btn-outline-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Dropdown
+src\pug\views\forms\input-group.pug:216:              button.btn.btn-outline-secondary.dropdown-toggle(type='button' data-coreui-toggle='dropdown' aria-expanded='false') Dropdown
+src\pug\views\forms\input-group.pug:234:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#segmented-buttons')
+src\pug\views\forms\input-group.pug:237:              button.btn.btn-outline-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\forms\input-group.pug:254:              button.btn.btn-outline-secondary.dropdown-toggle.dropdown-toggle-split(type='button' data-coreui-toggle='dropdown' aria-expanded='false')
+src\pug\views\forms\input-group.pug:274:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#custom-select')
+src\pug\views\forms\input-group.pug:309:          +example('https://coreui.io/bootstrap/docs/forms/input-group/#custom-file-input')
+src\pug\views\forms\layout.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/layout/')
+src\pug\views\forms\layout.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/layout/')
+src\pug\views\forms\layout.pug:26:            a(href='https://coreui.io/bootstrap/docs/utilities/spacing/') Margin utilities
+src\pug\views\forms\layout.pug:38:          +example('https://coreui.io/bootstrap/docs/forms/layout/#utilities')
+src\pug\views\forms\layout.pug:58:          +example('https://coreui.io/bootstrap/docs/forms/layout/#form-grid')
+src\pug\views\forms\layout.pug:72:            a(href='https://coreui.io/bootstrap/docs/layout/gutters/') gutter modifier classes
+src\pug\views\forms\layout.pug:79:          +example('https://coreui.io/bootstrap/docs/forms/layout/#gutters')
+src\pug\views\forms\layout.pug:86:          +example('https://coreui.io/bootstrap/docs/forms/layout/#gutters')
+src\pug\views\forms\layout.pug:139:          +example('https://coreui.io/bootstrap/docs/forms/layout/#horizontal-form')
+src\pug\views\forms\layout.pug:193:          +example('https://coreui.io/bootstrap/docs/forms/layout/#horizontal-form-label-sizing')
+src\pug\views\forms\layout.pug:222:          +example('https://coreui.io/bootstrap/docs/forms/layout/#column-sizing')
+src\pug\views\forms\layout.pug:242:          +example('https://coreui.io/bootstrap/docs/forms/layout/#auto-sizing')
+src\pug\views\forms\layout.pug:267:          +example('https://coreui.io/bootstrap/docs/forms/layout/#auto-sizing')
+src\pug\views\forms\layout.pug:301:            a(href='https://coreui.io/bootstrap/docs/layout/gutters/') gutter modifier classes
+src\pug\views\forms\layout.pug:307:          +example('https://coreui.io/bootstrap/docs/forms/layout/#inline-forms')
+src\pug\views\forms\range.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/range/')
+src\pug\views\forms\range.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/range/')
+src\pug\views\forms\range.pug:31:          +example('https://coreui.io/bootstrap/docs/forms/range/#overview')
+src\pug\views\forms\range.pug:44:          +example('https://coreui.io/bootstrap/docs/forms/range/#disabled')
+src\pug\views\forms\range.pug:67:          +example('https://coreui.io/bootstrap/docs/forms/range/#min-and-max')
+src\pug\views\forms\range.pug:82:          +example('https://coreui.io/bootstrap/docs/forms/range/#steps')
+src\pug\views\forms\select.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/select/')
+src\pug\views\forms\select.pug:17:  +docs-components('https://coreui.io/bootstrap/docs/forms/select/')
+src\pug\views\forms\select.pug:38:          +example('https://coreui.io/bootstrap/docs/forms/select/#default')
+src\pug\views\forms\select.pug:51:          +example('https://coreui.io/bootstrap/docs/forms/select/#sizing')
+src\pug\views\forms\select.pug:66:          +example('https://coreui.io/bootstrap/docs/forms/select/#sizing')
+src\pug\views\forms\select.pug:76:          +example('https://coreui.io/bootstrap/docs/forms/select/#sizing')
+src\pug\views\forms\select.pug:92:          +example('https://coreui.io/bootstrap/docs/forms/select/#disabled')
+src\pug\views\forms\validation.pug:4:  link(rel='canonical' href='https://coreui.io/bootstrap/docs/forms/validation/')
+src\pug\views\forms\validation.pug:36:  +docs-components('https://coreui.io/bootstrap/docs/forms/validation/')
+src\pug\views\forms\validation.pug:45:            | For custom CoreUI for Bootstrap form validation messages, youâ€™ll need to add the 
+src\pug\views\forms\validation.pug:64:          +example('https://coreui.io/bootstrap/docs/forms/validation/#custom-styles')
+src\pug\views\forms\validation.pug:117:          +example('https://coreui.io/bootstrap/docs/forms/validation/#browser-defaults')
+src\pug\views\forms\validation.pug:174:          +example('https://coreui.io/bootstrap/docs/forms/validation/#server-side')
+src\pug\views\forms\validation.pug:249:          +example('https://coreui.io/bootstrap/docs/forms/validation/#supported-elements')
+src\pug\views\forms\validation.pug:294:          +example('https://coreui.io/bootstrap/docs/forms/validation/#tooltips')
+src\pug\views\icons\coreui-icons-brand.pug:4:  link(href='node_modules/@coreui/icons/css/brand.min.css', rel='stylesheet')
+src\pug\views\icons\coreui-icons-brand.pug:12:      'CoreUI Icons - Brand'
+src\pug\views\icons\coreui-icons-brand.pug:19:  - var iconsList = ["500px-5", "500px", "about-me", "abstract", "acm", "addthis", "adguard", "adobe-acrobat-reader", "adobe-after-effects", "adobe-audition", "adobe-creative-cloud", "adobe-dreamweaver", "adobe-illustrator", "adobe-indesign", "adobe-lightroom-classic", "adobe-lightroom", "adobe-photoshop", "adobe-premiere", "adobe-typekit", "adobe-xd", "adobe", "airbnb", "algolia", "alipay", "allocine", "amazon-aws", "amazon-pay", "amazon", "amd", "american-express", "anaconda", "analogue", "android-alt", "android", "angellist", "angular-universal", "angular", "ansible", "apache-airflow", "apache-flink", "apache-spark", "apache", "app-store-ios", "app-store", "apple-music", "apple-pay", "apple-podcasts", "apple", "appveyor", "aral", "arch-linux", "archive-of-our-own", "arduino", "artstation", "arxiv", "asana", "at-and-t", "atlassian", "atom", "audible", "aurelia", "auth0", "automatic", "autotask", "aventrix", "azure-artifacts", "azure-devops", "azure-pipelines", "babel", "baidu", "bamboo", "bancontact", "bandcamp", "basecamp", "bathasu", "behance", "big-cartel", "bing", "bit", "bitbucket", "bitcoin", "bitdefender", "bitly", "blackberry", "blender", "blogger-b", "blogger", "bluetooth-b", "bluetooth", "boeing", "boost", "bootstrap", "bower", "brand-ai", "brave", "btc", "buddy", "buffer", "buy-me-a-coffee", "buysellads", "buzzfeed", "c", "cakephp", "campaign-monitor", "canva", "cashapp", "cassandra", "castro", "cc-amazon-pay", "cc-amex", "cc-apple-pay", "cc-diners-club", "cc-discover", "cc-jcb", "cc-mastercard", "cc-paypal", "cc-stripe", "cc-visa", "centos", "cevo", "chase", "chef", "chromecast", "circle", "circleci", "cirrusci", "cisco", "civicrm", "clockify", "clojure", "cloudbees", "cloudflare", "cmake", "co-op", "codacy", "code-climate", "codecademy", "codecov", "codeigniter", "codepen", "coderwall", "codesandbox", "codeship", "codewars", "codio", "coffeescript", "common-workflow-language", "composer", "conda-forge", "conekta", "confluence", "coreui-c", "coreui", "coursera", "coveralls", "cpanel", "cplusplus", "creative-commons-by", "creative-commons-nc-eu", "creative-commons-nc-jp", "creative-commons-nc", "creative-commons-nd", "creative-commons-pd-alt", "creative-commons-pd", "creative-commons-remix", "creative-commons-sa", "creative-commons-sampling-plus", "creative-commons-sampling", "creative-commons-share", "creative-commons-zero", "creative-commons", "crunchbase", "crunchyroll", "css3-shiled", "css3", "csswizardry", "d3-js", "dailymotion", "dashlane", "dazn", "dblp", "debian", "deepin", "deezer", "delicious", "dell", "deno", "dependabot", "designer-news", "dev-to", "deviantart", "devrant", "diaspora", "digg", "digital-ocean", "discord", "discourse", "discover", "disqus", "disroot", "django", "docker", "docusign", "dot-net", "draugiem-lv", "dribbble", "drone", "dropbox", "drupal", "dtube", "duckduckgo", "dynatrace", "ebay", "eclipseide", "elastic-cloud", "elastic-search", "elastic-stack", "elastic", "electron", "elementary", "eleventy", "ello", "elsevier", "emlakjet", "empirekred", "envato", "epic-games", "epson", "esea", "eslint", "ethereum", "etsy", "event-store", "eventbrite", "evernote", "everplaces", "evry", "exercism", "experts-exchange", "expo", "eyeem", "f-secure", "facebook-f", "facebook", "faceit", "fandango", "favro", "feathub", "fedex", "fedora", "feedly", "fido-alliance", "figma", "filezilla", "firebase", "fitbit", "flask", "flattr", "flickr", "flipboard", "flutter", "fnac", "foursquare", "framer", "freebsd", "freecodecamp", "fur-affinity", "furry-network", "garmin", "gatsby", "gauges", "genius", "gentoo", "geocaching", "gerrit", "gg", "ghost", "gimp", "git", "gitea", "github", "gitkraken", "gitlab", "gitpod", "gitter", "glassdoor", "glitch", "gmail", "gnu-privacy-guard", "gnu-social", "gnu", "go", "godot-engine", "gog-com", "goldenline", "goodreads", "google-ads", "google-allo", "google-analytics", "google-chrome", "google-cloud", "google-keep", "google-pay", "google-play", "google-podcasts", "google", "googles-cholar", "gov-uk", "gradle", "grafana", "graphcool", "graphql", "grav", "gravatar", "greenkeeper", "greensock", "groovy", "groupon", "grunt", "gulp", "gumroad", "gumtree", "habr", "hackaday", "hackerearth", "hackerone", "hackerrank", "hackhands", "hackster", "happycow", "hashnode", "haskell", "hatena-bookmark", "haxe", "helm", "here", "heroku", "hexo", "highly", "hipchat", "hitachi", "hockeyapp", "homify", "hootsuite", "hotjar", "houzz", "hp", "html5-shield", "html5", "htmlacademy", "huawei", "hubspot", "hulu", "humble-bundle", "iata", "ibm", "icloud", "iconjar", "icq", "ideal", "ifixit", "imdb", "indeed", "inkscape", "instacart", "instagram", "instapaper", "intel", "intellijidea", "intercom", "internet-explorer", "invision", "ionic", "issuu", "itch-io", "jabber", "java", "javascript", "jekyll", "jenkins", "jest", "jet", "jetbrains", "jira", "joomla", "jquery", "js", "jsdelivr", "jsfiddle", "json", "jupyter", "justgiving", "kaggle", "kaios", "kaspersky", "kentico", "keras", "keybase", "keycdn", "khan-academy", "kibana", "kickstarter", "kik", "kirby", "klout", "known", "ko-fi", "kodi", "koding", "kotlin", "krita", "kubernetes", "lanyrd", "laravel-horizon", "laravel-nova", "laravel", "last-fm", "latex", "launchpad", "leetcode", "lenovo", "less", "lets-encrypt", "letterboxd", "lgtm", "liberapay", "librarything", "libreoffice", "line", "linkedin-in", "linkedin", "linux-foundation", "linux-mint", "linux", "livejournal", "livestream", "logstash", "lua", "lumen", "lyft", "macys", "magento", "magisk", "mail-ru", "mailchimp", "makerbot", "manjaro", "markdown", "marketo", "mastercard", "mastodon", "material-design", "mathworks", "matrix", "mattermost", "matternet", "maxcdn", "mcafee", "media-temple", "mediafire", "medium-m", "medium", "meetup", "mega", "mendeley", "messenger", "meteor", "micro-blog", "microgenetics", "microsoft-edge", "microsoft", "minetest", "minutemailer", "mix", "mixcloud", "mixer", "mojang", "monero", "mongodb", "monkeytie", "monogram", "monzo", "moo", "mozilla-firefox", "mozilla", "musescore", "mxlinux", "myspace", "mysql", "nativescript", "nec", "neo4j", "netflix", "netlify", "next-js", "nextcloud", "nextdoor", "nginx", "nim", "nintendo-3ds", "nintendo-gamecube", "nintendo-switch", "nintendo", "node-js", "node-red", "nodemon", "nokia", "notion", "npm", "nucleo", "nuget", "nuxt-js", "nvidia", "ocaml", "octave", "octopus-deploy", "oculus", "odnoklassniki", "open-access", "open-collective", "open-id", "open-source-initiative", "openstreetmap", "opensuse", "openvpn", "opera", "opsgenie", "oracle", "orcid", "origin", "osi", "osmc", "overcast", "overleaf", "ovh", "pagekit", "palantir", "pandora", "pantheon", "patreon", "paypal", "periscope", "php", "picarto-tv", "pinboard", "pingdom", "pingup", "pinterest-p", "pinterest", "pivotaltracker", "plangrid", "player-me", "playerfm", "playstation", "playstation3", "playstation4", "plesk", "plex", "pluralsight", "plurk", "pocket", "postgresql", "postman", "postwoman", "powershell", "prettier", "prismic", "probot", "processwire", "product-hunt", "proto-io", "protonmail", "proxmox", "pypi", "python", "pytorch", "qgis", "qiita", "qq", "qualcomm", "quantcast", "quantopian", "quarkus", "quora", "qwiklabs", "qzone", "r", "radiopublic", "rails", "raspberry-pi", "react", "read-the-docs", "readme", "realm", "reason", "redbubble", "reddit-alt", "reddit", "redhat", "redis", "redux", "renren", "reverbnation", "riot", "ripple", "riseup", "rollup-js", "roots", "roundcube", "rss", "rstudio", "ruby", "rubygems", "runkeeper", "rust", "safari", "sahibinden", "salesforce", "saltstack", "samsung-pay", "samsung", "sap", "sass-alt", "sass", "saucelabs", "scala", "scaleway", "scribd", "scrutinizerci", "seagate", "sega", "sellfy", "semaphoreci", "sensu", "sentry", "server-fault", "shazam", "shell", "shopify", "showpad", "siemens", "signal", "sina-weibo", "sitepoint", "sketch", "skillshare", "skyliner", "skype", "slack", "slashdot", "slickpic", "slides", "slideshare", "smashingmagazine", "snapchat", "snapcraft", "snyk", "society6", "socket-io", "sogou", "solus", "songkick", "sonos", "soundcloud", "sourceforge", "sourcegraph", "spacemacs", "spacex", "sparkfun", "sparkpost", "spdx", "speaker-deck", "spectrum", "spotify", "spotlight", "spreaker", "spring", "sprint", "squarespace", "stackbit", "stackexchange", "stackoverflow", "stackpath", "stackshare", "stadia", "statamic", "staticman", "statuspage", "steam", "steem", "steemit", "stitcher", "storify", "storybook", "strapi", "strava", "stripe-s", "stripe", "stubhub", "stumbleupon", "styleshare", "stylus", "sublime-text", "subversion", "superuser", "svelte", "svg", "swagger", "swarm", "swift", "symantec", "symfony", "synology", "t-mobile", "tableau", "tails", "tapas", "teamviewer", "ted", "teespring", "telegram-plane", "telegram", "tencent-qq", "tencent-weibo", "tensorflow", "terraform", "tesla", "the-mighty", "the-movie-database", "tidal", "tiktok", "tinder", "todoist", "toggl", "topcoder", "toptal", "tor", "toshiba", "trainerroad", "trakt", "travisci", "treehouse", "trello", "tripadvisor", "trulia", "tumblr", "twilio", "twitch", "twitter", "twoo", "typescript", "typo3", "uber", "ubisoft", "ublock-origin", "ubuntu", "udacity", "udemy", "uikit", "umbraco", "unity", "unreal-engine", "unsplash", "untappd", "upwork", "usb", "v8", "vagrant", "venmo", "verizon", "viadeo", "viber", "vim", "vimeo-v", "vimeo", "vine", "virb", "visa", "visual-studio-code", "visual-studio", "vk", "vlc", "vsco", "vue-js", "wattpad", "weasyl", "webcomponents-org", "webpack", "webstorm", "wechat", "whatsapp", "when-i-work", "wii", "wiiu", "wikipedia", "windows", "wire", "wireguard", "wix", "wolfram-language", "wolfram-mathematica", "wolfram", "wordpress", "wpengine", "x-pack", "xbox", "xcode", "xero", "xiaomi", "xing", "xrp", "xsplit", "y-combinator", "yahoo", "yammer", "yandex", "yarn", "yelp", "youtube", "zalando", "zapier", "zeit", "zendesk", "zerply", "zillow", "zingat", "zoom", "zorin", "zulip"]
+src\pug\views\icons\coreui-icons-brand.pug:24:      |  CoreUI Icons - Brand
+src\pug\views\icons\coreui-icons-flag.pug:4:  link(href='node_modules/@coreui/icons/css/flag.min.css', rel='stylesheet')
+src\pug\views\icons\coreui-icons-flag.pug:12:      'CoreUI Icons - Flags'
+src\pug\views\icons\coreui-icons-flag.pug:23:      |  CoreUI Icons - Flag
+src\pug\views\icons\coreui-icons-free.pug:4:  link(href='node_modules/@coreui/icons/css/free.min.css', rel='stylesheet')
+src\pug\views\icons\coreui-icons-free.pug:12:      'CoreUI Icons - Free'
+src\pug\views\icons\coreui-icons-free.pug:24:      |  CoreUI Icons - Free
+src\pug\views\index.pug:4:  link(href='node_modules/@coreui/chartjs/dist/css/coreui-chartjs.css', rel='stylesheet')
+src\pug\views\index.pug:10:    script(src='node_modules/@coreui/chartjs/dist/js/coreui-chartjs.js')
+src\pug\views\index.pug:11:    script(src='node_modules/@coreui/utils/dist/umd/index.js')
+src\pug\views\widgets.pug:4:  link(href='node_modules/@coreui/chartjs/dist/css/coreui-chartjs.css', rel='stylesheet')
+src\pug\views\widgets.pug:8:  script(src='node_modules/@coreui/chartjs/dist/js/coreui-chartjs.js')
+src\pug\views\widgets.pug:9:  script(src='node_modules/@coreui/utils/dist/umd/index.js')
+src\pug\views\widgets.pug:34:                      +inlineSvg('node_modules/@coreui/icons/svg/free/cil-arrow-bottom.svg').icon
+src\pug\views\widgets.pug:38:                  button.btn.btn-transparent.text-white.p-0(type='button', data-coreui-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+src\pug\views\widgets.pug:39:                    +inlineSvg('node_modules/@coreui/icons/svg/free/cil-options.svg').icon
+src\pug\views\widgets.pug:53:                      +inlineSvg('node_modules/@coreui/icons/svg/free/cil-arrow-top.svg').icon
+src\pug\views\widgets.pug:57:                  button.btn.btn-transparent.text-white.p-0(type='button', data-coreui-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+src\pug\views\widgets.pug:58:                    +inlineSvg('node_modules/@coreui/icons/svg/free/cil-options.svg').icon
+src\pug\views\widgets.pug:72:                      +inlineSvg('node_modules/@coreui/icons/svg/free/cil-arrow-top.svg').icon
+src\pug\views\widgets.pug:76:                  button.btn.btn-transparent.text-white.p-0(type='button', data-coreui-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+src\pug\views\widgets.pug:77:                    +inlineSvg('node_modules/@coreui/icons/svg/free/cil-options.svg').icon
+src\pug\views\widgets.pug:91:                      +inlineSvg('node_modules/@coreui/icons/svg/free/cil-arrow-bottom.svg').icon
+src\pug\views\widgets.pug:95:                  button.btn.btn-transparent.text-white.p-0(type='button', data-coreui-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+src\pug\views\widgets.pug:96:                    +inlineSvg('node_modules/@coreui/icons/svg/free/cil-options.svg').icon
+src\pug\views\widgets.pug:238:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.icon-xl
+src\pug\views\widgets.pug:247:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-laptop.svg').icon.icon-xl
+src\pug\views\widgets.pug:256:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-moon.svg').icon.icon-xl
+src\pug\views\widgets.pug:265:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.icon-xl
+src\pug\views\widgets.pug:276:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.icon-xl
+src\pug\views\widgets.pug:283:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chevron-right.svg').icon
+src\pug\views\widgets.pug:289:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-laptop.svg').icon.icon-xl
+src\pug\views\widgets.pug:296:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chevron-right.svg').icon
+src\pug\views\widgets.pug:302:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-moon.svg').icon.icon-xl
+src\pug\views\widgets.pug:309:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chevron-right.svg').icon
+src\pug\views\widgets.pug:315:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.icon-xl
+src\pug\views\widgets.pug:322:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chevron-right.svg').icon
+src\pug\views\widgets.pug:331:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.icon-xl
+src\pug\views\widgets.pug:340:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-laptop.svg').icon.icon-xl
+src\pug\views\widgets.pug:349:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-moon.svg').icon.icon-xl
+src\pug\views\widgets.pug:358:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.icon-xl
+src\pug\views\widgets.pug:369:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.icon-xl
+src\pug\views\widgets.pug:378:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-laptop.svg').icon.icon-xl
+src\pug\views\widgets.pug:387:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-moon.svg').icon.icon-xl
+src\pug\views\widgets.pug:396:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.icon-xl
+src\pug\views\widgets.pug:407:                +inlineSvg('node_modules/@coreui/icons/svg/brand/cib-facebook-f.svg').icon.icon-3xl.text-white.my-4
+src\pug\views\widgets.pug:422:                +inlineSvg('node_modules/@coreui/icons/svg/brand/cib-twitter.svg').icon.icon-3xl.text-white.my-4
+src\pug\views\widgets.pug:437:                +inlineSvg('node_modules/@coreui/icons/svg/brand/cib-linkedin.svg').icon.icon-3xl.text-white.my-4
+src\pug\views\widgets.pug:455:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-people.svg').icon.icon-xxl
+src\pug\views\widgets.pug:463:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-user-follow.svg').icon.icon-xxl
+src\pug\views\widgets.pug:471:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-basket.svg').icon.icon-xxl
+src\pug\views\widgets.pug:479:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chart-pie.svg').icon.icon-xxl
+src\pug\views\widgets.pug:487:                +inlineSvg('node_modules/@coreui/icons/svg/free/cil-speedometer.svg').icon.icon-xxl
+src\pug\views\widgets.pug:498:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-people.svg').icon.icon-xxl
+src\pug\views\widgets.pug:508:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-user-follow.svg').icon.icon-xxl
+src\pug\views\widgets.pug:518:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-basket.svg').icon.icon-xxl
+src\pug\views\widgets.pug:528:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chart-pie.svg').icon.icon-xxl
+src\pug\views\widgets.pug:538:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-speedometer.svg').icon.icon-xxl
+src\pug\views\widgets.pug:548:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-speech.svg').icon.icon-xxl
+src\pug\views\widgets.pug:561:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-people.svg').icon.icon-xxl
+src\pug\views\widgets.pug:571:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-user-follow.svg').icon.icon-xxl
+src\pug\views\widgets.pug:581:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-basket.svg').icon.icon-xxl
+src\pug\views\widgets.pug:591:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-chart-pie.svg').icon.icon-xxl
+src\pug\views\widgets.pug:601:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-speedometer.svg').icon.icon-xxl
+src\pug\views\widgets.pug:611:                  +inlineSvg('node_modules/@coreui/icons/svg/free/cil-speech.svg').icon.icon-xxl
+src\pug\_mixins\callout.pug:3:    | CoreUI #{name} has been created as an extension of Bootstrap #{name}. #{name} is delivered with some new features, variants, and unique design that matches CoreUI Design System requirements.
+src\pug\_mixins\docs-components.pug:5:        img.img-fluid(src='assets/img/components.webp' width='160px' height='160px' alt='CoreUI PRO hexagon')
+src\pug\_mixins\docs-components.pug:13:        a.btn.btn-danger.text-nowrap.text-white(href="https://coreui.io/pricing/?framework=bootstrap&src=free-bootstrap-admin-template-docs-banner" target="_blank" rel='noopener noreferrer') Get CoreUI PRO â†’
+src\pug\_mixins\example.pug:5:        a.nav-link.active(data-coreui-toggle="tab" href="#preview-"+count role="tab")
+src\pug\_mixins\example.pug:6:          +inlineSvg('node_modules/@coreui/icons/svg/free/cil-media-play.svg').icon.me-2
+src\pug\_mixins\example.pug:11:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-code.svg').icon.me-2
+src\pug\_partials\banner.pug:2:   * CoreUI - Free Bootstrap Admin Template
+src\pug\_partials\banner.pug:4:   * @link https://coreui.io/product/free-bootstrap-admin-template/
+src\pug\_partials\banner.pug:5:   * Copyright (c) 2026 creativeLabs Åukasz Holeczek
+src\pug\_partials\banner.pug:6:   * Licensed under MIT (https://github.com/coreui/coreui-free-bootstrap-admin-template/blob/main/LICENSE)
+src\pug\_partials\docs-icons.pug:4:      img.img-fluid(src='assets/img/icons.webp' width='160px' height='160px' alt='CoreUI Icons')
+src\pug\_partials\docs-icons.pug:6:      | CoreUI Icons package is delivered with more than 1500 icons in multiple formats SVG, PNG,
+src\pug\_partials\docs-icons.pug:7:      | and Webfonts. CoreUI Icons are beautifully crafted symbols for common actions and items. You
+src\pug\_partials\docs-icons.pug:11:      a.btn.btn-warning.text-nowrap.text-white(href='https://coreui.io/bootstrap/docs/icons/' target='_blank' rel='noopener noreferrer')
+src\pug\_partials\footer.pug:3:    a(href='https://coreui.io') CoreUI 
+src\pug\_partials\footer.pug:4:    a(href='https://coreui.io/product/free-bootstrap-admin-template/') Bootstrap Admin Template
+src\pug\_partials\footer.pug:5:    |  &copy; 2026 creativeLabs.
+src\pug\_partials\footer.pug:8:    a(href='https://coreui.io/bootstrap/docs/') CoreUI UI Components
+src\pug\_partials\head.pug:4:meta(name='description', content='CoreUI - Open Source Bootstrap Admin Template')
+src\pug\_partials\head.pug:5:meta(name='author', content='Åukasz Holeczek')
+src\pug\_partials\header.pug:3:    button.header-toggler(type="button" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()" style="margin-inline-start: -14px;")
+src\pug\_partials\header.pug:4:      +inlineSvg('node_modules/@coreui/icons/svg/free/cil-menu.svg').icon.icon-lg
+src\pug\_partials\header.pug:8:          +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.icon-lg
+src\pug\_partials\header.pug:11:          +inlineSvg('node_modules/@coreui/icons/svg/free/cil-list-rich.svg').icon.icon-lg
+src\pug\_partials\header.pug:14:          +inlineSvg('node_modules/@coreui/icons/svg/free/cil-envelope-open.svg').icon.icon-lg
+src\pug\_partials\header.pug:19:        button.btn.btn-link.nav-link.py-2.px-2.d-flex.align-items-center(type="button" aria-expanded="false" data-coreui-toggle="dropdown")
+src\pug\_partials\header.pug:20:          +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.icon-lg.theme-icon-active
+src\pug\_partials\header.pug:23:            button.dropdown-item.d-flex.align-items-center(type='button' data-coreui-theme-value='light')
+src\pug\_partials\header.pug:24:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-sun.svg').icon.icon-lg.me-3
+src\pug\_partials\header.pug:27:            button.dropdown-item.d-flex.align-items-center(type='button' data-coreui-theme-value='dark')
+src\pug\_partials\header.pug:28:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-moon.svg').icon.icon-lg.me-3
+src\pug\_partials\header.pug:31:            button.dropdown-item.d-flex.align-items-center.active(type='button' data-coreui-theme-value='auto')
+src\pug\_partials\header.pug:32:              +inlineSvg('node_modules/@coreui/icons/svg/free/cil-contrast.svg').icon.icon-lg.me-3
+src\pug\_partials\header.pug:37:        a.nav-link.py-0.pe-0(data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false")
+src\pug\_partials\header.pug:43:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.me-2
+src\pug\_partials\header.pug:47:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-envelope-open.svg').icon.me-2
+src\pug\_partials\header.pug:51:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-task.svg').icon.me-2
+src\pug\_partials\header.pug:54:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-comment-square.svg').icon.me-2
+src\pug\_partials\header.pug:59:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-user.svg').icon.me-2
+src\pug\_partials\header.pug:62:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.me-2
+src\pug\_partials\header.pug:65:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-credit-card.svg').icon.me-2
+src\pug\_partials\header.pug:68:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-file.svg').icon.me-2
+src\pug\_partials\header.pug:72:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-lock-locked.svg').icon.me-2
+src\pug\_partials\header.pug:75:            +inlineSvg('node_modules/@coreui/icons/svg/free/cil-account-logout.svg').icon.me-2
+src\pug\_partials\scripts.pug:1:﻿// CoreUI and necessary plugins
+src\pug\_partials\scripts.pug:2:script(src='node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js')
+src\pug\_partials\sidebar-nav.pug:6:      icon: 'node_modules/@coreui/icons/svg/free/cil-speedometer.svg',
+src\pug\_partials\sidebar-nav.pug:14:      icon: 'node_modules/@coreui/icons/svg/free/cil-user.svg',
+src\pug\_partials\sidebar-nav.pug:25:      icon: 'node_modules/@coreui/icons/svg/free/cil-people.svg',
+src\pug\_partials\sidebar-nav.pug:35:      icon: 'node_modules/@coreui/icons/svg/free/cil-calendar.svg',
+src\pug\_partials\sidebar-nav.pug:45:      icon: 'node_modules/@coreui/icons/svg/free/cil-bicycle.svg',
+src\pug\_partials\sidebar-nav.pug:56:      icon: 'node_modules/@coreui/icons/svg/free/cil-trophy.svg',
+src\pug\_partials\sidebar-nav.pug:66:      icon: 'node_modules/@coreui/icons/svg/free/cil-medical-cross.svg',
+src\pug\_partials\sidebar-nav.pug:75:      icon: 'node_modules/@coreui/icons/svg/free/cil-layers.svg',
+src\pug\_partials\sidebar-nav.pug:86:      icon: 'node_modules/@coreui/icons/svg/free/cil-location-pin.svg',
+src\pug\_partials\sidebar-nav.pug:95:      icon: 'node_modules/@coreui/icons/svg/free/cil-description.svg',
+src\pug\_partials\sidebar-nav.pug:104:      icon: 'node_modules/@coreui/icons/svg/free/cil-settings.svg',
+src\pug\_partials\sidebar-nav.pug:119:      icon: 'node_modules/@coreui/icons/svg/free/cil-chart.svg',
+src\pug\_partials\sidebar-nav.pug:138:      icon: 'node_modules/@coreui/icons/svg/free/cil-lock-locked.svg',
+src\pug\_partials\sidebar-nav.pug:160:        +inlineSvg('node_modules/@coreui/icons/svg/free/cil-external-link.svg').icon.icon-sm.ms-2
+src\pug\_partials\sidebar-nav.pug:180:ul.sidebar-nav(data-coreui="navigation" data-simplebar)
+src\pug\_partials\sidebar.pug:4:      +inlineSvg(src='assets/brand/coreui-full.svg' width='88' height='32' alt='Thika Tandem Paracycling Logo').sidebar-brand-full
+src\pug\_partials\sidebar.pug:5:      +inlineSvg(src='assets/brand/coreui-signet.svg' width='88' height='32' alt='CoreUI Logo Signet').sidebar-brand-narrow
+src\pug\_partials\sidebar.pug:6:    button.btn-close.d-lg-none(type='button' data-coreui-theme="dark" aria-label='Close' onclick='coreui.Sidebar.getInstance(document.querySelector("#sidebar")).toggle()')
+src\pug\_partials\sidebar.pug:9:    button.sidebar-toggler(type="button" data-coreui-toggle="unfoldable")

@@ -10,7 +10,6 @@ let filteredEvents = []
 
 let countries = []
 let eventTypes = []
-let statuses = []
 let sponsors = []
 
 let currentPage = 1
@@ -221,63 +220,7 @@ async function loadEventTypes() {
     `
   }
 } 
-async function loadStatuses() {
 
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'status_master'
-      )
-      .select('*')
-      .eq(
-        'entity_type',
-        'EVENT'
-      )
-      .order(
-        'status_name'
-      )
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  statuses =
-    data || []
-
-  const select =
-    document.getElementById(
-      'statusId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-      <option value="">
-        Select Status
-      </option>
-    `
-
-  for (
-    const status
-    of statuses
-  ) {
-
-    select.innerHTML += `
-      <option
-        value="${status.status_id}"
-      >
-        ${status.status_name}
-      </option>
-    `
-  }
-} 
 async function loadSponsors() {
 
   const {
@@ -499,13 +442,21 @@ function renderEvents() {
           ${getSponsors(event)}
         </td>
 
-        <td>
-          ${event.start_date || ''}
-        </td>
+       <td>
+  ${event.start_date || ''}
+  <br>
+  <small>
+    ${event.start_time || ''}
+  </small>
+</td>
 
-        <td>
-          ${event.end_date || ''}
-        </td>
+<td>
+  ${event.end_date || ''}
+  <br>
+  <small>
+    ${event.end_time || ''}
+  </small>
+</td>
 
         <td>
           ${
@@ -736,11 +687,19 @@ function clearEventForm() {
     'endDate',
     ''
   )
-
   setValue(
-    'statusId',
+    'startTime',
     ''
   )
+
+  setValue(
+    'endTime',
+    ''
+  )
+  setValue(
+  'eventStatus',
+  'Automatic'
+)
 
   const sponsorsSelect =
     document.getElementById(
@@ -851,123 +810,20 @@ function (eventId) {
   )
 
   setValue(
-    'statusId',
-    event.status_id
-  )
-
-  const sponsorsSelect =
-    document.getElementById(
-      'sponsorIds'
-    )
-
-  if (
-    sponsorsSelect
-  ) {
-
-    const selectedSponsors =
-      (
-        event.event_sponsors ||
-        []
-      ).map(
-        s =>
-          s.sponsor_id
-      )
-
-    Array
-      .from(
-        sponsorsSelect.options
-      )
-      .forEach(
-        option => {
-
-          option.selected =
-            selectedSponsors.includes(
-              option.value
-            )
-        }
-      )
-  }
-
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'eventModal'
-      )
-    )
-
-  modal.show()
-} 
-window.editEvent =
-function (eventId) {
-
-  const event =
-    events.find(
-      e =>
-        e.event_id === eventId
-    )
-
-  if (!event) {
-    return
-  }
-
-  clearError()
-
-  document
-    .getElementById(
-      'eventModalTitle'
-    )
-    .textContent =
-      'Edit Event'
-
-  setValue(
-    'eventId',
-    event.event_id
+    'startTime',
+    event.start_time
   )
 
   setValue(
-    'eventCode',
-    event.event_code
+    'endTime',
+    event.end_time
   )
 
   setValue(
-    'eventName',
-    event.event_name
-  )
-
-  setValue(
-    'countryId',
-    event.country_id
-  )
-
-  setValue(
-    'city',
-    event.city
-  )
-
-  setValue(
-    'organizer',
-    event.organizer
-  )
-
-  setValue(
-    'eventTypeId',
-    event.event_type_id
-  )
-
-  setValue(
-    'startDate',
-    event.start_date
-  )
-
-  setValue(
-    'endDate',
-    event.end_date
-  )
-
-  setValue(
-    'statusId',
-    event.status_id
-  )
+  'eventStatus',
+  event.status_master?.status_name ||
+  'Automatic'
+)
 
   const sponsorsSelect =
     document.getElementById(
@@ -1081,19 +937,63 @@ function validateEvent() {
   }
 
   if (
-    !getValue(
-      'endDate'
-    )
-  ) {
+  !getValue(
+    'endDate'
+  )
+) {
 
-    showError(
-      'End Date is required'
-    )
+  showError(
+    'End Date is required'
+  )
 
-    return false
-  }
+  return false
+}
 
-  return true
+const startTime =
+  getValue(
+    'startTime'
+  )
+
+const endTime =
+  getValue(
+    'endTime'
+  )
+const startDate =
+  getValue(
+    'startDate'
+  )
+
+const endDate =
+  getValue(
+    'endDate'
+  )
+if (
+  startDate >
+  endDate
+) {
+
+  showError(
+    'End Date must be on or after Start Date'
+  )
+
+  return false
+}
+
+if (
+  startDate === endDate &&
+  startTime &&
+  endTime &&
+  startTime >= endTime
+) {
+
+  showError(
+    'End Time must be after Start Time'
+  )
+
+  return false
+}
+
+return true
 }
 async function saveSponsors(
   eventId
@@ -1189,48 +1089,55 @@ async function saveEvent() {
         'eventId'
       )
 
-    const payload = {
+   const payload = {
 
-      event_name:
-        getValue(
-          'eventName'
-        ),
+  event_name:
+    getValue(
+      'eventName'
+    ),
 
-      country_id:
-        getValue(
-          'countryId'
-        ) || null,
+  country_id:
+    getValue(
+      'countryId'
+    ) || null,
 
-      city:
-        getValue(
-          'city'
-        ),
+  city:
+    getValue(
+      'city'
+    ),
 
-      organizer:
-        getValue(
-          'organizer'
-        ) || null,
+  organizer:
+    getValue(
+      'organizer'
+    ) || null,
 
-      event_type_id:
-        getValue(
-          'eventTypeId'
-        ) || null,
+  event_type_id:
+    getValue(
+      'eventTypeId'
+    ) || null,
 
-      start_date:
-        getValue(
-          'startDate'
-        ),
+  start_date:
+    getValue(
+      'startDate'
+    ),
 
-      end_date:
-        getValue(
-          'endDate'
-        ),
+  end_date:
+    getValue(
+      'endDate'
+    ),
 
-      status_id:
-        getValue(
-          'statusId'
-        ) || null
-    }
+  start_time:
+    getValue(
+      'startTime'
+    ) || null,
+
+  end_time:
+    getValue(
+      'endTime'
+    ) || null,
+
+
+}
 
     let error
     let savedEventId
@@ -1450,8 +1357,6 @@ async function initializeEvents() {
     await loadCountries()
 
     await loadEventTypes()
-
-    await loadStatuses()
 
     await loadSponsors()
 

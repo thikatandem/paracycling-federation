@@ -9,7 +9,7 @@ let currentPage = 1
 
 let teams = []
 let filteredTeams = []
-
+let roleMap = {}
 let pilots = []
 let stokers = []
 
@@ -75,11 +75,9 @@ function clearForm() {
   $('teamStatus').value =
     'Active'
 
-  $('formedDate').value =
-    ''
+  $('effectiveDate').value = ''
 
-  $('dissolvedDate').value =
-    ''
+  $('changeReason').value = ''
 
   showError('')
 }
@@ -240,6 +238,32 @@ function renderStokerLookup() {
   }
 }
 
+async function loadRoleMap() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('role_master')
+      .select(`
+        role_id,
+        role_code
+      `)
+
+  if (error) {
+    throw error
+  }
+
+  roleMap = {}
+
+  for (const role of data) {
+    roleMap[
+      role.role_code
+    ] = role.role_id
+  }
+}
+
 /* ==========================================
    LOAD TEAMS
 ========================================== */
@@ -279,6 +303,36 @@ async function loadTeams() {
 
     teams =
       data || []
+   for (const team of teams) {
+
+  const {
+    data: activeMembers
+  } =
+    await window.supabaseClient
+      .from('team_members')
+      .select(`
+        start_date
+      `)
+      .eq(
+        'team_id',
+        team.team_id
+      )
+      .eq(
+        'is_active',
+        true
+      )
+      .order(
+        'start_date',
+        {
+          ascending: false
+        }
+      )
+      .limit(1)
+
+  team.current_effective_date =
+    activeMembers?.[0]
+      ?.start_date || ''
+}
 
     filteredTeams =
       [...teams]
@@ -315,20 +369,22 @@ function applySearch() {
       team => {
         const text =
           [
+  team.team_code || '',
 
-            team.team_code || '',
+  team.team_name || '',
 
-            team.team_name || '',
+  team.team_nickname || '',
 
-            team.team_nickname || '',
+  team.status || '',
 
-            team.status || '',
+  team.pilot?.first_name || '',
 
-            team.pilot_athlete_id || '',
+  team.pilot?.last_name || '',
 
-            team.stoker_athlete_id || ''
+  team.stoker?.first_name || '',
 
-          ]
+  team.stoker?.last_name || ''
+]
             .join(' ')
             .toLowerCase()
 
@@ -377,50 +433,49 @@ function renderTeamsTable() {
       )
 
     row.innerHTML = `
-      <td>${team.team_code || ''}</td>
+  <td>${team.team_code || ''}</td>
 
-      <td>${team.team_name || ''}</td>
+  <td>${team.team_name || ''}</td>
 
-      <td>${team.team_nickname || ''}</td>
+  <td>${team.team_nickname || ''}</td>
 
-      <td>
-        ${team.pilot?.first_name || ''}
-        ${team.pilot?.last_name || ''}
-        /
-        ${team.stoker?.first_name || ''}
-        ${team.stoker?.last_name || ''}
-      </td>
+  <td>
+    ${team.pilot?.first_name || ''}
+    ${team.pilot?.last_name || ''}
+  </td>
 
-      <td>
-        ${team.pilot?.first_name || ''}
-        ${team.pilot?.last_name || ''}
-      </td>
+  <td>
+    ${team.stoker?.first_name || ''}
+    ${team.stoker?.last_name || ''}
+  </td>
 
-      <td>
-        ${team.stoker?.first_name || ''}
-        ${team.stoker?.last_name || ''}
-      </td>
+  <td>
+  ${
+    team.current_effective_date ||
+    ''
+  }
+</td>
 
-      <td>${team.formed_date || ''}</td>
+  <td>
+    ${team.status || ''}
+  </td>
 
-      <td>${team.status || ''}</td>
+  <td>
 
-      <td>
+    <button
+      class="btn btn-warning btn-sm me-1"
+      onclick="editTeam('${team.team_id}')">
+      Edit
+    </button>
 
-        <button
-          class="btn btn-warning btn-sm me-1"
-          onclick="editTeam('${team.team_id}')">
-          Edit
-        </button>
+    <button
+      class="btn btn-danger btn-sm"
+      onclick="confirmDeleteTeam('${team.team_id}')">
+      Delete
+    </button>
 
-        <button
-          class="btn btn-danger btn-sm"
-          onclick="confirmDeleteTeam('${team.team_id}')">
-          Delete
-        </button>
-
-      </td>
-    `
+  </td>
+`
 
     tbody.append(
       row
@@ -530,8 +585,8 @@ function validateTeam() {
   const stokerId =
     $('stokerAthleteId').value
 
-  const formedDate =
-    $('formedDate').value
+  const effectiveDate =
+  $('effectiveDate').value
 
   if (!pilotId) {
     return 'Pilot is required'
@@ -545,9 +600,9 @@ function validateTeam() {
     return 'Pilot and Stoker cannot be the same athlete'
   }
 
-  if (!formedDate) {
-    return 'Formed Date is required'
-  }
+  if (!effectiveDate) {
+  return 'Effective Date is required'
+}
 
   return null
 }
@@ -592,88 +647,119 @@ async function saveTeam() {
    CREATE TEAM
 ========================================== */
 async function createTeam() {
-  const payload = {
 
-    team_code:
-      $('teamCode').value || null,
-
-    team_name:
-      $('teamName').value || null,
-
-    pilot_athlete_id:
-      $('pilotAthleteId').value,
-
-    stoker_athlete_id:
-      $('stokerAthleteId').value,
-
-    team_nickname:
-      $('teamNickname').value || null,
-
-    status:
-      $('teamStatus').value,
-
-    formed_date:
-      $('formedDate').value,
-
-    dissolved_date:
-      $('dissolvedDate').value || null
-
-  }
+  const effectiveDate =
+    $('effectiveDate').value
 
   const {
-    error
+    data: teamData,
+    error: teamError
   } =
     await window.supabaseClient
       .from('teams')
-      .insert(payload)
+      .insert({
+        team_name:
+          $('teamName').value || null,
 
-  if (error) {
-    throw error
+        team_nickname:
+          $('teamNickname').value || null,
+
+        status:
+          $('teamStatus').value,
+
+        pilot_athlete_id:
+          $('pilotAthleteId').value,
+
+        stoker_athlete_id:
+          $('stokerAthleteId').value
+      })
+      .select()
+      .single()
+
+  if (teamError) {
+    throw teamError
   }
-}
 
+  await createPilotHistory(
+    teamData.team_id,
+    $('pilotAthleteId').value,
+    effectiveDate,
+    $('changeReason').value
+  )
+
+  await createStokerHistory(
+    teamData.team_id,
+    $('stokerAthleteId').value,
+    effectiveDate,
+    $('changeReason').value
+  )
+}
 /* ==========================================
    UPDATE TEAM
 ========================================== */
 
 async function updateTeam() {
+
   const teamId =
     $('teamId').value
 
-  const payload = {
+  const selectedPilot =
+    $('pilotAthleteId').value
 
-    team_code:
-      $('teamCode').value || null,
+  const selectedStoker =
+    $('stokerAthleteId').value
 
-    team_name:
-      $('teamName').value || null,
+  const effectiveDate =
+    $('effectiveDate').value
 
-    pilot_athlete_id:
-      $('pilotAthleteId').value,
+  const reason =
+    $('changeReason').value
 
-    stoker_athlete_id:
-      $('stokerAthleteId').value,
+  const currentTeam =
+    teams.find(
+      team =>
+        team.team_id === teamId
+    )
 
-    team_nickname:
-      $('teamNickname').value || null,
-
-    status:
-      $('teamStatus').value,
-
-    formed_date:
-      $('formedDate').value,
-
-    dissolved_date:
-      $('dissolvedDate').value || null
-
+  if (!currentTeam) {
+    throw new Error(
+      'Team not found'
+    )
   }
+
+  const pilotChanged =
+    detectPilotChange(
+      currentTeam,
+      selectedPilot
+    )
+
+  const stokerChanged =
+    detectStokerChange(
+      currentTeam,
+      selectedStoker
+    )
 
   const {
     error
   } =
     await window.supabaseClient
       .from('teams')
-      .update(payload)
+      .update({
+        team_name:
+          $('teamName').value,
+
+        team_nickname:
+          $('teamNickname').value,
+
+        status:
+          $('teamStatus').value,
+
+        pilot_athlete_id:
+          selectedPilot,
+
+        stoker_athlete_id:
+          selectedStoker
+      })
       .eq(
         'team_id',
         teamId
@@ -682,7 +768,318 @@ async function updateTeam() {
   if (error) {
     throw error
   }
+
+  if (pilotChanged) {
+
+  await closeActiveMember(
+    teamId,
+    roleMap.PILOT
+  )
+
+  await createPilotHistory(
+    teamId,
+    selectedPilot,
+    effectiveDate,
+    reason
+  )
 }
+
+ if (stokerChanged) {
+
+  await closeActiveMember(
+    teamId,
+    roleMap.STOKER
+  )
+
+  await createStokerHistory(
+    teamId,
+    selectedStoker,
+    effectiveDate,
+    reason
+  )
+}
+
+}
+async function loadTeamHistory(
+  teamId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('team_members')
+      .select(`
+        *,
+        athletes(
+          athlete_code,
+          first_name,
+          last_name
+        ),
+        role_master(
+          role_name
+        )
+      `)
+      .eq(
+        'team_id',
+        teamId
+      )
+      .order(
+        'start_date',
+        {
+          ascending: false
+        }
+      )
+
+  if (error) {
+    throw error
+  }
+
+  renderCurrentPairing(
+    data || []
+  )
+
+  renderTeamHistory(
+    data || []
+  )
+}
+
+function renderCurrentPairing(
+  members
+) {
+
+  const tbody =
+    $('currentPairingBody')
+
+  if (!tbody) {
+    return
+  }
+
+  tbody.innerHTML = ''
+
+  const activeMembers =
+    members.filter(
+      member =>
+        member.is_active
+    )
+
+  for (
+    const member
+    of activeMembers
+  ) {
+
+    const row =
+      document.createElement(
+        'tr'
+      )
+
+    row.innerHTML = `
+      <td>
+        ${member.role_master?.role_name || ''}
+      </td>
+
+      <td>
+        ${member.athletes?.first_name || ''}
+        ${member.athletes?.last_name || ''}
+      </td>
+
+      <td>
+        ${member.start_date || ''}
+      </td>
+    `
+
+    tbody.append(row)
+  }
+}
+
+function renderTeamHistory(
+  members
+) {
+
+  const tbody =
+    $('teamHistoryBody')
+
+  if (!tbody) {
+    return
+  }
+
+  tbody.innerHTML = ''
+
+  for (
+    const member
+    of members
+  ) {
+
+    const row =
+      document.createElement(
+        'tr'
+      )
+
+    row.innerHTML = `
+      <td>
+        ${member.role_master?.role_name || ''}
+      </td>
+
+      <td>
+        ${member.athletes?.first_name || ''}
+        ${member.athletes?.last_name || ''}
+      </td>
+
+      <td>
+        ${member.start_date || ''}
+      </td>
+
+      <td>
+        ${member.end_date || ''}
+      </td>
+
+      <td>
+        ${member.is_active ? 'Yes' : 'No'}
+      </td>
+
+      <td>
+        ${member.change_reason || ''}
+      </td>
+    `
+
+    tbody.append(row)
+  }
+}
+async function createPilotHistory(
+  teamId,
+  athleteId,
+  effectiveDate,
+  reason
+) {
+
+  const {
+    error
+  } =
+    await window.supabaseClient
+      .from('team_members')
+      .insert({
+        team_id:
+          teamId,
+
+        athlete_id:
+          athleteId,
+
+        role_id:
+        roleMap.PILOT,
+
+        start_date:
+          effectiveDate,
+
+        is_active:
+          true,
+
+        change_reason:
+          reason || null
+      })
+
+  if (error) {
+    throw error
+  }
+}
+
+async function createStokerHistory(
+  teamId,
+  athleteId,
+  effectiveDate,
+  reason
+) {
+
+  const {
+    error
+  } =
+    await window.supabaseClient
+      .from('team_members')
+      .insert({
+        team_id:
+          teamId,
+
+        athlete_id:
+          athleteId,
+
+        role_id:
+        roleMap.STOKER,
+
+        start_date:
+          effectiveDate,
+
+        is_active:
+          true,
+
+        change_reason:
+          reason || null
+      })
+
+  if (error) {
+    throw error
+  }
+}
+
+async function closeActiveMember(
+  teamId,
+  roleId
+) {
+
+  const {
+    error
+  } =
+    await window.supabaseClient
+      .from('team_members')
+      .update({
+        is_active:
+          false,
+
+        end_date:
+          new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            )
+      })
+      .eq(
+        'team_id',
+        teamId
+      )
+      .eq(
+        'role_id',
+        roleId
+      )
+      .eq(
+        'is_active',
+        true
+      )
+
+  if (error) {
+    throw error
+  }
+}
+
+function detectPilotChange(
+  team,
+  selectedPilot
+) {
+  return (
+    team.pilot_athlete_id !==
+    selectedPilot
+  )
+}
+
+function detectStokerChange(
+  team,
+  selectedStoker
+) {
+  return (
+    team.stoker_athlete_id !==
+    selectedStoker
+  )
+}
+
 
 /* ==========================================
    EDIT TEAM
@@ -692,10 +1089,11 @@ async function editTeam(
   teamId
 ) {
   try {
+
     const team =
       teams.find(
-        t =>
-          t.team_id ===
+        team =>
+          team.team_id ===
           teamId
       )
 
@@ -704,6 +1102,35 @@ async function editTeam(
     }
 
     clearForm()
+
+    const {
+      data: activeMembers,
+      error: activeMemberError
+    } =
+      await window.supabaseClient
+        .from('team_members')
+        .select(`
+          start_date
+        `)
+        .eq(
+          'team_id',
+          teamId
+        )
+        .eq(
+          'is_active',
+          true
+        )
+        .order(
+          'start_date',
+          {
+            ascending: false
+          }
+        )
+        .limit(1)
+
+    if (activeMemberError) {
+      throw activeMemberError
+    }
 
     $('teamId').value =
       team.team_id || ''
@@ -726,22 +1153,33 @@ async function editTeam(
     $('teamStatus').value =
       team.status || 'Active'
 
-    $('formedDate').value =
-      team.formed_date || ''
+    $('effectiveDate').value =
+      activeMembers?.[0]
+        ?.start_date || ''
 
-    $('dissolvedDate').value =
-      team.dissolved_date || ''
+    $('changeReason').value =
+      ''
 
-    $('teamModalTitle')
-      .textContent =
+    $('teamModalTitle').textContent =
       'Edit Team'
 
+    await loadTeamHistory(
+      teamId
+    )
+
     teamModal.show()
+
   } catch (error) {
-    console.error(error)
+    console.error(
+      error
+    )
+
+    alert(
+      error.message ||
+      'Failed to load team'
+    )
   }
 }
-
 /* ==========================================
    DELETE MODAL
 ========================================== */
@@ -769,19 +1207,34 @@ async function deleteTeam() {
     }
 
     const {
-      error
-    } =
-      await window.supabaseClient
-        .from('teams')
-        .delete()
-        .eq(
-          'team_id',
-          teamId
-        )
+  error: historyError
+} =
+  await window.supabaseClient
+    .from('team_members')
+    .delete()
+    .eq(
+      'team_id',
+      teamId
+    )
 
-    if (error) {
-      throw error
-    }
+if (historyError) {
+  throw historyError
+}
+
+const {
+  error: teamError
+} =
+  await window.supabaseClient
+    .from('teams')
+    .delete()
+    .eq(
+      'team_id',
+      teamId
+    )
+
+if (teamError) {
+  throw teamError
+}
 
     deleteTeamModal.hide()
 
@@ -799,7 +1252,18 @@ async function deleteTeam() {
 ========================================== */
 
 function wireEvents() {
-  const addButton =
+
+const refreshButton =
+  $('btnRefreshTeams')
+
+if (refreshButton) {
+  refreshButton.addEventListener(
+    'click',
+    refreshTeams
+  )
+}
+
+const addButton =
     $('btnAddTeam')
 
   if (addButton) {
@@ -953,7 +1417,9 @@ async function initializeTeams() {
 
     initializeModals()
 
-    wireEvents()
+   wireEvents()
+
+    await loadRoleMap()
 
     await refreshTeams()
 
