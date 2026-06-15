@@ -18,7 +18,11 @@ let filteredPerformance = []
 
 let currentPage = 1
 
-let teams = []
+let events = []
+
+let sourceRecords = []
+let selectedTeamId = null
+
 
 const performanceLoading =
   document.getElementById(
@@ -52,6 +56,388 @@ function showLoading() {
     )
 
 }
+async function loadEvents() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from('events')
+      .select(`
+  event_id,
+  event_name,
+  event_category
+`)
+      .order(
+        'event_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  events =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventId'
+    )
+
+  select.innerHTML =
+    '<option value="">Select Event</option>'
+
+  events.forEach(
+    event => {
+
+      select.innerHTML += `
+        <option
+          value="${event.event_id}"
+        >
+          ${event.event_name}
+        </option>
+      `
+
+    }
+  )
+
+}
+async function loadTrainingSources(
+  eventId
+) {
+
+  const {
+    data
+  } =
+    await db
+      .from(
+        'training_log'
+      )
+      .select(`
+        training_id,
+        training_date,
+        session_type
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+
+  sourceRecords =
+    data || []
+
+}
+async function loadCompetitionSources(
+  eventId
+) {
+
+  const {
+    data
+  } =
+    await db
+      .from(
+        'race_results'
+      )
+      .select(`
+        result_id,
+        competition_date,
+        position
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+
+  sourceRecords =
+    data || []
+
+}
+
+async function handleSourceChange() {
+
+  setValue(
+    'sourceRecordId',
+    ''
+  )
+
+  const sourceType =
+    getValue(
+      'sourceType'
+    )
+
+  const eventId =
+    getValue(
+      'eventId'
+    )
+
+  const eventSelect =
+    document.getElementById(
+      'eventId'
+    )
+
+  if (
+    !eventSelect
+  ) {
+    return
+  }
+
+  const filteredEvents =
+    events.filter(
+      event =>
+        event.event_category ===
+        sourceType
+    )
+
+  eventSelect.innerHTML =
+    '<option value="">Select Event</option>'
+
+  filteredEvents.forEach(
+    event => {
+
+      eventSelect.innerHTML += `
+        <option
+          value="${event.event_id}"
+        >
+          ${event.event_name}
+        </option>
+      `
+
+    }
+  )
+
+  if (
+    !sourceType
+  ) {
+    return
+  }
+
+  if (
+    !eventId
+  ) {
+    return
+  }
+
+  if (
+    sourceType ===
+    'TRAINING'
+  ) {
+
+    await loadTrainingSources(
+      eventId
+    )
+
+  } else {
+
+    await loadCompetitionSources(
+      eventId
+    )
+
+  }
+
+  populateSourceRecords()
+
+}
+
+function populateSourceRecords() {
+
+  const select =
+    document.getElementById(
+      'sourceRecordId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    '<option value="">Select Record</option>'
+
+  const sourceType =
+    getValue(
+      'sourceType'
+    )
+
+  sourceRecords.forEach(
+    record => {
+
+      if (
+        sourceType ===
+        'TRAINING'
+      ) {
+
+        select.innerHTML += `
+          <option value="${record.training_id}">
+            ${record.training_date} - ${record.session_type}
+          </option>
+        `
+
+      } else {
+
+        select.innerHTML += `
+          <option value="${record.result_id}">
+            ${record.competition_date} - Position ${record.position}
+          </option>
+        `
+
+      }
+
+    }
+  )
+
+}
+
+async function loadSourceRecordDetails() {
+
+  const sourceType =
+    getValue(
+      'sourceType'
+    )
+
+  const recordId =
+    getValue(
+      'sourceRecordId'
+    )
+
+  if (
+    !sourceType ||
+    !recordId
+  ) {
+    return
+  }
+
+  let source = null
+
+  if (
+    sourceType ===
+    'TRAINING'
+  ) {
+
+    const {
+      data,
+      error
+    } =
+      await db
+        .from(
+          'training_log'
+        )
+        .select(`
+  training_id,
+  training_date,
+  team_id,
+  distance_km,
+  duration_minutes,
+  avg_speed_kmh,
+  teams(
+    team_name
+  )
+`)
+          
+        .eq(
+          'training_id',
+          recordId
+        )
+        .single()
+
+    if (
+      error
+    ) {
+      throw error
+    }
+
+    source = data
+
+    selectedTeamId =
+      source.team_id
+    setValue(
+  'teamName',
+  source.teams?.team_name || ''
+)
+    setValue(
+      'performanceDate',
+      source.training_date
+    )
+
+    setValue(
+      'maxSpeedKmh',
+      ''
+    )
+
+  } else {
+
+    const {
+      data,
+      error
+    } =
+      await db
+        .from(
+          'race_results'
+        )
+        .select(`
+  result_id,
+  competition_date,
+  team_id,
+  distance_km,
+  duration_minutes,
+  avg_speed_kmh,
+  max_speed_kmh,
+  teams(
+    team_name
+  )
+`)
+          
+        .eq(
+          'result_id',
+          recordId
+        )
+        .single()
+
+    if (
+      error
+    ) {
+      throw error
+    }
+
+    source = data
+
+    selectedTeamId =
+      source.team_id
+
+    setValue(
+      'performanceDate',
+      source.competition_date
+    )
+   setValue(
+  'teamName',
+  source.teams?.team_name || ''
+)
+    setValue(
+      'maxSpeedKmh',
+      source.max_speed_kmh || ''
+    )
+
+  }
+
+  setValue(
+    'distanceKm',
+    source.distance_km || ''
+  )
+
+  setValue(
+    'durationMinutes',
+    source.duration_minutes || ''
+  )
+
+  setValue(
+    'avgSpeedKmh',
+    source.avg_speed_kmh || ''
+  )
+
+}
+
+
 
 function hideLoading() {
 
@@ -119,76 +505,7 @@ function setValue(
   }
 
 }
-async function loadTeams() {
 
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await db
-        .from('teams')
-        .select(`
-          team_id,
-          team_name
-        `)
-        .order(
-          'team_name'
-        )
-
-    if (
-      error
-    ) {
-      throw error
-    }
-
-    teams =
-      data || []
-
-    const select =
-      document.getElementById(
-        'teamId'
-      )
-
-    if (
-      !select
-    ) {
-      return
-    }
-
-    select.innerHTML =
-      `
-      <option value="">
-        Select Team
-      </option>
-      `
-
-    for (
-      const team
-      of teams
-    ) {
-
-      select.innerHTML += `
-        <option
-          value="${team.team_id}"
-        >
-          ${team.team_name}
-        </option>
-      `
-    }
-
-  } catch (
-    error
-  ) {
-
-    console.error(
-      error
-    )
-
-  }
-
-}
 async function loadPerformance() {
 
   try {
@@ -334,37 +651,37 @@ function renderPerformance() {
 
         <td>
           ${
-            performance.speed_kmh || 0
+            performance.avg_speed_kmh || 0
           }
         </td>
 
         <td>
           ${
-            performance.avg_hr || 0
+            performance.avg_heart_rate || 0
           }
         </td>
 
         <td>
           ${
-            performance.max_hr || 0
+            performance.max_heart_rate || 0
           }
         </td>
 
         <td>
           ${
-            performance.cadence || 0
+            performance.avg_cadence_rpm || 0
           }
         </td>
 
         <td>
           ${
-            performance.power_watts || 0
+            performance.avg_watts || 0
           }
         </td>
 
         <td>
           ${
-            performance.rpe || 0
+            performance.training_stress_score || 0
           }
         </td>
 
@@ -447,8 +764,8 @@ function searchPerformance() {
 
   const search =
     (
-      searchPerformance?.value || ''
-    )
+  searchPerformanceInput?.value || ''
+)
       .trim()
       .toLowerCase()
 
@@ -485,7 +802,7 @@ function searchPerformance() {
             ||
 
             String(
-              performance.speed_kmh || ''
+              performance.avg_speed_kmh || ''
             )
               .toLowerCase()
               .includes(search)
@@ -493,7 +810,7 @@ function searchPerformance() {
             ||
 
             String(
-              performance.power_watts || ''
+              performance.avg_watts || ''
             )
               .toLowerCase()
               .includes(search)
@@ -513,20 +830,35 @@ function clearPerformanceForm() {
 
   clearError()
 
+  selectedTeamId = null
+
   setValue(
     'performanceId',
     ''
   )
 
   setValue(
-    'performanceDate',
-    new Date()
-      .toISOString()
-      .split('T')[0]
+    'sourceType',
+    ''
   )
 
   setValue(
-    'teamId',
+    'eventId',
+    ''
+  )
+
+  setValue(
+    'sourceRecordId',
+    ''
+  )
+
+  setValue(
+    'performanceDate',
+    ''
+  )
+
+  setValue(
+    'teamName',
     ''
   )
 
@@ -541,34 +873,63 @@ function clearPerformanceForm() {
   )
 
   setValue(
-    'avgHr',
+    'avgSpeedKmh',
     ''
   )
 
   setValue(
-    'maxHr',
+    'maxSpeedKmh',
     ''
   )
 
   setValue(
-    'cadence',
+    'avgWatts',
     ''
   )
 
   setValue(
-    'powerWatts',
+    'maxWatts',
     ''
   )
 
   setValue(
-    'rpe',
+    'avgCadenceRpm',
     ''
   )
 
   setValue(
-    'speedKmh',
+    'maxCadenceRpm',
     ''
   )
+
+  setValue(
+    'avgHeartRate',
+    ''
+  )
+
+  setValue(
+    'maxHeartRate',
+    ''
+  )
+
+  setValue(
+    'normalizedPower',
+    ''
+  )
+
+  setValue(
+    'trainingStressScore',
+    ''
+  )
+
+  setValue(
+    'elevationGain',
+    ''
+  )
+
+  sourceRecords = []
+
+  populateSourceRecords()
 
 }
 function openNewPerformanceModal() {
@@ -596,12 +957,12 @@ function validatePerformance() {
 
   if (
     !getValue(
-      'performanceDate'
+      'sourceType'
     )
   ) {
 
     showError(
-      'Performance Date is required'
+      'Source Type is required'
     )
 
     return false
@@ -610,12 +971,12 @@ function validatePerformance() {
 
   if (
     !getValue(
-      'teamId'
+      'eventId'
     )
   ) {
 
     showError(
-      'Team is required'
+      'Event is required'
     )
 
     return false
@@ -624,115 +985,12 @@ function validatePerformance() {
 
   if (
     !getValue(
-      'distanceKm'
+      'sourceRecordId'
     )
   ) {
 
     showError(
-      'Distance is required'
-    )
-
-    return false
-
-  }
-
-  if (
-    !getValue(
-      'durationMinutes'
-    )
-  ) {
-
-    showError(
-      'Duration is required'
-    )
-
-    return false
-
-  }
-
-  const distance =
-    Number(
-      getValue(
-        'distanceKm'
-      )
-    )
-
-  if (
-    distance < 0
-  ) {
-
-    showError(
-      'Distance cannot be negative'
-    )
-
-    return false
-
-  }
-
-  const duration =
-    Number(
-      getValue(
-        'durationMinutes'
-      )
-    )
-
-  if (
-    duration <= 0
-  ) {
-
-    showError(
-      'Duration must be greater than zero'
-    )
-
-    return false
-
-  }
-
-  const avgHr =
-    Number(
-      getValue(
-        'avgHr'
-      ) || 0
-    )
-
-  const maxHr =
-    Number(
-      getValue(
-        'maxHr'
-      ) || 0
-    )
-
-  if (
-    maxHr &&
-    avgHr &&
-    maxHr < avgHr
-  ) {
-
-    showError(
-      'Max HR cannot be lower than Average HR'
-    )
-
-    return false
-
-  }
-
-  const rpe =
-    Number(
-      getValue(
-        'rpe'
-      ) || 0
-    )
-
-  if (
-    rpe &&
-    (
-      rpe < 1 ||
-      rpe > 10
-    )
-  ) {
-
-    showError(
-      'RPE must be between 1 and 10'
+      'Source Record is required'
     )
 
     return false
@@ -742,6 +1000,8 @@ function validatePerformance() {
   return true
 
 }
+
+  
 async function savePerformance() {
 
   try {
@@ -761,84 +1021,113 @@ async function savePerformance() {
 
     const payload = {
 
+      source_type:
+        getValue(
+          'sourceType'
+        ),
+
+      event_id:
+        getValue(
+          'eventId'
+        ),
+
+      training_id:
+        getValue(
+          'sourceType'
+        ) === 'TRAINING'
+          ? getValue(
+              'sourceRecordId'
+            )
+          : null,
+
+      result_id:
+        getValue(
+          'sourceType'
+        ) === 'COMPETITION'
+          ? getValue(
+              'sourceRecordId'
+            )
+          : null,
+
       performance_date:
         getValue(
           'performanceDate'
         ),
 
       team_id:
-        getValue(
-          'teamId'
-        ),
+        selectedTeamId,
 
       distance_km:
         Number(
           getValue(
             'distanceKm'
-          )
+          ) || 0
         ),
 
       duration_minutes:
         Number(
           getValue(
             'durationMinutes'
-          )
+          ) || 0
         ),
 
-      avg_hr:
-        getValue(
-          'avgHr'
-        )
-          ? Number(
-              getValue(
-                'avgHr'
-              )
-            )
-          : null,
+      avg_speed_kmh:
+        Number(
+          getValue(
+            'avgSpeedKmh'
+          ) || 0
+        ),
 
-      max_hr:
+      max_speed_kmh:
         getValue(
-          'maxHr'
-        )
-          ? Number(
-              getValue(
-                'maxHr'
-              )
-            )
-          : null,
+          'maxSpeedKmh'
+        ) || null,
 
-      cadence:
+      avg_watts:
         getValue(
-          'cadence'
-        )
-          ? Number(
-              getValue(
-                'cadence'
-              )
-            )
-          : null,
+          'avgWatts'
+        ) || null,
 
-      power_watts:
+      max_watts:
         getValue(
-          'powerWatts'
-        )
-          ? Number(
-              getValue(
-                'powerWatts'
-              )
-            )
-          : null,
+          'maxWatts'
+        ) || null,
 
-      rpe:
+      avg_cadence_rpm:
         getValue(
-          'rpe'
-        )
-          ? Number(
-              getValue(
-                'rpe'
-              )
-            )
-          : null
+          'avgCadenceRpm'
+        ) || null,
+
+      max_cadence_rpm:
+        getValue(
+          'maxCadenceRpm'
+        ) || null,
+
+      avg_heart_rate:
+        getValue(
+          'avgHeartRate'
+        ) || null,
+
+      max_heart_rate:
+        getValue(
+          'maxHeartRate'
+        ) || null,
+
+      normalized_power:
+        getValue(
+          'normalizedPower'
+        ) || null,
+
+      training_stress_score:
+        getValue(
+          'trainingStressScore'
+        ) || null,
+
+      elevation_gain:
+        getValue(
+          'elevationGain'
+        ) || null
+
     }
 
     let error
@@ -884,9 +1173,11 @@ async function savePerformance() {
     ) {
       throw error
     }
+
     await db.rpc(
-     'rebuild_training_rankings'
+      'rebuild_training_rankings'
     )
+
     const modalElement =
       document.getElementById(
         'performanceModal'
@@ -900,7 +1191,9 @@ async function savePerformance() {
     if (
       modal
     ) {
+
       modal.hide()
+
     }
 
     await loadPerformance()
@@ -950,19 +1243,70 @@ function (
   ).textContent =
     'Edit Performance'
 
+  selectedTeamId =
+    performance.team_id
+
   setValue(
     'performanceId',
     performance.performance_id
   )
 
   setValue(
-    'performanceDate',
-    performance.performance_date
+    'sourceType',
+    performance.source_type
   )
 
   setValue(
-    'teamId',
-    performance.team_id
+    'eventId',
+    performance.event_id
+  )
+
+  if (
+    performance.source_type ===
+    'TRAINING'
+  ) {
+
+    loadTrainingSources(
+      performance.event_id
+    ).then(
+      () => {
+
+        populateSourceRecords()
+
+        setValue(
+          'sourceRecordId',
+          performance.training_id
+        )
+
+        loadSourceRecordDetails()
+
+      }
+    )
+
+  } else {
+
+    loadCompetitionSources(
+      performance.event_id
+    ).then(
+      () => {
+
+        populateSourceRecords()
+
+        setValue(
+          'sourceRecordId',
+          performance.result_id
+        )
+
+        loadSourceRecordDetails()
+
+      }
+    )
+
+  }
+
+  setValue(
+    'performanceDate',
+    performance.performance_date
   )
 
   setValue(
@@ -976,33 +1320,58 @@ function (
   )
 
   setValue(
-    'avgHr',
-    performance.avg_hr
+    'avgSpeedKmh',
+    performance.avg_speed_kmh
   )
 
   setValue(
-    'maxHr',
-    performance.max_hr
+    'maxSpeedKmh',
+    performance.max_speed_kmh
   )
 
   setValue(
-    'cadence',
-    performance.cadence
+    'avgWatts',
+    performance.avg_watts
   )
 
   setValue(
-    'powerWatts',
-    performance.power_watts
+    'maxWatts',
+    performance.max_watts
   )
 
   setValue(
-    'rpe',
-    performance.rpe
+    'avgCadenceRpm',
+    performance.avg_cadence_rpm
   )
 
   setValue(
-    'speedKmh',
-    performance.speed_kmh
+    'maxCadenceRpm',
+    performance.max_cadence_rpm
+  )
+
+  setValue(
+    'avgHeartRate',
+    performance.avg_heart_rate
+  )
+
+  setValue(
+    'maxHeartRate',
+    performance.max_heart_rate
+  )
+
+  setValue(
+    'normalizedPower',
+    performance.normalized_power
+  )
+
+  setValue(
+    'trainingStressScore',
+    performance.training_stress_score
+  )
+
+  setValue(
+    'elevationGain',
+    performance.elevation_gain
   )
 
   const modal =
@@ -1114,7 +1483,46 @@ async function deletePerformance() {
 
 }
 function wireEvents() {
+   document
+  .getElementById(
+    'sourceRecordId'
+  )
+  ?.addEventListener(
+    'change',
+    loadSourceRecordDetails
+  )
 
+   document
+  .getElementById(
+    'sourceType'
+  )
+  ?.addEventListener(
+    'change',
+    () => {
+
+      setValue(
+        'eventId',
+        ''
+      )
+
+      setValue(
+        'sourceRecordId',
+        ''
+      )
+
+      handleSourceChange()
+
+    }
+  )
+
+document
+  .getElementById(
+    'eventId'
+  )
+  ?.addEventListener(
+    'change',
+    handleSourceChange
+  )
   document
     .getElementById(
       'btnAddPerformance'
@@ -1223,9 +1631,9 @@ async function initializePerformance() {
 
     }
 
-    await loadTeams()
+   await loadEvents()
 
-    await loadPerformance()
+await loadPerformance()
 
     wireEvents()
 

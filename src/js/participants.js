@@ -38,6 +38,15 @@ const participantFormError =
   document.getElementById(
     'participantFormError'
   )
+const participantSuccess =
+  document.getElementById(
+    'participantSuccess'
+  )
+
+const participantError =
+  document.getElementById(
+    'participantError'
+  )
 
 function showLoading() {
 
@@ -64,6 +73,14 @@ function showError(
     participantFormError.textContent =
       message
   }
+
+  if (
+    participantSuccess
+  ) {
+
+    participantSuccess.textContent =
+      ''
+  }
 }
 
 function clearError() {
@@ -86,6 +103,38 @@ function getValue(
       .getElementById(id)
       ?.value || ''
   )
+}
+
+function showSuccess(
+  message
+) {
+
+  if (
+    participantSuccess
+  ) {
+
+    participantSuccess.textContent =
+      message
+  }
+
+  if (
+    participantError
+  ) {
+
+    participantError.textContent =
+      ''
+  }
+}
+
+function clearSuccess() {
+
+  if (
+    participantSuccess
+  ) {
+
+    participantSuccess.textContent =
+      ''
+  }
 }
 
 function setValue(
@@ -172,6 +221,43 @@ async function loadEventDropdown() {
     `
   }
 }
+function updateEventHeader() {
+
+  const eventId =
+    getSelectedEventId()
+
+  const event =
+    events.find(
+      e =>
+        e.event_id ===
+        eventId
+    )
+
+  if (!event) {
+    return
+  }
+
+  const title =
+    document.getElementById(
+      'selectedEventTitle'
+    )
+
+  const date =
+    document.getElementById(
+      'selectedEventDate'
+    )
+
+  if (title) {
+
+    title.textContent =
+      `Registered Teams For ${event.event_name}`
+  }
+
+  if (date) {
+
+    date.textContent = ''
+  }
+}
 async function loadParticipantStatuses() {
 
   const {
@@ -238,38 +324,7 @@ async function loadParticipantStatuses() {
     `
   }
 }
-async function loadAvailableTeams() {
 
-  const {
-    data,
-    error
-  } =
-    await window
-      .supabaseClient
-      .from('teams')
-      .select(`
-        team_id,
-        team_name,
-        team_nickname
-      `)
-      .order(
-        'team_name'
-      )
-
-  if (error) {
-
-    console.error(
-      error
-    )
-
-    return
-  }
-
-  teams =
-    data || []
-
-  renderAvailableTeams()
-}
 function renderAvailableTeams() {
 
   if (
@@ -322,6 +377,83 @@ function renderAvailableTeams() {
     `
   }
 }
+async function loadAvailableTeams() {
+
+  const eventId =
+    getSelectedEventId()
+
+  const {
+    data: allTeams,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from('teams')
+      .select(`
+        team_id,
+        team_name,
+        team_nickname
+      `)
+      .order(
+        'team_name'
+      )
+
+  if (error) {
+
+    console.error(
+      error
+    )
+
+    return
+  }
+
+  if (!eventId) {
+
+    teams =
+      allTeams || []
+
+    renderAvailableTeams()
+
+    return
+  }
+
+  const {
+    data: registered
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_participants'
+      )
+      .select(
+        'team_id'
+      )
+      .eq(
+        'event_id',
+        eventId
+      )
+
+  const registeredIds =
+    new Set(
+      (registered || [])
+        .map(
+          participant =>
+            participant.team_id
+        )
+    )
+
+  teams =
+    (allTeams || [])
+      .filter(
+        team =>
+          !registeredIds.has(
+            team.team_id
+          )
+      )
+
+  renderAvailableTeams()
+}
+
 function getSelectedTeamIds() {
 
   return Array
@@ -689,10 +821,33 @@ async function registerSelectedTeams() {
         )
 
     if (error) {
-      throw error
-    }
+  throw error
+}
 
-    await loadEventParticipants()
+await loadEventParticipants()
+
+await loadAvailableTeams()
+
+filteredParticipants =
+  [...participants]
+
+renderParticipants()
+
+showSuccess(
+  `${payload.length} team(s) registered successfully`
+)
+
+document
+  .querySelectorAll(
+    '.team-checkbox'
+  )
+  .forEach(
+    checkbox => {
+
+      checkbox.checked =
+        false
+    }
+  )
 
   } catch (
     error
@@ -1002,6 +1157,8 @@ async function loadEventAndParticipants() {
 
   clearError()
 
+clearSuccess()
+
   const eventId =
     getSelectedEventId()
 
@@ -1019,6 +1176,10 @@ async function loadEventAndParticipants() {
   }
 
   await loadEventParticipants()
+
+await loadAvailableTeams()
+
+updateEventHeader()
 }
 function wireEvents() {
 

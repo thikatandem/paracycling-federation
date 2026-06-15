@@ -587,14 +587,15 @@
                           <tr>
                             <th>Date</th>
                             <th>Team</th>
-                            <th>Distance (KM)</th>
-                            <th>Duration (Min)</th>
-                            <th>Speed</th>
-                            <th>Avg HR</th>
-                            <th>Max HR</th>
-                            <th>Cadence</th>
-                            <th>Power</th>
-                            <th>RPE</th>
+                            <th>Source</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
+                            <th>Avg Speed</th>
+                            <th>Avg Heart Rate</th>
+                            <th>Max Heart Rate</th>
+                            <th>Avg Cadence</th>
+                            <th>Avg Watts</th>
+                            <th>TSS</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
@@ -627,44 +628,86 @@
                   <input type="hidden" id="performanceId">
                   <div class="row g-3">
                     <div class="col-md-4">
-                      <label class="form-label">Performance Date</label>
-                      <input class="form-control" type="date" id="performanceDate">
+                      <label class="form-label">Source Type</label>
+                      <select class="form-select" id="sourceType">
+                        <option value="">Select Source</option>
+                        <option value="TRAINING">Training Session</option>
+                        <option value="COMPETITION">Competition Result</option>
+                      </select>
                     </div>
                     <div class="col-md-4">
+                      <label class="form-label">Event</label>
+                      <select class="form-select" id="eventId"></select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Source Record</label>
+                      <select class="form-select" id="sourceRecordId"></select>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <label class="form-label">Date</label>
+                      <input class="form-control" id="performanceDate" readonly>
+                    </div>
+                    <div class="col-md-3">
                       <label class="form-label">Team</label>
-                      <select class="form-select" id="teamId"></select>
+                      <input class="form-control" id="teamName" readonly>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                       <label class="form-label">Distance KM</label>
-                      <input class="form-control" type="number" step="0.01" id="distanceKm">
+                      <input class="form-control" id="distanceKm" readonly>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                       <label class="form-label">Duration Minutes</label>
-                      <input class="form-control" type="number" id="durationMinutes">
+                      <input class="form-control" id="durationMinutes" readonly>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Average Speed</label>
+                      <input class="form-control" id="avgSpeedKmh" readonly>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Maximum Speed</label>
+                      <input class="form-control" id="maxSpeedKmh" readonly>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Average Watts</label>
+                      <input class="form-control" type="number" min="0" id="avgWatts">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Average HR</label>
-                      <input class="form-control" type="number" id="avgHr">
+                      <label class="form-label">Maximum Watts</label>
+                      <input class="form-control" type="number" min="0" id="maxWatts">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Max HR</label>
-                      <input class="form-control" type="number" id="maxHr">
+                      <label class="form-label">Normalized Power</label>
+                      <input class="form-control" type="number" min="0" id="normalizedPower">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Cadence</label>
-                      <input class="form-control" type="number" id="cadence">
+                      <label class="form-label">Average Cadence RPM</label>
+                      <input class="form-control" type="number" min="0" id="avgCadenceRpm">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Power Watts</label>
-                      <input class="form-control" type="number" id="powerWatts">
+                      <label class="form-label">Maximum Cadence RPM</label>
+                      <input class="form-control" type="number" min="0" id="maxCadenceRpm">
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">RPE (1-10)</label>
-                      <input class="form-control" type="number" min="1" max="10" id="rpe">
+                      <label class="form-label">Training Stress Score</label>
+                      <input class="form-control" type="number" min="0" id="trainingStressScore">
                     </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Speed KM/H</label>
-                      <input class="form-control" id="speedKmh" readonly>
+                    <div class="col-md-6">
+                      <label class="form-label">Average Heart Rate</label>
+                      <input class="form-control" type="number" min="0" id="avgHeartRate">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Maximum Heart Rate</label>
+                      <input class="form-control" type="number" min="0" id="maxHeartRate">
+                    </div>
+                    <div class="col-md-12">
+                      <label class="form-label">Elevation Gain</label>
+                      <input class="form-control" type="number" min="0" id="elevationGain">
                     </div>
                   </div>
                   <div class="mt-3 text-danger" id="performanceFormError"></div>

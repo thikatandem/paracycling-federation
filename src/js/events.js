@@ -89,31 +89,52 @@ function getStatusBadge(
 
   switch (status) {
 
+    case 'Planned':
+      return `
+        <span class="badge bg-secondary">
+          Planned
+        </span>
+      `
+
     case 'Open':
       return `
-        <span class="badge bg-success">
+        <span class="badge bg-info">
           Open
         </span>
       `
 
-    case 'Closed':
+    case 'Ongoing':
       return `
-        <span class="badge bg-danger">
-          Closed
+        <span class="badge bg-primary">
+          Ongoing
         </span>
       `
 
-    case 'Draft':
+    case 'Completed':
       return `
-        <span class="badge bg-warning">
-          Draft
+        <span class="badge bg-success">
+          Completed
+        </span>
+      `
+
+    case 'Unfinished':
+      return `
+        <span class="badge bg-warning text-dark">
+          Unfinished
+        </span>
+      `
+
+    case 'Cancelled':
+      return `
+        <span class="badge bg-danger">
+          Cancelled
         </span>
       `
 
     default:
       return status || ''
   }
-} 
+}
 async function loadCountries() {
 
   const {
@@ -387,7 +408,7 @@ function renderEvents() {
       `
       <tr>
         <td
-          colspan="11"
+          colspan="12"
           class="text-center"
         >
           No events found
@@ -413,15 +434,19 @@ function renderEvents() {
         </td>
 
         <td>
-          ${event.event_name || ''}
-        </td>
+  ${event.event_name || ''}
+</td>
 
-        <td>
-          ${
-            event.country_master
-              ?.country_name || ''
-          }
-        </td>
+<td>
+  ${event.event_category || ''}
+</td>
+
+<td>
+  ${
+    event.country_master
+      ?.country_name || ''
+  }
+</td>
 
         <td>
           ${event.city || ''}
@@ -459,29 +484,58 @@ function renderEvents() {
 </td>
 
         <td>
-          ${
-            event.status_master
-              ?.status_name || ''
-          }
-        </td>
+  ${
+    getStatusBadge(
+      event.status_master
+        ?.status_name
+    )
+  }
+</td>
 
         <td>
 
-          <button
-            class="btn btn-sm btn-warning me-1"
-            onclick="editEvent('${event.event_id}')"
-          >
-            Edit
-          </button>
+  <button
+    class="btn btn-sm btn-warning me-1"
+    onclick="editEvent('${event.event_id}')"
+  >
+    Edit
+  </button>
 
-          <button
-            class="btn btn-sm btn-danger"
-            onclick="confirmDeleteEvent('${event.event_id}')"
-          >
-            Delete
-          </button>
+  ${
+    event.status_master?.status_name ===
+    'Cancelled'
 
-        </td>
+      ?
+
+      `
+      <button
+        class="btn btn-sm btn-success me-1"
+        onclick="restoreEvent('${event.event_id}')"
+      >
+        Restore
+      </button>
+      `
+
+      :
+
+      `
+      <button
+        class="btn btn-sm btn-secondary me-1"
+        onclick="cancelEvent('${event.event_id}')"
+      >
+        Cancel
+      </button>
+      `
+  }
+
+  <button
+    class="btn btn-sm btn-danger"
+    onclick="confirmDeleteEvent('${event.event_id}')"
+  >
+    Delete
+  </button>
+
+</td>
 
       </tr>
     `
@@ -652,7 +706,10 @@ function clearEventForm() {
     'eventCode',
     ''
   )
-
+  setValue(
+    'eventCategory',
+    ''
+  )
   setValue(
     'eventName',
     ''
@@ -768,6 +825,11 @@ function (eventId) {
     'eventId',
     event.event_id
   )
+  
+  setValue(
+  'eventCategory',
+  event.event_category
+)
 
   setValue(
     'eventCode',
@@ -922,6 +984,18 @@ function validateEvent() {
 
     return false
   }
+  if (
+  !getValue(
+    'eventCategory'
+  )
+) {
+
+  showError(
+    'Event Category is required'
+  )
+
+  return false
+}
 
   if (
     !getValue(
@@ -1115,6 +1189,11 @@ async function saveEvent() {
     getValue(
       'eventTypeId'
     ) || null,
+  
+   event_category:
+  getValue(
+    'eventCategory'
+  ), 
 
   start_date:
     getValue(
@@ -1241,6 +1320,86 @@ window.confirmDeleteEvent =
 function (
   eventId
 ) {
+window.cancelEvent =
+async function (
+  eventId
+) {
+
+  try {
+
+    const { error } =
+      await window
+        .supabaseClient
+        .from(
+          'events'
+        )
+        .update({
+
+          status_id:
+            'dd9f0359-5454-4d3d-9db1-b794cbeb8e4d'
+
+        })
+        .eq(
+          'event_id',
+          eventId
+        )
+
+    if (error) {
+      throw error
+    }
+
+    await loadEvents()
+
+  } catch (
+    error
+  ) {
+
+    alert(
+      error.message
+    )
+
+  }
+}
+window.restoreEvent =
+async function (
+  eventId
+) {
+
+  try {
+
+    const { error } =
+      await window
+        .supabaseClient
+        .from(
+          'events'
+        )
+        .update({
+
+          status_id:
+            'e0898929-e07d-4731-8ad6-ed8f0978a261'
+
+        })
+        .eq(
+          'event_id',
+          eventId
+        )
+
+    if (error) {
+      throw error
+    }
+
+    await loadEvents()
+
+  } catch (
+    error
+  ) {
+
+    alert(
+      error.message
+    )
+
+  }
+}
 
   setValue(
     'deleteEventId',

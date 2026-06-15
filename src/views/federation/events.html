@@ -565,46 +565,96 @@
             <div class="row">
               <div class="col-12">
                 <div class="card mb-4">
+                  <div class="card-header">
+                    <h4 class="mb-0">Event Participants</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-none text-center mb-3" id="participantLoading">
+                      <div class="spinner-border text-primary"></div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                      <div class="col-md-6">
+                        <label class="form-label">Event</label>
+                        <select class="form-select" id="selectedEventId"></select>
+                      </div>
+                      <div class="col-md-6 d-flex align-items-end">
+                        <button class="btn btn-primary" type="button" id="btnLoadEventParticipants">
+                          <i class="fa fa-search me-2"></i>
+                          Load Event
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-5">
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <h5 class="mb-0">Available Teams</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <input class="form-control" type="text" id="searchAvailableTeams" placeholder="Search Teams">
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th style="width: 50px">
+                              <input type="checkbox" id="selectAllTeams">
+                            </th>
+                            <th>Team</th>
+                          </tr>
+                        </thead>
+                        <tbody id="availableTeamsBody"></tbody>
+                      </table>
+                    </div>
+                    <div class="mt-3">
+                      <button class="btn btn-success" type="button" id="btnRegisterSelectedTeams">
+                        <i class="fa fa-plus me-2"></i>
+                        Register Selected Teams
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-7">
+                <div class="card mb-4">
                   <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>Events</strong>
-                    <button class="btn btn-primary" type="button" id="btnAddEvent">
-                      <i class="fa fa-plus me-2"></i>
-                      Add Event
+                    <div>
+                      <h5 class="mb-0" id="selectedEventTitle">Registered Teams</h5>
+                      <small class="text-muted" id="selectedEventDate"></small>
+                    </div>
+                    <button class="btn btn-secondary" type="button" id="btnRefreshParticipants">
+                      <i class="fa fa-refresh me-2"></i>
+                      Refresh
                     </button>
                   </div>
                   <div class="card-body">
-                    <div class="d-none text-center mb-3" id="eventLoading">
-                      <div class="spinner-border text-primary"></div>
+                    <div class="mb-3">
+                      <input class="form-control" type="text" id="searchParticipant" placeholder="Search Team or Status">
                     </div>
-                    <div class="row mb-3">
-                      <div class="col-md-4">
-                        <input class="form-control" type="text" id="searchEvent" placeholder="Search Events">
-                      </div>
+                    <div class="mt-2">
+                      <div class="text-success fw-bold" id="participantSuccess"></div>
+                      <div class="text-danger fw-bold" id="participantError"></div>
                     </div>
                     <div class="table-responsive">
                       <table class="table table-striped table-hover">
                         <thead>
                           <tr>
-                            <th>Event Code</th>
-                            <th>Event Name</th>
-                            <th>Country</th>
-                            <th>City</th>
-                            <th>Organizer</th>
-                            <th>Event Type</th>
-                            <th>Sponsors</th>
-                            <th>Start</th>
-                            <th>End</th>
+                            <th>Team</th>
+                            <th>Registration Date</th>
                             <th>Status</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
-                        <tbody id="eventsTableBody"></tbody>
+                        <tbody id="participantsTableBody"></tbody>
                       </table>
                     </div>
                     <div class="row mt-3">
-                      <div class="col-md-6">
-                        <button class="btn btn-secondary" type="button" id="btnRefreshEvents">Refresh</button>
-                      </div>
+                      <div class="col-md-6"></div>
                       <div class="col-md-6 text-end">
                         <button class="btn btn-outline-primary me-2" type="button" id="btnPreviousPage">Previous</button>
                         <span class="mx-2" id="paginationInfo">Page 1</span>
@@ -616,88 +666,46 @@
               </div>
             </div>
           </div>
-          <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
+          <div class="modal fade" id="participantStatusModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="eventModalTitle">Event</h5>
+                  <h5 class="modal-title">Update Participant Status</h5>
                   <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                  <input type="hidden" id="eventId">
-                  <div class="row g-3">
-                    <div class="col-md-3">
-                      <label class="form-label">Event Code</label>
-                      <input class="form-control" id="eventCode" readonly>
-                    </div>
-                    <div class="col-md-5">
-                      <label class="form-label">Event Name</label>
-                      <input class="form-control" id="eventName">
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Country</label>
-                      <select class="form-select" id="countryId"></select>
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">City</label>
-                      <input class="form-control" id="city">
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Organizer</label>
-                      <input class="form-control" id="organizer">
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Event Type</label>
-                      <select class="form-select" id="eventTypeId"></select>
-                    </div>
-                    <div class="col-md-12">
-                      <label class="form-label">Sponsors</label>
-                      <select class="form-select" id="sponsorIds" multiple></select>
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">Start Date</label>
-                      <input class="form-control" type="date" id="startDate">
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">Start Time</label>
-                      <input class="form-control" type="time" id="startTime">
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">End Date</label>
-                      <input class="form-control" type="date" id="endDate">
-                    </div>
-                    <div class="col-md-3">
-                      <label class="form-label">End Time</label>
-                      <input class="form-control" type="time" id="endTime">
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Status</label>
-                      <input class="form-control" id="eventStatus" readonly value="Automatic">
-                    </div>
+                  <input type="hidden" id="participantId">
+                  <div class="mb-3">
+                    <label class="form-label">Team</label>
+                    <input class="form-control" type="text" id="participantTeamName" readonly>
                   </div>
-                  <div class="mt-3 text-danger" id="eventFormError"></div>
+                  <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusId"></select>
+                  </div>
+                  <div class="text-danger mt-2" id="participantFormError"></div>
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Cancel</button>
-                  <button class="btn btn-success" type="button" id="btnSaveEvent">Save Event</button>
+                  <button class="btn btn-success" type="button" id="btnSaveParticipantStatus">Save Status</button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-hidden="true">
+          <div class="modal fade" id="deleteParticipantModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title">Delete Event</h5>
+                  <h5 class="modal-title">Remove Team From Event</h5>
                   <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                  <p>Are you sure you want to delete this event?</p>
-                  <input type="hidden" id="deleteEventId">
+                  <p>Are you sure you want to remove this team from the selected event?</p>
+                  <input type="hidden" id="deleteParticipantId">
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Cancel</button>
-                  <button class="btn btn-danger" type="button" id="btnConfirmDeleteEvent">Delete Event</button>
+                  <button class="btn btn-danger" type="button" id="btnConfirmDeleteParticipant">Remove Team</button>
                 </div>
               </div>
             </div>
@@ -730,6 +738,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/events.js"></script>
+    <script src="js/participants.js"></script>
   </body>
 </html>

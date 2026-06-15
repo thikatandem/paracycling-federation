@@ -45,16 +45,18 @@ block view
                 thead
 
                   tr
+
                     th Date
                     th Team
-                    th Distance (KM)
-                    th Duration (Min)
-                    th Speed
-                    th Avg HR
-                    th Max HR
-                    th Cadence
-                    th Power
-                    th RPE
+                    th Source
+                    th Distance
+                    th Duration
+                    th Avg Speed
+                    th Avg Heart Rate
+                    th Max Heart Rate
+                    th Avg Cadence
+                    th Avg Watts
+                    th TSS
                     th Actions
 
                 tbody#performanceTableBody
@@ -117,94 +119,187 @@ block view
 
             .col-md-4
 
-              label.form-label Performance Date
+              label.form-label Source Type
 
-              input.form-control(
-                type='date'
-                id='performanceDate'
+              select.form-select(
+                id='sourceType'
+              )
+
+                option(value='')
+                  | Select Source
+
+                option(value='TRAINING')
+                  | Training Session
+
+                option(value='COMPETITION')
+                  | Competition Result
+
+            .col-md-4
+
+              label.form-label Event
+
+              select.form-select(
+                id='eventId'
               )
 
             .col-md-4
+
+              label.form-label Source Record
+
+              select.form-select(
+                id='sourceRecordId'
+              )
+
+          hr
+
+          .row.g-3
+
+            .col-md-3
+
+              label.form-label Date
+
+              input.form-control(
+                id='performanceDate'
+                readonly
+              )
+
+            .col-md-3
 
               label.form-label Team
 
-              select.form-select(
-                id='teamId'
+              input.form-control(
+                id='teamName'
+                readonly
               )
 
-            .col-md-4
+            .col-md-3
 
               label.form-label Distance KM
 
               input.form-control(
-                type='number'
-                step='0.01'
                 id='distanceKm'
+                readonly
               )
 
-            .col-md-4
+            .col-md-3
 
               label.form-label Duration Minutes
 
               input.form-control(
-                type='number'
                 id='durationMinutes'
-              )
-
-            .col-md-4
-
-              label.form-label Average HR
-
-              input.form-control(
-                type='number'
-                id='avgHr'
-              )
-
-            .col-md-4
-
-              label.form-label Max HR
-
-              input.form-control(
-                type='number'
-                id='maxHr'
-              )
-
-            .col-md-4
-
-              label.form-label Cadence
-
-              input.form-control(
-                type='number'
-                id='cadence'
-              )
-
-            .col-md-4
-
-              label.form-label Power Watts
-
-              input.form-control(
-                type='number'
-                id='powerWatts'
-              )
-
-            .col-md-4
-
-              label.form-label RPE (1-10)
-
-              input.form-control(
-                type='number'
-                min='1'
-                max='10'
-                id='rpe'
-              )
-
-            .col-md-4
-
-              label.form-label Speed KM/H
-
-              input.form-control(
-                id='speedKmh'
                 readonly
+              )
+
+            .col-md-3
+
+              label.form-label Average Speed
+
+              input.form-control(
+                id='avgSpeedKmh'
+                readonly
+              )
+
+            .col-md-3
+
+              label.form-label Maximum Speed
+
+              input.form-control(
+                id='maxSpeedKmh'
+                readonly
+              )
+
+          hr
+
+          .row.g-3
+
+            .col-md-4
+
+              label.form-label Average Watts
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='avgWatts'
+              )
+
+            .col-md-4
+
+              label.form-label Maximum Watts
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='maxWatts'
+              )
+
+            .col-md-4
+
+              label.form-label Normalized Power
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='normalizedPower'
+              )
+
+            .col-md-4
+
+              label.form-label Average Cadence RPM
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='avgCadenceRpm'
+              )
+
+            .col-md-4
+
+              label.form-label Maximum Cadence RPM
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='maxCadenceRpm'
+              )
+
+            .col-md-4
+
+              label.form-label Training Stress Score
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='trainingStressScore'
+              )
+
+            .col-md-6
+
+              label.form-label Average Heart Rate
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='avgHeartRate'
+              )
+
+            .col-md-6
+
+              label.form-label Maximum Heart Rate
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='maxHeartRate'
+              )
+
+            .col-md-12
+
+              label.form-label Elevation Gain
+
+              input.form-control(
+                type='number'
+                min='0'
+                id='elevationGain'
               )
 
           .mt-3.text-danger(
