@@ -103,6 +103,50 @@ async function loadEvents() {
   )
 
 }
+
+function filterEventsBySource() {
+
+  const sourceType =
+    getValue(
+      'sourceType'
+    )
+
+  const select =
+    document.getElementById(
+      'eventId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    '<option value="">Select Event</option>'
+
+  events
+    .filter(
+      event =>
+        event.event_category ===
+        sourceType
+    )
+    .forEach(
+      event => {
+
+        select.innerHTML += `
+          <option
+            value="${event.event_id}"
+          >
+            ${event.event_name}
+          </option>
+        `
+
+      }
+    )
+
+}
+
 async function loadTrainingSources(
   eventId
 ) {
@@ -171,51 +215,17 @@ async function handleSourceChange() {
       'eventId'
     )
 
-  const eventSelect =
-    document.getElementById(
-      'eventId'
-    )
-
   if (
-    !eventSelect
-  ) {
-    return
-  }
-
-  const filteredEvents =
-    events.filter(
-      event =>
-        event.event_category ===
-        sourceType
-    )
-
-  eventSelect.innerHTML =
-    '<option value="">Select Event</option>'
-
-  filteredEvents.forEach(
-    event => {
-
-      eventSelect.innerHTML += `
-        <option
-          value="${event.event_id}"
-        >
-          ${event.event_name}
-        </option>
-      `
-
-    }
-  )
-
-  if (
-    !sourceType
-  ) {
-    return
-  }
-
-  if (
+    !sourceType ||
     !eventId
   ) {
+
+    sourceRecords = []
+
+    populateSourceRecords()
+
     return
+
   }
 
   if (
@@ -238,7 +248,6 @@ async function handleSourceChange() {
   populateSourceRecords()
 
 }
-
 function populateSourceRecords() {
 
   const select =
@@ -1510,7 +1519,7 @@ function wireEvents() {
         ''
       )
 
-      handleSourceChange()
+      filterEventsBySource()
 
     }
   )
