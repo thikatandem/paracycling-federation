@@ -10,127 +10,33 @@ block view
 
         .card.mb-4
 
-          .card-header
+          .card-header.d-flex.justify-content-between.align-items-center
 
-            h4.mb-0 Event Participants
+            strong Events
+
+            button.btn.btn-primary(
+              type='button'
+              id='btnAddEvent'
+            )
+              i.fa.fa-plus.me-2
+              | Add Event
 
           .card-body
 
             div.d-none.text-center.mb-3(
-              id='participantLoading'
+              id='eventLoading'
             )
               .spinner-border.text-primary
 
-            .row.g-3.mb-4
+            .row.mb-3
 
-              .col-md-6
+              .col-md-4
 
-                label.form-label Event
-
-                select.form-select(
-                  id='selectedEventId'
+                input.form-control(
+                  type='text'
+                  id='searchEvent'
+                  placeholder='Search Events'
                 )
-
-              .col-md-6.d-flex.align-items-end
-
-                button.btn.btn-primary(
-                  type='button'
-                  id='btnLoadEventParticipants'
-                )
-                  i.fa.fa-search.me-2
-                  | Load Event
-
-    .row
-
-      .col-lg-5
-
-        .card.mb-4
-
-          .card-header
-
-            h5.mb-0 Available Teams
-
-          .card-body
-
-            .mb-3
-
-              input.form-control(
-                type='text'
-                id='searchAvailableTeams'
-                placeholder='Search Teams'
-              )
-
-            .table-responsive
-
-              table.table.table-hover
-
-                thead
-
-                  tr
-
-                    th(style='width:50px')
-
-                      input(
-                        type='checkbox'
-                        id='selectAllTeams'
-                      )
-
-                    th Team
-
-                tbody#availableTeamsBody
-
-            .mt-3
-
-              button.btn.btn-success(
-                type='button'
-                id='btnRegisterSelectedTeams'
-              )
-                i.fa.fa-plus.me-2
-                | Register Selected Teams
-
-      .col-lg-7
-
-        .card.mb-4
-
-          .card-header.d-flex.justify-content-between.align-items-center
-
-            div
-
-              h5.mb-0(
-                id='selectedEventTitle'
-              )
-                | Registered Teams
-
-              small.text-muted(
-                id='selectedEventDate'
-              )
-
-            button.btn.btn-secondary(
-              type='button'
-              id='btnRefreshParticipants'
-            )
-              i.fa.fa-refresh.me-2
-              | Refresh
-
-          .card-body
-
-            .mb-3
-
-              input.form-control(
-                type='text'
-                id='searchParticipant'
-                placeholder='Search Team or Status'
-              )
-
-            .mt-2
-
-              div.text-success.fw-bold(
-                id='participantSuccess'
-              )
-
-              div.text-danger.fw-bold(
-                id='participantError'
-              )
 
             .table-responsive
 
@@ -140,19 +46,30 @@ block view
 
                   tr
 
-                    th Team
-
-                    th Registration Date
-
+                    th Event Code
+                    th Event Name
+                    th Category
+                    th Country
+                    th City
+                    th Organizer
+                    th Event Type
+                    th Sponsors
+                    th Start
+                    th End
                     th Status
-
                     th Actions
 
-                tbody#participantsTableBody
+                tbody#eventsTableBody
 
             .row.mt-3
 
               .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshEvents'
+                )
+                  | Refresh
 
               .col-md-6.text-end
 
@@ -172,19 +89,19 @@ block view
                   | Next
 
   .modal.fade(
-    id='participantStatusModal'
+    id='eventModal'
     tabindex='-1'
     aria-hidden='true'
   )
 
-    .modal-dialog
+    .modal-dialog.modal-xl
 
       .modal-content
 
         .modal-header
 
-          h5.modal-title
-            | Update Participant Status
+          h5.modal-title#eventModalTitle
+            | Event
 
           button.btn-close(
             type='button'
@@ -195,29 +112,134 @@ block view
 
           input(
             type='hidden'
-            id='participantId'
+            id='eventId'
           )
 
-          .mb-3
+          .row.g-3
 
-            label.form-label Team
+            .col-md-3
 
-            input.form-control(
-              type='text'
-              id='participantTeamName'
-              readonly
-            )
+              label.form-label Event Code
 
-          .mb-3
+              input.form-control(
+                id='eventCode'
+                readonly
+              )
 
-            label.form-label Status
+            .col-md-5
 
-            select.form-select(
-              id='statusId'
-            )
+              label.form-label Event Name
 
-          .text-danger.mt-2(
-            id='participantFormError'
+              input.form-control(
+                id='eventName'
+              )
+
+            .col-md-4
+
+              label.form-label Country
+
+              select.form-select(
+                id='countryId'
+              )
+
+            .col-md-4
+
+              label.form-label City
+
+              input.form-control(
+                id='city'
+              )
+
+            .col-md-4
+
+              label.form-label Organizer
+
+              input.form-control(
+                id='organizer'
+              )
+
+            .col-md-4
+
+              label.form-label Event Type
+
+              select.form-select(
+                id='eventTypeId'
+              )
+
+            .col-md-4
+
+              label.form-label Event Category
+
+              select.form-select(
+                id='eventCategory'
+              )
+
+                option(value='')
+                  | Select Category
+
+                option(value='TRAINING')
+                  | Training
+
+                option(value='COMPETITION')
+                  | Competition
+
+            .col-md-12
+
+              label.form-label Sponsors
+
+              select.form-select(
+                id='sponsorIds'
+                multiple
+              )
+
+            .col-md-3
+
+              label.form-label Start Date
+
+              input.form-control(
+                type='date'
+                id='startDate'
+              )
+
+            .col-md-3
+
+              label.form-label Start Time
+
+              input.form-control(
+                type='time'
+                id='startTime'
+              )
+
+            .col-md-3
+
+              label.form-label End Date
+
+              input.form-control(
+                type='date'
+                id='endDate'
+              )
+
+            .col-md-3
+
+              label.form-label End Time
+
+              input.form-control(
+                type='time'
+                id='endTime'
+              )
+
+            .col-md-4
+
+              label.form-label Status
+
+              input.form-control(
+                id='eventStatus'
+                readonly
+                value='Automatic'
+              )
+
+          .mt-3.text-danger(
+            id='eventFormError'
           )
 
         .modal-footer
@@ -230,12 +252,12 @@ block view
 
           button.btn.btn-success(
             type='button'
-            id='btnSaveParticipantStatus'
+            id='btnSaveEvent'
           )
-            | Save Status
+            | Save Event
 
   .modal.fade(
-    id='deleteParticipantModal'
+    id='deleteEventModal'
     tabindex='-1'
     aria-hidden='true'
   )
@@ -247,7 +269,7 @@ block view
         .modal-header
 
           h5.modal-title
-            | Remove Team From Event
+            | Delete Event
 
           button.btn-close(
             type='button'
@@ -257,11 +279,11 @@ block view
         .modal-body
 
           p
-            | Are you sure you want to remove this team from the selected event?
+            | Are you sure you want to delete this event?
 
           input(
             type='hidden'
-            id='deleteParticipantId'
+            id='deleteEventId'
           )
 
         .modal-footer
@@ -274,10 +296,10 @@ block view
 
           button.btn.btn-danger(
             type='button'
-            id='btnConfirmDeleteParticipant'
+            id='btnConfirmDeleteEvent'
           )
-            | Remove Team
+            | Delete Event
 
 append pageScripts
 
-  script(src='js/participants.js')
+  script(src='js/events.js')
