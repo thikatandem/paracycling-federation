@@ -215,13 +215,14 @@ async function loadParticipants(
         'event_participants'
       )
       .select(`
-        participant_id,
-        team_id,
+  participant_id,
+  team_id,
+  program_id,
 
-        teams(
-          team_name
-        )
-      `)
+  teams(
+    team_name
+  )
+`)
       .eq(
         'program_id',
         programId
@@ -267,28 +268,38 @@ async function loadResults() {
   const { data, error } = await db
     .from('race_results')
     .select(`
-      result_id,
-      event_id,
-      team_id,
-      competition_date,
-start_time,
-end_time,
-duration_minutes,
-distance_km,
-avg_speed_kmh,
-max_speed_kmh,
-position,
-points,
-medal,
+  result_id,
+  event_id,
+  team_id,
+  participant_id,
+  competition_date,
+  start_time,
+  end_time,
+  duration_minutes,
+  distance_km,
+  avg_speed_kmh,
+  max_speed_kmh,
+  position,
+  points,
+  medal,
 
-      events (
-        event_name
-      ),
+  events (
+    event_name
+  ),
 
-      teams (
-        team_name
-      )
-    `)
+  teams (
+    team_name
+  ),
+
+  event_participants (
+    participant_id,
+    program_id,
+
+    event_programs (
+      program_name
+    )
+  )
+`)
     .order('position');
 
   hideLoading();
@@ -324,14 +335,22 @@ function renderResults() {
       <tr>
 
         <td>
-          ${result.events?.event_name || ''}
-        </td>
+  ${result.events?.event_name || ''}
+</td>
 
-        <td>
-          ${result.teams?.team_name || ''}
-        </td>
+<td>
+  ${
+    result.event_participants
+      ?.event_programs
+      ?.program_name || ''
+  }
+</td>
 
-        <td>
+<td>
+  ${result.teams?.team_name || ''}
+</td>
+
+<td>
   ${result.distance_km || ''}
 </td>
 
@@ -557,11 +576,17 @@ if (!position) {
 }
 
     const duplicateQuery =
-      db
-        .from('race_results')
-        .select('result_id')
-        .eq('event_id', eventId)
-        .eq('team_id', teamId);
+  db
+    .from('race_results')
+    .select('result_id')
+    .eq(
+      'event_id',
+      eventId
+    )
+    .eq(
+      'team_id',
+      participant.team_id
+    );
 
     if (resultId) {
       duplicateQuery.neq(
@@ -701,12 +726,44 @@ async function (
   $('eventId').value =
     result.event_id;
 
-  await loadTeamsForEvent(
-    result.event_id
-  );
+  await loadPrograms(
+  result.event_id
+)
 
-  $('teamId').value =
-    result.team_id;
+const {
+  data: participantRecord,
+  error: participantError
+} =
+  await db
+    .from(
+      'event_participants'
+    )
+    .select(`
+      participant_id,
+      team_id,
+      program_id
+    `)
+    .eq(
+      'participant_id',
+      result.participant_id
+    )
+    .single()
+
+if (
+  participantError
+) {
+  throw participantError
+}
+
+$('programId').value =
+  participantRecord.program_id
+
+await loadParticipants(
+  participantRecord.program_id
+)
+
+$('participantId').value =
+  participantRecord.participant_id
 
   $('position').value =
     result.position || '';

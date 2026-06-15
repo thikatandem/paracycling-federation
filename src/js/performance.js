@@ -23,6 +23,8 @@ let events = []
 let sourceRecords = []
 let selectedTeamId = null
 
+let selectedParticipantId = null
+let cancelledStatusId = null
 
 const performanceLoading =
   document.getElementById(
@@ -56,6 +58,32 @@ function showLoading() {
     )
 
 }
+
+
+async function loadStatusIds() {
+
+  const { data, error } =
+    await db
+      .from('status_master')
+      .select(`
+        status_id,
+        status_name
+      `)
+
+  if (error) {
+    throw error
+  }
+
+  cancelledStatusId =
+    data.find(
+      status =>
+        status.status_name ===
+        'Cancelled'
+    )?.status_id
+
+}
+
+
 async function loadEvents() {
 
   const {
@@ -197,11 +225,97 @@ async function loadCompetitionSources(
     data || []
 
 }
+function populateSourceRecords() {
+
+  const select =
+    document.getElementById(
+      'sourceRecordId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    '<option value="">Select Source Record</option>'
+
+  const sourceType =
+    getValue(
+      'sourceType'
+    )
+
+  sourceRecords.forEach(
+    record => {
+
+      if (
+        sourceType ===
+        'TRAINING'
+      ) {
+
+        select.innerHTML += `
+          <option
+            value="${record.training_id}"
+          >
+            ${record.training_date || ''}
+            - ${record.session_type || ''}
+          </option>
+        `
+
+      } else {
+
+        select.innerHTML += `
+          <option
+            value="${record.result_id}"
+          >
+            ${record.competition_date || ''}
+            - Position ${record.position || ''}
+          </option>
+        `
+
+      }
+
+    }
+  )
+
+}
 
 async function handleSourceChange() {
 
+  selectedTeamId = null
+selectedParticipantId = null
+
   setValue(
     'sourceRecordId',
+    ''
+  )
+
+  setValue(
+    'performanceDate',
+    ''
+  )
+
+  setValue(
+  'teamId',
+  ''
+)
+
+  setValue(
+    'distanceKm',
+    ''
+  )
+
+  setValue(
+    'durationMinutes',
+    ''
+  )
+
+  setValue(
+    'avgSpeedKmh',
+    ''
+  )
+
+  setValue(
+    'maxSpeedKmh',
     ''
   )
 
@@ -214,19 +328,22 @@ async function handleSourceChange() {
     getValue(
       'eventId'
     )
+if (
+  !sourceType ||
+  !eventId
+) {
 
-  if (
-    !sourceType ||
-    !eventId
-  ) {
+  sourceRecords = []
 
-    sourceRecords = []
+  populateSourceRecords()
 
-    populateSourceRecords()
+  return
 
-    return
+}
 
-  }
+await loadAvailableTeams(
+  eventId
+)
 
   if (
     sourceType ===
@@ -248,55 +365,71 @@ async function handleSourceChange() {
   populateSourceRecords()
 
 }
-function populateSourceRecords() {
+
+async function loadAvailableTeams(eventId) {
+
+  const { data: usedTeams } =
+    await db
+      .from('performance')
+      .select('team_id')
+      .eq('event_id', eventId)
+
+  const usedIds =
+    (usedTeams || [])
+      .map(r => r.team_id)
+
+  const { data, error } =
+    await db
+      .from('event_participants')
+      .select(`
+        participant_id,
+        team_id,
+        teams (
+          team_name
+        )
+      `)
+      .eq('event_id', eventId)
+.neq(
+  'status_id',
+  cancelledStatusId
+)
+
+  if (error) {
+    throw error
+  }
+
+  const available =
+    (data || [])
+      .filter(
+        row =>
+          !usedIds.includes(
+            row.team_id
+          )
+      )
 
   const select =
     document.getElementById(
-      'sourceRecordId'
+      'teamId'
     )
-
-  if (
-    !select
-  ) {
-    return
-  }
 
   select.innerHTML =
-    '<option value="">Select Record</option>'
+    '<option value="">Select Team</option>'
 
-  const sourceType =
-    getValue(
-      'sourceType'
-    )
+  available.forEach(
+    row => {
 
-  sourceRecords.forEach(
-    record => {
-
-      if (
-        sourceType ===
-        'TRAINING'
-      ) {
-
-        select.innerHTML += `
-          <option value="${record.training_id}">
-            ${record.training_date} - ${record.session_type}
-          </option>
-        `
-
-      } else {
-
-        select.innerHTML += `
-          <option value="${record.result_id}">
-            ${record.competition_date} - Position ${record.position}
-          </option>
-        `
-
-      }
-
+      select.innerHTML += `
+        <option
+          value="${row.team_id}"
+          data-participant="${row.participant_id}"
+        >
+          ${row.teams?.team_name || ''}
+        </option>
+      `
     }
   )
-
 }
+
 
 async function loadSourceRecordDetails() {
 
@@ -325,30 +458,28 @@ async function loadSourceRecordDetails() {
   ) {
 
     const {
-      data,
-      error
-    } =
-      await db
-        .from(
-          'training_log'
-        )
-        .select(`
-  training_id,
-  training_date,
-  team_id,
-  distance_km,
-  duration_minutes,
-  avg_speed_kmh,
-  teams(
-    team_name
-  )
-`)
-          
-        .eq(
-          'training_id',
-          recordId
-        )
-        .single()
+  data,
+  error
+} =
+  await db
+    .from('training_log')
+    .select(`
+      training_id,
+      training_date,
+      participant_id,
+      team_id,
+      distance_km,
+      duration_minutes,
+      avg_speed_kmh,
+      teams (
+        team_name
+      )
+    `)
+    .eq(
+      'training_id',
+      recordId
+    )
+    .single()
 
     if (
       error
@@ -358,12 +489,7 @@ async function loadSourceRecordDetails() {
 
     source = data
 
-    selectedTeamId =
-      source.team_id
-    setValue(
-  'teamName',
-  source.teams?.team_name || ''
-)
+
     setValue(
       'performanceDate',
       source.training_date
@@ -386,6 +512,7 @@ async function loadSourceRecordDetails() {
         )
         .select(`
   result_id,
+  participant_id,
   competition_date,
   team_id,
   distance_km,
@@ -409,19 +536,14 @@ async function loadSourceRecordDetails() {
       throw error
     }
 
-    source = data
-
-    selectedTeamId =
-      source.team_id
+   source = data
+   
 
     setValue(
       'performanceDate',
       source.competition_date
     )
-   setValue(
-  'teamName',
-  source.teams?.team_name || ''
-)
+   
     setValue(
       'maxSpeedKmh',
       source.max_speed_kmh || ''
@@ -489,10 +611,12 @@ function getValue(
   id
 ) {
 
-  return (
+  const element =
     document.getElementById(id)
-      ?.value || ''
-  )
+
+  return element
+    ? element.value
+    : ''
 
 }
 
@@ -505,13 +629,16 @@ function setValue(
     document.getElementById(id)
 
   if (
-    element
+    !element
   ) {
-
-    element.value =
-      value || ''
-
+    return
   }
+
+  element.value =
+    value === null ||
+    value === undefined
+      ? ''
+      : String(value)
 
 }
 
@@ -841,6 +968,8 @@ function clearPerformanceForm() {
 
   selectedTeamId = null
 
+selectedParticipantId = null
+
   setValue(
     'performanceId',
     ''
@@ -867,9 +996,9 @@ function clearPerformanceForm() {
   )
 
   setValue(
-    'teamName',
-    ''
-  )
+  'teamId',
+  ''
+)
 
   setValue(
     'distanceKm',
@@ -950,16 +1079,32 @@ function openNewPerformanceModal() {
   ).textContent =
     'Add Performance'
 
+  const modalElement =
+    document.getElementById(
+      'performanceModal'
+    )
+
+  if (
+    !modalElement
+  ) {
+
+    showError(
+      'performanceModal not found'
+    )
+
+    return
+
+  }
+
   const modal =
     new coreui.Modal(
-      document.getElementById(
-        'performanceModal'
-      )
+      modalElement
     )
 
   modal.show()
 
 }
+
 function validatePerformance() {
 
   clearError()
@@ -1006,10 +1151,35 @@ function validatePerformance() {
 
   }
 
-  return true
+  if (
+  !selectedTeamId
+) {
+
+  showError(
+  'Please select a team'
+)
+
+  return false
 
 }
 
+  if (
+    !getValue(
+      'performanceDate'
+    )
+  ) {
+
+    showError(
+      'Performance Date is required'
+    )
+
+    return false
+
+  }
+
+  return true
+
+}
   
 async function savePerformance() {
 
@@ -1058,13 +1228,16 @@ async function savePerformance() {
             )
           : null,
 
+      participant_id:
+  selectedParticipantId,
+
+team_id:
+  selectedTeamId,
+
       performance_date:
         getValue(
           'performanceDate'
         ),
-
-      team_id:
-        selectedTeamId,
 
       distance_km:
         Number(
@@ -1139,6 +1312,72 @@ async function savePerformance() {
 
     }
 
+    if (
+      !payload.source_type
+    ) {
+
+      throw new Error(
+        'Source Type is required'
+      )
+
+    }
+
+    if (
+      !payload.event_id
+    ) {
+
+      throw new Error(
+        'Event is required'
+      )
+
+    }
+
+    if (
+      payload.source_type ===
+      'TRAINING'
+      &&
+      !payload.training_id
+    ) {
+
+      throw new Error(
+        'Training Session not selected'
+      )
+
+    }
+
+    if (
+      payload.source_type ===
+      'COMPETITION'
+      &&
+      !payload.result_id
+    ) {
+
+      throw new Error(
+        'Competition Result not selected'
+      )
+
+    }
+
+    if (
+      !payload.participant_id
+    ) {
+
+      throw new Error(
+        'Participant not selected'
+      )
+
+    }
+
+    if (
+      !payload.team_id
+    ) {
+
+      throw new Error(
+        'Team could not be resolved from selected participant'
+      )
+
+    }
+
     let error
 
     if (
@@ -1180,7 +1419,9 @@ async function savePerformance() {
     if (
       error
     ) {
+
       throw error
+
     }
 
     await db.rpc(
@@ -1227,6 +1468,8 @@ async function savePerformance() {
   }
 
 }
+
+
 window.editPerformance =
 function (
   performanceId
@@ -1501,13 +1744,18 @@ function wireEvents() {
     loadSourceRecordDetails
   )
 
-   document
+  document
   .getElementById(
     'sourceType'
   )
   ?.addEventListener(
     'change',
     () => {
+
+      selectedTeamId = null
+selectedParticipantId = null
+
+      sourceRecords = []
 
       setValue(
         'eventId',
@@ -1518,6 +1766,38 @@ function wireEvents() {
         'sourceRecordId',
         ''
       )
+
+      setValue(
+        'performanceDate',
+        ''
+      )
+
+      setValue(
+  'teamId',
+  ''
+)
+
+      setValue(
+        'distanceKm',
+        ''
+      )
+
+      setValue(
+        'durationMinutes',
+        ''
+      )
+
+      setValue(
+        'avgSpeedKmh',
+        ''
+      )
+
+      setValue(
+        'maxSpeedKmh',
+        ''
+      )
+
+      populateSourceRecords()
 
       filterEventsBySource()
 
@@ -1532,6 +1812,28 @@ document
     'change',
     handleSourceChange
   )
+
+ document
+  .getElementById(
+    'teamId'
+  )
+  ?.addEventListener(
+    'change',
+    event => {
+
+      selectedTeamId =
+        event.target.value
+
+      const option =
+        event.target.selectedOptions[0]
+
+      selectedParticipantId =
+        option?.dataset
+          ?.participant || null
+
+    }
+  )
+
   document
     .getElementById(
       'btnAddPerformance'
@@ -1640,7 +1942,9 @@ async function initializePerformance() {
 
     }
 
-   await loadEvents()
+   await loadStatusIds()
+
+await loadEvents()
 
 await loadPerformance()
 
