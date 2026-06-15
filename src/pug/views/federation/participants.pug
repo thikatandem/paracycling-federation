@@ -23,7 +23,7 @@ block view
 
             .row.g-3.mb-4
 
-              .col-md-6
+              .col-md-4
 
                 label.form-label Event
 
@@ -31,7 +31,17 @@ block view
                   id='selectedEventId'
                 )
 
-              .col-md-6.d-flex.align-items-end
+              .col-md-4
+
+                label.form-label Program
+
+                select.form-select(
+                  id='selectedProgramId'
+                )
+
+                  option(value='') Select Program
+
+              .col-md-4.d-flex.align-items-end
 
                 button.btn.btn-primary(
                   type='button'
@@ -114,6 +124,16 @@ block view
 
           .card-body
 
+            .mb-2
+
+              div.text-success.fw-bold(
+                id='participantSuccess'
+              )
+
+              div.text-danger.fw-bold(
+                id='participantError'
+              )
+
             .mb-3
 
               input.form-control(
@@ -131,6 +151,8 @@ block view
                   tr
 
                     th Team
+
+                    th Program
 
                     th Registration Date
 

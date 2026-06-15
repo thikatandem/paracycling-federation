@@ -47,7 +47,13 @@ const participantError =
   document.getElementById(
     'participantError'
   )
+function getSelectedProgramId() {
 
+  return getValue(
+    'selectedProgramId'
+  )
+
+}
 function showLoading() {
 
   participantLoading
@@ -497,21 +503,26 @@ async function loadEventParticipants() {
           'event_participants'
         )
         .select(`
-          participant_id,
-          registration_date,
-          event_id,
-          team_id,
-          status_id,
+  participant_id,
+  registration_date,
+  event_id,
+  team_id,
+  status_id,
+  program_id,
 
-          teams (
-            team_name,
-            team_nickname
-          ),
+  teams (
+    team_name,
+    team_nickname
+  ),
 
-          status_master (
-            status_name
-          )
-        `)
+  event_programs (
+    program_name
+  ),
+
+  status_master (
+    status_name
+  )
+`)
         .eq(
           'event_id',
           eventId
@@ -632,6 +643,14 @@ function renderParticipants() {
           }
 
         </td>
+         
+        <td>
+  ${
+    participant
+      .event_programs
+      ?.program_name || ''
+  }
+</td>
 
         <td>
           ${
@@ -767,47 +786,58 @@ async function registerSelectedTeams() {
         'Registered status missing'
       )
     }
+const programId =
+  getSelectedProgramId()
+if (!programId) {
 
+  return showError(
+    'Select Program'
+  )
+
+}
     const payload = []
 
-    for (
-      const teamId
-      of selectedTeamIds
-    ) {
+   for (
+  const teamId
+  of selectedTeamIds
+) {
 
-      const exists =
-        participants.find(
-          participant =>
+  const exists =
+    participants.find(
+      participant =>
+        participant.team_id ===
+        teamId
+    )
 
-            participant.team_id ===
-            teamId
-        )
+  if (!exists) {
 
-      if (!exists) {
+    payload.push({
 
-        payload.push({
+      event_id: eventId,
 
-          event_id:
-            eventId,
+      program_id: programId,
 
-          team_id:
-            teamId,
+      team_id: teamId,
 
-          status_id:
-            registeredStatus.status_id
-        })
-      }
-    }
+      status_id:
+        registeredStatus.status_id
 
-    if (
-      payload.length === 0
-    ) {
+    })
 
-      return showError(
-        'Selected teams already registered'
-      )
-    }
+  }  
+}     
 
+if (
+  payload.length === 0
+) {
+
+  return showError(
+    'Selected teams already registered'
+  )
+
+}
+
+      
     const {
       error
     } =
@@ -1207,6 +1237,22 @@ function wireEvents() {
       'click',
       registerSelectedTeams
     )
+  document
+  .getElementById(
+    'selectedEventId'
+  )
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      await loadPrograms(
+        event.target.value
+      )
+
+      await loadAvailableTeams()
+
+    }
+  )
 
   document
     .getElementById(
@@ -1349,3 +1395,73 @@ document
     'DOMContentLoaded',
     initializeParticipants
   )
+
+async function loadPrograms(
+  eventId
+) {
+
+  const select =
+    document.getElementById(
+      'selectedProgramId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML = `
+    <option value="">
+      Select Program
+    </option>
+  `
+
+  if (!eventId) {
+    return
+  }
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .select(`
+        program_id,
+        program_name
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .order(
+        'program_name'
+      )
+
+  if (error) {
+
+    console.error(error)
+
+    return
+  }
+
+  programs =
+    data || []
+
+  for (
+    const program
+    of programs
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${program.program_id}"
+      >
+        ${program.program_name}
+      </option>
+    `
+  }
+
+}

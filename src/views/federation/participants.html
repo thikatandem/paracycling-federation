@@ -573,11 +573,17 @@
                       <div class="spinner-border text-primary"></div>
                     </div>
                     <div class="row g-3 mb-4">
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                         <label class="form-label">Event</label>
                         <select class="form-select" id="selectedEventId"></select>
                       </div>
-                      <div class="col-md-6 d-flex align-items-end">
+                      <div class="col-md-4">
+                        <label class="form-label">Program</label>
+                        <select class="form-select" id="selectedProgramId">
+                          <option value="">Select Program</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4 d-flex align-items-end">
                         <button class="btn btn-primary" type="button" id="btnLoadEventParticipants">
                           <i class="fa fa-search me-2"></i>
                           Load Event
@@ -633,6 +639,10 @@
                     </button>
                   </div>
                   <div class="card-body">
+                    <div class="mb-2">
+                      <div class="text-success fw-bold" id="participantSuccess"></div>
+                      <div class="text-danger fw-bold" id="participantError"></div>
+                    </div>
                     <div class="mb-3">
                       <input class="form-control" type="text" id="searchParticipant" placeholder="Search Team or Status">
                     </div>
@@ -641,6 +651,7 @@
                         <thead>
                           <tr>
                             <th>Team</th>
+                            <th>Program</th>
                             <th>Registration Date</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -710,15 +721,24 @@
       </div>
       <footer class="footer px-4">
         <div>
-          <a href="https://coreui.io">CoreUI</a>
-          <a href="https://coreui.io/product/free-bootstrap-admin-template/">Bootstrap Admin Template</a>
-          &copy; 2026 creativeLabs.
+          ©
+          <span id="copyrightYear"></span>
+          Thika Tandem Paracycling
         </div>
         <div class="ms-auto">
-          Powered by&nbsp;
-          <a href="https://coreui.io/bootstrap/docs/">CoreUI UI Components</a>
+          Created by&nbsp;
+          <a href="https://hashwebsite.com/" target="_blank" rel="noopener noreferrer">HashWebs</a>
         </div>
       </footer>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const year = document.getElementById("copyrightYear");
+
+          if (year) {
+            year.textContent = new Date().getFullYear();
+          }
+        });
+      </script>
     </div>
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>

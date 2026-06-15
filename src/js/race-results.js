@@ -9,7 +9,10 @@ let results = [];
 let filteredResults = [];
 
 let events = [];
-let eventTeams = [];
+
+let programs = [];
+
+let participants = [];
 
 let resultModal = null;
 let deleteResultModal = null;
@@ -107,11 +110,17 @@ async function loadEvents() {
 
   const { data, error } = await db
     .from('events')
-    .select(`
-      event_id,
-      event_name
-    `)
-    .order('event_name');
+.select(`
+  event_id,
+  event_name
+`)
+.eq(
+  'event_category',
+  'COMPETITION'
+)
+.order(
+  'event_name'
+)
 
   if (error) {
     console.error(error);
@@ -136,52 +145,121 @@ async function loadEvents() {
 
   });
 }
-async function loadTeamsForEvent(eventId) {
 
-  $('teamId').innerHTML =
-    '<option value="">Loading...</option>';
+async function loadPrograms(
+  eventId
+) {
 
-  if (!eventId) {
-
-    $('teamId').innerHTML =
-      '<option value="">Select Event First</option>';
-
-    return;
-  }
-
-  const { data, error } = await db
-    .from('event_participants')
-    .select(`
-      team_id,
-      teams (
-        team_name
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'event_programs'
       )
-    `)
-    .eq('event_id', eventId);
+      .select(`
+        program_id,
+        program_name
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .eq(
+        'program_type',
+        'COMPETITION'
+      )
 
   if (error) {
-    console.error(error);
-    return;
+    throw error
   }
 
-  eventTeams = data || [];
+  programs =
+    data || []
 
-  $('teamId').innerHTML =
-    '<option value="">Select Team</option>';
+  $('programId').innerHTML =
+    `
+    <option value="">
+      Select Program
+    </option>
+    `
 
-  eventTeams.forEach(item => {
+  programs.forEach(
+    program => {
 
-    $('teamId').insertAdjacentHTML(
-      'beforeend',
-      `
-      <option value="${item.team_id}">
-        ${item.teams?.team_name || ''}
-      </option>
-      `
-    );
+      $('programId')
+        .insertAdjacentHTML(
+          'beforeend',
+          `
+          <option value="${program.program_id}">
+            ${program.program_name}
+          </option>
+          `
+        )
 
-  });
+    }
+  )
+
 }
+async function loadParticipants(
+  programId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'event_participants'
+      )
+      .select(`
+        participant_id,
+        team_id,
+
+        teams(
+          team_name
+        )
+      `)
+      .eq(
+        'program_id',
+        programId
+      )
+
+  if (error) {
+    throw error
+  }
+
+  participants =
+    data || []
+
+  $('participantId').innerHTML =
+    `
+    <option value="">
+      Select Participant
+    </option>
+    `
+
+  participants.forEach(
+    participant => {
+
+      $('participantId')
+        .insertAdjacentHTML(
+          'beforeend',
+          `
+          <option value="${participant.participant_id}">
+            ${participant.teams?.team_name || ''}
+          </option>
+          `
+        )
+
+    }
+  )
+
+}
+
+
 async function loadResults() {
 
   showLoading();
@@ -371,8 +449,23 @@ async function saveResult() {
     const eventId =
       $('eventId').value;
 
-    const teamId =
-      $('teamId').value;
+    const participantId =
+  $('participantId').value;
+
+const participant =
+  participants.find(
+    p =>
+      p.participant_id ===
+      participantId
+  );
+
+if (!participant) {
+
+  throw new Error(
+    'Participant is required'
+  );
+
+}
 
     const position =
       Number(
@@ -419,7 +512,7 @@ const maxSpeedKmh =
   );
 }
 
-if (!teamId) {
+if (!participantId) {
   throw new Error(
     'Team is required'
   );
@@ -502,8 +595,11 @@ if (!position) {
   event_id:
     eventId,
 
-  team_id:
-    teamId,
+participant_id:
+  participantId,
+
+team_id:
+  participant.team_id,
 
   competition_date:
     competitionDate,
@@ -759,12 +855,19 @@ $('distanceKm')
 
         $('eventId').value = '';
 
-        $('teamId').innerHTML =
-          `
-          <option value="">
-            Select Event First
-          </option>
-          `;
+        $('programId').innerHTML =
+`
+<option value="">
+  Select Event First
+</option>
+`;
+
+$('participantId').innerHTML =
+`
+<option value="">
+  Select Program First
+</option>
+`;
 
         $('position').value = '';
 
@@ -801,17 +904,29 @@ $('maxSpeedKmh').value = '';
       }
     );
 
-  $('eventId')
-    ?.addEventListener(
-      'change',
-      async event => {
+ $('eventId')
+  ?.addEventListener(
+    'change',
+    async event => {
 
-        await loadTeamsForEvent(
-          event.target.value
-        );
-      }
-    );
+      await loadPrograms(
+        event.target.value
+      );
 
+    }
+  );
+
+$('programId')
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      await loadParticipants(
+        event.target.value
+      );
+
+    }
+  );
   $('position')
     ?.addEventListener(
       'input',

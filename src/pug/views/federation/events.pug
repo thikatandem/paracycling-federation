@@ -174,14 +174,9 @@ block view
                 id='eventCategory'
               )
 
-                option(value='')
-                  | Select Category
-
-                option(value='TRAINING')
-                  | Training
-
-                option(value='COMPETITION')
-                  | Competition
+                option(value='') Select Category
+                option(value='TRAINING') Training
+                option(value='COMPETITION') Competition
 
             .col-md-12
 
@@ -299,6 +294,92 @@ block view
             id='btnConfirmDeleteEvent'
           )
             | Delete Event
+
+  .modal.fade(
+    id='programModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-lg
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Event Programs
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='programEventId'
+          )
+
+          h6.mb-3(
+            id='programEventName'
+          )
+
+          .row.g-3.mb-4
+
+            .col-md-4
+
+              label.form-label Program Name
+
+              input.form-control(
+                id='programName'
+              )
+
+            .col-md-3
+
+              label.form-label Type
+
+              select.form-select(
+                id='programType'
+              )
+
+                option(value='') Select Type
+                option(value='TRAINING') Training
+                option(value='COMPETITION') Competition
+
+            .col-md-2
+
+              label.form-label Days
+
+              input.form-control(
+                type='number'
+                id='daysPerWeek'
+              )
+
+            .col-md-3.d-flex.align-items-end
+
+              button.btn.btn-success.w-100(
+                type='button'
+                id='btnSaveProgram'
+              )
+                Add Program
+
+          .table-responsive
+
+            table.table.table-striped
+
+              thead
+
+                tr
+
+                  th Program
+                  th Type
+                  th Days
+                  th Active
+                  th Actions
+
+              tbody#programTableBody
 
 append pageScripts
 

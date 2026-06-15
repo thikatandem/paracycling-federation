@@ -35,7 +35,7 @@ block view
                 input.form-control(
                   type='text'
                   id='searchResult'
-                  placeholder='Search Event, Team or Medal'
+                  placeholder='Search Event, Program, Team or Medal'
                 )
 
             .table-responsive
@@ -47,6 +47,7 @@ block view
                   tr
 
                     th Event
+                    th Program
                     th Team
                     th Distance
                     th Duration
@@ -114,26 +115,33 @@ block view
 
           .row.g-3
 
-            .col-md-6
+            .col-md-4
 
-              label.form-label Event
+              label.form-label Competition Event
 
               select.form-select(
                 id='eventId'
               )
 
-            .col-md-6
+            .col-md-4
 
-              label.form-label Team
+              label.form-label Program / Discipline
 
               select.form-select(
-                id='teamId'
+                id='programId'
               )
 
-                option(
-                  value=''
-                )
-                  | Select Event First
+                option(value='') Select Event First
+
+            .col-md-4
+
+              label.form-label Participant Team
+
+              select.form-select(
+                id='participantId'
+              )
+
+                option(value='') Select Program First
 
             .col-md-4
 

@@ -13,7 +13,7 @@ let eventTypes = []
 let sponsors = []
 
 let currentPage = 1
-
+let programs = []
 const eventLoading =
   document.getElementById(
     'eventLoading'
@@ -527,7 +527,12 @@ function renderEvents() {
       </button>
       `
   }
-
+<button
+  class="btn btn-sm btn-info me-1"
+  onclick="managePrograms('${event.event_id}')"
+>
+  Programs
+</button>
   <button
     class="btn btn-sm btn-danger"
     onclick="confirmDeleteEvent('${event.event_id}')"
@@ -1625,3 +1630,253 @@ document.addEventListener(
       )
   }
 )
+
+window.managePrograms =
+async function (
+  eventId
+) {
+
+  const event =
+    events.find(
+      e =>
+        e.event_id ===
+        eventId
+    )
+
+  if (!event) {
+    return
+  }
+
+  setValue(
+    'programEventId',
+    eventId
+  )
+
+  document
+    .getElementById(
+      'programEventName'
+    ).textContent =
+      event.event_name
+
+  await loadPrograms(
+    eventId
+  )
+
+  const modal =
+    new coreui.Modal(
+      document.getElementById(
+        'programModal'
+      )
+    )
+
+  modal.show()
+
+}
+
+async function loadPrograms(
+  eventId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .select('*')
+      .eq(
+        'event_id',
+        eventId
+      )
+      .order(
+        'sort_order'
+      )
+
+  if (error) {
+
+    console.error(error)
+
+    return
+  }
+
+  programs =
+    data || []
+
+  renderPrograms()
+
+}
+
+function renderPrograms() {
+
+  const body =
+    document.getElementById(
+      'programTableBody'
+    )
+
+  if (!body) {
+    return
+  }
+
+  body.innerHTML = ''
+
+  programs.forEach(
+    program => {
+
+      body.innerHTML += `
+        <tr>
+
+          <td>
+            ${program.program_name}
+          </td>
+
+          <td>
+            ${program.program_type}
+          </td>
+
+          <td>
+            ${
+              program.days_per_week || ''
+            }
+          </td>
+
+          <td>
+            ${
+              program.active
+                ? 'Yes'
+                : 'No'
+            }
+          </td>
+
+          <td>
+
+            <button
+              class="btn btn-sm btn-danger"
+              onclick="deleteProgram('${program.program_id}')"
+            >
+              Delete
+            </button>
+
+          </td>
+
+        </tr>
+      `
+    }
+  )
+
+}
+async function saveProgram() {
+
+  const eventId =
+    getValue(
+      'programEventId'
+    )
+
+  const payload = {
+
+    event_id:
+      eventId,
+
+    program_name:
+      getValue(
+        'programName'
+      ),
+
+    program_type:
+      getValue(
+        'programType'
+      ),
+
+    days_per_week:
+      getValue(
+        'daysPerWeek'
+      ) || null
+
+  }
+
+  const {
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .insert(
+        payload
+      )
+
+  if (error) {
+
+    alert(
+      error.message
+    )
+
+    return
+  }
+
+  setValue(
+    'programName',
+    ''
+  )
+
+  setValue(
+    'programType',
+    ''
+  )
+
+  setValue(
+    'daysPerWeek',
+    ''
+  )
+
+  await loadPrograms(
+    eventId
+  )
+
+}
+window.deleteProgram =
+async function (
+  programId
+) {
+
+  const {
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .delete()
+      .eq(
+        'program_id',
+        programId
+      )
+
+  if (error) {
+
+    alert(
+      error.message
+    )
+
+    return
+  }
+
+  await loadPrograms(
+    getValue(
+      'programEventId'
+    )
+  )
+
+}
+document
+  .getElementById(
+    'btnSaveProgram'
+  )
+  ?.addEventListener(
+    'click',
+    saveProgram
+  )

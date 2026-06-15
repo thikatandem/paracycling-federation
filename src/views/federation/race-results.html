@@ -578,7 +578,7 @@
                     </div>
                     <div class="row mb-3">
                       <div class="col-md-4">
-                        <input class="form-control" type="text" id="searchResult" placeholder="Search Event, Team or Medal">
+                        <input class="form-control" type="text" id="searchResult" placeholder="Search Event, Program, Team or Medal">
                       </div>
                     </div>
                     <div class="table-responsive">
@@ -586,6 +586,7 @@
                         <thead>
                           <tr>
                             <th>Event</th>
+                            <th>Program</th>
                             <th>Team</th>
                             <th>Distance</th>
                             <th>Duration</th>
@@ -624,14 +625,20 @@
                 <div class="modal-body">
                   <input type="hidden" id="resultId">
                   <div class="row g-3">
-                    <div class="col-md-6">
-                      <label class="form-label">Event</label>
+                    <div class="col-md-4">
+                      <label class="form-label">Competition Event</label>
                       <select class="form-select" id="eventId"></select>
                     </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Team</label>
-                      <select class="form-select" id="teamId">
+                    <div class="col-md-4">
+                      <label class="form-label">Program / Discipline</label>
+                      <select class="form-select" id="programId">
                         <option value="">Select Event First</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Participant Team</label>
+                      <select class="form-select" id="participantId">
+                        <option value="">Select Program First</option>
                       </select>
                     </div>
                     <div class="col-md-4">
@@ -706,15 +713,24 @@
       </div>
       <footer class="footer px-4">
         <div>
-          <a href="https://coreui.io">CoreUI</a>
-          <a href="https://coreui.io/product/free-bootstrap-admin-template/">Bootstrap Admin Template</a>
-          &copy; 2026 creativeLabs.
+          ©
+          <span id="copyrightYear"></span>
+          Thika Tandem Paracycling
         </div>
         <div class="ms-auto">
-          Powered by&nbsp;
-          <a href="https://coreui.io/bootstrap/docs/">CoreUI UI Components</a>
+          Created by&nbsp;
+          <a href="https://hashwebsite.com/" target="_blank" rel="noopener noreferrer">HashWebs</a>
         </div>
       </footer>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const year = document.getElementById("copyrightYear");
+
+          if (year) {
+            year.textContent = new Date().getFullYear();
+          }
+        });
+      </script>
     </div>
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>

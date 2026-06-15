@@ -12,7 +12,11 @@ let trainingLogs = []
 
 let filteredTrainingLogs = []
 
-let teams = []
+let events = []
+
+let programs = []
+
+let participants = []
 
 let currentPage = 1
 
@@ -98,15 +102,17 @@ function setValue(
   const element =
     document.getElementById(id)
 
-  if (element) {
-
-    element.value =
-      value || ''
-
+  if (!element) {
+    return
   }
 
-}
+  element.value =
+    value === null ||
+    value === undefined
+      ? ''
+      : String(value)
 
+}
 function calculateDuration() {
 
   const start =
@@ -195,69 +201,187 @@ function calculateAverageSpeed() {
     speed.toFixed(2)
   )
 }
+async function loadTrainingEvents() {
 
-async function loadTeams() {
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await db
-        .from('teams')
-        .select(`
-          team_id,
-          team_name
-        `)
-        .order(
-          'team_name'
-        )
-
-    if (error) {
-      throw error
-    }
-
-    teams =
-      data || []
-
-    const select =
-      document.getElementById(
-        'teamId'
+  const {
+    data,
+    error
+  } =
+    await db
+      .from('events')
+      .select(`
+        event_id,
+        event_name
+      `)
+      .eq(
+        'event_category',
+        'TRAINING'
+      )
+      .order(
+        'event_name'
       )
 
-    if (!select) {
-      return
-    }
+  if (error) {
+    throw error
+  }
 
-    select.innerHTML =
-      `
-      <option value="">
-        Select Team
+  events =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Event
+    </option>
+    `
+
+  for (
+    const event
+    of events
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${event.event_id}"
+      >
+        ${event.event_name}
       </option>
-      `
-
-    for (
-      const team
-      of teams
-    ) {
-
-      select.innerHTML += `
-        <option
-          value="${team.team_id}"
-        >
-          ${team.team_name}
-        </option>
-      `
-    }
-
-  } catch (error) {
-
-    console.error(error)
-
+    `
   }
 
 }
+async function loadPrograms(
+  eventId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'event_programs'
+      )
+      .select(`
+        program_id,
+        program_name
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+
+  if (error) {
+    throw error
+  }
+
+  programs =
+    data || []
+
+  const select =
+    document.getElementById(
+      'programId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Program
+    </option>
+    `
+
+  for (
+    const program
+    of programs
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${program.program_id}"
+      >
+        ${program.program_name}
+      </option>
+    `
+  }
+
+}
+async function loadParticipants(
+  programId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'event_participants'
+      )
+      .select(`
+        participant_id,
+        team_id,
+        teams(
+          team_name
+        )
+      `)
+      .eq(
+        'program_id',
+        programId
+      )
+
+  if (error) {
+    throw error
+  }
+
+  participants =
+    data || []
+
+  const select =
+    document.getElementById(
+      'participantId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Participant
+    </option>
+    `
+
+  for (
+    const participant
+    of participants
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${participant.participant_id}"
+      >
+        ${participant.teams?.team_name || ''}
+      </option>
+    `
+  }
+
+}
+
+
 async function loadTrainingLogs() {
 
   try {
@@ -269,15 +393,28 @@ async function loadTrainingLogs() {
       error
     } =
       await db
-        .from(
-          'training_log'
+  .from(
+    'training_log'
+  )
+  .select(`
+    *,
+
+    teams(
+      team_name
+    ),
+
+    event_participants(
+      participant_id,
+
+      event_programs(
+        program_name,
+
+        events(
+          event_name
         )
-        .select(`
-          *,
-          teams(
-            team_name
-          )
-        `)
+      )
+    )
+  `)
         .order(
           'training_date',
           {
@@ -346,7 +483,7 @@ function renderTrainingLogs() {
       <tr>
 
         <td
-          colspan="8"
+          colspan="9"
           class="text-center"
         >
           No Training Records Found
@@ -368,25 +505,45 @@ function renderTrainingLogs() {
     trainingTableBody.innerHTML += `
       <tr>
 
-        <td>
-          ${
-            training.training_date || ''
-          }
-        </td>
+       
 
-        <td>
-          ${
-            training.teams
-              ?.team_name || ''
-          }
-        </td>
+  <td>
+    ${
+      training.training_date || ''
+    }
+  </td>
 
-        <td>
-          ${
-            training.session_type || ''
-          }
-        </td>
+  <td>
+    ${
+      training
+        .event_participants
+        ?.event_programs
+        ?.events
+        ?.event_name || ''
+    }
+  </td>
 
+  <td>
+    ${
+      training
+        .event_participants
+        ?.event_programs
+        ?.program_name || ''
+    }
+  </td>
+
+  <td>
+    ${
+      training.teams
+        ?.team_name || ''
+    }
+  </td>
+
+  <td>
+    ${
+      training.session_type || ''
+    }
+  </td>
         <td>
           ${
             training.distance_km || 0
@@ -400,18 +557,10 @@ function renderTrainingLogs() {
         </td>
 
         <td>
-          ${
-            training.attendance
-              ? 'Present'
-              : 'Absent'
-          }
-        </td>
-
-        <td>
-          ${
-            training.notes || ''
-          }
-        </td>
+  ${
+    training.avg_speed_kmh || 0
+  }
+</td>
 
         <td>
 
@@ -513,7 +662,28 @@ function searchTrainingLogs() {
               .includes(search)
 
             ||
+           (
+  training
+    .event_participants
+    ?.event_programs
+    ?.events
+    ?.event_name || ''
+)
+  .toLowerCase()
+  .includes(search)
 
+||
+
+(
+  training
+    .event_participants
+    ?.event_programs
+    ?.program_name || ''
+)
+  .toLowerCase()
+  .includes(search)
+
+||
             (
               training.session_type || ''
             )
@@ -552,9 +722,19 @@ function clearTrainingForm() {
   )
 
   setValue(
-    'teamId',
-    ''
-  )
+  'eventId',
+  ''
+)
+
+setValue(
+  'programId',
+  ''
+)
+
+setValue(
+  'participantId',
+  ''
+)
 
   setValue(
     'sessionType',
@@ -600,7 +780,15 @@ setValue(
     'attendance',
     'true'
   )
+setValue(
+  'trainingWeek',
+  ''
+)
 
+setValue(
+  'trainingDay',
+  ''
+)
   setValue(
     'trainingDate',
     new Date()
@@ -641,18 +829,18 @@ function validateTraining() {
   }
 
   if (
-    !getValue(
-      'teamId'
-    )
-  ) {
+  !getValue(
+    'participantId'
+  )
+) {
 
-    showError(
-      'Team is required'
-    )
+  showError(
+    'Participant is required'
+  )
 
-    return false
-  }
+  return false
 
+}
   if (
     !getValue(
       'sessionType'
@@ -718,75 +906,101 @@ async function saveTraining() {
       return
     }
 
-    const trainingId =
-      getValue(
-        'trainingId'
-      )
-
-    const payload = {
-      
-
-      training_date:
-        getValue(
-          'trainingDate'
-        ),
-      start_time:
+   const participantId =
   getValue(
-    'startTime'
-  ),
+    'participantId'
+  )
 
-end_time:
-  getValue(
-    'endTime'
-  ),
+const participant =
+  participants.find(
+    p =>
+      p.participant_id ===
+      participantId
+  )
 
-avg_speed_kmh:
-  Number(
+if (
+  !participant
+) {
+
+  throw new Error(
+    'Please select a valid participant'
+  )
+
+}
+
+const payload = {
+
+  training_date:
     getValue(
-      'avgSpeedKmh'
+      'trainingDate'
+    ),
+  start_time:
+    getValue(
+      'startTime'
+    ),
+
+  end_time:
+    getValue(
+      'endTime'
+    ),
+
+  avg_speed_kmh:
+    Number(
+      getValue(
+        'avgSpeedKmh'
+      )
+    ),
+
+  indoor_session:
+    getValue(
+      'indoorSession'
+    ) === 'true',
+
+  participant_id:
+    participantId,
+
+  event_id:
+    getValue(
+      'eventId'
+    ),
+
+  team_id:
+    participant.team_id,
+
+  session_type:
+    getValue(
+      'sessionType'
+    ),
+
+  distance_km:
+    Number(
+      getValue(
+        'distanceKm'
+      )
+    ),
+
+  duration_minutes:
+    Number(
+      getValue(
+        'durationMinutes'
+      )
+    ),
+
+  attendance:
+    getValue(
+      'attendance'
+    ) === 'true',
+
+  notes:
+    getValue(
+      'notes'
     )
-  ),
 
-indoor_session:
+}
+const trainingId =
   getValue(
-    'indoorSession'
-  ) === 'true',
-
-      team_id:
-        getValue(
-          'teamId'
-        ),
-
-      session_type:
-        getValue(
-          'sessionType'
-        ),
-
-      distance_km:
-        Number(
-          getValue(
-            'distanceKm'
-          )
-        ),
-
-      duration_minutes:
-        Number(
-          getValue(
-            'durationMinutes'
-          )
-        ),
-
-      attendance:
-        getValue(
-          'attendance'
-        ) === 'true',
-
-      notes:
-        getValue(
-          'notes'
-        )
-    }
-
+    'trainingId'
+  )
     let error
 
     if (
@@ -891,9 +1105,9 @@ function (
   )
 
   setValue(
-    'teamId',
-    training.team_id
-  )
+  'participantId',
+  training.participant_id
+)
    
    setValue(
   'startTime',
@@ -1050,33 +1264,78 @@ function wireEvents() {
       'click',
       saveTraining
     )
-   
+
   document
-  .getElementById(
-    'startTime'
-  )
-  ?.addEventListener(
-    'change',
-    calculateDuration
-  )
+    .getElementById(
+      'startTime'
+    )
+    ?.addEventListener(
+      'change',
+      calculateDuration
+    )
 
-document
-  .getElementById(
-    'endTime'
-  )
-  ?.addEventListener(
-    'change',
-    calculateDuration
-  )
+  document
+    .getElementById(
+      'endTime'
+    )
+    ?.addEventListener(
+      'change',
+      calculateDuration
+    )
 
-document
-  .getElementById(
-    'distanceKm'
-  )
-  ?.addEventListener(
-    'input',
-    calculateAverageSpeed
-  )
+  document
+    .getElementById(
+      'distanceKm'
+    )
+    ?.addEventListener(
+      'input',
+      calculateAverageSpeed
+    )
+
+  document
+    .getElementById(
+      'eventId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        setValue(
+          'programId',
+          ''
+        )
+
+        setValue(
+          'participantId',
+          ''
+        )
+
+        await loadPrograms(
+          e.target.value
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'programId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        setValue(
+          'participantId',
+          ''
+        )
+
+        await loadParticipants(
+          e.target.value
+        )
+
+      }
+    )
 
   document
     .getElementById(
@@ -1159,7 +1418,7 @@ async function initializeTrainingLogs() {
 
   try {
 
-    await loadTeams()
+    await loadTrainingEvents()
 
     await loadTrainingLogs()
 

@@ -12,7 +12,11 @@ let trainingLogs = []
 
 let filteredTrainingLogs = []
 
-let teams = []
+let events = []
+
+let programs = []
+
+let participants = []
 
 let currentPage = 1
 
@@ -106,68 +110,128 @@ function setValue(
   }
 
 }
-async function loadTeams() {
+async function loadTrainingEvents() {
 
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await db
-        .from('teams')
-        .select(`
-          team_id,
-          team_name
-        `)
-        .order(
-          'team_name'
-        )
-
-    if (error) {
-      throw error
-    }
-
-    teams =
-      data || []
-
-    const select =
-      document.getElementById(
-        'teamId'
+  const {
+    data,
+    error
+  } =
+    await db
+      .from('events')
+      .select(`
+        event_id,
+        event_name
+      `)
+      .eq(
+        'event_category',
+        'TRAINING'
+      )
+      .order(
+        'event_name'
       )
 
-    if (!select) {
-      return
-    }
+  if (error) {
+    throw error
+  }
 
-    select.innerHTML =
-      `
-      <option value="">
-        Select Team
+  events =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Event
+    </option>
+    `
+
+  for (
+    const event
+    of events
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${event.event_id}"
+      >
+        ${event.event_name}
       </option>
-      `
-
-    for (
-      const team
-      of teams
-    ) {
-
-      select.innerHTML += `
-        <option
-          value="${team.team_id}"
-        >
-          ${team.team_name}
-        </option>
-      `
-    }
-
-  } catch (error) {
-
-    console.error(error)
-
+    `
   }
 
 }
+async function loadPrograms(
+  eventId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'event_programs'
+      )
+      .select(`
+        program_id,
+        program_name
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .order(
+        'program_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  programs =
+    data || []
+
+  const select =
+    document.getElementById(
+      'programId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Program
+    </option>
+    `
+
+  for (
+    const program
+    of programs
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${program.program_id}"
+      >
+        ${program.program_name}
+      </option>
+    `
+  }
+
+}
+
+
 async function loadTrainingLogs() {
 
   try {
@@ -620,10 +684,10 @@ async function saveTraining() {
           'trainingDate'
         ),
 
-      team_id:
-        getValue(
-          'teamId'
-        ),
+      participant_id:
+  getValue(
+    'participantId'
+  ),
 
       session_type:
         getValue(

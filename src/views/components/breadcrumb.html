@@ -655,15 +655,24 @@
       </div>
       <footer class="footer px-4">
         <div>
-          <a href="https://coreui.io">CoreUI</a>
-          <a href="https://coreui.io/product/free-bootstrap-admin-template/">Bootstrap Admin Template</a>
-          &copy; 2026 creativeLabs.
+          ©
+          <span id="copyrightYear"></span>
+          Thika Tandem Paracycling
         </div>
         <div class="ms-auto">
-          Powered by&nbsp;
-          <a href="https://coreui.io/bootstrap/docs/">CoreUI UI Components</a>
+          Created by&nbsp;
+          <a href="https://hashwebsite.com/" target="_blank" rel="noopener noreferrer">HashWebs</a>
         </div>
       </footer>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const year = document.getElementById("copyrightYear");
+
+          if (year) {
+            year.textContent = new Date().getFullYear();
+          }
+        });
+      </script>
     </div>
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>

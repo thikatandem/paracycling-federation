@@ -1,9 +1,36 @@
 ﻿footer.footer.px-4
-  div
-    a(href='https://coreui.io') CoreUI 
-    a(href='https://coreui.io/product/free-bootstrap-admin-template/') Bootstrap Admin Template
-    |  &copy; 2026 creativeLabs.
-  div.ms-auto
-    | Powered by&nbsp;
-    a(href='https://coreui.io/bootstrap/docs/') CoreUI UI Components
 
+  div
+
+    | ©
+
+    span#copyrightYear
+
+    |  Thika Tandem Paracycling
+
+  div.ms-auto
+
+    | Created by&nbsp;
+
+    a(
+      href='https://hashwebsite.com/'
+      target='_blank'
+      rel='noopener noreferrer'
+    ) HashWebs
+
+script.
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+      const year =
+        document.getElementById(
+          'copyrightYear'
+        )
+
+      if (year) {
+        year.textContent =
+          new Date()
+            .getFullYear()
+      }
+    }
+  )
