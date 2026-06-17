@@ -10,6 +10,11 @@ let filteredParticipants = []
 
 let events = []
 let teams = []
+
+let athletes = []
+
+let registrationType =
+  'TEAM'
 let statuses = []
 
 let currentPage = 1
@@ -460,6 +465,126 @@ async function loadAvailableTeams() {
   renderAvailableTeams()
 }
 
+async function loadAvailableAthletes() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('athletes')
+      .select(`
+        athlete_id,
+        athlete_code,
+        first_name,
+        last_name
+      `)
+      .eq(
+        'status',
+        'Active'
+      )
+      .order(
+        'first_name'
+      )
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  athletes =
+    data || []
+
+  renderAvailableAthletes()
+}
+
+function renderAvailableAthletes() {
+
+  availableTeamsBody.innerHTML =
+    ''
+
+  athletes.forEach(
+    athlete => {
+
+      availableTeamsBody.innerHTML += `
+        <tr>
+
+          <td>
+
+            <input
+              type="checkbox"
+              class="athlete-checkbox"
+              value="${athlete.athlete_id}"
+            >
+
+          </td>
+
+          <td>
+
+            ${athlete.athlete_code}
+
+            -
+            ${athlete.first_name}
+
+            ${athlete.last_name}
+
+          </td>
+
+        </tr>
+      `
+    }
+  )
+}
+async function detectRegistrationType() {
+
+  const eventId =
+    getSelectedEventId()
+
+  if (!eventId) {
+    return
+  }
+
+  const {
+    data
+  } =
+    await window.supabaseClient
+      .from('events')
+      .select(`
+        event_category
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .single()
+
+  if (
+    data?.event_category ===
+    'TRAINING'
+  ) {
+
+    registrationType =
+      'ATHLETE'
+
+    document.getElementById(
+      'registrationTypeAthlete'
+    ).checked = true
+
+    loadAvailableAthletes()
+
+  } else {
+
+    registrationType =
+      'TEAM'
+
+    document.getElementById(
+      'registrationTypeTeam'
+    ).checked = true
+
+    loadAvailableTeams()
+  }
+}
+
 function getSelectedTeamIds() {
 
   return Array
@@ -502,17 +627,24 @@ async function loadEventParticipants() {
         .from(
           'event_participants'
         )
-        .select(`
+   .select(`
   participant_id,
   registration_date,
   event_id,
   team_id,
+  athlete_id,
   status_id,
   program_id,
 
   teams (
     team_name,
     team_nickname
+  ),
+
+  athletes (
+    first_name,
+    last_name,
+    athlete_code
   ),
 
   event_programs (
@@ -597,9 +729,9 @@ function renderParticipants() {
     participantsTableBody.innerHTML =
       `
       <tr>
-        <td colspan="4"
+        <td colspan="6"
             class="text-center">
-          No registered teams
+          No registrations found
         </td>
       </tr>
       `
@@ -614,43 +746,45 @@ function renderParticipants() {
     of rows
   ) {
 
+    const participantType =
+      participant.team_id
+        ? 'TEAM'
+        : 'ATHLETE'
+
+    const participantName =
+      participant.team_id
+
+        ?
+
+        (
+          participant.teams
+            ?.team_name || ''
+        )
+
+        :
+
+        (
+          `${participant.athletes?.first_name || ''} ${participant.athletes?.last_name || ''}`
+        )
+
     participantsTableBody.innerHTML += `
       <tr>
 
         <td>
-
-          <strong>
-            ${
-              participant.teams
-                ?.team_name || ''
-            }
-          </strong>
-
-          ${
-            participant.teams
-              ?.team_nickname
-
-              ?
-
-              `<br>
-               <small class="text-muted">
-                 (${participant.teams.team_nickname})
-               </small>`
-
-              :
-
-              ''
-          }
-
+          ${participantType}
         </td>
-         
+
         <td>
-  ${
-    participant
-      .event_programs
-      ?.program_name || ''
-  }
-</td>
+          ${participantName}
+        </td>
+
+        <td>
+          ${
+            participant
+              .event_programs
+              ?.program_name || ''
+          }
+        </td>
 
         <td>
           ${
@@ -759,18 +893,42 @@ async function registerSelectedTeams() {
       )
     }
 
-    const selectedTeamIds =
-      getSelectedTeamIds()
-
     if (
-      selectedTeamIds.length === 0
-    ) {
+  registrationType ===
+  'TEAM'
+) {
 
-      return showError(
-        'Select at least one team'
+  const selectedTeamIds =
+    getSelectedTeamIds()
+
+  if (
+    selectedTeamIds.length === 0
+  ) {
+
+    return showError(
+      'Select at least one team'
+    )
+  }
+
+} else {
+
+  const selectedAthleteIds =
+    Array.from(
+      document.querySelectorAll(
+        '.athlete-checkbox:checked'
       )
-    }
+    )
 
+  if (
+    selectedAthleteIds.length === 0
+  ) {
+
+    return showError(
+      'Select at least one athlete'
+    )
+  }
+
+}
     const registeredStatus =
       statuses.find(
         status =>
@@ -797,42 +955,82 @@ if (!programId) {
 }
     const payload = []
 
-   for (
-  const teamId
-  of selectedTeamIds
+if (
+  registrationType ===
+  'TEAM'
 ) {
 
-  const exists =
-    participants.find(
-      participant =>
-        participant.team_id ===
-        teamId
-    )
+  const selectedTeamIds =
+    getSelectedTeamIds()
 
-  if (!exists) {
+  for (
+    const teamId
+    of selectedTeamIds
+  ) {
 
     payload.push({
 
-      event_id: eventId,
+      event_id:
+        eventId,
 
-      program_id: programId,
+      program_id:
+        programId,
 
-      team_id: teamId,
+      team_id:
+        teamId,
+
+      athlete_id:
+        null,
 
       status_id:
         registeredStatus.status_id
-
     })
+  }
 
-  }  
-}     
+} else {
+
+  const selectedAthleteIds =
+    Array.from(
+      document.querySelectorAll(
+        '.athlete-checkbox:checked'
+      )
+    )
+      .map(
+        checkbox =>
+          checkbox.value
+      )
+
+  for (
+    const athleteId
+    of selectedAthleteIds
+  ) {
+
+    payload.push({
+
+      event_id:
+        eventId,
+
+      program_id:
+        programId,
+
+      athlete_id:
+        athleteId,
+
+      team_id:
+        null,
+
+      status_id:
+        registeredStatus.status_id
+    })
+  }
+}
 
 if (
   payload.length === 0
 ) {
 
   return showError(
-    'Selected teams already registered'
+    'Select at least one participant'
   )
 
 }
@@ -1213,6 +1411,36 @@ updateEventHeader()
 }
 function wireEvents() {
 
+
+  document
+  .getElementById(
+    'registrationTypeTeam'
+  )
+  ?.addEventListener(
+    'change',
+    async () => {
+
+      registrationType =
+        'TEAM'
+
+      await loadAvailableTeams()
+    }
+  )
+
+document
+  .getElementById(
+    'registrationTypeAthlete'
+  )
+  ?.addEventListener(
+    'change',
+    async () => {
+
+      registrationType =
+        'ATHLETE'
+
+      await loadAvailableAthletes()
+    }
+  )
   document
     .getElementById(
       'btnLoadEventParticipants'
@@ -1249,7 +1477,9 @@ function wireEvents() {
         event.target.value
       )
 
-      await loadAvailableTeams()
+      await detectRegistrationType()
+
+      await loadEventParticipants()
 
     }
   )

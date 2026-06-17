@@ -1,5 +1,7 @@
 ﻿- var count = 1000
+
 doctype html
+
 include ../_partials/banner.pug
 include ../_mixins/breadcrumb.pug
 include ../_mixins/callout.pug
@@ -9,27 +11,50 @@ include ../_mixins/example.pug
 include ../_mixins/inline-svg.pug
 
 html(lang='en' dir=dir)
+
   head
+
     base(href=base)
+
     include ../_partials/head.pug
+
     block canonical
+
     block styles
 
   body
+
     include ../_partials/sidebar.pug
 
     .wrapper.d-flex.flex-column.min-vh-100
+
       include ../_partials/header.pug
 
       .body.flex-grow-1
+
         .container-lg.px-4
+
           block view
 
       include ../_partials/footer.pug
 
     include ../_partials/scripts.pug
 
-    script(src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
-    script(src='js/supabase.js')
+    script(
+      src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+    )
+
+    script(
+      src='js/supabase.js'
+    )
+
+    link(
+      rel='stylesheet'
+      href='https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css'
+    )
+
+    script(
+      src='https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js'
+    )
 
     block pageScripts

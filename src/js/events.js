@@ -15,9 +15,10 @@ let towns = []
 
 let eventTypes = []
 let sponsors = []
-
-let currentPage = 1
+let eventCategories = []
 let programs = []
+let currentPage = 1
+
 const eventLoading =
   document.getElementById(
     'eventLoading'
@@ -313,30 +314,30 @@ async function loadTowns(
     return
   }
 
-  const select =
-    document.getElementById(
-      'townId'
-    )
+  towns =
+  data || []
 
-  select.innerHTML =
-    `
-      <option value="">
-        Select Town
-      </option>
-    `
-
-  data.forEach(
-    item => {
-
-      select.innerHTML += `
-        <option
-          value="${item.town_id}"
-        >
-          ${item.town_name}
-        </option>
-      `
-    }
+const datalist =
+  document.getElementById(
+    'townList'
   )
+
+if (!datalist) {
+  return
+}
+
+datalist.innerHTML = ''
+
+  towns.forEach(
+  town => {
+
+    datalist.innerHTML += `
+      <option
+        value="${town.town_name}"
+      >
+    `
+  }
+ )
 }
 
 
@@ -393,6 +394,61 @@ async function loadEventTypes() {
     `
   }
 } 
+
+
+async function loadEventCategories() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'event_category_master'
+      )
+      .select('*')
+      .order(
+        'category_name'
+      )
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  eventCategories =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventCategoryId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Category
+      </option>
+    `
+
+  eventCategories.forEach(
+    category => {
+
+      select.innerHTML += `
+        <option
+          value="${category.event_category_id}"
+        >
+          ${category.category_name}
+        </option>
+      `
+    }
+  )
+}
+
 
 async function loadSponsors() {
 
@@ -469,8 +525,11 @@ async function loadEvents() {
     town_name
   ),
   event_type_master(
-            event_type_name
-          ),
+  event_type_name
+),
+event_category_master(
+  category_name
+),
           status_master(
             status_name
           ),
@@ -596,7 +655,10 @@ function renderEvents() {
 </td>
 
 <td>
-  ${event.event_category || ''}
+  ${
+  event.event_category_master
+    ?.category_name || ''
+}
 </td>
 
 <td>
@@ -921,10 +983,10 @@ function clearEventForm() {
     'eventCode',
     ''
   )
-  setValue(
-    'eventCategory',
-    ''
-  )
+ setValue(
+  'eventCategoryId',
+  ''
+)
   setValue(
     'eventName',
     ''
@@ -945,7 +1007,7 @@ setValue(
 )
 
 setValue(
-  'townId',
+  'townName',
   ''
 )
 
@@ -1056,8 +1118,8 @@ async function (eventId) {
   )
   
   setValue(
-  'eventCategory',
-  event.event_category
+  'eventCategoryId',
+  event.event_category_id
 )
 
   setValue(
@@ -1093,8 +1155,9 @@ await loadTowns(
 )
 
 setValue(
-  'townId',
-  event.town_id
+  'townName',
+  event.town_master
+    ?.town_name || ''
 )
   setValue(
     'city',
@@ -1237,10 +1300,10 @@ if (
 
 if (
   !getValue(
-    'townId'
+    'townName'
   )
-) {
-
+)
+{
   showError(
     'Town is required'
   )
@@ -1275,7 +1338,7 @@ if (
   }
   if (
   !getValue(
-    'eventCategory'
+    'eventCategoryId'
   )
 ) {
 
@@ -1451,6 +1514,34 @@ async function saveEvent() {
       getValue(
         'eventId'
       )
+  
+ let selectedTown =
+  towns.find(
+    town =>
+
+      town.town_name
+        .trim()
+        .toLowerCase()
+
+      ===
+
+      getValue(
+        'townName'
+      )
+        .trim()
+        .toLowerCase()
+  )
+
+if (!selectedTown) {
+
+  showError(
+    'Town must exist in the selected Sub County'
+  )
+
+  hideLoading()
+
+  return
+}
 
    const payload = {
 
@@ -1475,9 +1566,8 @@ async function saveEvent() {
     ) || null,
 
   town_id:
-    getValue(
-      'townId'
-    ) || null,
+  selectedTown
+    ?.town_id || null,
 
   city:
     getValue(
@@ -1494,10 +1584,10 @@ async function saveEvent() {
       'eventTypeId'
     ) || null,
   
-   event_category:
+ event_category_id:
   getValue(
-    'eventCategory'
-  ), 
+    'eventCategoryId'
+  ) || null,
 
   start_date:
     getValue(
@@ -1529,6 +1619,8 @@ async function saveEvent() {
       eventId
     ) {
 
+
+
       const result =
         await window
           .supabaseClient
@@ -1547,36 +1639,67 @@ async function saveEvent() {
       error =
         result.error
 
-      savedEventId =
-        eventId
+      if (
+  result.error
+) {
+  throw result.error
+}
 
-      await updateSponsors(
-        eventId
-      )
+savedEventId =
+  result.data?.[0]
+    ?.event_id
+
+if (
+  !savedEventId
+) {
+  throw new Error(
+    'Event ID not returned after save'
+  )
+}
+
+await updateSponsors(
+  savedEventId
+)
 
     } else {
 
       const result =
-        await window
-          .supabaseClient
-          .from(
-            'events'
-          )
-          .insert(
-            payload
-          )
-          .select()
+  await window
+    .supabaseClient
+    .from(
+      'events'
+    )
+    .insert(
+      payload
+    )
+    .select()
 
-      error =
-        result.error
+if (
+  result.error
+) {
+  throw result.error
+}
 
-      savedEventId =
-        result.data?.[0]
-          ?.event_id
+savedEventId =
+  result.data?.[0]
+    ?.event_id
 
-      await saveSponsors(
-        savedEventId
-      )
+console.log(
+  'Saved Event ID:',
+  savedEventId
+)
+
+if (
+  !savedEventId
+) {
+  throw new Error(
+    'Event insert succeeded but no event_id was returned'
+  )
+}
+
+await saveSponsors(
+  savedEventId
+)
     }
 
     if (
@@ -1806,8 +1929,7 @@ async function initializeEvents() {
   try {
 
     if (
-      !window
-        .supabaseClient
+      !window.supabaseClient
     ) {
 
       console.error(
@@ -1819,13 +1941,37 @@ async function initializeEvents() {
 
     await loadCountries()
 
-await loadCounties()
+    await loadCounties()
 
-await loadEventTypes()
+    await loadEventTypes()
 
-await loadSponsors()
+    await loadEventCategories()
 
-await loadEvents()
+    await loadSponsors()
+
+    const sponsorSelect =
+      document.getElementById(
+        'sponsorIds'
+      )
+
+    if (
+      sponsorSelect &&
+      !sponsorSelect.tomselect
+    ) {
+
+      new TomSelect(
+        '#sponsorIds',
+        {
+          plugins: [
+            'remove_button'
+          ],
+          create: false,
+          maxItems: null
+        }
+      )
+    }
+
+    await loadEvents()
 
   } catch (
     error

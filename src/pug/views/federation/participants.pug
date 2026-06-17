@@ -12,7 +12,7 @@ block view
 
           .card-header
 
-            h4.mb-0 Event Participants
+            h4.mb-0 Event Registration
 
           .card-body
 
@@ -38,8 +38,42 @@ block view
                 select.form-select(
                   id='selectedProgramId'
                 )
-
                   option(value='') Select Program
+
+              .col-md-4
+
+                label.form-label Registration Type
+
+                .mt-2
+
+                  .form-check.form-check-inline
+
+                    input.form-check-input(
+                      type='radio'
+                      name='registrationType'
+                      id='registrationTypeAthlete'
+                      value='ATHLETE'
+                    )
+
+                    label.form-check-label(
+                      for='registrationTypeAthlete'
+                    )
+                      Athlete
+
+                  .form-check.form-check-inline
+
+                    input.form-check-input(
+                      type='radio'
+                      name='registrationType'
+                      id='registrationTypeTeam'
+                      value='TEAM'
+                      checked
+                    )
+
+                    label.form-check-label(
+                      for='registrationTypeTeam'
+                    )
+                      Team
 
               .col-md-4.d-flex.align-items-end
 
@@ -49,7 +83,6 @@ block view
                 )
                   i.fa.fa-search.me-2
                   | Load Event
-
     .row
 
       .col-lg-5
@@ -58,7 +91,7 @@ block view
 
           .card-header
 
-            h5.mb-0 Available Teams
+            h5.mb-0 Available Participants
 
           .card-body
 
@@ -67,7 +100,7 @@ block view
               input.form-control(
                 type='text'
                 id='searchAvailableTeams'
-                placeholder='Search Teams'
+                placeholder='Search Athletes or Teams'
               )
 
             .table-responsive
@@ -96,7 +129,7 @@ block view
                 id='btnRegisterSelectedTeams'
               )
                 i.fa.fa-plus.me-2
-                | Register Selected Teams
+                | Register Selected Participants
 
       .col-lg-7
 
@@ -109,7 +142,7 @@ block view
               h5.mb-0(
                 id='selectedEventTitle'
               )
-                | Registered Teams
+                | Registered Participants
 
               small.text-muted(
                 id='selectedEventDate'
@@ -150,7 +183,9 @@ block view
 
                   tr
 
-                    th Team
+                    th Participant Type
+
+                    th Participant
 
                     th Program
 

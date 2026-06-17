@@ -1,6 +1,7 @@
 @use "@coreui/coreui/scss/coreui" as * with (
   $enable-deprecation-messages: false
 );
+
 @use "vendors/simplebar";
 
 body {
@@ -16,7 +17,7 @@ body {
 
 .header > .container-fluid,
 .sidebar-header {
-  min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+  min-height: calc(4rem + 1px);
 }
 
 .sidebar-brand-full {
@@ -24,6 +25,7 @@ body {
 }
 
 .sidebar-header {
+
   .nav-underline-border {
     --cui-nav-underline-border-link-padding-x: 1rem;
     --cui-nav-underline-border-gap: 0;
@@ -32,8 +34,9 @@ body {
   .nav-link {
     display: flex;
     align-items: center;
-    min-height: calc(4rem + 1px); // stylelint-disable-line function-disallowed-list
+    min-height: calc(4rem + 1px);
   }
+
 }
 
 .sidebar-toggler {
@@ -42,9 +45,11 @@ body {
 
 .sidebar-narrow,
 .sidebar-narrow-unfoldable:not(:hover) {
+
   .sidebar-toggler {
     margin-inline-end: auto;
   }
+
 }
 
 .header > .container-fluid + .container-fluid {
@@ -52,10 +57,11 @@ body {
 }
 
 .footer {
-  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+  min-height: calc(3rem + 1px);
 }
 
 @include color-mode(dark) {
+
   body {
     background-color: var(--cui-dark-bg-subtle);
   }
@@ -63,4 +69,55 @@ body {
   .footer {
     --cui-footer-bg: var(--cui-body-bg);
   }
+
+}
+
+/* =====================================================
+   TOM SELECT FIXES
+   ===================================================== */
+
+.ts-wrapper {
+
+  .ts-control {
+    background: #ffffff !important;
+    border: 1px solid var(--cui-border-color) !important;
+    opacity: 1 !important;
+  }
+
+}
+
+.ts-dropdown {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid var(--cui-border-color) !important;
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+}
+
+.ts-dropdown-content {
+  background: #ffffff !important;
+}
+
+.ts-dropdown .option {
+  background: #ffffff !important;
+  color: #212529 !important;
+}
+
+.ts-dropdown .active {
+  background: #e9ecef !important;
+  color: #212529 !important;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  background: var(--cui-primary) !important;
+  color: #ffffff !important;
+}
+
+.ts-control input {
+  color: #212529 !important;
+}
+
+.ts-control input::placeholder {
+  color: #6c757d !important;
 }

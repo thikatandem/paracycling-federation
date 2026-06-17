@@ -47,9 +47,9 @@ block view
                   tr
 
                     th Date
+                    th Type
+                    th Athlete / Team
                     th Event
-                    th Program
-                    th Team
                     th Session
                     th Distance
                     th Duration
@@ -122,6 +122,41 @@ block view
                 id='eventId'
               )
 
+            .col-md-12
+
+              label.form-label Training Type
+
+              .mt-2
+
+                .form-check.form-check-inline
+
+                  input.form-check-input(
+                    type='radio'
+                    name='trainingType'
+                    id='trainingTypeIndividual'
+                    value='INDIVIDUAL'
+                  )
+
+                  label.form-check-label(
+                    for='trainingTypeIndividual'
+                  )
+                    Individual
+
+                .form-check.form-check-inline
+
+                  input.form-check-input(
+                    type='radio'
+                    name='trainingType'
+                    id='trainingTypeTeam'
+                    value='TEAM'
+                    checked
+                  )
+
+                  label.form-check-label(
+                    for='trainingTypeTeam'
+                  )
+                    Team
+
             .col-md-4
 
               label.form-label Program
@@ -130,17 +165,19 @@ block view
                 id='programId'
               )
 
-                option(value='') Select Program
+                option(value='')
+                  Select Program
 
             .col-md-4
 
-              label.form-label Participant Team
+              label.form-label Participant
 
               select.form-select(
                 id='participantId'
               )
 
-                option(value='') Select Participant
+                option(value='')
+                  Select Participant
 
             .col-md-3
 
@@ -156,7 +193,7 @@ block view
               label.form-label Training Week
 
               input.form-control(
-                type='number'
+                type='text'
                 id='trainingWeek'
               )
 
@@ -165,18 +202,48 @@ block view
               label.form-label Training Day
 
               input.form-control(
-                type='number'
+                type='text'
                 id='trainingDay'
               )
+            .col-md-3
 
+              label.form-label County
+
+              select.form-select(
+              id='countyId'
+              )
+
+                option(value='')
+                Select County
+
+            .col-md-3
+
+              label.form-label Subcounty
+
+              select.form-select(
+                id='subcountyId'
+              )
+
+                option(value='')
+                  Select Subcounty
+
+            .col-md-3
+              label.form-label Town
+              input.form-control(
+                id='townName'
+                list='townList'
+                
+              )
+              datalist#townList             
             .col-md-3
 
               label.form-label Session Type
 
               input.form-control(
                 id='sessionType'
+                list='sessionTypes'
               )
-
+              datalist#sessionTypes
             .col-md-3
 
               label.form-label Start Time
@@ -244,8 +311,8 @@ block view
                 id='attendance'
               )
 
-               option(value='true') Present
-               option(value='false') Absent
+                option(value='true') Present
+                option(value='false') Absent
 
             .col-md-12
 

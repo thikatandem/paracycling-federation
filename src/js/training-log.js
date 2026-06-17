@@ -17,7 +17,10 @@ let events = []
 let programs = []
 
 let participants = []
+let towns = []
+let counties = []
 
+let subcounties = []
 let currentPage = 1
 
 const trainingLoading =
@@ -331,12 +334,19 @@ async function loadParticipants(
         'event_participants'
       )
       .select(`
-        participant_id,
-        team_id,
-        teams(
-          team_name
-        )
-      `)
+  participant_id,
+  team_id,
+  athlete_id,
+
+  teams(
+    team_name
+  ),
+
+  athletes(
+    first_name,
+    last_name
+  )
+`)
       .eq(
         'program_id',
         programId
@@ -365,22 +375,295 @@ async function loadParticipants(
     </option>
     `
 
-  for (
-    const participant
-    of participants
-  ) {
+  const trainingType =
+  document.querySelector(
+    'input[name="trainingType"]:checked'
+  )?.value
 
-    select.innerHTML += `
-      <option
-        value="${participant.participant_id}"
-      >
-        ${participant.teams?.team_name || ''}
-      </option>
-    `
+for (
+  const participant
+  of participants
+) {
+
+  const participantName =
+
+    trainingType ===
+    'TEAM'
+
+      ?
+
+      (
+        participant.teams
+          ?.team_name || ''
+      )
+
+      :
+
+      (
+        `${participant.athletes?.first_name || ''} ${participant.athletes?.last_name || ''}`
+      )
+
+  select.innerHTML += `
+    <option
+      value="${participant.participant_id}"
+    >
+      ${participantName}
+    </option>
+  `
+}
+
+}
+async function loadSessionTypes() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'training_log'
+      )
+      .select(
+        'session_type'
+      )
+
+  if (error) {
+    throw error
   }
+
+  const datalist =
+    document.getElementById(
+      'sessionTypes'
+    )
+
+  if (!datalist) {
+    return
+  }
+
+  const sessionTypes =
+    [
+      'Road Ride',
+      'Endurance',
+      'Recovery',
+      'Hill Climb',
+      'Sprint',
+      'Time Trial',
+      'Gym',
+      'Strength',
+      'Track',
+      'Skills'
+    ]
+
+  ;(
+    data || []
+  ).forEach(
+    row => {
+
+      if (
+        row.session_type &&
+        !sessionTypes.includes(
+          row.session_type
+        )
+      ) {
+
+        sessionTypes.push(
+          row.session_type
+        )
+
+      }
+
+    }
+  )
+
+  datalist.innerHTML =
+    ''
+
+  sessionTypes.forEach(
+    session => {
+
+      datalist.innerHTML += `
+        <option value="${session}">
+      `
+
+    }
+  )
+
+}
+async function loadCounties() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'county_master'
+      )
+      .select(`
+        county_id,
+        county_name
+      `)
+      .order(
+        'county_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  counties =
+    data || []
+
+  const select =
+    document.getElementById(
+      'countyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select County
+    </option>
+    `
+
+  counties.forEach(
+    county => {
+
+      select.innerHTML += `
+        <option
+          value="${county.county_id}"
+        >
+          ${county.county_name}
+        </option>
+      `
+
+    }
+  )
 
 }
 
+async function loadSubcounties(
+  countyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'subcounty_master'
+      )
+      .select(`
+        subcounty_id,
+        subcounty_name
+      `)
+      .eq(
+        'county_id',
+        countyId
+      )
+      .order(
+        'subcounty_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  subcounties =
+    data || []
+
+  const select =
+    document.getElementById(
+      'subcountyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Subcounty
+    </option>
+    `
+
+  subcounties.forEach(
+    subcounty => {
+
+      select.innerHTML += `
+        <option
+          value="${subcounty.subcounty_id}"
+        >
+          ${subcounty.subcounty_name}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+
+async function loadTowns(
+  subcountyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+  'town_master'
+)
+.select(`
+  town_id,
+  town_name,
+  subcounty_id
+`)
+.eq(
+  'subcounty_id',
+  subcountyId
+)
+.order(
+  'town_name'
+)
+
+  if (error) {
+    throw error
+  }
+
+  towns =
+    data || []
+
+  const datalist =
+    document.getElementById(
+      'townList'
+    )
+
+  if (!datalist) {
+    return
+  }
+
+  datalist.innerHTML = ''
+
+  towns.forEach(
+    town => {
+
+      datalist.innerHTML += `
+        <option value="${town.town_name}">
+      `
+
+    }
+  )
+
+}
 
 async function loadTrainingLogs() {
 
@@ -397,24 +680,33 @@ async function loadTrainingLogs() {
     'training_log'
   )
   .select(`
-    *,
+  *,
 
-    teams(
-      team_name
-    ),
+  town_master(
+    town_name
+  ),
 
-    event_participants(
-      participant_id,
+  teams(
+    team_name
+  ),
 
-      event_programs(
-        program_name,
+  athletes(
+    first_name,
+    last_name
+  ),
 
-        events(
-          event_name
-        )
+  event_participants(
+    participant_id,
+
+    event_programs(
+      program_name,
+
+      events(
+        event_name
       )
     )
-  `)
+  )
+`)
         .order(
           'training_date',
           {
@@ -502,48 +794,69 @@ function renderTrainingLogs() {
     of pageRows
   ) {
 
+    const type =
+      training.team_id
+        ? 'TEAM'
+        : 'INDIVIDUAL'
+
+    const participantName =
+      training.team_id
+
+        ?
+
+        (
+          training.teams
+            ?.team_name || ''
+        )
+
+        :
+
+        (
+          `${training.athletes?.first_name || ''} ${training.athletes?.last_name || ''}`
+        )
+
     trainingTableBody.innerHTML += `
       <tr>
 
-       
+        <td>
+          ${
+            training.training_date || ''
+          }
+        </td>
 
-  <td>
-    ${
-      training.training_date || ''
-    }
-  </td>
+        <td>
+          ${type}
+        </td>
 
-  <td>
-    ${
-      training
-        .event_participants
-        ?.event_programs
-        ?.events
-        ?.event_name || ''
-    }
-  </td>
+        <td>
+          ${participantName}
+        </td>
 
-  <td>
-    ${
-      training
-        .event_participants
-        ?.event_programs
-        ?.program_name || ''
-    }
-  </td>
+        <td>
+          ${
+            training
+              .event_participants
+              ?.event_programs
+              ?.events
+              ?.event_name || ''
+          }
+        </td>
 
-  <td>
-    ${
-      training.teams
-        ?.team_name || ''
-    }
-  </td>
+        <td>
+  ${
+    training.town_master
+      ?.town_name
 
-  <td>
-    ${
-      training.session_type || ''
-    }
-  </td>
+      ?
+
+      `${training.town_master.town_name} ${training.session_type}`
+
+      :
+
+      training.session_type
+  }
+</td>
+
         <td>
           ${
             training.distance_km || 0
@@ -557,10 +870,10 @@ function renderTrainingLogs() {
         </td>
 
         <td>
-  ${
-    training.avg_speed_kmh || 0
-  }
-</td>
+          ${
+            training.avg_speed_kmh || 0
+          }
+        </td>
 
         <td>
 
@@ -655,9 +968,22 @@ function searchTrainingLogs() {
           return (
 
             (
-              training.teams
-                ?.team_name || ''
-            )
+  training.team_id
+
+    ?
+
+    (
+      training.teams
+        ?.team_name || ''
+    )
+
+    :
+
+    (
+      `${training.athletes?.first_name || ''} ${training.athletes?.last_name || ''}`
+    )
+
+)
               .toLowerCase()
               .includes(search)
 
@@ -928,16 +1254,102 @@ if (
 
 }
 
+const trainingType =
+  document.querySelector(
+    'input[name="trainingType"]:checked'
+  )?.value 
+
+let selectedTown =
+  towns.find(
+    town =>
+
+      town.town_name
+        .trim()
+        .toLowerCase()
+
+      ===
+
+      getValue(
+        'townName'
+      )
+        .trim()
+        .toLowerCase()
+  )
+
+if (
+  !selectedTown &&
+  getValue(
+    'townName'
+  )
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'town_master'
+      )
+      .insert({
+        subcounty_id:
+          getValue(
+            'subcountyId'
+          ),
+
+        town_name:
+          getValue(
+            'townName'
+          )
+      })
+      .select()
+      .single()
+
+  if (error) {
+    throw error
+  }
+
+  selectedTown =
+    data
+
+}
+
+if (
+  !selectedTown
+) {
+
+  throw new Error(
+    'Please select an existing town'
+  )
+
+}
+
 const payload = {
+
+  town_id:
+    selectedTown
+      ?.town_id || null,
 
   training_date:
     getValue(
       'trainingDate'
     ),
+
   start_time:
     getValue(
       'startTime'
     ),
+   
+    training_week:
+  getValue(
+    'trainingWeek'
+  ),
+
+training_day:
+  getValue(
+    'trainingDay'
+  ), 
+
 
   end_time:
     getValue(
@@ -965,12 +1377,35 @@ const payload = {
     ),
 
   team_id:
-    participant.team_id,
+
+  trainingType ===
+  'TEAM'
+
+    ?
+
+    participant.team_id
+
+    :
+
+    null,
+
+athlete_id:
+
+  trainingType ===
+  'INDIVIDUAL'
+
+    ?
+
+    participant.athlete_id
+
+    :
+
+    null,
 
   session_type:
-    getValue(
-      'sessionType'
-    ),
+  getValue(
+    'sessionType'
+  ),
 
   distance_km:
     Number(
@@ -1248,6 +1683,91 @@ async function deleteTraining() {
 function wireEvents() {
 
   document
+  .getElementById(
+    'trainingDate'
+  )
+  ?.addEventListener(
+    'change',
+    e => {
+
+      const date =
+        new Date(
+          e.target.value
+        )
+
+      const dayName =
+        date.toLocaleDateString(
+          'en-US',
+          {
+            weekday: 'long'
+          }
+        )
+
+      setValue(
+        'trainingDay',
+        dayName
+      )
+
+const monthName =
+  date.toLocaleDateString(
+    'en-US',
+    {
+      month: 'long'
+    }
+  )
+
+const year =
+  date.getFullYear()
+
+const weekNumber =
+    Math.ceil(
+      date.getDate() / 7
+    )
+
+setValue(
+  'trainingWeek',
+  `${monthName} Week ${weekNumber} ${year}`
+)
+
+    }
+  )
+
+document
+  .getElementById(
+    'countyId'
+  )
+  ?.addEventListener(
+    'change',
+    async e => {
+
+      setValue(
+        'subcountyId',
+        ''
+      )
+
+      await loadSubcounties(
+        e.target.value
+      )
+
+    }
+  )
+
+document
+  .getElementById(
+    'subcountyId'
+  )
+  ?.addEventListener(
+    'change',
+    async e => {
+
+      await loadTowns(
+        e.target.value
+      )
+
+    }
+  )  
+
+document
     .getElementById(
       'btnAddTraining'
     )
@@ -1336,6 +1856,57 @@ function wireEvents() {
 
       }
     )
+ document
+  .getElementById(
+    'trainingTypeIndividual'
+  )
+  ?.addEventListener(
+    'change',
+    async () => {
+
+      const programId =
+        getValue(
+          'programId'
+        )
+
+      if (
+        programId
+      ) {
+
+        await loadParticipants(
+          programId
+        )
+
+      }
+
+    }
+  )
+
+document
+  .getElementById(
+    'trainingTypeTeam'
+  )
+  ?.addEventListener(
+    'change',
+    async () => {
+
+      const programId =
+        getValue(
+          'programId'
+        )
+
+      if (
+        programId
+      ) {
+
+        await loadParticipants(
+          programId
+        )
+
+      }
+
+    }
+  )
 
   document
     .getElementById(
@@ -1419,6 +1990,12 @@ async function initializeTrainingLogs() {
   try {
 
     await loadTrainingEvents()
+
+await loadSessionTypes()
+
+await loadCounties()
+
+await loadTrainingLogs()
 
     await loadTrainingLogs()
 

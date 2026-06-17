@@ -163,10 +163,12 @@ block view
 
               label.form-label Town
 
-              select.form-select(
-                id='townId'
-             )
-
+              input.form-control(
+                id='townName'
+                list='townList'
+                placeholder='Select or type Town'
+              )
+              datalist#townList
             .col-md-4
 
               label.form-label City
@@ -196,12 +198,11 @@ block view
               label.form-label Event Category
 
               select.form-select(
-                id='eventCategory'
+                id='eventCategoryId'
               )
 
-                option(value='') Select Category
-                option(value='TRAINING') Training
-                option(value='COMPETITION') Competition
+                option(value='')
+                  Select Category
 
             .col-md-12
 
@@ -210,6 +211,7 @@ block view
               select.form-select(
                 id='sponsorIds'
                 multiple
+                size='8'
               )
 
             .col-md-3
