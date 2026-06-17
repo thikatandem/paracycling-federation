@@ -1,0 +1,491 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            .d-flex.flex-column
+
+              strong Team Members
+
+              small.text-muted
+                | Team Pairing Intelligence Center
+
+            .d-flex.gap-2
+
+              button.btn.btn-secondary(
+                type='button'
+                id='btnRefreshTeamMembers'
+              )
+                i.fa.fa-refresh.me-2
+                | Refresh
+
+              button.btn.btn-success(
+                type='button'
+                id='btnExportTeamMembersCsv'
+              )
+                i.fa.fa-file-excel-o.me-2
+                | Export CSV
+
+              button.btn.btn-primary(
+                type='button'
+                id='btnExportTeamMembersExcel'
+              )
+                i.fa.fa-table.me-2
+                | Export Excel
+
+              button.btn.btn-dark(
+                type='button'
+                id='btnPrintTeamMembers'
+              )
+                i.fa.fa-print.me-2
+                | Print
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='teamMemberLoading'
+            )
+              .spinner-border.text-primary
+
+            // =====================================================
+            // FILTERS
+            // =====================================================
+
+            .row.g-3.mb-4
+
+              .col-md-4
+
+                label.form-label Search
+
+                input.form-control(
+                  type='text'
+                  id='searchTeamMember'
+                  placeholder='Search Team, Athlete, Role, Reason...'
+                )
+
+              .col-md-2
+
+                label.form-label Role
+
+                select.form-select(
+                  id='filterRole'
+                )
+                  option(value='')
+                    | All Roles
+
+              .col-md-2
+
+                label.form-label Team
+
+                select.form-select(
+                  id='filterTeam'
+                )
+                  option(value='')
+                    | All Teams
+
+              .col-md-2
+
+                label.form-label Status
+
+                select.form-select(
+                  id='filterStatus'
+                )
+                  option(value='')
+                    | All Statuses
+
+                  option(value='active')
+                    | Active
+
+                  option(value='inactive')
+                    | Inactive
+
+              .col-md-2.d-flex.align-items-end
+
+                .form-check
+
+                  input.form-check-input(
+                    type='checkbox'
+                    id='activeOnly'
+                    
+                  )
+
+                  label.form-check-label(
+                    for='activeOnly'
+                  )
+                    | Active Only
+
+            // =====================================================
+            // SUMMARY CARDS
+            // =====================================================
+
+            .row.g-3.mb-4
+
+              .col-md-2
+
+                .card.border-primary
+
+                  .card-body.text-center
+
+                    h6.text-muted.mb-2
+                      | Total Assignments
+
+                    h3.mb-0(
+                      id='totalAssignmentsCard'
+                    )
+                      | 0
+
+              .col-md-2
+
+                .card.border-success
+
+                  .card-body.text-center
+
+                    h6.text-muted.mb-2
+                      | Active Assignments
+
+                    h3.mb-0(
+                      id='activeAssignmentsCard'
+                    )
+                      | 0
+
+              .col-md-2
+
+                .card.border-info
+
+                  .card-body.text-center
+
+                    h6.text-muted.mb-2
+                      | Pilots Assigned
+
+                    h3.mb-0(
+                      id='pilotAssignmentsCard'
+                    )
+                      | 0
+
+              .col-md-2
+
+                .card.border-success
+
+                  .card-body.text-center
+
+                    h6.text-muted.mb-2
+                      | Stokers Assigned
+
+                    h3.mb-0(
+                      id='stokerAssignmentsCard'
+                    )
+                      | 0
+
+              .col-md-4
+
+                .card.border-warning
+
+                  .card-body.text-center
+
+                    h6.text-muted.mb-2
+                      | Historical Changes
+
+                    h3.mb-0(
+                      id='historicalChangesCard'
+                    )
+                      | 0
+
+            // =====================================================
+            // TABLE
+            // =====================================================
+
+            .table-responsive
+
+              table.table.table-striped.table-hover.table-bordered
+
+                thead
+
+                  tr
+
+                    th.sortable(
+                      data-sort='team_code'
+                    )
+                      | Team Code
+
+                    th.sortable(
+                      data-sort='team_name'
+                    )
+                      | Team Name
+
+                    th.sortable(
+                      data-sort='athlete_code'
+                    )
+                      | Athlete Code
+
+                    th.sortable(
+                      data-sort='athlete_name'
+                    )
+                      | Athlete Name
+
+                    th.sortable(
+                      data-sort='role'
+                    )
+                      | Role
+
+                    th.sortable(
+                      data-sort='start_date'
+                    )
+                      | Active Since
+
+                    th.sortable(
+                      data-sort='end_date'
+                    )
+                      | End Date
+
+                    th.sortable(
+                      data-sort='duration'
+                    )
+                      | Duration
+
+                    th.sortable(
+                      data-sort='active'
+                    )
+                      | Active
+
+                    th
+                      | Change Reason
+
+                    th
+                      | Actions
+
+                tbody#teamMembersTableBody
+
+            // =====================================================
+            // PAGINATION
+            // =====================================================
+
+            .row.mt-3
+
+              .col-md-6
+
+                span#teamMemberPaginationInfo
+                  | Page 1
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousTeamMemberPage'
+                )
+                  | Previous
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextTeamMemberPage'
+                )
+                  | Next
+
+  // =====================================================
+  // HISTORY MODAL
+  // =====================================================
+
+  .modal.fade(
+    id='teamMemberHistoryModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-xl
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Team Member History
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .row.mb-4
+
+            .col-md-3
+
+              .card
+
+                .card-body
+
+                  h6.text-muted
+                    | Team
+
+                  div#historyTeamName
+
+            .col-md-3
+
+              .card
+
+                .card-body
+
+                  h6.text-muted
+                    | Pilot
+
+                  div#historyPilotName
+
+            .col-md-3
+
+              .card
+
+                .card-body
+
+                  h6.text-muted
+                    | Stoker
+
+                  div#historyStokerName
+
+            .col-md-3
+
+              .card
+
+                .card-body
+
+                  h6.text-muted
+                    | Active Since
+
+                  div#historyActiveSince
+
+          h5.mb-3
+            | Pairing Timeline
+
+          .table-responsive
+
+            table.table.table-striped.table-bordered
+
+              thead
+
+                tr
+
+                  th Date
+
+                  th Athlete
+
+                  th Role
+
+                  th Action
+
+                  th Reason
+
+              tbody#historyTimelineBody
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Close
+
+  // =====================================================
+  // CLOSE ASSIGNMENT MODAL
+  // =====================================================
+
+  .modal.fade(
+    id='closeAssignmentModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Close Assignment
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='closeAssignmentId'
+          )
+
+          .row.g-3
+
+            .col-md-12
+
+              label.form-label End Date
+
+              input.form-control(
+                type='date'
+                id='closeAssignmentDate'
+              )
+
+            .col-md-12
+
+              label.form-label Reason
+
+              select.form-select(
+                id='closeAssignmentReason'
+              )
+
+                option(value='')
+                  | Select Reason
+
+                option(value='Retirement')
+                  | Retirement
+
+                option(value='Medical')
+                  | Medical
+
+                option(value='Transfer')
+                  | Transfer
+
+                option(value='Suspension')
+                  | Suspension
+
+                option(value='Other')
+                  | Other
+
+            .col-md-12
+
+              label.form-label Remarks
+
+              textarea.form-control(
+                id='closeAssignmentRemarks'
+                rows='4'
+              )
+
+          .mt-3.text-danger(
+            id='closeAssignmentError'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmCloseAssignment'
+          )
+            | Close Assignment
+
+append pageScripts
+
+  script(src='js/team-members.js')

@@ -9,6 +9,10 @@ let events = []
 let filteredEvents = []
 
 let countries = []
+let counties = []
+let subcounties = []
+let towns = []
+
 let eventTypes = []
 let sponsors = []
 
@@ -188,6 +192,154 @@ async function loadCountries() {
     `
   }
 } 
+
+async function loadCounties() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('county_master')
+      .select('*')
+      .order('county_name')
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  counties = data || []
+
+  const select =
+    document.getElementById(
+      'countyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select County
+      </option>
+    `
+
+  counties.forEach(
+    county => {
+
+      select.innerHTML += `
+        <option
+          value="${county.county_id}"
+        >
+          ${county.county_name}
+        </option>
+      `
+    }
+  )
+}
+
+async function loadSubcounties(
+  countyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('subcounty_master')
+      .select('*')
+      .eq(
+        'county_id',
+        countyId
+      )
+      .order(
+        'subcounty_name'
+      )
+
+  if (error) {
+    return
+  }
+
+  const select =
+    document.getElementById(
+      'subcountyId'
+    )
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Sub County
+      </option>
+    `
+
+  data.forEach(
+    item => {
+
+      select.innerHTML += `
+        <option
+          value="${item.subcounty_id}"
+        >
+          ${item.subcounty_name}
+        </option>
+      `
+    }
+  )
+}
+
+async function loadTowns(
+  subcountyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('town_master')
+      .select('*')
+      .eq(
+        'subcounty_id',
+        subcountyId
+      )
+      .order(
+        'town_name'
+      )
+
+  if (error) {
+    return
+  }
+
+  const select =
+    document.getElementById(
+      'townId'
+    )
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Town
+      </option>
+    `
+
+  data.forEach(
+    item => {
+
+      select.innerHTML += `
+        <option
+          value="${item.town_id}"
+        >
+          ${item.town_name}
+        </option>
+      `
+    }
+  )
+}
+
+
 async function loadEventTypes() {
 
   const {
@@ -303,11 +455,20 @@ async function loadEvents() {
       await window.supabaseClient
         .from('events')
         .select(`
-          *,
-          country_master(
-            country_name
-          ),
-          event_type_master(
+  *,
+  country_master(
+    country_name
+  ),
+  county_master(
+    county_name
+  ),
+  subcounty_master(
+    subcounty_name
+  ),
+  town_master(
+    town_name
+  ),
+  event_type_master(
             event_type_name
           ),
           status_master(
@@ -408,7 +569,7 @@ function renderEvents() {
       `
       <tr>
         <td
-          colspan="12"
+          colspan="14"
           class="text-center"
         >
           No events found
@@ -429,10 +590,7 @@ function renderEvents() {
     eventsTableBody.innerHTML += `
       <tr>
 
-        <td>
-          ${event.event_code || ''}
-        </td>
-
+        
         <td>
   ${event.event_name || ''}
 </td>
@@ -448,10 +606,30 @@ function renderEvents() {
   }
 </td>
 
-        <td>
-          ${event.city || ''}
-        </td>
+<td>
+  ${
+    event.county_master
+      ?.county_name || ''
+  }
+</td>
 
+<td>
+  ${
+    event.subcounty_master
+      ?.subcounty_name || ''
+  }
+</td>
+
+<td>
+  ${
+    event.town_master
+      ?.town_name || ''
+  }
+</td>
+
+<td>
+  ${event.city || ''}
+</td>
         <td>
           ${event.organizer || ''}
         </td>
@@ -660,6 +838,38 @@ function searchEvents() {
             )
               .toLowerCase()
               .includes(search)
+            
+
+          ||
+
+(
+  event.county_master
+    ?.county_name ||
+  ''
+)
+  .toLowerCase()
+  .includes(search)
+
+||
+
+(
+  event.subcounty_master
+    ?.subcounty_name ||
+  ''
+)
+  .toLowerCase()
+  .includes(search)
+
+||
+
+(
+  event.town_master
+    ?.town_name ||
+  ''
+)
+  .toLowerCase()
+  .includes(search)
+
 
             ||
 
@@ -724,6 +934,20 @@ function clearEventForm() {
     'countryId',
     ''
   )
+setValue(
+  'countyId',
+  ''
+)
+
+setValue(
+  'subcountyId',
+  ''
+)
+
+setValue(
+  'townId',
+  ''
+)
 
   setValue(
     'city',
@@ -805,7 +1029,7 @@ function openNewEventModal() {
   modal.show()
 } 
 window.editEvent =
-function (eventId) {
+async function (eventId) {
 
   const event =
     events.find(
@@ -850,7 +1074,28 @@ function (eventId) {
     'countryId',
     event.country_id
   )
+setValue(
+  'countyId',
+  event.county_id
+)
 
+await loadSubcounties(
+  event.county_id
+)
+
+setValue(
+  'subcountyId',
+  event.subcounty_id
+)
+
+await loadTowns(
+  event.subcounty_id
+)
+
+setValue(
+  'townId',
+  event.town_id
+)
   setValue(
     'city',
     event.city
@@ -963,6 +1208,45 @@ function validateEvent() {
 
     return false
   }
+
+ if (
+  !getValue(
+    'countyId'
+  )
+) {
+
+  showError(
+    'County is required'
+  )
+
+  return false
+}
+
+if (
+  !getValue(
+    'subcountyId'
+  )
+) {
+
+  showError(
+    'Sub County is required'
+  )
+
+  return false
+}
+
+if (
+  !getValue(
+    'townId'
+  )
+) {
+
+  showError(
+    'Town is required'
+  )
+
+  return false
+}
 
   if (
     !getValue(
@@ -1178,6 +1462,21 @@ async function saveEvent() {
   country_id:
     getValue(
       'countryId'
+    ) || null,
+
+  county_id:
+    getValue(
+      'countyId'
+    ) || null,
+
+  subcounty_id:
+    getValue(
+      'subcountyId'
+    ) || null,
+
+  town_id:
+    getValue(
+      'townId'
     ) || null,
 
   city:
@@ -1520,11 +1819,13 @@ async function initializeEvents() {
 
     await loadCountries()
 
-    await loadEventTypes()
+await loadCounties()
 
-    await loadSponsors()
+await loadEventTypes()
 
-    await loadEvents()
+await loadSponsors()
+
+await loadEvents()
 
   } catch (
     error
@@ -1584,24 +1885,25 @@ document.addEventListener(
         loadEvents
       )
 
-    document
-      .getElementById(
-        'btnPreviousPage'
-      )
-      ?.addEventListener(
-        'click',
-        () => {
+   document
+  .getElementById(
+    'btnPreviousPage'
+  )
+  ?.addEventListener(
+    'click',
+    () => {
 
-          if (
-            currentPage > 1
-          ) {
+      if (
+        currentPage > 1
+      ) {
 
-            currentPage--
+        currentPage--
 
-            renderEvents()
-          }
-        }
-      )
+        renderEvents()
+
+      }
+    }
+  )
 
     document
       .getElementById(
@@ -1628,6 +1930,49 @@ document.addEventListener(
           }
         }
       )
+document
+  .getElementById(
+    'countyId'
+  )
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      await loadSubcounties(
+        event.target.value
+      )
+
+      setValue(
+        'subcountyId',
+        ''
+      )
+
+      setValue(
+        'townId',
+        ''
+      )
+    }
+  )
+
+document
+  .getElementById(
+    'subcountyId'
+  )
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      await loadTowns(
+        event.target.value
+      )
+
+      setValue(
+        'townId',
+        ''
+      )
+    }
+  )
+
   }
 )
 

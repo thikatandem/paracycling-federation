@@ -14,7 +14,8 @@ let currentPage = 1
 
 let counties = []
 let classifications = []
-
+let subcounties = []
+let towns = []
 const athleteLoading =
   document.getElementById('athleteLoading')
 
@@ -144,12 +145,17 @@ async function loadClassifications() {
     '<option value="">Select Classification</option>'
 
   for (const classification of classifications) {
-    select.innerHTML += `
-      <option value="${classification.classification_id}">
-        ${classification.classification_code}
-      </option>
-    `
-  }
+
+  select.innerHTML += `
+    <option
+      value="${classification.classification_id}"
+    >
+      ${classification.classification_code}
+      -
+      ${classification.description}
+    </option>
+  `
+}
 }
 
 // =====================================================
@@ -164,14 +170,20 @@ async function loadAthletes() {
       await window.supabaseClient
         .from('athletes')
         .select(`
-          *,
-          county_master(
-            county_name
-          ),
-          classification_master(
-            classification_code
-          )
-        `)
+  *,
+  county_master(
+    county_name
+  ),
+  subcounty_master(
+    subcounty_name
+  ),
+  town_master(
+    town_name
+  ),
+  classification_master(
+    classification_code
+  )
+`)
         .order(
           'created_at',
           { ascending: false }
@@ -196,6 +208,98 @@ async function loadAthletes() {
     hideLoading()
   }
 }
+
+async function loadSubcounties(
+  countyId
+) {
+
+  const select =
+    document.getElementById(
+      'subcountyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    '<option value="">Select Sub County</option>'
+
+  const countySubcounties =
+    subcounties.filter(
+      s =>
+        s.county_id ===
+        countyId
+    )
+
+  for (
+    const subcounty
+    of countySubcounties
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${subcounty.subcounty_id}"
+      >
+        ${subcounty.subcounty_name}
+      </option>
+    `
+  }
+}
+
+async function loadTowns(
+  subcountyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'town_master'
+      )
+      .select('*')
+      .eq(
+        'subcounty_id',
+        subcountyId
+      )
+      .order(
+        'town_name'
+      )
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  towns = data || []
+
+  const datalist =
+    document.getElementById(
+      'townList'
+    )
+
+  if (!datalist) {
+    return
+  }
+
+  datalist.innerHTML = ''
+
+  for (
+    const town
+    of towns
+  ) {
+
+    datalist.innerHTML += `
+      <option
+        value="${town.town_name}"
+      >
+    `
+  }
+}
+
+
 // =====================================================
 // TABLE RENDERING
 // =====================================================
@@ -219,7 +323,7 @@ function renderAthletes() {
   if (pageRows.length === 0) {
     athletesTableBody.innerHTML = `
       <tr>
-        <td colspan="9" class="text-center">
+        <td colspan="10" class="text-center">
           No athletes found
         </td>
       </tr>
@@ -234,7 +338,7 @@ function renderAthletes() {
     athletesTableBody.innerHTML += `
       <tr>
 
-        <td>${athlete.athlete_code || ''}</td>
+      
 
         <td>${athlete.first_name || ''}</td>
 
@@ -245,10 +349,26 @@ function renderAthletes() {
         <td>${athlete.role || ''}</td>
 
         <td>
-          ${athlete.county_master?.county_name || ''}
-        </td>
+  ${athlete.county_master?.county_name || ''}
+</td>
 
-        <td>${athlete.phone || ''}</td>
+<td>
+  ${
+    athlete.subcounty_master
+      ?.subcounty_name || ''
+  }
+</td>
+
+<td>
+  ${
+    athlete.town_master
+      ?.town_name || ''
+  }
+</td>
+
+<td>
+  ${athlete.phone || ''}
+</td>
 
         <td>
           ${getStatusBadge(athlete.status)}
@@ -381,7 +501,29 @@ function clearAthleteForm() {
   setValue('role', '')
 
   setValue('classificationId', '')
-  setValue('countyId', '')
+setValue('countyId', '')
+setValue('subcountyId', '')
+setValue('townName', '')
+const subcountySelect =
+  document.getElementById(
+    'subcountyId'
+  )
+
+if (subcountySelect) {
+
+  subcountySelect.innerHTML =
+    '<option value="">Select Sub County</option>'
+}
+
+const townList =
+  document.getElementById(
+    'townList'
+  )
+
+if (townList) {
+
+  townList.innerHTML = ''
+}
 
   setValue('passportNo', '')
   setValue('nationalId', '')
@@ -433,7 +575,9 @@ function openNewAthleteModal() {
 // =====================================================
 
 window.editAthlete =
-function (athleteId) {
+async function (
+  athleteId
+) {
   const athlete =
     athletes.find(
       a =>
@@ -495,7 +639,24 @@ function (athleteId) {
     'countyId',
     athlete.county_id
   )
+  await loadSubcounties(
+  athlete.county_id
+)
 
+setValue(
+  'subcountyId',
+  athlete.subcounty_id
+)
+
+await loadTowns(
+  athlete.subcounty_id
+)
+
+setValue(
+  'townName',
+  athlete.town_master
+    ?.town_name || ''
+)
   setValue(
     'passportNo',
     athlete.passport_no
@@ -580,6 +741,31 @@ function validateAthlete() {
   return true
 }
 
+
+async function loadAllSubcounties() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'subcounty_master'
+      )
+      .select('*')
+      .order(
+        'subcounty_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  subcounties =
+    data || []
+}
+
+
 // =====================================================
 // SAVE ATHLETE
 // =====================================================
@@ -594,6 +780,85 @@ async function saveAthlete() {
 
     const athleteId =
       getValue('athleteId')
+
+  
+   const townName =
+  getValue(
+    'townName'
+  )
+    .trim()
+
+let townId = null
+
+if (
+  townName &&
+  getValue(
+    'subcountyId'
+  )
+) {
+
+  const {
+    data: existingTown
+  } =
+    await window.supabaseClient
+      .from(
+        'town_master'
+      )
+      .select(
+        'town_id'
+      )
+      .eq(
+        'subcounty_id',
+        getValue(
+          'subcountyId'
+        )
+      )
+      .ilike(
+        'town_name',
+        townName
+      )
+      .maybeSingle()
+
+  if (
+    existingTown
+  ) {
+
+    townId =
+      existingTown.town_id
+
+  } else {
+
+    const {
+      data: newTown,
+      error: townError
+    } =
+      await window.supabaseClient
+        .from(
+          'town_master'
+        )
+        .insert({
+
+          subcounty_id:
+            getValue(
+              'subcountyId'
+            ),
+
+          town_name:
+            townName
+
+        })
+        .select()
+        .single()
+
+    if (townError) {
+      throw townError
+    }
+
+    townId =
+      newTown.town_id
+  }
+}
+
 
     const payload = {
 
@@ -616,7 +881,17 @@ async function saveAthlete() {
         getValue('classificationId') || null,
 
       county_id:
-        getValue('countyId') || null,
+  getValue(
+    'countyId'
+  ) || null,
+
+subcounty_id:
+  getValue(
+    'subcountyId'
+  ) || null,
+
+town_id:
+  townId,
 
       passport_no:
         getValue('passportNo') || null,
@@ -850,6 +1125,59 @@ searchAthlete
     searchAthletes
   )
 
+
+document
+  .getElementById(
+    'countyId'
+  )
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      const countyId =
+        event.target.value
+
+      await loadSubcounties(
+        countyId
+      )
+
+      setValue(
+        'subcountyId',
+        ''
+      )
+
+      setValue(
+        'townName',
+        ''
+      )
+
+      const townList =
+        document.getElementById(
+          'townList'
+        )
+
+      if (townList) {
+        townList.innerHTML = ''
+      }
+    }
+  )
+
+document
+  .getElementById(
+    'subcountyId'
+  )
+  ?.addEventListener(
+    'change',
+    async event => {
+
+      await loadTowns(
+        event.target.value
+      )
+    }
+  )
+
+
+
 // =====================================================
 // INITIALIZE
 // =====================================================
@@ -866,11 +1194,13 @@ async function initializeAthletes() {
       return
     }
 
-    await loadCounties()
+await loadCounties()
 
-    await loadClassifications()
+await loadAllSubcounties()
 
-    await loadAthletes()
+await loadClassifications()
+
+await loadAthletes()
   } catch (error) {
     console.error(error)
   }

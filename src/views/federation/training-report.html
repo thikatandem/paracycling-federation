@@ -1,0 +1,154 @@
+<div class="row mb-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h3 class="mb-1">Training Intelligence Center</h3>
+            <p class="text-body-secondary mb-0">Federation Training Performance & Analytics</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="refreshTrainingReport">
+              <i class="icon me-2 cil-reload"></i>
+              Refresh
+            </button>
+            <button class="btn btn-success" id="exportTrainingCsv">
+              <i class="icon me-2 cil-file"></i>
+              CSV
+            </button>
+            <button class="btn btn-info" id="exportTrainingExcel">
+              <i class="icon me-2 cil-spreadsheet"></i>
+              Excel
+            </button>
+            <button class="btn btn-warning" id="generateTrainingPdf">
+              <i class="icon me-2 cil-print"></i>
+              PDF Report
+            </button>
+            <button class="btn btn-secondary" id="printTrainingReport">
+              <i class="icon me-2 cil-print"></i>
+              Print
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <label class="form-label">Search</label>
+    <input class="form-control" id="searchTrainingReport" placeholder="Search training records...">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Event</label>
+    <select class="form-select" id="filterTrainingEvent">
+      <option value="">All Events</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Team</label>
+    <select class="form-select" id="filterTrainingTeam">
+      <option value="">All Teams</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Session Type</label>
+    <select class="form-select" id="filterTrainingSessionType">
+      <option value="">All Session Types</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Attendance</label>
+    <select class="form-select" id="filterTrainingAttendance">
+      <option value="">All</option>
+      <option value="true">Present</option>
+      <option value="false">Absent</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Environment</label>
+    <select class="form-select" id="filterTrainingEnvironment">
+      <option value="">All</option>
+      <option value="indoor">Indoor</option>
+      <option value="outdoor">Outdoor</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Year</label>
+    <select class="form-select" id="filterTrainingYear">
+      <option value="">All Years</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Month</label>
+    <select class="form-select" id="filterTrainingMonth">
+      <option value="">All Months</option>
+    </select>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Total Sessions</h6>
+        <h3 id="totalSessionsCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Total Distance KM</h6>
+        <h3 id="totalDistanceCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Total Hours</h6>
+        <h3 id="totalHoursCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Average Speed</h6>
+        <h3 id="averageSpeedCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Teams Trained</h6>
+        <h3 id="teamsTrainedCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Athletes Trained</h6>
+        <h3 id="athletesTrainedCard">0</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Attendance %</h6>
+        <h3 id="attendanceRateCard">0%</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-md-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6 class="text-body-secondary">Events Supported</h6>
+        <h3 id="eventsSupportedCard">0</h3>
+      </div>
+    </div>
+  </div>
+</div>

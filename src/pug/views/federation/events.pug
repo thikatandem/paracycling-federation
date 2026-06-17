@@ -46,10 +46,13 @@ block view
 
                   tr
 
-                    th Event Code
+                    
                     th Event Name
                     th Category
                     th Country
+                    th County
+                    th Sub County
+                    th Town
                     th City
                     th Organizer
                     th Event Type
@@ -119,11 +122,9 @@ block view
 
             .col-md-3
 
-              label.form-label Event Code
-
-              input.form-control(
+              input(
+                type='hidden'
                 id='eventCode'
-                readonly
               )
 
             .col-md-5
@@ -141,6 +142,30 @@ block view
               select.form-select(
                 id='countryId'
               )
+
+            .col-md-4
+
+              label.form-label County
+
+              select.form-select(
+                id='countyId'
+             )
+
+            .col-md-4
+
+              label.form-label Sub County
+
+              select.form-select(
+                id='subcountyId'
+              )
+
+            .col-md-4
+
+              label.form-label Town
+
+              select.form-select(
+                id='townId'
+             )
 
             .col-md-4
 

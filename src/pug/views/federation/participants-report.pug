@@ -1,0 +1,583 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+
+      .col-12
+
+        .card
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            div
+
+              h4.mb-0 Participation Report
+
+              small.text-body-secondary
+                Federation Participation Intelligence Center
+
+            .btn-list
+
+              button.btn.btn-primary(
+                id='btnRefreshParticipationReport'
+              )
+                i.fa.fa-sync-alt.me-1
+                | Refresh
+
+              button.btn.btn-success(
+                id='btnExportParticipationCsv'
+              )
+                i.fa.fa-file-csv.me-1
+                | CSV
+
+              button.btn.btn-success(
+                id='btnExportParticipationExcel'
+              )
+                i.fa.fa-file-excel.me-1
+                | Excel
+
+              button.btn.btn-secondary(
+                id='btnPrintParticipationReport'
+              )
+                i.fa.fa-print.me-1
+                | Print
+
+          .card-body
+
+            .row.g-3.mb-4
+
+              .col-md-3
+
+                label.form-label Search
+
+                input.form-control(
+                  id='searchParticipationReport'
+                  placeholder='Search event, team, athlete...'
+                )
+
+              .col-md-2
+
+                label.form-label Event
+
+                select.form-select(
+                  id='filterParticipationEvent'
+                )
+
+              .col-md-2
+
+                label.form-label Program
+
+                select.form-select(
+                  id='filterParticipationProgram'
+                )
+
+              .col-md-2
+
+                label.form-label County
+
+                select.form-select(
+                  id='filterParticipationCounty'
+                )
+
+              .col-md-1
+
+                label.form-label Status
+
+                select.form-select(
+                  id='filterParticipationStatus'
+                )
+
+              .col-md-2
+
+                label.form-label Year
+
+                select.form-select(
+                  id='filterParticipationYear'
+                )
+
+            .row.g-3.mb-4
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Total Registrations
+
+                    h3(
+                      id='totalRegistrationsCard'
+                    ) 0
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Unique Events
+
+                    h3(
+                      id='uniqueEventsCard'
+                    ) 0
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Unique Teams
+
+                    h3(
+                      id='uniqueTeamsCard'
+                    ) 0
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Unique Athletes
+
+                    h3(
+                      id='uniqueAthletesCard'
+                    ) 0
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Programs Utilized
+
+                    h3(
+                      id='programsUtilizedCard'
+                    ) 0
+
+              .col-md-2
+
+                .card.text-center
+
+                  .card-body
+
+                    h6.text-muted Counties Represented
+
+                    h3(
+                      id='countiesRepresentedCard'
+                    ) 0
+
+            .row
+
+              .col-12
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 Event Participation Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered.table-hover
+
+                        thead
+
+                          tr
+
+                            th Event
+
+                            th Teams
+
+                            th Athletes
+
+                            th Programs
+
+                            th Registrations
+
+                        tbody(
+                          id='eventParticipationAnalysisBody'
+                        )
+
+            .row
+
+              .col-12
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 Team Participation Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered.table-hover
+
+                        thead
+
+                          tr
+
+                            th Team Code
+
+                            th Team Name
+
+                            th Events
+
+                            th Programs
+
+                            th Latest Event
+
+                            th Status
+
+                        tbody(
+                          id='teamParticipationAnalysisBody'
+                        )
+
+            .row
+
+              .col-12
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 Athlete Participation Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered.table-hover
+
+                        thead
+
+                          tr
+
+                            th Athlete Code
+
+                            th Athlete Name
+
+                            th Classification
+
+                            th County
+
+                            th Events Attended
+
+                            th Programs Entered
+
+                        tbody(
+                          id='athleteParticipationAnalysisBody'
+                        )
+
+            .row
+
+              .col-md-6
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 Classification Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered
+
+                        thead
+
+                          tr
+
+                            th Classification
+
+                            th Athletes
+
+                            th Registrations
+
+                            th %
+
+                        tbody(
+                          id='classificationParticipationAnalysisBody'
+                        )
+
+              .col-md-6
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 County Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered
+
+                        thead
+
+                          tr
+
+                            th County
+
+                            th Unique Athletes
+
+                            th Unique Teams
+
+                            th Registrations
+
+                        tbody(
+                          id='countyParticipationAnalysisBody'
+                        )
+
+            .row
+
+              .col-12
+
+                .card.mb-4
+
+                  .card-header
+
+                    h5.mb-0 Program Analysis
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-bordered
+
+                        thead
+
+                          tr
+
+                            th Program
+
+                            th Teams
+
+                            th Athletes
+
+                            th Registrations
+
+                        tbody(
+                          id='programParticipationAnalysisBody'
+                        )
+
+            .row
+
+              .col-12
+
+                .card
+
+                  .card-header
+
+                    h5.mb-0 Participation Register
+
+                  .card-body
+
+                    .table-responsive
+
+                      table.table.table-striped.table-hover
+
+                        thead
+
+                          tr
+
+                            th.sortable(
+                              data-sort='event'
+                            ) Event
+
+                            th.sortable(
+                              data-sort='program'
+                            ) Program
+
+                            th.sortable(
+                              data-sort='team_code'
+                            ) Team Code
+
+                            th.sortable(
+                              data-sort='team_name'
+                            ) Team Name
+
+                            th Pilot
+
+                            th Stoker
+
+                            th.sortable(
+                              data-sort='registration_date'
+                            ) Registration Date
+
+                            th Status
+
+                            th County
+
+                            th Classification
+
+                            th Actions
+
+                        tbody(
+                          id='participationReportTableBody'
+                        )
+
+                    .d-flex.justify-content-between.align-items-center.mt-3
+
+                      button.btn.btn-outline-secondary(
+                        id='btnPreviousParticipationPage'
+                      )
+                        | Previous
+
+                      span(
+                        id='participationPaginationInfo'
+                      )
+
+                      button.btn.btn-outline-secondary(
+                        id='btnNextParticipationPage'
+                      )
+                        | Next
+
+  .modal.fade(
+    id='participationIntelligenceModal'
+    tabindex='-1'
+  )
+
+    .modal-dialog.modal-xl
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title Participation Intelligence
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .row.g-3
+
+            .col-md-6
+
+              .card
+
+                .card-header Event Information
+
+                .card-body
+
+                  p
+                    strong Event:
+                    span#reportEventName.ms-2
+
+                  p
+                    strong Program:
+                    span#reportProgramName.ms-2
+
+                  p
+                    strong Status:
+                    span#reportStatus.ms-2
+
+                  p
+                    strong Registration:
+                    span#reportRegistrationDate.ms-2
+
+            .col-md-6
+
+              .card
+
+                .card-header Team Information
+
+                .card-body
+
+                  p
+                    strong Team Code:
+                    span#reportTeamCode.ms-2
+
+                  p
+                    strong Team Name:
+                    span#reportTeamName.ms-2
+
+          .row.g-3.mt-2
+
+            .col-md-6
+
+              .card
+
+                .card-header Pilot
+
+                .card-body
+
+                  div(
+                    id='pilotParticipationInfo'
+                  )
+
+            .col-md-6
+
+              .card
+
+                .card-header Stoker
+
+                .card-body
+
+                  div(
+                    id='stokerParticipationInfo'
+                  )
+
+          .row.g-3.mt-2
+
+            .col-12
+
+              .card
+
+                .card-header Federation Metrics
+
+                .card-body
+
+                  .row
+
+                    .col-md-3
+
+                      h5(
+                        id='metricPrograms'
+                      ) 0
+
+                      small Programs
+
+                    .col-md-3
+
+                      h5(
+                        id='metricEvents'
+                      ) 0
+
+                      small Events
+
+                    .col-md-3
+
+                      h5(
+                        id='metricCounties'
+                      ) 0
+
+                      small Counties
+
+                    .col-md-3
+
+                      h5(
+                        id='metricClassifications'
+                      ) 0
+
+                      small Classifications
+
+block append scripts
+
+  script(
+    src='/js/participants-report.js'
+  )

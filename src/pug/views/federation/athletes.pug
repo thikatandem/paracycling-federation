@@ -43,12 +43,14 @@ block view
                 thead
 
                   tr
-                    th Athlete Code
+                 
                     th First Name
                     th Last Name
                     th Gender
                     th Role
                     th County
+                    th Sub County
+                    th Town
                     th Phone
                     th Status
                     th Actions
@@ -111,11 +113,9 @@ block view
 
           .row.g-3
 
-            .col-md-3
-              label.form-label Athlete Code
-              input.form-control(
-                id='athleteCode'
-                readonly
+            input(
+              type='hidden'
+              id='athleteCode'
               )
 
             .col-md-3
@@ -163,12 +163,26 @@ block view
                 id='classificationId'
               )
 
-            .col-md-3
+            .col-md-4
               label.form-label County
               select.form-select(
                 id='countyId'
               )
 
+            .col-md-4
+              label.form-label Sub County
+              select.form-select(
+                id='subcountyId'
+              )
+          
+            .col-md-4
+              label.form-label Town
+              input.form-control(
+                id='townName'
+                list='townList'
+                placeholder='Type or select town'
+              )
+              datalist#townList  
             .col-md-4
               label.form-label Passport No
               input.form-control(
