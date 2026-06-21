@@ -121,3 +121,50 @@ body {
 .ts-control input::placeholder {
   color: #6c757d !important;
 }
+
+.table-participants {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-participants thead th {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 2px solid #dee2e6;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.table-participants tbody td {
+  padding: 8px 12px;
+  vertical-align: middle;
+  border-top: 1px solid #f1f3f5;
+  white-space: nowrap;
+}
+
+.table-participants tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.table-participants .group-row td {
+  background: #f7f8fc;
+  font-weight: 600;
+  border-top: 2px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  padding: 10px 12px;
+}
+
+.table-participants td,
+.table-participants th {
+  text-align: left;
+}
+
+.table-participants .btn {
+  margin-bottom: 2px;
+}
+
+.table-participants .text-nowrap {
+  white-space: nowrap;
+}

@@ -45,11 +45,13 @@ block view
                 thead
 
                   tr
-
                     th Date
                     th Type
                     th Athlete / Team
                     th Event
+                    th Occurrence
+                    th Program
+                    th Status
                     th Session
                     th Distance
                     th Duration
@@ -97,8 +99,7 @@ block view
 
         .modal-header
 
-          h5.modal-title
-            Training Log
+          h5.modal-title Training Log
 
           button.btn-close(
             type='button'
@@ -122,9 +123,20 @@ block view
                 id='eventId'
               )
 
+            .col-md-4
+
+              label.form-label Event Occurrence
+
+              select.form-select(
+                id='eventInstanceId'
+              )
+
+                option(value='')
+                  Select Occurrence
+
             .col-md-12
 
-              label.form-label Training Type
+              label.form-label Training Groups
 
               .mt-2
 
@@ -178,7 +190,16 @@ block view
 
                 option(value='')
                   Select Participant
+            .col-md-4
 
+              label.form-label Participant Status
+
+              select.form-select(
+                id='participantStatusId'
+              )
+
+                option(value='')
+                  Select Status
             .col-md-3
 
               label.form-label Training Date
@@ -186,6 +207,7 @@ block view
               input.form-control(
                 type='date'
                 id='trainingDate'
+               
               )
 
             .col-md-3
@@ -205,16 +227,18 @@ block view
                 type='text'
                 id='trainingDay'
               )
+
             .col-md-3
 
               label.form-label County
 
               select.form-select(
-              id='countyId'
+                id='countyId'
+                disabled
               )
 
                 option(value='')
-                Select County
+                  Select County
 
             .col-md-3
 
@@ -222,28 +246,34 @@ block view
 
               select.form-select(
                 id='subcountyId'
+                disabled
               )
 
                 option(value='')
                   Select Subcounty
 
             .col-md-3
+
               label.form-label Town
+
               input.form-control(
                 id='townName'
-                list='townList'
-                
+                readonly
               )
-              datalist#townList             
+
+              
+
             .col-md-3
 
               label.form-label Session Type
 
               input.form-control(
                 id='sessionType'
-                list='sessionTypes'
+                readonly
               )
-              datalist#sessionTypes
+
+              
+
             .col-md-3
 
               label.form-label Start Time
@@ -323,9 +353,15 @@ block view
                 id='notes'
               )
 
-          .mt-3.text-danger(
-            id='trainingFormError'
-          )
+          .mt-3
+
+            .alert.alert-danger.d-none(
+              id='trainingFormError'
+            )
+
+            .alert.alert-success.d-none(
+              id='trainingFormSuccess'
+            )
 
         .modal-footer
 
@@ -353,8 +389,7 @@ block view
 
         .modal-header
 
-          h5.modal-title
-            Delete Training Log
+          h5.modal-title Delete Training Log
 
           button.btn-close(
             type='button'

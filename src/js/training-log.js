@@ -15,8 +15,9 @@ let filteredTrainingLogs = []
 let events = []
 
 let programs = []
-
+let occurrences = []
 let participants = []
+let participantStatuses = []
 let towns = []
 let counties = []
 
@@ -63,18 +64,130 @@ function hideLoading() {
 
 }
 
+async function loadParticipantStatuses() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'status_master'
+      )
+      .select(`
+        status_id,
+        status_name,
+        status_code
+      `)
+      .eq(
+        'entity_type',
+        'PARTICIPANT'
+      )
+      .order(
+        'status_name'
+      )
+
+  if (
+    error
+  ) {
+    throw error
+  }
+
+  participantStatuses =
+    data || []
+
+  const select =
+    document.getElementById(
+      'participantStatusId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Status
+      </option>
+    `
+
+  participantStatuses.forEach(
+    status => {
+
+      select.innerHTML += `
+        <option value="${status.status_id}">
+          ${status.status_name}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+
 function showError(message) {
 
   if (
-    trainingFormError
+    !trainingFormError
+  ) {
+    return
+  }
+
+  trainingFormError.textContent =
+    message
+
+  trainingFormError.classList.remove(
+    'd-none'
+  )
+
+  setTimeout(
+    () => {
+
+      trainingFormError.classList.add(
+        'd-none'
+      )
+
+    },
+    5000
+  )
+
+}
+function showSuccess(message) {
+
+  const successBox =
+    document.getElementById(
+      'trainingFormSuccess'
+    )
+
+  if (
+    successBox
   ) {
 
-    trainingFormError.textContent =
+    successBox.textContent =
       message
 
+    successBox.classList.remove(
+      'd-none'
+    )
+
+    setTimeout(
+      () => {
+
+        successBox.classList.add(
+          'd-none'
+        )
+
+      },
+      3000
+    )
   }
 
 }
+
 
 function clearError() {
 
@@ -206,20 +319,46 @@ function calculateAverageSpeed() {
 }
 async function loadTrainingEvents() {
 
-  const {
-    data,
-    error
-  } =
-    await db
-      .from('events')
-      .select(`
-        event_id,
-        event_name
-      `)
-      .eq(
-        'event_category',
-        'TRAINING'
-      )
+ const {
+  data: category,
+  error: categoryError
+} =
+  await db
+    .from(
+      'event_category_master'
+    )
+    .select(
+      'event_category_id'
+    )
+    .eq(
+      'category_code',
+      'TRAINING'
+    )
+    .single()
+
+if (
+  categoryError
+) {
+
+  throw categoryError
+}
+
+const {
+  data,
+  error
+} =
+  await db
+    .from(
+      'events'
+    )
+    .select(`
+      event_id,
+      event_name
+    `)
+    .eq(
+      'event_category_id',
+      category.event_category_id
+    )
       .order(
         'event_name'
       )
@@ -321,9 +460,16 @@ async function loadPrograms(
   }
 
 }
-async function loadParticipants(
-  programId
+
+async function loadOccurrences(
+  eventId
 ) {
+
+  if (
+    !eventId
+  ) {
+    return
+  }
 
   const {
     data,
@@ -331,26 +477,131 @@ async function loadParticipants(
   } =
     await db
       .from(
-        'event_participants'
+        'event_instances'
       )
       .select(`
-  participant_id,
-  team_id,
-  athlete_id,
+        event_instance_id,
+        event_area,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
+        county_id,
+        subcounty_id,
+        town_id,
+        program_id,
 
-  teams(
-    team_name
+        events(
+          event_id,
+          event_type_id,
+
+          event_type_master(
+            event_type_id,
+            event_type_name
+          )
+        ),
+
+        subcounty_master(
+          subcounty_name
+        ),
+
+        town_master(
+          town_name
+        )
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .order(
+        'start_date'
+      )
+
+  if (
+    error
+  ) {
+    throw error
+  }
+
+  occurrences =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventInstanceId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Occurrence
+      </option>
+    `
+
+  occurrences.forEach(
+    occurrence => {
+
+      select.innerHTML += `
+        <option
+          value="${occurrence.event_instance_id}"
+        >
+          ${occurrence.event_area}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+async function loadParticipants(
+occurrenceId,  
+programId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+  .from(
+    'participant_instances'
+  )
+  .select(`
+  participant_instance_id,
+  participant_ref_id,
+  participant_status_id,
+
+  participant_registry(
+    participant_ref_id,
+    source_id,
+    display_name,
+
+    participant_type_master(
+      participant_type_code
+    )
   ),
 
-  athletes(
-    first_name,
-    last_name
+  status_master(
+    status_id,
+    status_code,
+    status_name
   )
 `)
-      .eq(
-        'program_id',
-        programId
-      )
+  .eq(
+    'event_instance_id',
+    occurrenceId
+  )
+  .eq(
+    'program_id',
+    programId
+  )
 
   if (error) {
     throw error
@@ -375,44 +626,118 @@ async function loadParticipants(
     </option>
     `
 
-  const trainingType =
-  document.querySelector(
-    'input[name="trainingType"]:checked'
-  )?.value
-
-for (
+  for (
   const participant
   of participants
 ) {
 
-  const participantName =
+  const selectedType =
+    document.querySelector(
+      'input[name="trainingType"]:checked'
+    )?.value
 
-    trainingType ===
+  const participantType =
+    participant
+      .participant_registry
+      ?.participant_type_master
+      ?.participant_type_code
+
+  if (
+    selectedType ===
     'TEAM'
+    &&
+    participantType !==
+    'TEAM'
+  ) {
+    continue
+  }
 
-      ?
-
-      (
-        participant.teams
-          ?.team_name || ''
-      )
-
-      :
-
-      (
-        `${participant.athletes?.first_name || ''} ${participant.athletes?.last_name || ''}`
-      )
+  if (
+    selectedType ===
+    'INDIVIDUAL'
+    &&
+    participantType !==
+    'ATHLETE'
+  ) {
+    continue
+  }
 
   select.innerHTML += `
     <option
-      value="${participant.participant_id}"
+      value="${participant.participant_ref_id}"
     >
-      ${participantName}
+      ${
+        participant
+          .participant_registry
+          ?.display_name || ''
+      }
     </option>
   `
 }
+applyParticipantStatusRules()
+}
+
+
+
+function applyParticipantStatusRules() {
+
+  const statusId =
+    getValue(
+      'participantStatusId'
+    )
+
+  const status =
+    participantStatuses.find(
+      row =>
+        row.status_id ===
+        statusId
+    )
+
+  selectedParticipantStatus =
+    status
+      ?.status_code
+      ?.toUpperCase() || ''
+
+  const metricsAllowed =
+    selectedParticipantStatus ===
+    'PARTICIPATED'
+
+  const distanceField =
+    document.getElementById(
+      'distanceKm'
+    )
+
+  if (
+    distanceField
+  ) {
+
+    distanceField.disabled =
+      !metricsAllowed
+
+    if (
+      !metricsAllowed
+    ) {
+
+      distanceField.value = ''
+
+      setValue(
+        'avgSpeedKmh',
+        ''
+      )
+
+      setValue(
+        'durationMinutes',
+        ''
+      )
+
+    }
+
+  }
 
 }
+
+
+
 async function loadSessionTypes() {
 
   const {
@@ -686,26 +1011,43 @@ async function loadTrainingLogs() {
     town_name
   ),
 
-  teams(
-    team_name
-  ),
+  
 
-  athletes(
-    first_name,
-    last_name
-  ),
+ participant_instances(
 
-  event_participants(
-    participant_id,
+  participant_instance_id,
 
-    event_programs(
-      program_name,
+  program_id,
 
-      events(
-        event_name
-      )
+  event_instance_id,
+
+  participant_registry(
+    participant_ref_id,
+    display_name,
+
+    participant_type_master(
+      participant_type_code
     )
+  ),
+
+  event_programs(
+    program_id,
+    program_name
+  ),
+
+  event_instances(
+    event_instance_id,
+    event_area,
+
+    events(
+      event_name
+    )
+  ),
+
+  status_master(
+    status_code
   )
+)
 `)
         .order(
           'training_date',
@@ -730,9 +1072,9 @@ async function loadTrainingLogs() {
 
     console.error(error)
 
-    alert(
-      'Failed to load training logs'
-    )
+    showError(
+  'Failed to load training logs'
+)
 
   } finally {
 
@@ -773,14 +1115,12 @@ function renderTrainingLogs() {
     trainingTableBody.innerHTML =
       `
       <tr>
-
         <td
-          colspan="9"
+          colspan="12"
           class="text-center"
         >
           No Training Records Found
         </td>
-
       </tr>
       `
 
@@ -795,25 +1135,45 @@ function renderTrainingLogs() {
   ) {
 
     const type =
-      training.team_id
-        ? 'TEAM'
-        : 'INDIVIDUAL'
+      training
+        .participant_instances
+        ?.participant_registry
+        ?.participant_type_master
+        ?.participant_type_code || ''
 
     const participantName =
-      training.team_id
+      training
+        .participant_instances
+        ?.participant_registry
+        ?.display_name || ''
 
-        ?
+    const eventName =
+      training
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_name || ''
 
-        (
-          training.teams
-            ?.team_name || ''
-        )
+    const occurrence =
+      training
+        .participant_instances
+        ?.event_instances
+        ?.event_area || ''
 
-        :
+    const program =
+      training
+        .participant_instances
+        ?.event_programs
+        ?.program_name || ''
 
-        (
-          `${training.athletes?.first_name || ''} ${training.athletes?.last_name || ''}`
-        )
+    const status =
+      training
+        .participant_instances
+        ?.status_master
+        ?.status_code || ''
+
+    const session =
+      training.session_type || ''
 
     trainingTableBody.innerHTML += `
       <tr>
@@ -833,45 +1193,40 @@ function renderTrainingLogs() {
         </td>
 
         <td>
-          ${
-            training
-              .event_participants
-              ?.event_programs
-              ?.events
-              ?.event_name || ''
-          }
+          ${eventName}
         </td>
 
         <td>
-  ${
-    training.town_master
-      ?.town_name
+          ${occurrence}
+        </td>
 
-      ?
+        <td>
+          ${program}
+        </td>
 
-      `${training.town_master.town_name} ${training.session_type}`
+        <td>
+          ${status}
+        </td>
 
-      :
-
-      training.session_type
-  }
-</td>
+        <td>
+          ${session}
+        </td>
 
         <td>
           ${
-            training.distance_km || 0
+            training.distance_km ?? ''
           }
         </td>
 
         <td>
           ${
-            training.duration_minutes || 0
+            training.duration_minutes ?? ''
           }
         </td>
 
         <td>
           ${
-            training.avg_speed_kmh || 0
+            training.avg_speed_kmh ?? ''
           }
         </td>
 
@@ -895,58 +1250,10 @@ function renderTrainingLogs() {
 
       </tr>
     `
+
   }
 
   updatePagination()
-
-}
-function updatePagination() {
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredTrainingLogs.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-
-    previousButton.disabled =
-      currentPage <= 1
-
-  }
-
-  if (
-    nextButton
-  ) {
-
-    nextButton.disabled =
-      currentPage >= totalPages
-
-  }
 
 }
 function searchTrainingLogs() {
@@ -968,30 +1275,19 @@ function searchTrainingLogs() {
           return (
 
             (
-  training.team_id
-
-    ?
-
-    (
-      training.teams
-        ?.team_name || ''
-    )
-
-    :
-
-    (
-      `${training.athletes?.first_name || ''} ${training.athletes?.last_name || ''}`
-    )
-
+  training
+    .participant_instances
+    ?.participant_registry
+    ?.display_name || ''
 )
               .toLowerCase()
               .includes(search)
 
             ||
-           (
+   (
   training
-    .event_participants
-    ?.event_programs
+    .participant_instances
+    ?.event_instances
     ?.events
     ?.event_name || ''
 )
@@ -1002,7 +1298,7 @@ function searchTrainingLogs() {
 
 (
   training
-    .event_participants
+    .participant_instances
     ?.event_programs
     ?.program_name || ''
 )
@@ -1056,7 +1352,10 @@ setValue(
   'programId',
   ''
 )
-
+setValue(
+  'eventInstanceId',
+  ''
+)
 setValue(
   'participantId',
   ''
@@ -1180,6 +1479,24 @@ function validateTraining() {
     return false
   }
 
+
+  if (
+    getValue(
+      'attendance'
+    ) === ''
+  ) {
+
+    showError(
+      'Attendance is required'
+    )
+
+    return false
+  }
+if (
+  selectedParticipantStatus ===
+  'PARTICIPATED'
+) {
+
   if (
     !getValue(
       'distanceKm'
@@ -1205,23 +1522,12 @@ function validateTraining() {
 
     return false
   }
-
-  if (
-    getValue(
-      'attendance'
-    ) === ''
-  ) {
-
-    showError(
-      'Attendance is required'
-    )
-
-    return false
-  }
-
+}
   return true
 
 }
+
+
 async function saveTraining() {
 
   try {
@@ -1232,210 +1538,268 @@ async function saveTraining() {
       return
     }
 
-   const participantId =
-  getValue(
-    'participantId'
-  )
-
-const participant =
-  participants.find(
-    p =>
-      p.participant_id ===
-      participantId
-  )
-
-if (
-  !participant
-) {
-
-  throw new Error(
-    'Please select a valid participant'
-  )
-
-}
-
-const trainingType =
-  document.querySelector(
-    'input[name="trainingType"]:checked'
-  )?.value 
-
-let selectedTown =
-  towns.find(
-    town =>
-
-      town.town_name
-        .trim()
-        .toLowerCase()
-
-      ===
-
+    const participantId =
       getValue(
-        'townName'
+        'participantId'
       )
-        .trim()
-        .toLowerCase()
-  )
 
-if (
-  !selectedTown &&
-  getValue(
-    'townName'
-  )
-) {
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'town_master'
+    const participant =
+      participants.find(
+        p =>
+          p.participant_ref_id ===
+          participantId
       )
-      .insert({
-        subcounty_id:
+
+    if (
+      !participant
+    ) {
+
+      throw new Error(
+        'Please select a valid participant'
+      )
+
+    }
+
+    const selectedStatus =
+      participantStatuses.find(
+        row =>
+          row.status_id ===
           getValue(
-            'subcountyId'
-          ),
+            'participantStatusId'
+          )
+      )
 
-        town_name:
+    const statusCode =
+      selectedStatus
+        ?.status_code
+        ?.toUpperCase() || ''
+
+    const metricsAllowed = [
+
+      'PARTICIPATED',
+      'DISQUALIFIED',
+      'DID_NOT_COMPLETE'
+
+    ].includes(
+      statusCode
+    )
+
+    const trainingType =
+      document.querySelector(
+        'input[name="trainingType"]:checked'
+      )?.value
+
+    const selectedTown =
+      towns.find(
+        town =>
+
+          town.town_name
+            .trim()
+            .toLowerCase()
+
+          ===
+
           getValue(
             'townName'
           )
-      })
-      .select()
-      .single()
-
-  if (error) {
-    throw error
-  }
-
-  selectedTown =
-    data
-
-}
-
-if (
-  !selectedTown
-) {
-
-  throw new Error(
-    'Please select an existing town'
-  )
-
-}
-
-const payload = {
-
-  town_id:
-    selectedTown
-      ?.town_id || null,
-
-  training_date:
-    getValue(
-      'trainingDate'
-    ),
-
-  start_time:
-    getValue(
-      'startTime'
-    ),
-   
-    training_week:
-  getValue(
-    'trainingWeek'
-  ),
-
-training_day:
-  getValue(
-    'trainingDay'
-  ), 
-
-
-  end_time:
-    getValue(
-      'endTime'
-    ),
-
-  avg_speed_kmh:
-    Number(
-      getValue(
-        'avgSpeedKmh'
+            .trim()
+            .toLowerCase()
       )
-    ),
 
-  indoor_session:
-    getValue(
-      'indoorSession'
-    ) === 'true',
+    if (
+      !selectedTown
+    ) {
 
-  participant_id:
-    participantId,
-
-  event_id:
-    getValue(
-      'eventId'
-    ),
-
-  team_id:
-
-  trainingType ===
-  'TEAM'
-
-    ?
-
-    participant.team_id
-
-    :
-
-    null,
-
-athlete_id:
-
-  trainingType ===
-  'INDIVIDUAL'
-
-    ?
-
-    participant.athlete_id
-
-    :
-
-    null,
-
-  session_type:
-  getValue(
-    'sessionType'
-  ),
-
-  distance_km:
-    Number(
-      getValue(
-        'distanceKm'
+      throw new Error(
+        'Occurrence town not found'
       )
-    ),
 
-  duration_minutes:
-    Number(
+    }
+
+    const selectedStatusId =
       getValue(
-        'durationMinutes'
+        'participantStatusId'
       )
-    ),
 
-  attendance:
-    getValue(
-      'attendance'
-    ) === 'true',
+    if (
+      participant?.participant_instance_id &&
+      selectedStatusId
+    ) {
 
-  notes:
-    getValue(
-      'notes'
-    )
+      const {
+        error: statusError
+      } =
+        await db
+          .from(
+            'participant_instances'
+          )
+          .update({
 
-}
-const trainingId =
-  getValue(
-    'trainingId'
-  )
+            participant_status_id:
+              selectedStatusId
+
+          })
+          .eq(
+            'participant_instance_id',
+            participant.participant_instance_id
+          )
+
+      if (
+        statusError
+      ) {
+        throw statusError
+      }
+
+    }
+
+    const payload = {
+
+      town_id:
+        selectedTown
+          ?.town_id || null,
+
+      training_date:
+        getValue(
+          'trainingDate'
+        ),
+
+      training_week:
+        getValue(
+          'trainingWeek'
+        ),
+
+      training_day:
+        getValue(
+          'trainingDay'
+        ),
+
+      start_time:
+        getValue(
+          'startTime'
+        ),
+
+      end_time:
+        getValue(
+          'endTime'
+        ),
+
+      avg_speed_kmh:
+
+        metricsAllowed
+
+          ?
+
+          Number(
+            getValue(
+              'avgSpeedKmh'
+            )
+          )
+
+          :
+
+          null,
+
+      indoor_session:
+        getValue(
+          'indoorSession'
+        ) === 'true',
+
+      participant_id:
+        participantId,
+
+      participant_instance_id:
+        participant
+          ?.participant_instance_id || null,
+
+      event_id:
+        getValue(
+          'eventId'
+        ),
+
+      team_id:
+
+        trainingType ===
+        'TEAM'
+
+          ?
+
+          participant
+            .participant_registry
+            ?.source_id
+
+          :
+
+          null,
+
+      athlete_id:
+
+        trainingType ===
+        'INDIVIDUAL'
+
+          ?
+
+          participant
+            .participant_registry
+            ?.source_id
+
+          :
+
+          null,
+
+      session_type:
+        getValue(
+          'sessionType'
+        ),
+
+      distance_km:
+
+        metricsAllowed
+
+          ?
+
+          Number(
+            getValue(
+              'distanceKm'
+            )
+          )
+
+          :
+
+          null,
+
+      duration_minutes:
+
+        metricsAllowed
+
+          ?
+
+          Number(
+            getValue(
+              'durationMinutes'
+            )
+          )
+
+          :
+
+          null,
+
+      attendance:
+        getValue(
+          'attendance'
+        ) === 'true',
+
+      notes:
+        getValue(
+          'notes'
+        )
+
+    }
+
+    const trainingId =
+      getValue(
+        'trainingId'
+      )
+
     let error
 
     if (
@@ -1479,9 +1843,9 @@ const trainingId =
     ) {
       throw error
     }
-    
+
     await db.rpc(
-     'rebuild_training_rankings'
+      'rebuild_training_rankings'
     )
 
     coreui.Modal
@@ -1493,6 +1857,12 @@ const trainingId =
       ?.hide()
 
     await loadTrainingLogs()
+
+    showSuccess(
+      trainingId
+        ? 'Training Updated'
+        : 'Training Saved'
+    )
 
   } catch (
     error
@@ -1510,9 +1880,9 @@ const trainingId =
 
 }
 window.editTraining =
-function (
+async function (
   trainingId
-) {
+){
 
   const training =
     trainingLogs.find(
@@ -1538,11 +1908,79 @@ function (
     'trainingDate',
     training.training_date
   )
+setValue(
+  'eventId',
+  training
+    .event_id
+)
+await loadOccurrences(
+  training.event_id
+)
 
-  setValue(
+setValue(
+  'eventInstanceId',
+  training
+    .participant_instances
+    ?.event_instance_id || ''
+)
+
+await loadPrograms(
+  training.event_id
+)
+
+setValue(
+  'programId',
+  training
+    .participant_instances
+    ?.program_id || ''
+)
+
+await loadParticipants(
+  training
+    .participant_instances
+    ?.event_instance_id,
+  training
+    .participant_instances
+    ?.program_id
+)
+const participantType =
+
+  training
+    .participant_instances
+    ?.participant_registry
+    ?.participant_type_master
+    ?.participant_type_code
+
+if (
+  participantType === 'TEAM'
+) {
+
+  document.getElementById(
+    'trainingTypeTeam'
+  ).checked = true
+
+} else {
+
+  document.getElementById(
+    'trainingTypeIndividual'
+  ).checked = true
+
+}
+setValue(
   'participantId',
   training.participant_id
 )
+
+setValue(
+  'participantStatusId',
+  training
+    .participant_instances
+    ?.participant_status_id || ''
+)
+
+applyParticipantStatusRules()
+
+
    
    setValue(
   'startTime',
@@ -1592,6 +2030,8 @@ setValue(
     'notes',
     training.notes
   )
+
+
 
   const modal =
     new coreui.Modal(
@@ -1673,9 +2113,9 @@ async function deleteTraining() {
       error
     )
 
-    alert(
-      error.message
-    )
+    showError(
+  error.message
+)
 
   }
 
@@ -1684,90 +2124,243 @@ function wireEvents() {
 
   document
   .getElementById(
-    'trainingDate'
+    'participantStatusId'
   )
   ?.addEventListener(
     'change',
-    e => {
+    applyParticipantStatusRules
+  )
 
-      const date =
-        new Date(
+document
+    .getElementById(
+      'eventInstanceId'
+    )
+    ?.addEventListener(
+      'change',
+      async () => {
+
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
+
+        if (
+          !occurrenceId
+        ) {
+          return
+        }
+
+        const occurrence =
+          occurrences.find(
+            row =>
+              row.event_instance_id ===
+              occurrenceId
+          )
+
+        if (
+          !occurrence
+        ) {
+          return
+        }
+
+        // Program
+
+        if (
+          occurrence.program_id
+        ) {
+
+          setValue(
+            'programId',
+            occurrence.program_id
+          )
+
+        }
+
+        // Date & Time
+
+        setValue(
+          'trainingDate',
+          occurrence.start_date
+        )
+
+        setValue(
+          'startTime',
+          occurrence.start_time
+        )
+
+        setValue(
+          'endTime',
+          occurrence.end_time
+        )
+
+        // Location
+
+        setValue(
+          'countyId',
+          occurrence.county_id
+        )
+
+        await loadSubcounties(
+          occurrence.county_id
+        )
+
+        setValue(
+          'subcountyId',
+          occurrence.subcounty_id
+        )
+
+        await loadTowns(
+          occurrence.subcounty_id
+        )
+
+        setValue(
+          'townName',
+          occurrence
+            .town_master
+            ?.town_name || ''
+        )
+  setValue(
+  'sessionType',
+  occurrence
+    ?.events
+    ?.event_type_master
+    ?.event_type_name || ''
+)
+        // Duration
+
+        calculateDuration()
+
+        // Week & Day
+
+        const date =
+          new Date(
+            occurrence.start_date
+          )
+
+        setValue(
+          'trainingDay',
+          date.toLocaleDateString(
+            'en-US',
+            {
+              weekday: 'long'
+            }
+          )
+        )
+
+        const week =
+          Math.ceil(
+            date.getDate() / 7
+          )
+
+        const month =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              month: 'long'
+            }
+          )
+
+        setValue(
+          'trainingWeek',
+          `${month} Week ${week} ${date.getFullYear()}`
+        )
+
+        // Participants
+
+        await loadParticipants(
+          occurrenceId,
+          occurrence.program_id
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'trainingDate'
+    )
+    ?.addEventListener(
+      'change',
+      e => {
+
+        const date =
+          new Date(
+            e.target.value
+          )
+
+        const dayName =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              weekday: 'long'
+            }
+          )
+
+        setValue(
+          'trainingDay',
+          dayName
+        )
+
+        const monthName =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              month: 'long'
+            }
+          )
+
+        const year =
+          date.getFullYear()
+
+        const weekNumber =
+          Math.ceil(
+            date.getDate() / 7
+          )
+
+        setValue(
+          'trainingWeek',
+          `${monthName} Week ${weekNumber} ${year}`
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'countyId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        setValue(
+          'subcountyId',
+          ''
+        )
+
+        await loadSubcounties(
           e.target.value
         )
 
-      const dayName =
-        date.toLocaleDateString(
-          'en-US',
-          {
-            weekday: 'long'
-          }
-        )
-
-      setValue(
-        'trainingDay',
-        dayName
-      )
-
-const monthName =
-  date.toLocaleDateString(
-    'en-US',
-    {
-      month: 'long'
-    }
-  )
-
-const year =
-  date.getFullYear()
-
-const weekNumber =
-    Math.ceil(
-      date.getDate() / 7
+      }
     )
 
-setValue(
-  'trainingWeek',
-  `${monthName} Week ${weekNumber} ${year}`
-)
+  document
+    .getElementById(
+      'subcountyId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
 
-    }
-  )
+        await loadTowns(
+          e.target.value
+        )
 
-document
-  .getElementById(
-    'countyId'
-  )
-  ?.addEventListener(
-    'change',
-    async e => {
+      }
+    )
 
-      setValue(
-        'subcountyId',
-        ''
-      )
-
-      await loadSubcounties(
-        e.target.value
-      )
-
-    }
-  )
-
-document
-  .getElementById(
-    'subcountyId'
-  )
-  ?.addEventListener(
-    'change',
-    async e => {
-
-      await loadTowns(
-        e.target.value
-      )
-
-    }
-  )  
-
-document
+  document
     .getElementById(
       'btnAddTraining'
     )
@@ -1830,9 +2423,19 @@ document
           ''
         )
 
-        await loadPrograms(
-          e.target.value
+        setValue(
+          'eventInstanceId',
+          ''
         )
+
+        await Promise.all([
+          loadPrograms(
+            e.target.value
+          ),
+          loadOccurrences(
+            e.target.value
+          )
+        ])
 
       }
     )
@@ -1845,68 +2448,95 @@ document
       'change',
       async e => {
 
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
+
+        if (
+          !occurrenceId
+        ) {
+          return
+        }
+
         setValue(
           'participantId',
           ''
         )
 
         await loadParticipants(
+          occurrenceId,
           e.target.value
         )
 
       }
     )
- document
-  .getElementById(
-    'trainingTypeIndividual'
-  )
-  ?.addEventListener(
-    'change',
-    async () => {
 
-      const programId =
-        getValue(
-          'programId'
-        )
+  document
+    .getElementById(
+      'trainingTypeIndividual'
+    )
+    ?.addEventListener(
+      'change',
+      async () => {
 
-      if (
-        programId
-      ) {
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
 
-        await loadParticipants(
+        const programId =
+          getValue(
+            'programId'
+          )
+
+        if (
+          occurrenceId &&
           programId
-        )
+        ) {
+
+          await loadParticipants(
+            occurrenceId,
+            programId
+          )
+
+        }
 
       }
+    )
 
-    }
-  )
+  document
+    .getElementById(
+      'trainingTypeTeam'
+    )
+    ?.addEventListener(
+      'change',
+      async () => {
 
-document
-  .getElementById(
-    'trainingTypeTeam'
-  )
-  ?.addEventListener(
-    'change',
-    async () => {
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
 
-      const programId =
-        getValue(
-          'programId'
-        )
+        const programId =
+          getValue(
+            'programId'
+          )
 
-      if (
-        programId
-      ) {
-
-        await loadParticipants(
+        if (
+          occurrenceId &&
           programId
-        )
+        ) {
+
+          await loadParticipants(
+            occurrenceId,
+            programId
+          )
+
+        }
 
       }
-
-    }
-  )
+    )
 
   document
     .getElementById(
@@ -1997,7 +2627,8 @@ await loadCounties()
 
 await loadTrainingLogs()
 
-    await loadTrainingLogs()
+await loadParticipantStatuses()
+    
 
     wireEvents()
 
@@ -2009,15 +2640,62 @@ await loadTrainingLogs()
       error
     )
 
-    alert(
-      error.message
-    )
+    showError(
+  error.message
+)
 
   }
 
 }
+document
+  .getElementById('startTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById('endTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById('distanceKm')
+  ?.addEventListener(
+    'input',
+    calculateAverageSpeed
+  )
 
 document.addEventListener(
   'DOMContentLoaded',
   initializeTrainingLogs
 )
+document
+  .getElementById(
+    'participantId'
+  )
+  ?.addEventListener(
+    'change',
+    () => {
+
+      const participant =
+        participants.find(
+          row =>
+            row.participant_ref_id ===
+            getValue(
+              'participantId'
+            )
+        )
+
+      setValue(
+        'participantStatusId',
+        participant
+          ?.participant_status_id || ''
+      )
+
+      applyParticipantStatusRules()
+
+    }
+  )

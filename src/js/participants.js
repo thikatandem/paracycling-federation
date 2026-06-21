@@ -1,107 +1,52 @@
-﻿/* global coreui */
+﻿// =====================================================
+// EVENTS MODULE
+// ParaCycling Federation Management System
+// =====================================================
+
+/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
 
-const PAGE_SIZE = 10
+let events = []
+
+let eventOccurrences = []
+
+let eventPrograms = []
 
 let participants = []
-let filteredParticipants = []
 
-let events = []
-let teams = []
+let participantStatuses = []
 
-let athletes = []
+let registrations = []
 
-let registrationType =
-  'TEAM'
-let statuses = []
+let filteredRegistrations = []
+
+let selectedParticipants = []
+
+let participantRegistrations = []
 
 let currentPage = 1
 
-const participantLoading =
-  document.getElementById(
-    'participantLoading'
-  )
+const pageSize = 10
 
-const participantsTableBody =
-  document.getElementById(
-    'participantsTableBody'
-  )
 
-const availableTeamsBody =
-  document.getElementById(
-    'availableTeamsBody'
-  )
-
-const paginationInfo =
-  document.getElementById(
-    'paginationInfo'
-  )
-
-const participantFormError =
-  document.getElementById(
-    'participantFormError'
-  )
-const participantSuccess =
-  document.getElementById(
-    'participantSuccess'
-  )
-
-const participantError =
-  document.getElementById(
-    'participantError'
-  )
-function getSelectedProgramId() {
-
-  return getValue(
-    'selectedProgramId'
-  )
-
-}
-function showLoading() {
-
-  participantLoading
-    ?.classList
-    .remove('d-none')
-}
-
-function hideLoading() {
-
-  participantLoading
-    ?.classList
-    .add('d-none')
-}
-
-function showError(
-  message
+function setValue(
+  id,
+  value
 ) {
 
-  if (
-    participantFormError
-  ) {
-
-    participantFormError.textContent =
-      message
-  }
+  const element =
+    document.getElementById(
+      id
+    )
 
   if (
-    participantSuccess
+    element
   ) {
 
-    participantSuccess.textContent =
-      ''
-  }
-}
-
-function clearError() {
-
-  if (
-    participantFormError
-  ) {
-
-    participantFormError.textContent =
-      ''
+    element.value =
+      value
   }
 }
 
@@ -110,69 +55,240 @@ function getValue(
 ) {
 
   return (
-    document
-      .getElementById(id)
-      ?.value || ''
+    document.getElementById(
+      id
+    )?.value || ''
   )
 }
 
+
+const eventId =
+  document.getElementById(
+    'eventId'
+  )
+const participantSearch =
+  document.getElementById(
+    'participantSearch'
+  )
+
+const participantTypeFilter =
+  document.getElementById(
+    'participantTypeFilter'
+  )
+
+const eventInstanceId =
+  document.getElementById(
+    'eventInstanceId'
+  )
+
+const programId =
+  document.getElementById(
+    'programId'
+  )
+
+const participantStatusId =
+  document.getElementById(
+    'participantStatusId'
+  )
+
+const availableParticipantsBody =
+  document.getElementById(
+    'availableParticipantsBody'
+  )
+const occurrenceFilter =
+  document.getElementById(
+    'occurrenceFilter'
+  )
+
+const programFilter =
+  document.getElementById(
+    'programFilter'
+  )
+const btnExportExcel =
+  document.getElementById(
+    'btnExportExcel'
+  )
+
+const btnExportPdf =
+  document.getElementById(
+    'btnExportPdf'
+  )
+
+
+document.addEventListener(
+  'DOMContentLoaded',
+  initializeParticipants
+)
 function showSuccess(
   message
 ) {
 
+  const successBox =
+    document.getElementById(
+      'participantRegistrationSuccess'
+    )
+
   if (
-    participantSuccess
+    successBox
   ) {
 
-    participantSuccess.textContent =
+    successBox.textContent =
       message
-  }
 
-  if (
-    participantError
-  ) {
+    successBox.classList.remove(
+      'd-none'
+    )
 
-    participantError.textContent =
-      ''
-  }
-}
-
-function clearSuccess() {
-
-  if (
-    participantSuccess
-  ) {
-
-    participantSuccess.textContent =
-      ''
+    setTimeout(
+      () =>
+        successBox.classList.add(
+          'd-none'
+        ),
+      3000
+    )
   }
 }
 
-function setValue(
-  id,
-  value
+function showError(
+  message
 ) {
 
-  const element =
-    document
-      .getElementById(id)
+  const errorBox =
+    document.getElementById(
+      'participantRegistrationError'
+    )
 
   if (
-    element
+    errorBox
   ) {
 
-    element.value =
-      value || ''
+    errorBox.textContent =
+      message
+
+    errorBox.classList.remove(
+      'd-none'
+    )
+
+    setTimeout(
+      () =>
+        errorBox.classList.add(
+          'd-none'
+        ),
+      5000
+    )
   }
 }
 
-function getSelectedEventId() {
+async function initializeParticipants() {
 
-  return getValue(
-    'selectedEventId'
-  )
+  try {
+
+    bindEvents()
+
+    await loadEvents()
+
+    await loadParticipantStatuses()
+
+    await loadParticipantRegistry()
+
+    await loadRegistrations()
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      error
+    )
+  }
 }
-async function loadEventDropdown() {
+
+function bindEvents() {
+
+  eventId
+    ?.addEventListener(
+      'change',
+      handleEventChange
+    )
+
+  eventInstanceId
+    ?.addEventListener(
+      'change',
+      handleOccurrenceChange
+    )
+document
+  .getElementById(
+    'btnNewParticipantRegistration'
+  )
+  ?.addEventListener(
+    'click',
+    newRegistration
+  )
+
+ document
+  .getElementById(
+    'searchParticipantRegistration'
+  )
+  ?.addEventListener(
+    'input',
+    searchRegistrations
+  )
+  occurrenceFilter
+  ?.addEventListener(
+    'change',
+    applyFilters
+  )
+participantSearch
+  ?.addEventListener(
+    'input',
+    renderParticipants
+  )
+
+participantTypeFilter
+  ?.addEventListener(
+    'change',
+    renderParticipants
+  )
+programFilter
+  ?.addEventListener(
+    'change',
+    applyFilters
+  )
+btnExportExcel
+  ?.addEventListener(
+    'click',
+    exportExcel
+  )
+
+btnExportPdf
+  ?.addEventListener(
+    'click',
+    exportPdf
+  )
+
+document
+  .getElementById(
+    'btnSaveParticipantRegistration'
+  )
+  ?.addEventListener(
+    'click',
+    saveRegistration
+  )
+
+  document
+  .getElementById(
+    'btnBulkStatusUpdate'
+  )
+  ?.addEventListener(
+    'click',
+    bulkStatusUpdate
+  )
+
+}
+
+
+
+async function loadEvents() {
 
   const {
     data,
@@ -180,7 +296,9 @@ async function loadEventDropdown() {
   } =
     await window
       .supabaseClient
-      .from('events')
+      .from(
+        'events'
+      )
       .select(`
         event_id,
         event_name
@@ -189,86 +307,408 @@ async function loadEventDropdown() {
         'event_name'
       )
 
-  if (error) {
+  if (
+    error
+  ) {
 
-    console.error(
-      error
-    )
-
-    return
+    throw error
   }
 
   events =
     data || []
 
-  const select =
-    document
-      .getElementById(
-        'selectedEventId'
-      )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
+  eventId.innerHTML =
     `
-    <option value="">
-      Select Event
-    </option>
-    `
-
-  for (
-    const event
-    of events
-  ) {
-
-    select.innerHTML += `
-      <option
-        value="${event.event_id}"
-      >
-        ${event.event_name}
+      <option value="">
+        Select Event
       </option>
     `
-  }
+
+  events.forEach(
+    event => {
+
+      eventId.innerHTML += `
+        <option
+          value="${event.event_id}">
+          ${event.event_name}
+        </option>
+      `
+    }
+  )
 }
-function updateEventHeader() {
 
-  const eventId =
-    getSelectedEventId()
+async function handleEventChange() {
 
-  const event =
-    events.find(
-      e =>
-        e.event_id ===
-        eventId
+  const selectedEventId =
+    eventId.value
+
+  await loadOccurrences(
+    selectedEventId
+  )
+
+  programId.innerHTML =
+    `
+      <option value="">
+        Select Program
+      </option>
+    `
+
+  clearOccurrenceDetails()
+}
+
+async function loadOccurrences(
+  selectedEventId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_instances'
+      )
+      .select(`
+        event_instance_id,
+        event_area
+      `)
+      .eq(
+        'event_id',
+        selectedEventId
+      )
+      .order(
+        'event_area'
+      )
+
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  eventOccurrences =
+    data || []
+
+  eventInstanceId.innerHTML =
+    `
+      <option value="">
+        Select Event Occurrence
+      </option>
+    `
+
+  eventOccurrences.forEach(
+    occurrence => {
+
+      eventInstanceId.innerHTML += `
+        <option
+          value="${occurrence.event_instance_id}">
+          ${occurrence.event_area}
+        </option>
+      `
+    }
+  )
+}
+
+async function handleOccurrenceChange() {
+
+  const occurrence =
+    eventOccurrences.find(
+      row =>
+        row.event_instance_id ===
+        eventInstanceId.value
     )
 
-  if (!event) {
+  if (
+    !occurrence
+  ) {
+
     return
   }
 
-  const title =
-    document.getElementById(
-      'selectedEventTitle'
-    )
+  await loadPrograms()
 
-  const date =
-    document.getElementById(
-      'selectedEventDate'
-    )
-
-  if (title) {
-
-    title.textContent =
-      `Registered Teams For ${event.event_name}`
-  }
-
-  if (date) {
-
-    date.textContent = ''
-  }
+  await loadOccurrenceDetails(
+    occurrence.event_instance_id
+  )
 }
+
+async function loadPrograms() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .select(`
+        program_id,
+        program_name
+      `)
+      .eq(
+        'event_id',
+        eventId.value
+      )
+      .order(
+        'program_name'
+      )
+
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  eventPrograms =
+    data || []
+
+  programId.innerHTML =
+    `
+      <option value="">
+        Select Program
+      </option>
+    `
+
+  eventPrograms.forEach(
+    program => {
+
+      programId.innerHTML += `
+        <option
+          value="${program.program_id}">
+          ${program.program_name}
+        </option>
+      `
+    }
+  )
+}
+
+async function loadOccurrenceDetails(
+  occurrenceId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_instances'
+      )
+      .select(`
+        *,
+        subcounty_master(
+          subcounty_name
+        )
+      `)
+      .eq(
+        'event_instance_id',
+        occurrenceId
+      )
+      .single()
+
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  setValue(
+    'eventArea',
+    data.event_area || ''
+  )
+
+  setValue(
+    'subcountyName',
+    data.subcounty_master
+      ?.subcounty_name || ''
+  )
+
+  setValue(
+    'organizer',
+    data.organizer || ''
+  )
+
+  setValue(
+    'startDate',
+    data.start_date || ''
+  )
+
+  setValue(
+    'startTime',
+    data.start_time || ''
+  )
+
+  setValue(
+    'endDate',
+    data.end_date || ''
+  )
+
+  setValue(
+    'endTime',
+    data.end_time || ''
+  )
+}
+
+
+function clearOccurrenceDetails() {
+
+  setValue(
+    'eventArea',
+    ''
+  )
+
+  setValue(
+    'subcountyName',
+    ''
+  )
+
+  setValue(
+    'organizer',
+    ''
+  )
+
+  setValue(
+    'startDate',
+    ''
+  )
+
+  setValue(
+    'startTime',
+    ''
+  )
+
+  setValue(
+    'endDate',
+    ''
+  )
+
+  setValue(
+    'endTime',
+    ''
+  )
+}
+
+async function loadParticipantRegistry() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'participant_registry'
+      )
+      .select(`
+        participant_ref_id,
+display_name,
+participant_type_id,
+participant_type_master(
+  participant_type_code,
+  participant_type_name
+)
+      `)
+      .eq(
+        'is_active',
+        true
+      )
+      .order(
+        'display_name'
+      )
+
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  participants =
+    data || []
+
+  renderParticipants()
+}
+
+function renderParticipants() {
+
+  availableParticipantsBody.innerHTML =
+    ''
+
+  const searchText =
+    participantSearch
+      ?.value
+      ?.toLowerCase() || ''
+
+  const typeFilter =
+    participantTypeFilter
+      ?.value || ''
+
+  participants
+    .filter(
+      participant => {
+
+        const nameMatch =
+          participant.display_name
+            ?.toLowerCase()
+            .includes(
+              searchText
+            )
+
+        const typeMatch =
+          !typeFilter
+          ||
+          participant
+            .participant_type_master
+            ?.participant_type_code ===
+          typeFilter
+
+        return (
+          nameMatch &&
+          typeMatch
+        )
+      }
+    )
+    .forEach(
+    participant => {
+
+      availableParticipantsBody.innerHTML += `
+        <tr>
+
+          <td>
+
+            <input
+              type="checkbox"
+              class="participant-check"
+              value="${participant.participant_ref_id}"
+            >
+
+          </td>
+
+          <td>
+  ${
+    participant
+      .participant_type_master
+      ?.participant_type_name || ''
+  }
+</td>
+
+          <td>
+            ${participant.display_name || ''}
+          </td>
+
+        </tr>
+      `
+    }
+  )
+}
+
 async function loadParticipantStatuses() {
 
   const {
@@ -292,1406 +732,1469 @@ async function loadParticipantStatuses() {
         'status_name'
       )
 
-  if (error) {
+  if (
+    error
+  ) {
 
-    console.error(
-      error
-    )
-
-    return
+    throw error
   }
 
-  statuses =
+  participantStatuses =
     data || []
 
-  const select =
-    document
-      .getElementById(
-        'statusId'
-      )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
+  participantStatusId.innerHTML =
     `
-    <option value="">
-      Select Status
-    </option>
-    `
-
-  for (
-    const status
-    of statuses
-  ) {
-
-    select.innerHTML += `
-      <option
-        value="${status.status_id}"
-      >
-        ${status.status_name}
+      <option value="">
+        Select Status
       </option>
     `
-  }
+
+  participantStatuses.forEach(
+    status => {
+
+      participantStatusId.innerHTML += `
+        <option
+          value="${status.status_id}">
+          ${status.status_name}
+        </option>
+      `
+    }
+  )
 }
 
-function renderAvailableTeams() {
+async function saveRegistration() {
 
-  if (
-    !availableTeamsBody
-  ) {
-    return
-  }
+  try {
 
-  availableTeamsBody.innerHTML =
-    ''
+    const occurrenceId =
+      getValue(
+        'eventInstanceId'
+      )
 
-  for (
-    const team
-    of teams
-  ) {
+    const selectedProgramId =
+      getValue(
+        'programId'
+      )
 
-    availableTeamsBody.innerHTML += `
-      <tr>
+    const participantStatus =
+      getValue(
+        'participantStatusId'
+      )
 
-        <td>
+    if (
+      !occurrenceId
+    ) {
 
-          <input
-            type="checkbox"
-            class="team-checkbox"
-            value="${team.team_id}"
-          >
+      showError(
+        'Event Occurrence is required'
+      )
 
-        </td>
+      return
+    }
 
-        <td>
+    if (
+      !selectedProgramId
+    ) {
 
-          <strong>
-            ${team.team_name}
-          </strong>
+      showError(
+        'Program is required'
+      )
 
-          ${
-            team.team_nickname
-              ?
-              `<br>
-               <small class="text-muted">
-                 (${team.team_nickname})
-               </small>`
-              :
-              ''
-          }
+      return
+    }
 
-        </td>
+    if (
+      !participantStatus
+    ) {
 
-      </tr>
-    `
-  }
-}
-async function loadAvailableTeams() {
+      showError(
+        'Participant Status is required'
+      )
 
-  const eventId =
-    getSelectedEventId()
+      return
+    }
+
+    const checkedParticipants =
+      [
+        ...document.querySelectorAll(
+          '.participant-check:checked'
+        )
+      ]
+
+    if (
+      checkedParticipants.length === 0
+    ) {
+
+      showError(
+        'Select at least one participant'
+      )
+
+      return
+    }
+   
+    const participantInstanceId =
+  getValue(
+    'participantInstanceId'
+  )
+   if (
+  participantInstanceId
+) {
+
+  const selectedParticipant =
+    checkedParticipants[0]
 
   const {
-    data: allTeams,
     error
   } =
     await window
       .supabaseClient
-      .from('teams')
-      .select(`
-        team_id,
-        team_name,
-        team_nickname
-      `)
-      .order(
-        'team_name'
+      .from(
+        'participant_instances'
+      )
+      .update({
+
+        event_instance_id:
+          occurrenceId,
+
+        participant_ref_id:
+          selectedParticipant.value,
+
+        participant_status_id:
+          participantStatus,
+
+        program_id:
+          selectedProgramId
+
+      })
+      .eq(
+        'participant_instance_id',
+        participantInstanceId
       )
 
-  if (error) {
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  await loadRegistrations()
+
+  showSuccess(
+    'Registration Updated'
+  )
+const modalElement =
+  document.getElementById(
+    'participantRegistrationModal'
+  )
+
+const modal =
+  coreui.Modal.getOrCreateInstance(
+    modalElement
+  )
+
+modal.hide()
+
+clearRegistrationForm()
+  return
+}
+    const duplicateParticipants =
+  checkedParticipants.filter(
+    checkbox =>
+
+      participantRegistrations.some(
+        registration =>
+
+          registration
+            .event_instances
+            ?.event_instance_id ===
+          occurrenceId
+
+          &&
+
+          registration.program_id ===
+          selectedProgramId
+
+          &&
+
+          registration
+            .participant_registry
+            ?.participant_ref_id ===
+          checkbox.value
+      )
+  )
+
+if (
+  duplicateParticipants.length > 0 &&
+  !getValue(
+    'participantInstanceId'
+  )
+) {
+
+  showError(
+    'Registration already exists'
+  )
+
+  return
+}
+
+    const rows =
+      checkedParticipants.map(
+        checkbox => {
+
+          return {
+
+            event_instance_id:
+              occurrenceId,
+
+            participant_ref_id:
+              checkbox.value,
+
+            participant_status_id:
+              participantStatus,
+
+            program_id:
+              selectedProgramId
+          }
+        }
+      )
+
+    const {
+      error
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'participant_instances'
+        )
+        .upsert(
+          rows,
+          {
+            onConflict:
+            'event_instance_id,program_id,participant_ref_id'
+          }
+        )
+
+    if (
+      error
+    ) {
+
+      throw error
+    }
+
+    await loadRegistrations()
+
+    showSuccess(
+      'Participants Registered'
+    )
+const modalElement =
+  document.getElementById(
+    'participantRegistrationModal'
+  )
+
+const modal =
+  coreui.Modal.getOrCreateInstance(
+    modalElement
+  )
+
+modal.hide()
+
+clearRegistrationForm()
+  } catch (
+    error
+  ) {
 
     console.error(
       error
     )
 
-    return
-  }
-
-  if (!eventId) {
-
-    teams =
-      allTeams || []
-
-    renderAvailableTeams()
-
-    return
-  }
-
-  const {
-    data: registered
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'event_participants'
-      )
-      .select(
-        'team_id'
-      )
-      .eq(
-        'event_id',
-        eventId
-      )
-
-  const registeredIds =
-    new Set(
-      (registered || [])
-        .map(
-          participant =>
-            participant.team_id
-        )
+    showError(
+      error.message
     )
-
-  teams =
-    (allTeams || [])
-      .filter(
-        team =>
-          !registeredIds.has(
-            team.team_id
-          )
-      )
-
-  renderAvailableTeams()
+  }
 }
 
-async function loadAvailableAthletes() {
+async function loadRegistrations() {
 
   const {
     data,
     error
   } =
-    await window.supabaseClient
-      .from('athletes')
+    await window
+      .supabaseClient
+      .from(
+        'participant_instances'
+      )
       .select(`
-        athlete_id,
-        athlete_code,
-        first_name,
-        last_name
-      `)
-      .eq(
-        'status',
-        'Active'
-      )
-      .order(
-        'first_name'
-      )
+        participant_instance_id,
 
-  if (error) {
-    console.error(error)
-    return
-  }
+        program_id,
 
-  athletes =
-    data || []
+        participant_status_id,
 
-  renderAvailableAthletes()
-}
+        event_instances(
+          event_instance_id,
+          event_id,
+          event_area,
+          start_date,
+          start_time,
+          end_date,
+          end_time,
+          subcounty_master(
+            subcounty_name,
+            county_master(
+              county_name
+            )
+          ),
+          events(
+            event_name
+          )
+        ),
 
-function renderAvailableAthletes() {
+        event_programs(
+          program_name
+        ),
 
-  availableTeamsBody.innerHTML =
-    ''
-
-  athletes.forEach(
-    athlete => {
-
-      availableTeamsBody.innerHTML += `
-        <tr>
-
-          <td>
-
-            <input
-              type="checkbox"
-              class="athlete-checkbox"
-              value="${athlete.athlete_id}"
-            >
-
-          </td>
-
-          <td>
-
-            ${athlete.athlete_code}
-
-            -
-            ${athlete.first_name}
-
-            ${athlete.last_name}
-
-          </td>
-
-        </tr>
-      `
-    }
+        participant_registry(
+  participant_ref_id,
+  display_name,
+  participant_type_id,
+  participant_type_master(
+    participant_type_code,
+    participant_type_name
   )
-}
-async function detectRegistrationType() {
+),
 
-  const eventId =
-    getSelectedEventId()
-
-  if (!eventId) {
-    return
-  }
-
-  const {
-    data
-  } =
-    await window.supabaseClient
-      .from('events')
-      .select(`
-        event_category
+        status_master(
+          status_name
+        )
       `)
-      .eq(
-        'event_id',
-        eventId
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
       )
-      .single()
 
   if (
-    data?.event_category ===
-    'TRAINING'
-  ) {
-
-    registrationType =
-      'ATHLETE'
-
-    document.getElementById(
-      'registrationTypeAthlete'
-    ).checked = true
-
-    loadAvailableAthletes()
-
-  } else {
-
-    registrationType =
-      'TEAM'
-
-    document.getElementById(
-      'registrationTypeTeam'
-    ).checked = true
-
-    loadAvailableTeams()
-  }
-}
-
-function getSelectedTeamIds() {
-
-  return Array
-    .from(
-      document.querySelectorAll(
-        '.team-checkbox:checked'
-      )
-    )
-    .map(
-      checkbox =>
-        checkbox.value
-    )
-}
-async function loadEventParticipants() {
-
-  try {
-
-    const eventId =
-      getSelectedEventId()
-
-    if (!eventId) {
-
-      participants = []
-
-      filteredParticipants = []
-
-      renderParticipants()
-
-      return
-    }
-
-    showLoading()
-
-    const {
-      data,
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_participants'
-        )
-   .select(`
-  participant_id,
-  registration_date,
-  event_id,
-  team_id,
-  athlete_id,
-  status_id,
-  program_id,
-
-  teams (
-    team_name,
-    team_nickname
-  ),
-
-  athletes (
-    first_name,
-    last_name,
-    athlete_code
-  ),
-
-  event_programs (
-    program_name
-  ),
-
-  status_master (
-    status_name
-  )
-`)
-        .eq(
-          'event_id',
-          eventId
-        )
-        .order(
-          'registration_date',
-          {
-            ascending: false
-          }
-        )
-
-    if (error) {
-      throw error
-    }
-
-    participants =
-      data || []
-
-    filteredParticipants =
-      [...participants]
-
-    currentPage = 1
-
-    renderParticipants()
-
-  } catch (
     error
   ) {
 
-    console.error(
-      error
-    )
-
-    alert(
-      error.message
-    )
-
-  } finally {
-
-    hideLoading()
+    throw error
   }
+
+  participantRegistrations =
+    data || []
+
+  filteredRegistrations =
+    [
+      ...participantRegistrations
+    ]
+
+  loadFilterOptions()
+
+  updateSummaryCards()
+
+  renderRegistrations()
 }
-function renderParticipants() {
+
+
+function loadFilterOptions() {
 
   if (
-    !participantsTableBody
+    !occurrenceFilter ||
+    !programFilter
   ) {
+
     return
   }
 
-  const start =
-    (
-      currentPage - 1
-    ) * PAGE_SIZE
+  occurrenceFilter.innerHTML =
+    `
+      <option value="">
+        All Occurrences
+      </option>
+    `
 
-  const end =
-    start + PAGE_SIZE
+  const occurrences =
+    [
+      ...new Set(
+        participantRegistrations
+          .map(
+            row =>
+              row.event_instances
+                ?.event_area
+          )
+          .filter(Boolean)
+      )
+    ]
 
-  const rows =
-    filteredParticipants.slice(
-      start,
-      end
+  occurrences.forEach(
+    occurrence => {
+
+      occurrenceFilter.innerHTML += `
+        <option value="${occurrence}">
+          ${occurrence}
+        </option>
+      `
+    }
+  )
+
+  programFilter.innerHTML =
+    `
+      <option value="">
+        All Programs
+      </option>
+    `
+
+  const programs =
+    [
+      ...new Set(
+        participantRegistrations
+          .map(
+            row =>
+              row.event_programs
+                ?.program_name
+          )
+          .filter(Boolean)
+      )
+    ]
+
+  programs.forEach(
+    program => {
+
+      programFilter.innerHTML += `
+        <option value="${program}">
+          ${program}
+        </option>
+      `
+    }
+  )
+}
+
+
+
+function renderRegistrations() {
+
+  const tbody =
+    document.getElementById(
+      'participantRegistrationTableBody'
     )
 
-  participantsTableBody.innerHTML =
+  if (
+    !tbody
+  ) {
+
+    return
+  }
+
+  tbody.innerHTML =
     ''
 
-  if (
-    rows.length === 0
-  ) {
+  const start =
+  (
+    currentPage - 1
+  ) * pageSize
 
-    participantsTableBody.innerHTML =
-      `
-      <tr>
-        <td colspan="6"
-            class="text-center">
-          No registrations found
-        </td>
-      </tr>
-      `
+const end =
+  start + pageSize
 
-    updatePagination()
+const pageData =
+  filteredRegistrations.slice(
+    start,
+    end
+  )
 
-    return
+const groupedData = {}
+
+pageData.forEach(
+  registration => {
+
+    const eventName =
+      registration
+        .event_instances
+        ?.events
+        ?.event_name || ''
+
+    const occurrence =
+      registration
+        .event_instances
+        ?.event_area || ''
+
+    const program =
+      registration
+        .event_programs
+        ?.program_name || ''
+
+    const groupKey =
+      `${eventName}|${occurrence}|${program}`
+
+    if (
+      !groupedData[groupKey]
+    ) {
+
+      groupedData[groupKey] = {
+        eventName,
+        occurrence,
+        program,
+        registrations: []
+      }
+    }
+
+    groupedData[groupKey]
+      .registrations
+      .push(
+        registration
+      )
   }
+)
 
-  for (
-    const participant
-    of rows
-  ) {
+Object.values(
+  groupedData
+).forEach(
+  group => {
 
-    const participantType =
-      participant.team_id
-        ? 'TEAM'
-        : 'ATHLETE'
+    tbody.innerHTML += `
 
-    const participantName =
-      participant.team_id
+      <tr class="group-row">
 
-        ?
+        <td colspan="12">
 
-        (
-          participant.teams
-            ?.team_name || ''
-        )
+          <strong>
+            ${group.eventName}
+          </strong>
 
-        :
+          |
 
-        (
-          `${participant.athletes?.first_name || ''} ${participant.athletes?.last_name || ''}`
-        )
+          ${group.occurrence}
 
-    participantsTableBody.innerHTML += `
-      <tr>
+          |
 
-        <td>
-          ${participantType}
-        </td>
-
-        <td>
-          ${participantName}
-        </td>
-
-        <td>
-          ${
-            participant
-              .event_programs
-              ?.program_name || ''
-          }
-        </td>
-
-        <td>
-          ${
-            participant.registration_date
-              ?
-              participant
-                .registration_date
-                .split('T')[0]
-              :
-              ''
-          }
-        </td>
-
-        <td>
-          ${
-            participant
-              .status_master
-              ?.status_name || ''
-          }
-        </td>
-
-        <td>
-
-          <button
-            class="btn btn-warning btn-sm me-1"
-            onclick="editParticipantStatus('${participant.participant_id}')"
-          >
-            Status
-          </button>
-
-          <button
-            class="btn btn-danger btn-sm"
-            onclick="confirmDeleteParticipant('${participant.participant_id}')"
-          >
-            Remove
-          </button>
+          ${group.program}
 
         </td>
 
       </tr>
     `
+
+    group.registrations.forEach(
+      registration => {
+
+        tbody.innerHTML += `
+
+          <tr>
+
+            <td>
+              ${
+                registration
+                  .event_instances
+                  ?.events
+                  ?.event_name || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .event_instances
+                  ?.subcounty_master
+                  ?.subcounty_name || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .event_instances
+                  ?.event_area || ''
+              }
+            </td>
+
+            <td>
+  ${
+    registration
+      .event_instances
+      ?.start_date || ''
   }
+</td>
 
-  updatePagination()
-}
-function searchParticipants() {
+            <td>
+  ${
+    registration
+      .event_instances
+      ?.start_time || ''
+  }
+</td>
 
-  const search =
-    (
-      document
-        .getElementById(
-          'searchParticipant'
-        )
-        ?.value || ''
+           <td>
+  ${
+    registration
+      .event_instances
+      ?.end_date || ''
+  }
+</td>
+
+            <td>
+  ${
+    registration
+      .event_instances
+      ?.end_time || ''
+  }
+</td>
+
+            <td>
+              ${
+                registration
+                  .event_programs
+                  ?.program_name || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .participant_registry
+                  ?.participant_type_master
+                  ?.participant_type_name || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .participant_registry
+                  ?.display_name || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .status_master
+                  ?.status_name || ''
+              }
+            </td>
+
+            <td class="text-nowrap">
+
+              <button
+                class="btn btn-sm btn-primary me-1"
+                onclick="editRegistration('${registration.participant_instance_id}')"
+              >
+
+                Edit
+
+              </button>
+
+              <button
+                class="btn btn-sm btn-danger"
+                onclick="deleteRegistration('${registration.participant_instance_id}')"
+              >
+
+                Delete
+
+              </button>
+
+            </td>
+
+          </tr>
+        `
+      }
     )
-      .trim()
-      .toLowerCase()
-
-  if (!search) {
-
-    filteredParticipants =
-      [...participants]
-
-  } else {
-
-    filteredParticipants =
-      participants.filter(
-        participant =>
-
-          (
-            participant.teams
-              ?.team_name || ''
-          )
-            .toLowerCase()
-            .includes(search)
-
-          ||
-
-          (
-            participant
-              .status_master
-              ?.status_name || ''
-          )
-            .toLowerCase()
-            .includes(search)
-      )
   }
-
-  currentPage = 1
-
-  renderParticipants()
-}
-async function registerSelectedTeams() {
-
-  try {
-
-    clearError()
-
-    const eventId =
-      getSelectedEventId()
-
-    if (!eventId) {
-
-      return showError(
-        'Select Event'
-      )
-    }
-
-    if (
-  registrationType ===
-  'TEAM'
-) {
-
-  const selectedTeamIds =
-    getSelectedTeamIds()
-
-  if (
-    selectedTeamIds.length === 0
-  ) {
-
-    return showError(
-      'Select at least one team'
-    )
-  }
-
-} else {
-
-  const selectedAthleteIds =
-    Array.from(
-      document.querySelectorAll(
-        '.athlete-checkbox:checked'
-      )
-    )
-
-  if (
-    selectedAthleteIds.length === 0
-  ) {
-
-    return showError(
-      'Select at least one athlete'
-    )
-  }
-
-}
-    const registeredStatus =
-      statuses.find(
-        status =>
-          status.status_name ===
-          'Registered'
-      )
-
-    if (
-      !registeredStatus
-    ) {
-
-      return showError(
-        'Registered status missing'
-      )
-    }
-const programId =
-  getSelectedProgramId()
-if (!programId) {
-
-  return showError(
-    'Select Program'
-  )
-
-}
-    const payload = []
-
-if (
-  registrationType ===
-  'TEAM'
-) {
-
-  const selectedTeamIds =
-    getSelectedTeamIds()
-
-  for (
-    const teamId
-    of selectedTeamIds
-  ) {
-
-    payload.push({
-
-      event_id:
-        eventId,
-
-      program_id:
-        programId,
-
-      team_id:
-        teamId,
-
-      athlete_id:
-        null,
-
-      status_id:
-        registeredStatus.status_id
-    })
-  }
-
-} else {
-
-  const selectedAthleteIds =
-    Array.from(
-      document.querySelectorAll(
-        '.athlete-checkbox:checked'
-      )
-    )
-      .map(
-        checkbox =>
-          checkbox.value
-      )
-
-  for (
-    const athleteId
-    of selectedAthleteIds
-  ) {
-
-    payload.push({
-
-      event_id:
-        eventId,
-
-      program_id:
-        programId,
-
-      athlete_id:
-        athleteId,
-
-      team_id:
-        null,
-
-      status_id:
-        registeredStatus.status_id
-    })
-  }
-}
-
-if (
-  payload.length === 0
-) {
-
-  return showError(
-    'Select at least one participant'
-  )
-
-}
-
-      
-    const {
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_participants'
-        )
-        .insert(
-          payload
-        )
-
-    if (error) {
-  throw error
-}
-
-await loadEventParticipants()
-
-await loadAvailableTeams()
-
-filteredParticipants =
-  [...participants]
-
-renderParticipants()
-
-showSuccess(
-  `${payload.length} team(s) registered successfully`
 )
+ renderPagination()
 
-document
-  .querySelectorAll(
-    '.team-checkbox'
-  )
-  .forEach(
-    checkbox => {
+}
 
-      checkbox.checked =
-        false
-    }
-  )
-
-  } catch (
-    error
+window.editRegistration =
+  async function (
+    participantInstanceId
   ) {
 
-    console.error(
-      error
-    )
-
-    showError(
-      error.message
-    )
-  }
-}
-window.editParticipantStatus =
-function (
-  participantId
-) {
-
-  const participant =
-    participants.find(
-      p =>
-        p.participant_id ===
-        participantId
-    )
-
-  if (
-    !participant
-  ) {
-    return
-  }
-
-  setValue(
-    'participantId',
-    participant.participant_id
-  )
-
-  setValue(
-    'participantTeamName',
-    participant.teams
-      ?.team_name || ''
-  )
-
-  setValue(
-    'statusId',
-    participant.status_id
-  )
-
-  new coreui.Modal(
-    document.getElementById(
-      'participantStatusModal'
-    )
-  ).show()
-}
-async function saveParticipantStatus() {
-
-  try {
-
-    clearError()
-
-    const participantId =
-      getValue(
-        'participantId'
-      )
-
-    const statusId =
-      getValue(
-        'statusId'
-      )
-
-    if (!statusId) {
-
-      return showError(
-        'Status is required'
-      )
-    }
-
-    const {
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_participants'
-        )
-        .update({
-
-          status_id:
-            statusId
-        })
-        .eq(
-          'participant_id',
-          participantId
-        )
-
-    if (error) {
-      throw error
-    }
-
-    const modal =
-      coreui.Modal
-        .getInstance(
-          document.getElementById(
-            'participantStatusModal'
-          )
-        )
-
-    modal?.hide()
-
-    await loadEventParticipants()
-
-  } catch (
-    error
-  ) {
-
-    console.error(
-      error
-    )
-
-    showError(
-      error.message
-    )
-  }
-}
-window.confirmDeleteParticipant =
-function (
-  participantId
-) {
-
-  setValue(
-    'deleteParticipantId',
-    participantId
-  )
-
-  new coreui.Modal(
-    document.getElementById(
-      'deleteParticipantModal'
-    )
-  ).show()
-}
-async function deleteParticipant() {
-
-  try {
-
-    const participantId =
-      getValue(
-        'deleteParticipantId'
+    const registration =
+      participantRegistrations.find(
+        row =>
+          row.participant_instance_id ===
+          participantInstanceId
       )
 
     if (
-      !participantId
+      !registration
     ) {
+
       return
     }
 
-    const {
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_participants'
-        )
-        .delete()
-        .eq(
-          'participant_id',
-          participantId
-        )
-
-    if (error) {
-      throw error
-    }
-
-    const modal =
-      coreui.Modal
-        .getInstance(
-          document.getElementById(
-            'deleteParticipantModal'
-          )
-        )
-
-    modal?.hide()
-
-    await loadEventParticipants()
-
-  } catch (
-    error
-  ) {
-
-    console.error(
-      error
+    setValue(
+      'participantInstanceId',
+      registration.participant_instance_id
     )
 
-    alert(
-      error.message
-    )
-  }
-}
-
-
-
-function updatePagination() {
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredParticipants.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-
-    paginationInfo.textContent =
-      `
-      Page ${currentPage}
-      of ${totalPages}
-      `
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
-function searchAvailableTeams() {
-
-  const search =
-    (
-      document
-        .getElementById(
-          'searchAvailableTeams'
-        )
-        ?.value || ''
-    )
-      .trim()
-      .toLowerCase()
-
-  const rows =
-    availableTeamsBody
-      ?.querySelectorAll(
-        'tr'
-      ) || []
-
-  rows.forEach(
-    row => {
-
-      const text =
-        row.textContent
-          .toLowerCase()
-
-      row.style.display =
-        text.includes(
-          search
-        )
-          ? ''
-          : 'none'
-    }
+   const eventMaster =
+  events.find(
+    event =>
+      event.event_id ===
+      registration
+        .event_instances
+        ?.event_id
   )
-}
-function toggleSelectAllTeams() {
+if (
+  !eventMaster
+) {
 
-  const checked =
-    document
-      .getElementById(
-        'selectAllTeams'
-      )
-      ?.checked
+  return
+}
+
+setValue(
+  'eventId',
+  eventMaster?.event_id || ''
+)
+
+await loadOccurrences(
+  eventMaster.event_id
+)
+
+await loadPrograms()
+
+
+    setValue(
+      'eventInstanceId',
+      registration.event_instances
+        ?.event_instance_id || ''
+    )
+
+    setValue(
+      'programId',
+      registration.program_id || ''
+    )
+
+    setValue(
+      'participantStatusId',
+      registration.participant_status_id || ''
+    )
+
+    await loadOccurrenceDetails(
+  registration.event_instances
+    ?.event_instance_id
+)
+renderParticipants()
+
+await restoreParticipant(
+  registration
+    .participant_registry
+    ?.participant_ref_id
+)
+
+const modal =
+  new coreui.Modal(
+    document.getElementById(
+      'participantRegistrationModal'
+    )
+  )
+
+modal.show()
+}
+async function restoreParticipant(
+  participantRefId
+) {
 
   document
     .querySelectorAll(
-      '.team-checkbox'
+      '.participant-check'
     )
     .forEach(
-      checkbox => {
-
+      checkbox =>
         checkbox.checked =
-          checked
-      }
-    )
-}
-async function loadEventAndParticipants() {
-
-  clearError()
-
-clearSuccess()
-
-  const eventId =
-    getSelectedEventId()
-
-  if (!eventId) {
-
-    participants = []
-
-    filteredParticipants = []
-
-    renderParticipants()
-
-    return showError(
-      'Select Event'
-    )
-  }
-
-  await loadEventParticipants()
-
-await loadAvailableTeams()
-
-updateEventHeader()
-}
-function wireEvents() {
-
-
-  document
-  .getElementById(
-    'registrationTypeTeam'
-  )
-  ?.addEventListener(
-    'change',
-    async () => {
-
-      registrationType =
-        'TEAM'
-
-      await loadAvailableTeams()
-    }
-  )
-
-document
-  .getElementById(
-    'registrationTypeAthlete'
-  )
-  ?.addEventListener(
-    'change',
-    async () => {
-
-      registrationType =
-        'ATHLETE'
-
-      await loadAvailableAthletes()
-    }
-  )
-  document
-    .getElementById(
-      'btnLoadEventParticipants'
-    )
-    ?.addEventListener(
-      'click',
-      loadEventAndParticipants
-    )
-    document
-  .getElementById(
-    'btnRefreshParticipants'
-  )
-  ?.addEventListener(
-    'click',
-    loadEventAndParticipants
-  )
-  document
-    .getElementById(
-      'btnRegisterSelectedTeams'
-    )
-    ?.addEventListener(
-      'click',
-      registerSelectedTeams
-    )
-  document
-  .getElementById(
-    'selectedEventId'
-  )
-  ?.addEventListener(
-    'change',
-    async event => {
-
-      await loadPrograms(
-        event.target.value
-      )
-
-      await detectRegistrationType()
-
-      await loadEventParticipants()
-
-    }
-  )
-
-  document
-    .getElementById(
-      'btnSaveParticipantStatus'
-    )
-    ?.addEventListener(
-      'click',
-      saveParticipantStatus
+          false
     )
 
-  document
-    .getElementById(
-      'btnConfirmDeleteParticipant'
-    )
-    ?.addEventListener(
-      'click',
-      deleteParticipant
+  const checkbox =
+    document.querySelector(
+      `.participant-check[value="${participantRefId}"]`
     )
 
-  document
-    .getElementById(
-      'searchParticipant'
-    )
-    ?.addEventListener(
-      'input',
-      searchParticipants
-    )
-
-  document
-    .getElementById(
-      'searchAvailableTeams'
-    )
-    ?.addEventListener(
-      'input',
-      searchAvailableTeams
-    )
-
-  document
-    .getElementById(
-      'selectAllTeams'
-    )
-    ?.addEventListener(
-      'change',
-      toggleSelectAllTeams
-    )
-
-  document
-    .getElementById(
-      'btnPreviousPage'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        if (
-          currentPage > 1
-        ) {
-
-          currentPage--
-
-          renderParticipants()
-        }
-      }
-    )
-
-  document
-    .getElementById(
-      'btnNextPage'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        const totalPages =
-          Math.max(
-            1,
-            Math.ceil(
-              filteredParticipants.length /
-              PAGE_SIZE
-            )
-          )
-
-        if (
-          currentPage <
-          totalPages
-        ) {
-
-          currentPage++
-
-          renderParticipants()
-        }
-      }
-    )
-}
-async function initializeParticipants() {
-
-  try {
-
-    showLoading()
-
-    await Promise.all([
-
-      loadEventDropdown(),
-
-      loadAvailableTeams(),
-
-      loadParticipantStatuses()
-
-    ])
-
-    participants = []
-
-    filteredParticipants = []
-
-    currentPage = 1
-
-    renderParticipants()
-
-    wireEvents()
-
-  } catch (
-    error
+  if (
+    checkbox
   ) {
 
-    console.error(
-      error
-    )
-
-    alert(
-      error.message
-    )
-
-  } finally {
-
-    hideLoading()
+    checkbox.checked =
+      true
   }
 }
-document
-  .addEventListener(
-    'DOMContentLoaded',
-    initializeParticipants
-  )
 
-async function loadPrograms(
-  eventId
-) {
 
-  const select =
-    document.getElementById(
-      'selectedProgramId'
+
+function newRegistration() {
+
+  clearRegistrationForm()
+
+  const modal =
+    new coreui.Modal(
+      document.getElementById(
+        'participantRegistrationModal'
+      )
     )
 
-  if (!select) {
+  modal.show()
+}
+
+function clearRegistrationForm() {
+
+  setValue(
+    'participantInstanceId',
+    ''
+  )
+
+  setValue(
+    'eventId',
+    ''
+  )
+
+  setValue(
+    'eventInstanceId',
+    ''
+  )
+
+  setValue(
+    'programId',
+    ''
+  )
+
+  setValue(
+    'participantStatusId',
+    ''
+  )
+
+  setValue(
+    'eventArea',
+    ''
+  )
+
+  setValue(
+    'subcountyName',
+    ''
+  )
+
+  setValue(
+    'organizer',
+    ''
+  )
+
+  setValue(
+    'startDate',
+    ''
+  )
+
+  setValue(
+    'startTime',
+    ''
+  )
+
+  setValue(
+    'endDate',
+    ''
+  )
+
+  setValue(
+    'endTime',
+    ''
+  )
+
+  document
+    .querySelectorAll(
+      '.participant-check'
+    )
+    .forEach(
+      checkbox =>
+        checkbox.checked =
+          false
+    )
+}
+
+function applyFilters() {
+
+  filteredRegistrations =
+    participantRegistrations.filter(
+      registration => {
+
+        const occurrenceMatch =
+          !occurrenceFilter.value
+          ||
+          registration
+            .event_instances
+            ?.event_area ===
+          occurrenceFilter.value
+
+        const programMatch =
+          !programFilter.value
+          ||
+          registration
+            .event_programs
+            ?.program_name ===
+          programFilter.value
+
+        return (
+          occurrenceMatch &&
+          programMatch
+        )
+      }
+    )
+
+  currentPage = 1
+
+  renderRegistrations()
+}
+
+
+function searchRegistrations() {
+
+  const searchText =
+    document
+      .getElementById(
+        'searchParticipantRegistration'
+      )
+      .value
+      .toLowerCase()
+
+  filteredRegistrations =
+    participantRegistrations.filter(
+      registration => {
+
+        const eventName =
+          registration
+            .event_instances
+            ?.events
+            ?.event_name || ''
+
+        const eventArea =
+          registration
+            .event_instances
+            ?.event_area || ''
+
+        const participantName =
+          registration
+            .participant_registry
+            ?.display_name || ''
+
+        return (
+          eventName
+            .toLowerCase()
+            .includes(
+              searchText
+            )
+          ||
+          eventArea
+            .toLowerCase()
+            .includes(
+              searchText
+            )
+          ||
+          participantName
+            .toLowerCase()
+            .includes(
+              searchText
+            )
+        )
+      }
+    )
+
+  currentPage = 1
+
+  renderRegistrations()
+}
+
+
+function updateSummaryCards() {
+
+  const totalRegistrations =
+    document.getElementById(
+      'totalRegistrations'
+    )
+
+  const totalTeams =
+    document.getElementById(
+      'totalTeams'
+    )
+
+  const totalAthletes =
+    document.getElementById(
+      'totalAthletes'
+    )
+
+  const participatedCount =
+    document.getElementById(
+      'participatedCount'
+    )
+
+  if (
+    !totalRegistrations
+  ) {
+
     return
   }
 
-  select.innerHTML = `
-    <option value="">
-      Select Program
-    </option>
-  `
+  totalRegistrations.textContent =
+    participantRegistrations.length
 
-  if (!eventId) {
+  totalTeams.textContent =
+  participantRegistrations.filter(
+    row =>
+      row.participant_registry
+        ?.participant_type_master
+        ?.participant_type_code ===
+      'TEAM'
+  ).length
+
+  totalAthletes.textContent =
+  participantRegistrations.filter(
+    row =>
+      row.participant_registry
+        ?.participant_type_master
+        ?.participant_type_code ===
+      'ATHLETE'
+  ).length
+
+  participatedCount.textContent =
+    participantRegistrations.filter(
+      row =>
+        row.status_master
+          ?.status_name ===
+        'Participated'
+    ).length
+
+const countyCounts = {}
+
+participantRegistrations.forEach(
+  row => {
+
+    const county =
+      row.event_instances
+        ?.subcounty_master
+        ?.county_master
+        ?.county_name
+
+    if (
+      county
+    ) {
+
+      countyCounts[county] =
+        (
+          countyCounts[county] || 0
+        ) + 1
+    }
+  }
+)
+
+const topCounty =
+  Object.entries(
+    countyCounts
+  )
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        b[1] - a[1]
+    )[0]
+
+const topCountyCard =
+  document.getElementById(
+    'topCounty'
+  )
+
+if (
+  topCountyCard
+) {
+
+  topCountyCard.textContent =
+    topCounty?.[0] || '-'
+}
+
+const programCounts = {}
+
+participantRegistrations.forEach(
+  row => {
+
+    const program =
+      row.event_programs
+        ?.program_name
+
+    if (
+      program
+    ) {
+
+      programCounts[program] =
+        (
+          programCounts[program] || 0
+        ) + 1
+    }
+  }
+)
+
+const topProgram =
+  Object.entries(
+    programCounts
+  )
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        b[1] - a[1]
+    )[0]
+
+const topProgramCard =
+  document.getElementById(
+    'topProgram'
+  )
+
+if (
+  topProgramCard
+) {
+
+  topProgramCard.textContent =
+    topProgram?.[0] || '-'
+}
+const participated =
+  participantRegistrations.filter(
+    row =>
+      row.status_master
+        ?.status_name ===
+      'Participated'
+  ).length
+
+const attendanceRate =
+  participantRegistrations.length
+    ? Math.round(
+        (
+          participated /
+          participantRegistrations.length
+        ) * 100
+      )
+    : 0
+
+const attendanceRateCard =
+  document.getElementById(
+    'attendanceRate'
+  )
+
+if (
+  attendanceRateCard
+) {
+
+  attendanceRateCard.textContent =
+    `${attendanceRate}%`
+}
+
+}
+
+
+function renderPagination() {
+
+  const container =
+    document.getElementById(
+      'paginationContainer'
+    )
+
+  if (
+    !container
+  ) {
+
     return
   }
+
+  const totalPages =
+    Math.ceil(
+      filteredRegistrations.length /
+      pageSize
+    )
+
+  container.innerHTML =
+    ''
+
+  for (
+    let page = 1;
+    page <= totalPages;
+    page++
+  ) {
+
+    container.innerHTML += `
+
+      <li class="page-item ${page === currentPage ? 'active' : ''}">
+
+        <button
+          class="page-link"
+          onclick="changePage(${page})"
+        >
+
+          ${page}
+
+        </button>
+
+      </li>
+    `
+  }
+}
+
+window.changePage =
+  function (
+    page
+  ) {
+
+    currentPage =
+      page
+
+    renderRegistrations()
+  }
+
+
+function exportExcel() {
+
+  const rows =
+    participantRegistrations.map(
+      registration => {
+
+        return {
+
+          event:
+            registration
+              .event_instances
+              ?.events
+              ?.event_name,
+
+          occurrence:
+            registration
+              .event_instances
+              ?.event_area,
+
+          program:
+            registration
+              .event_programs
+              ?.program_name,
+
+          participant:
+            registration
+              .participant_registry
+              ?.display_name,
+
+          status:
+            registration
+              .status_master
+              ?.status_name
+        }
+      }
+    )
+
+  console.table(
+    rows
+  )
+
+  showSuccess(
+    'Excel Export Ready'
+  )
+}
+
+function exportPdf() {
+
+  window.print()
+}
+
+
+async function bulkStatusUpdate() {
+
+  const selectedStatus =
+    getValue(
+      'participantStatusId'
+    )
+
+  const occurrenceId =
+    getValue(
+      'eventInstanceId'
+    )
+
+  const programIdValue =
+    getValue(
+      'programId'
+    )
+ if (
+  !selectedStatus
+) {
+
+  showError(
+    'Select Status'
+  )
+
+  return
+}
+
+if (
+  !occurrenceId
+) {
+
+  showError(
+    'Select Event Occurrence'
+  )
+
+  return
+}
+
+if (
+  !programIdValue
+) {
+
+  showError(
+    'Select Program'
+  )
+
+  return
+}
+
+  const checked =
+    [
+      ...document.querySelectorAll(
+        '.participant-check:checked'
+      )
+    ]
+
+  if (
+    checked.length === 0
+  ) {
+
+    showError(
+      'Select participants'
+    )
+
+    return
+  }
+
+  const participantInstanceIds =
+  participantRegistrations
+    .filter(
+      registration =>
+
+        registration
+          .event_instances
+          ?.event_instance_id ===
+        occurrenceId
+
+        &&
+
+        registration.program_id ===
+        programIdValue
+
+        &&
+
+        checked.some(
+          checkbox =>
+            checkbox.value ===
+            registration
+              .participant_registry
+              ?.participant_ref_id
+        )
+    )
+    .map(
+      registration =>
+        registration
+          .participant_instance_id
+    )
 
   const {
-    data,
     error
   } =
     await window
       .supabaseClient
       .from(
-        'event_programs'
+        'participant_instances'
       )
-      .select(`
-        program_id,
-        program_name
-      `)
+      .update({
+        participant_status_id:
+          selectedStatus
+      })
       .eq(
-        'event_id',
-        eventId
+        'event_instance_id',
+        occurrenceId
       )
-      .order(
-        'program_name'
+      .eq(
+        'program_id',
+        programIdValue
       )
+      .in(
+  'participant_instance_id',
+  participantInstanceIds
+)
 
-  if (error) {
-
-    console.error(error)
-
-    return
-  }
-
-  programs =
-    data || []
-
-  for (
-    const program
-    of programs
+  if (
+    error
   ) {
 
-    select.innerHTML += `
-      <option
-        value="${program.program_id}"
-      >
-        ${program.program_name}
-      </option>
-    `
+    throw error
   }
 
+  await loadRegistrations()
+
+  showSuccess(
+    'Statuses Updated'
+  )
 }
+
+
+window.deleteRegistration =
+  async function (
+    participantInstanceId
+  ) {
+
+    try {
+
+      const confirmed =
+        confirm(
+          'Delete Registration?'
+        )
+
+      if (
+        !confirmed
+      ) {
+
+        return
+      }
+
+      const {
+        error
+      } =
+        await window
+          .supabaseClient
+          .from(
+            'participant_instances'
+          )
+          .delete()
+          .eq(
+            'participant_instance_id',
+            participantInstanceId
+          )
+
+      if (
+        error
+      ) {
+
+        throw error
+      }
+
+      await loadRegistrations()
+
+      showSuccess(
+        'Registration Deleted'
+      )
+
+    } catch (
+      error
+    ) {
+
+      console.error(
+        error
+      )
+
+      showError(
+        error.message
+      )
+    }
+  }

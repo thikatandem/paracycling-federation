@@ -5,233 +5,148 @@ block view
   .container-fluid
 
     .row
-
       .col-12
-
-        .card.mb-4
-
-          .card-header
-
-            h4.mb-0 Event Registration
-
-          .card-body
-
-            div.d-none.text-center.mb-3(
-              id='participantLoading'
-            )
-              .spinner-border.text-primary
-
-            .row.g-3.mb-4
-
-              .col-md-4
-
-                label.form-label Event
-
-                select.form-select(
-                  id='selectedEventId'
-                )
-
-              .col-md-4
-
-                label.form-label Program
-
-                select.form-select(
-                  id='selectedProgramId'
-                )
-                  option(value='') Select Program
-
-              .col-md-4
-
-                label.form-label Registration Type
-
-                .mt-2
-
-                  .form-check.form-check-inline
-
-                    input.form-check-input(
-                      type='radio'
-                      name='registrationType'
-                      id='registrationTypeAthlete'
-                      value='ATHLETE'
-                    )
-
-                    label.form-check-label(
-                      for='registrationTypeAthlete'
-                    )
-                      Athlete
-
-                  .form-check.form-check-inline
-
-                    input.form-check-input(
-                      type='radio'
-                      name='registrationType'
-                      id='registrationTypeTeam'
-                      value='TEAM'
-                      checked
-                    )
-
-                    label.form-check-label(
-                      for='registrationTypeTeam'
-                    )
-                      Team
-
-              .col-md-4.d-flex.align-items-end
-
-                button.btn.btn-primary(
-                  type='button'
-                  id='btnLoadEventParticipants'
-                )
-                  i.fa.fa-search.me-2
-                  | Load Event
-    .row
-
-      .col-lg-5
-
-        .card.mb-4
-
-          .card-header
-
-            h5.mb-0 Available Participants
-
-          .card-body
-
-            .mb-3
-
-              input.form-control(
-                type='text'
-                id='searchAvailableTeams'
-                placeholder='Search Athletes or Teams'
-              )
-
-            .table-responsive
-
-              table.table.table-hover
-
-                thead
-
-                  tr
-
-                    th(style='width:50px')
-
-                      input(
-                        type='checkbox'
-                        id='selectAllTeams'
-                      )
-
-                    th Team
-
-                tbody#availableTeamsBody
-
-            .mt-3
-
-              button.btn.btn-success(
-                type='button'
-                id='btnRegisterSelectedTeams'
-              )
-                i.fa.fa-plus.me-2
-                | Register Selected Participants
-
-      .col-lg-7
 
         .card.mb-4
 
           .card-header.d-flex.justify-content-between.align-items-center
 
-            div
+            strong Participant Registrations
 
-              h5.mb-0(
-                id='selectedEventTitle'
-              )
-                | Registered Participants
-
-              small.text-muted(
-                id='selectedEventDate'
-              )
-
-            button.btn.btn-secondary(
+            button.btn.btn-primary(
               type='button'
-              id='btnRefreshParticipants'
+              id='btnNewParticipantRegistration'
             )
-              i.fa.fa-refresh.me-2
-              | Refresh
+              i.fa.fa-plus.me-2
+              | New Registration
 
           .card-body
 
-            .mb-2
+            .row.mb-3
 
-              div.text-success.fw-bold(
-                id='participantSuccess'
-              )
+              .col-md-3
+                input.form-control(
+                  type='text'
+                  id='searchParticipantRegistration'
+                  placeholder='Search Registrations'
+                )
 
-              div.text-danger.fw-bold(
-                id='participantError'
-              )
+              .col-md-2
+                select.form-select(id='occurrenceFilter')
+                  option(value='')
+                    | All Occurrences
 
-            .mb-3
+              .col-md-2
+                select.form-select(id='programFilter')
+                  option(value='')
+                    | All Programs
 
-              input.form-control(
-                type='text'
-                id='searchParticipant'
-                placeholder='Search Team or Status'
-              )
+              .col-md-2
+                button.btn.btn-success.w-100(
+                  type='button'
+                  id='btnExportExcel'
+                )
+                  i.fa.fa-file-excel.me-2
+                  | Excel
+
+              .col-md-2
+                button.btn.btn-danger.w-100(
+                  type='button'
+                  id='btnExportPdf'
+                )
+                  i.fa.fa-file-pdf.me-2
+                  | PDF
+
+            .row.mb-3
+
+              .col-md-3
+                .card
+                  .card-body.text-center
+                    h3#totalRegistrations 0
+                    div Registrations
+
+              .col-md-3
+                .card
+                  .card-body.text-center
+                    h3#totalTeams 0
+                    div Teams
+
+              .col-md-3
+                .card
+                  .card-body.text-center
+                    h3#totalAthletes 0
+                    div Athletes
+
+              .col-md-3
+                .card
+                  .card-body.text-center
+                    h3#participatedCount 0
+                    div Participated
+
+            .row.mb-3
+
+              .col-md-4
+                .card
+                  .card-body.text-center
+                    h3#topCounty -
+                    div Top County
+
+              .col-md-4
+                .card
+                  .card-body.text-center
+                    h3#topProgram -
+                    div Top Program
+
+              .col-md-4
+                .card
+                  .card-body.text-center
+                    h3#attendanceRate 0%
+                    div Attendance Rate
 
             .table-responsive
 
-              table.table.table-striped.table-hover
-
+              table.table.table-hover.table-bordered.table-sm(
+                id='participantRegistrationsTable'
+              )
                 thead
-
                   tr
-
-                    th Participant Type
-
-                    th Participant
-
+                    th Event Name
+                    th Subcounty
+                    th Event Area
+                    th Start Date
+                    th Start Time
+                    th End Date
+                    th End Time
                     th Program
-
-                    th Registration Date
-
+                    th Participant Type
+                    th Participant Name
                     th Status
-
                     th Actions
 
-                tbody#participantsTableBody
+                tbody#participantRegistrationTableBody
 
             .row.mt-3
 
               .col-md-6
+                small.text-muted#paginationInfo
 
               .col-md-6.text-end
-
-                button.btn.btn-outline-primary.me-2(
-                  type='button'
-                  id='btnPreviousPage'
-                )
-                  | Previous
-
-                span#paginationInfo.mx-2
-                  | Page 1
-
-                button.btn.btn-outline-primary(
-                  type='button'
-                  id='btnNextPage'
-                )
-                  | Next
+                ul.pagination.justify-content-end.mb-0#paginationContainer
 
   .modal.fade(
-    id='participantStatusModal'
+    id='participantRegistrationModal'
     tabindex='-1'
     aria-hidden='true'
   )
 
-    .modal-dialog
+    .modal-dialog.modal-xl
 
       .modal-content
 
         .modal-header
 
           h5.modal-title
-            | Update Participant Status
+            | Participant Registration
 
           button.btn-close(
             type='button'
@@ -242,29 +157,168 @@ block view
 
           input(
             type='hidden'
-            id='participantId'
+            id='participantInstanceId'
           )
 
-          .mb-3
+          .card.mb-4
 
-            label.form-label Team
+            .card-header
+              strong Registration Context
 
-            input.form-control(
-              type='text'
-              id='participantTeamName'
-              readonly
-            )
+            .card-body
 
-          .mb-3
+              .row
 
-            label.form-label Status
+                .col-md-4.mb-3
+                  label.form-label Event Name
 
-            select.form-select(
-              id='statusId'
-            )
+                  select.form-select(id='eventId')
+                    option(value='')
+                      | Select Event
 
-          .text-danger.mt-2(
-            id='participantFormError'
+                .col-md-4.mb-3
+                  label.form-label Event Occurrence
+
+                  select.form-select(id='eventInstanceId')
+                    option(value='')
+                      | Select Event Occurrence
+
+                .col-md-4.mb-3
+                  label.form-label Program
+
+                  select.form-select(id='programId')
+                    option(value='')
+                      | Select Program
+
+          .card.mb-4
+
+            .card-header
+              strong Occurrence Details
+
+            .card-body
+
+              .row
+
+                .col-md-4.mb-3
+                  label.form-label Event Area
+                  input.form-control(
+                    id='eventArea'
+                    readonly
+                  )
+
+                .col-md-4.mb-3
+                  label.form-label Subcounty
+                  input.form-control(
+                    id='subcountyName'
+                    readonly
+                  )
+
+                .col-md-4.mb-3
+                  label.form-label Organizer
+                  input.form-control(
+                    id='organizer'
+                    readonly
+                  )
+
+              .row
+
+                .col-md-3.mb-3
+                  label.form-label Start Date
+                  input.form-control(
+                    id='startDate'
+                    readonly
+                  )
+
+                .col-md-3.mb-3
+                  label.form-label Start Time
+                  input.form-control(
+                    id='startTime'
+                    readonly
+                  )
+
+                .col-md-3.mb-3
+                  label.form-label End Date
+                  input.form-control(
+                    id='endDate'
+                    readonly
+                  )
+
+                .col-md-3.mb-3
+                  label.form-label End Time
+                  input.form-control(
+                    id='endTime'
+                    readonly
+                  )
+
+          .card.mb-4
+
+            .card-header
+              strong Available Participants
+
+            .card-body
+
+              .row.mb-3
+
+                .col-md-4
+                  input.form-control(
+                    type='text'
+                    id='participantSearch'
+                    placeholder='Search Participant'
+                  )
+
+                .col-md-3
+                  select.form-select(
+                    id='participantTypeFilter'
+                  )
+
+                    option(value='')
+                      | All Types
+
+                    option(value='ATHLETE')
+                      | Athletes
+
+                    option(value='TEAM')
+                      | Teams
+
+              .table-responsive
+
+                table.table.table-bordered
+
+                  thead
+
+                    tr
+                      th(style='width:60px')
+                      th Type
+                      th Participant Name
+
+                  tbody#availableParticipantsBody
+
+          .card.mb-4
+
+            .card-header
+              strong Participant Status
+
+            .card-body
+
+              .row
+
+                .col-md-4.mb-3
+
+                  label.form-label Status
+
+                  select.form-select(
+                    id='participantStatusId'
+                  )
+
+                    option(value='')
+                      | Select Status
+
+          .alert.alert-danger.d-none(
+            id='participantRegistrationError'
+          )
+
+          .alert.alert-success.d-none(
+            id='participantRegistrationSuccess'
           )
 
         .modal-footer
@@ -273,57 +327,19 @@ block view
             type='button'
             data-coreui-dismiss='modal'
           )
-            | Cancel
+            | Close
 
-          button.btn.btn-success(
+          button.btn.btn-warning(
             type='button'
-            id='btnSaveParticipantStatus'
+            id='btnBulkStatusUpdate'
           )
-            | Save Status
+            | Bulk Status Update
 
-  .modal.fade(
-    id='deleteParticipantModal'
-    tabindex='-1'
-    aria-hidden='true'
-  )
-
-    .modal-dialog
-
-      .modal-content
-
-        .modal-header
-
-          h5.modal-title
-            | Remove Team From Event
-
-          button.btn-close(
+          button.btn.btn-primary(
             type='button'
-            data-coreui-dismiss='modal'
+            id='btnSaveParticipantRegistration'
           )
-
-        .modal-body
-
-          p
-            | Are you sure you want to remove this team from the selected event?
-
-          input(
-            type='hidden'
-            id='deleteParticipantId'
-          )
-
-        .modal-footer
-
-          button.btn.btn-secondary(
-            type='button'
-            data-coreui-dismiss='modal'
-          )
-            | Cancel
-
-          button.btn.btn-danger(
-            type='button'
-            id='btnConfirmDeleteParticipant'
-          )
-            | Remove Team
+            | Save Registration
 
 append pageScripts
 

@@ -104,9 +104,15 @@
           </a>
           <ul class="nav-group-items compact">
             <li class="nav-item">
+              <a class="nav-link" href="federation/events-master.html">
+                <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                Events List
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="federation/events.html">
                 <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
-                Events
+                Planned Events
               </a>
             </li>
             <li class="nav-item">
@@ -351,6 +357,9 @@
                             <th>Type</th>
                             <th>Athlete / Team</th>
                             <th>Event</th>
+                            <th>Occurrence</th>
+                            <th>Program</th>
+                            <th>Status</th>
                             <th>Session</th>
                             <th>Distance</th>
                             <th>Duration</th>
@@ -388,9 +397,7 @@
             <div class="modal-dialog modal-xl">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title">
-                    <Training>Log</Training>
-                  </h5>
+                  <h5 class="modal-title">Training Log</h5>
                   <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -400,8 +407,18 @@
                       <label class="form-label">Training Event</label>
                       <select class="form-select" id="eventId"></select>
                     </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Event Occurrence</label>
+                      <select class="form-select" id="eventInstanceId">
+                        <option value="">
+                          <select>
+                            Occurrence
+                          </select>
+                        </option>
+                      </select>
+                    </div>
                     <div class="col-md-12">
-                      <label class="form-label">Training Type</label>
+                      <label class="form-label">Training Groups</label>
                       <div class="mt-2">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="trainingType" id="trainingTypeIndividual" value="INDIVIDUAL">
@@ -437,6 +454,16 @@
                         </option>
                       </select>
                     </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Participant Status</label>
+                      <select class="form-select" id="participantStatusId">
+                        <option value="">
+                          <select>
+                            Status
+                          </select>
+                        </option>
+                      </select>
+                    </div>
                     <div class="col-md-3">
                       <label class="form-label">Training Date</label>
                       <input class="form-control" type="date" id="trainingDate">
@@ -451,16 +478,17 @@
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">County</label>
-                      <select class="form-select" id="countyId">
-                        <option value=""></option>
-                        <select>
-                          County
-                        </select>
+                      <select class="form-select" id="countyId" disabled>
+                        <option value="">
+                          <select>
+                            County
+                          </select>
+                        </option>
                       </select>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Subcounty</label>
-                      <select class="form-select" id="subcountyId">
+                      <select class="form-select" id="subcountyId" disabled>
                         <option value="">
                           <select>
                             Subcounty
@@ -470,13 +498,11 @@
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Town</label>
-                      <input class="form-control" id="townName" list="townList">
-                      <datalist id="townList"></datalist>
+                      <input class="form-control" id="townName" readonly>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Session Type</label>
-                      <input class="form-control" id="sessionType" list="sessionTypes">
-                      <datalist id="sessionTypes"></datalist>
+                      <input class="form-control" id="sessionType" readonly>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Start Time</label>
@@ -517,7 +543,10 @@
                       <textarea class="form-control" rows="3" id="notes"></textarea>
                     </div>
                   </div>
-                  <div class="mt-3 text-danger" id="trainingFormError"></div>
+                  <div class="mt-3">
+                    <div class="alert alert-danger d-none" id="trainingFormError"></div>
+                    <div class="alert alert-success d-none" id="trainingFormSuccess"></div>
+                  </div>
                 </div>
                 <div class="modal-footer">
                   <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">
@@ -534,9 +563,7 @@
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title">
-                    <Delete>Training Log</Delete>
-                  </h5>
+                  <h5 class="modal-title">Delete Training Log</h5>
                   <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">

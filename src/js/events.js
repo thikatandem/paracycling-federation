@@ -1,3 +1,8 @@
+﻿// =====================================================
+// EVENTS MODULE
+// ParaCycling Federation Management System
+// =====================================================
+
 /* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
@@ -5,71 +10,148 @@
 
 const PAGE_SIZE = 10
 
-let events = []
-let filteredEvents = []
+let eventOccurrences = []
 
-let countries = []
-let counties = []
-let subcounties = []
-let towns = []
+let filteredOccurrences = []
 
-let eventTypes = []
-let sponsors = []
-let eventCategories = []
-let programs = []
 let currentPage = 1
 
-const eventLoading =
+let events = []
+
+let sponsors = []
+
+let countries = []
+
+let counties = []
+
+let subcounties = []
+
+let towns = []
+let participants = []
+
+let selectedParticipants = []
+
+const eventInstanceId =
   document.getElementById(
-    'eventLoading'
+    'eventInstanceId'
+  )
+const btnNewOccurrence =
+  document.getElementById(
+    'btnNewOccurrence'
+  )
+const occurrenceTableBody =
+  document.getElementById(
+    'occurrenceTableBody'
   )
 
-const eventFormError =
+const searchOccurrence =
   document.getElementById(
-    'eventFormError'
-  )
-
-const eventsTableBody =
-  document.getElementById(
-    'eventsTableBody'
-  )
-
-const searchEvent =
-  document.getElementById(
-    'searchEvent'
+    'searchOccurrence'
   )
 
 const paginationInfo =
   document.getElementById(
     'paginationInfo'
-  ) 
-function showLoading() {
-  eventLoading?.classList.remove(
-    'd-none'
   )
-}
 
-function hideLoading() {
-  eventLoading?.classList.add(
-    'd-none'
+const occurrenceError =
+  document.getElementById(
+    'occurrenceError'
   )
-}
 
-function showError(message) {
-  if (eventFormError) {
-    eventFormError.textContent =
-      message
-  }
-}
+const eventId =
+  document.getElementById(
+    'eventId'
+  )
 
-function clearError() {
-  if (eventFormError) {
-    eventFormError.textContent =
-      ''
-  }
-}
+const sponsorId =
+  document.getElementById(
+    'sponsorId'
+  )
+
+const countryId =
+  document.getElementById(
+    'countryId'
+  )
+
+const countyId =
+  document.getElementById(
+    'countyId'
+  )
+
+const subcountyId =
+  document.getElementById(
+    'subcountyId'
+  )
+
+const occurrenceStatusId =
+  document.getElementById(
+    'occurrenceStatusId'
+  )
+
+const participantStatusId =
+  document.getElementById(
+    'participantStatusId'
+  )
+
+const btnSaveOccurrence =
+  document.getElementById(
+    'btnSaveOccurrence'
+  )
+
+const btnSaveOccurrenceAsNew =
+  document.getElementById(
+    'btnSaveOccurrenceAsNew'
+  )
+
+const eventCategory =
+  document.getElementById(
+    'eventCategory'
+  )
+
+const eventType =
+  document.getElementById(
+    'eventType'
+  )
+
+const townName =
+  document.getElementById(
+    'townName'
+  )
+
+const eventArea =
+  document.getElementById(
+    'eventArea'
+  )
+
+const townSuggestions =
+  document.getElementById(
+    'townSuggestions'
+  )
+
+const participantSelectionContainer =
+  document.getElementById(
+    'participantSelectionContainer'
+  )
+
+const modeTeams =
+  document.getElementById(
+    'modeTeams'
+  )
+
+const modeAthletes =
+  document.getElementById(
+    'modeAthletes'
+  )
+
+const modeMixed =
+  document.getElementById(
+    'modeMixed'
+  )
+
 
 function getValue(id) {
+
   return (
     document.getElementById(id)
       ?.value || ''
@@ -80,64 +162,211 @@ function setValue(
   id,
   value
 ) {
+
   const element =
     document.getElementById(id)
 
   if (element) {
+
     element.value =
       value || ''
   }
-} 
-function getStatusBadge(
-  status
+}
+
+function showError(
+  message
 ) {
 
-  switch (status) {
+  if (
+    occurrenceError
+  ) {
 
-    case 'Planned':
-      return `
-        <span class="badge bg-secondary">
-          Planned
-        </span>
-      `
+    occurrenceError
+      .textContent =
+      message
 
-    case 'Open':
-      return `
-        <span class="badge bg-info">
-          Open
-        </span>
-      `
+    occurrenceError
+      .classList
+      .remove(
+        'd-none'
+      )
+  }
+}
 
-    case 'Ongoing':
-      return `
-        <span class="badge bg-primary">
-          Ongoing
-        </span>
-      `
+function clearError() {
 
-    case 'Completed':
-      return `
-        <span class="badge bg-success">
-          Completed
-        </span>
-      `
+  if (
+    occurrenceError
+  ) {
 
-    case 'Unfinished':
-      return `
-        <span class="badge bg-warning text-dark">
-          Unfinished
-        </span>
-      `
+    occurrenceError
+      .textContent = ''
 
-    case 'Cancelled':
-      return `
-        <span class="badge bg-danger">
-          Cancelled
-        </span>
-      `
+    occurrenceError
+      .classList
+      .add(
+        'd-none'
+      )
+  }
+}
 
-    default:
-      return status || ''
+function showSuccess(
+  message
+) {
+
+  if (
+    occurrenceError
+  ) {
+
+    occurrenceError.classList.remove(
+      'alert-danger'
+    )
+
+    occurrenceError.classList.add(
+      'alert-success'
+    )
+
+    occurrenceError.textContent =
+      message
+
+    occurrenceError.classList.remove(
+      'd-none'
+    )
+
+    setTimeout(
+      () => {
+
+        occurrenceError.classList.add(
+          'd-none'
+        )
+
+        occurrenceError.classList.remove(
+          'alert-success'
+        )
+
+        occurrenceError.classList.add(
+          'alert-danger'
+        )
+
+      },
+      4000
+    )
+  }
+}
+
+async function loadEvents() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'events'
+      )
+      .select(`
+        event_id,
+        event_name,
+        event_category_master(
+          category_name
+        ),
+        event_type_master(
+          event_type_name
+        )
+      `)
+      .order(
+        'event_name'
+      )
+
+  if (error) {
+
+    console.error(
+      error
+    )
+
+    return
+  }
+
+  events =
+    data || []
+
+  if (!eventId) {
+    return
+  }
+
+  eventId.innerHTML =
+    `
+      <option value="">
+        Select Event Name
+      </option>
+    `
+
+  for (
+    const event
+    of events
+  ) {
+
+    eventId.innerHTML += `
+      <option
+        value="${event.event_id}"
+      >
+        ${event.event_name}
+      </option>
+    `
+  }
+}
+async function loadSponsors() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'sponsor_master'
+      )
+      .select('*')
+      .order(
+        'sponsor_name'
+      )
+
+  if (error) {
+
+    console.error(
+      error
+    )
+
+    return
+  }
+
+  sponsors =
+    data || []
+
+  if (!sponsorId) {
+    return
+  }
+
+  sponsorId.innerHTML =
+    `
+      <option value="">
+        Select Sponsor
+      </option>
+    `
+
+  for (
+    const sponsor
+    of sponsors
+  ) {
+
+    sponsorId.innerHTML += `
+      <option
+        value="${sponsor.sponsor_id}"
+      >
+        ${sponsor.sponsor_name}
+      </option>
+    `
   }
 }
 async function loadCountries() {
@@ -146,7 +375,8 @@ async function loadCountries() {
     data,
     error
   } =
-    await window.supabaseClient
+    await window
+      .supabaseClient
       .from(
         'country_master'
       )
@@ -156,23 +386,22 @@ async function loadCountries() {
       )
 
   if (error) {
-    console.error(error)
+
+    console.error(
+      error
+    )
+
     return
   }
 
   countries =
     data || []
 
-  const select =
-    document.getElementById(
-      'countryId'
-    )
-
-  if (!select) {
+  if (!countryId) {
     return
   }
 
-  select.innerHTML =
+  countryId.innerHTML =
     `
       <option value="">
         Select Country
@@ -184,7 +413,7 @@ async function loadCountries() {
     of countries
   ) {
 
-    select.innerHTML += `
+    countryId.innerHTML += `
       <option
         value="${country.country_id}"
       >
@@ -192,46 +421,285 @@ async function loadCountries() {
       </option>
     `
   }
-} 
-
+}
 async function loadCounties() {
 
   const {
     data,
     error
   } =
-    await window.supabaseClient
-      .from('county_master')
+    await window
+      .supabaseClient
+      .from(
+        'county_master'
+      )
       .select('*')
-      .order('county_name')
+      .order(
+        'county_name'
+      )
 
   if (error) {
-    console.error(error)
-    return
-  }
 
-  counties = data || []
-
-  const select =
-    document.getElementById(
-      'countyId'
+    console.error(
+      error
     )
 
-  if (!select) {
     return
   }
 
-  select.innerHTML =
+  counties =
+    data || []
+}
+
+async function loadAllSubcounties() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'subcounty_master'
+      )
+      .select('*')
+      .order(
+        'subcounty_name'
+      )
+
+  if (error) {
+
+    console.error(
+      error
+    )
+
+    return
+  }
+
+  subcounties =
+    data || []
+}
+async function loadStatuses() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'status_master'
+      )
+      .select('*')
+      .eq(
+        'entity_type',
+        'EVENT_INSTANCE'
+      )
+      .order(
+        'status_name'
+      )
+
+  if (error) {
+
+    console.error(error)
+
+    return
+  }
+
+  occurrenceStatusId.innerHTML =
+    `
+      <option value="">
+        Select Event Status
+      </option>
+    `
+
+  data.forEach(
+    status => {
+
+      occurrenceStatusId
+        .innerHTML += `
+          <option
+  value="${status.status_id}"
+  data-code="${status.status_code}"
+>
+            ${status.status_name}
+          </option>
+        `
+    }
+  )
+}
+
+async function loadParticipantStatuses() {
+
+if (
+  !participantStatusId
+) {
+
+  return
+}
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'status_master'
+      )
+      .select('*')
+      .in(
+        'entity_type',
+        [
+          'PARTICIPANT',
+          'PARTICIPANT_ATTENDANCE'
+        ]
+      )
+      .order(
+        'status_name'
+      )
+
+  if (error) {
+
+    console.error(error)
+
+    return
+  }
+
+  participantStatusId.innerHTML =
+    `
+      <option value="">
+        Select Participant Status
+      </option>
+    `
+
+  data.forEach(
+    status => {
+
+      participantStatusId
+        .innerHTML += `
+          <option
+            value="${status.status_id}"
+          >
+            ${status.status_name}
+          </option>
+        `
+    }
+  )
+}
+
+
+
+async function loadParticipants() {
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'participant_registry'
+      )
+      .select(`
+        participant_ref_id,
+        display_name,
+        participant_type_code
+      `)
+      .order(
+        'display_name'
+      )
+
+  if (error) {
+
+    console.error(error)
+
+    return
+  }
+
+  participants =
+    data || []
+}
+
+async function initializeEvents() {
+
+  try {
+
+    if (
+      !window.supabaseClient
+    ) {
+
+      console.error(
+        'Supabase client not found'
+      )
+
+      return
+    }
+
+    await loadEvents()
+
+    await loadSponsors()
+
+    await loadCountries()
+
+    await loadCounties()
+
+    await loadAllSubcounties()
+
+    await loadStatuses()
+
+await loadParticipantStatuses()
+   
+    await loadParticipants()
+
+renderParticipants()
+await loadOccurrences()
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      error
+    )
+  }
+}
+
+document.addEventListener(
+  'DOMContentLoaded',
+  initializeEvents
+)
+
+async function loadCountyOptions(
+  countryIdValue
+) {
+
+  if (!countyId) {
+    return
+  }
+
+  countyId.innerHTML =
     `
       <option value="">
         Select County
       </option>
     `
 
-  counties.forEach(
+  if (!countryIdValue) {
+    return
+  }
+
+  const filtered =
+    counties.filter(
+      county =>
+        county.country_id ===
+        countryIdValue
+    )
+
+  filtered.forEach(
     county => {
 
-      select.innerHTML += `
+      countyId.innerHTML += `
         <option
           value="${county.county_id}"
         >
@@ -243,1017 +711,328 @@ async function loadCounties() {
 }
 
 async function loadSubcounties(
-  countyId
+  countyIdValue
 ) {
 
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from('subcounty_master')
-      .select('*')
-      .eq(
-        'county_id',
-        countyId
-      )
-      .order(
-        'subcounty_name'
-      )
-
-  if (error) {
+  if (!subcountyId) {
     return
   }
 
-  const select =
-    document.getElementById(
-      'subcountyId'
-    )
-
-  select.innerHTML =
+  subcountyId.innerHTML =
     `
       <option value="">
-        Select Sub County
+        Select Subcounty
       </option>
     `
 
-  data.forEach(
-    item => {
+  const filtered =
+    subcounties.filter(
+      s =>
+        s.county_id ===
+        countyIdValue
+    )
 
-      select.innerHTML += `
-        <option
-          value="${item.subcounty_id}"
-        >
-          ${item.subcounty_name}
-        </option>
-      `
-    }
-  )
+  for (
+    const subcounty
+    of filtered
+  ) {
+
+    subcountyId.innerHTML += `
+      <option
+        value="${subcounty.subcounty_id}"
+      >
+        ${subcounty.subcounty_name}
+      </option>
+    `
+  }
 }
-
 async function loadTowns(
-  subcountyId
+  subcountyIdValue
 ) {
 
   const {
     data,
     error
   } =
-    await window.supabaseClient
-      .from('town_master')
+    await window
+      .supabaseClient
+      .from(
+        'town_master'
+      )
       .select('*')
       .eq(
         'subcounty_id',
-        subcountyId
+        subcountyIdValue
       )
       .order(
         'town_name'
       )
 
   if (error) {
+
+    console.error(
+      error
+    )
+
     return
   }
 
   towns =
-  data || []
-
-const datalist =
-  document.getElementById(
-    'townList'
-  )
-
-if (!datalist) {
-  return
-}
-
-datalist.innerHTML = ''
-
-  towns.forEach(
-  town => {
-
-    datalist.innerHTML += `
-      <option
-        value="${town.town_name}"
-      >
-    `
-  }
- )
-}
-
-
-async function loadEventTypes() {
-
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'event_type_master'
-      )
-      .select('*')
-      .order(
-        'event_type_name'
-      )
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  eventTypes =
     data || []
-
-  const select =
-    document.getElementById(
-      'eventTypeId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-      <option value="">
-        Select Event Type
-      </option>
-    `
-
-  for (
-    const type
-    of eventTypes
-  ) {
-
-    select.innerHTML += `
-      <option
-        value="${type.event_type_id}"
-      >
-        ${type.event_type_name}
-      </option>
-    `
-  }
-} 
-
-
-async function loadEventCategories() {
-
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'event_category_master'
-      )
-      .select('*')
-      .order(
-        'category_name'
-      )
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  eventCategories =
-    data || []
-
-  const select =
-    document.getElementById(
-      'eventCategoryId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-      <option value="">
-        Select Category
-      </option>
-    `
-
-  eventCategories.forEach(
-    category => {
-
-      select.innerHTML += `
-        <option
-          value="${category.event_category_id}"
-        >
-          ${category.category_name}
-        </option>
-      `
-    }
-  )
-}
-
-
-async function loadSponsors() {
-
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'sponsor_master'
-      )
-      .select('*')
-      .order(
-        'sponsor_name'
-      )
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  sponsors =
-    data || []
-
-  const select =
-    document.getElementById(
-      'sponsorIds'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML = ''
-
-  for (
-    const sponsor
-    of sponsors
-  ) {
-
-    select.innerHTML += `
-      <option
-        value="${sponsor.sponsor_id}"
-      >
-        ${sponsor.sponsor_name}
-      </option>
-    `
-  }
-} 
-async function loadEvents() {
-
-  try {
-
-    showLoading()
-
-    const {
-      data,
-      error
-    } =
-      await window.supabaseClient
-        .from('events')
-        .select(`
-  *,
-  country_master(
-    country_name
-  ),
-  county_master(
-    county_name
-  ),
-  subcounty_master(
-    subcounty_name
-  ),
-  town_master(
-    town_name
-  ),
-  event_type_master(
-  event_type_name
-),
-event_category_master(
-  category_name
-),
-          status_master(
-            status_name
-          ),
-          event_sponsors(
-            sponsor_id,
-            sponsor_master(
-              sponsor_name
-            )
-          )
-        `)
-        .order(
-          'created_at',
-          {
-            ascending: false
-          }
-        )
-
-    if (error) {
-      throw error
-    }
-
-    events =
-      data || []
-
-    filteredEvents =
-      [...events]
-
-    renderEvents()
-
-  } catch (error) {
-
-    console.error(error)
-
-    alert(
-      error.message ||
-      'Failed to load events'
-    )
-
-  } finally {
-
-    hideLoading()
-
-  }
-} 
-function getSponsors(
-  event
-) {
 
   if (
-    !event.event_sponsors
-  ) {
-    return ''
-  }
-
-  return event
-    .event_sponsors
-    .map(
-      sponsor =>
-        sponsor
-          ?.sponsor_master
-          ?.sponsor_name
-    )
-    .filter(Boolean)
-    .join(', ')
-} 
-function renderEvents() {
-
-  if (
-    !eventsTableBody
+    !townSuggestions
   ) {
     return
   }
 
-  const start =
-    (
-      currentPage - 1
-    ) * PAGE_SIZE
-
-  const end =
-    start + PAGE_SIZE
-
-  const pageRows =
-    filteredEvents.slice(
-      start,
-      end
-    )
-
-  eventsTableBody.innerHTML =
+  townSuggestions.innerHTML =
     ''
 
-  if (
-    pageRows.length === 0
+  for (
+    const town
+    of towns
   ) {
 
-    eventsTableBody.innerHTML =
-      `
-      <tr>
-        <td
-          colspan="14"
-          class="text-center"
-        >
-          No events found
-        </td>
-      </tr>
-      `
+    townSuggestions.innerHTML += `
+      <option
+        value="${town.town_name}">
+      </option>
+    `
+  }
+}
 
-    updatePagination()
+
+function handleEventSelection() {
+
+  const selected =
+    events.find(
+      event =>
+        event.event_id ===
+        eventId.value
+    )
+
+  if (!selected) {
+
+    setValue(
+      'eventCategory',
+      ''
+    )
+
+    setValue(
+      'eventType',
+      ''
+    )
 
     return
   }
 
-  for (
-    const event
-    of pageRows
-  ) {
+  setValue(
+    'eventCategory',
+    selected
+      .event_category_master
+      ?.category_name || ''
+  )
 
-    eventsTableBody.innerHTML += `
-      <tr>
+  setValue(
+    'eventType',
+    selected
+      .event_type_master
+      ?.event_type_name || ''
+  )
 
-        
-        <td>
-  ${event.event_name || ''}
-</td>
-
-<td>
-  ${
-  event.event_category_master
-    ?.category_name || ''
+  generateEventArea()
 }
-</td>
+function generateEventArea() {
 
-<td>
-  ${
-    event.country_master
-      ?.country_name || ''
-  }
-</td>
-
-<td>
-  ${
-    event.county_master
-      ?.county_name || ''
-  }
-</td>
-
-<td>
-  ${
-    event.subcounty_master
-      ?.subcounty_name || ''
-  }
-</td>
-
-<td>
-  ${
-    event.town_master
-      ?.town_name || ''
-  }
-</td>
-
-<td>
-  ${event.city || ''}
-</td>
-        <td>
-          ${event.organizer || ''}
-        </td>
-
-        <td>
-          ${
-            event.event_type_master
-              ?.event_type_name || ''
-          }
-        </td>
-
-        <td>
-          ${getSponsors(event)}
-        </td>
-
-       <td>
-  ${event.start_date || ''}
-  <br>
-  <small>
-    ${event.start_time || ''}
-  </small>
-</td>
-
-<td>
-  ${event.end_date || ''}
-  <br>
-  <small>
-    ${event.end_time || ''}
-  </small>
-</td>
-
-        <td>
-  ${
-    getStatusBadge(
-      event.status_master
-        ?.status_name
-    )
-  }
-</td>
-
-        <td>
-
-  <button
-    class="btn btn-sm btn-warning me-1"
-    onclick="editEvent('${event.event_id}')"
-  >
-    Edit
-  </button>
-
-  ${
-    event.status_master?.status_name ===
-    'Cancelled'
-
-      ?
-
-      `
-      <button
-        class="btn btn-sm btn-success me-1"
-        onclick="restoreEvent('${event.event_id}')"
-      >
-        Restore
-      </button>
-      `
-
-      :
-
-      `
-      <button
-        class="btn btn-sm btn-secondary me-1"
-        onclick="cancelEvent('${event.event_id}')"
-      >
-        Cancel
-      </button>
-      `
-  }
-<button
-  class="btn btn-sm btn-info me-1"
-  onclick="managePrograms('${event.event_id}')"
->
-  Programs
-</button>
-  <button
-    class="btn btn-sm btn-danger"
-    onclick="confirmDeleteEvent('${event.event_id}')"
-  >
-    Delete
-  </button>
-
-</td>
-
-      </tr>
-    `
-  }
-
-  updatePagination()
-} 
-function updatePagination() {
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredEvents.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-
-    paginationInfo.textContent =
-      `
-      Page ${currentPage}
-      of ${totalPages}
-      `
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-} 
-function searchEvents() {
-
-  const search =
-    (
-      searchEvent?.value || ''
+  const town =
+    getValue(
+      'townName'
     )
       .trim()
-      .toLowerCase()
 
-  filteredEvents =
-    search ?
-
-      events.filter(
-        event => {
-
-          const sponsors =
-            getSponsors(event)
-              .toLowerCase()
-
-          return (
-
-            (
-              event.event_code ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            (
-              event.event_name ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            (
-              event.city ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            (
-              event.organizer ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            (
-              event.country_master
-                ?.country_name ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-            
-
-          ||
-
-(
-  event.county_master
-    ?.county_name ||
-  ''
-)
-  .toLowerCase()
-  .includes(search)
-
-||
-
-(
-  event.subcounty_master
-    ?.subcounty_name ||
-  ''
-)
-  .toLowerCase()
-  .includes(search)
-
-||
-
-(
-  event.town_master
-    ?.town_name ||
-  ''
-)
-  .toLowerCase()
-  .includes(search)
-
-
-            ||
-
-            (
-              event.event_type_master
-                ?.event_type_name ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            (
-              event.status_master
-                ?.status_name ||
-              ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-            ||
-
-            sponsors.includes(
-              search
-            )
-          )
-        }
-      )
-
-      :
-
-      [...events]
-
-  currentPage = 1
-
-  renderEvents()
-}
-function clearEventForm() {
-
-  clearError()
-
-  setValue(
-    'eventId',
-    ''
-  )
-
-  setValue(
-    'eventCode',
-    ''
-  )
- setValue(
-  'eventCategoryId',
-  ''
-)
-  setValue(
-    'eventName',
-    ''
-  )
-
-  setValue(
-    'countryId',
-    ''
-  )
-setValue(
-  'countyId',
-  ''
-)
-
-setValue(
-  'subcountyId',
-  ''
-)
-
-setValue(
-  'townName',
-  ''
-)
-
-  setValue(
-    'city',
-    ''
-  )
-
-  setValue(
-    'organizer',
-    ''
-  )
-
-  setValue(
-    'eventTypeId',
-    ''
-  )
-
-  setValue(
-    'startDate',
-    ''
-  )
-
-  setValue(
-    'endDate',
-    ''
-  )
-  setValue(
-    'startTime',
-    ''
-  )
-
-  setValue(
-    'endTime',
-    ''
-  )
-  setValue(
-  'eventStatus',
-  'Automatic'
-)
-
-  const sponsorsSelect =
-    document.getElementById(
-      'sponsorIds'
+  const type =
+    getValue(
+      'eventType'
     )
+      .trim()
 
   if (
-    sponsorsSelect
+    !town ||
+    !type
   ) {
 
-    Array
-      .from(
-        sponsorsSelect.options
-      )
-      .forEach(
-        option => {
-          option.selected =
-            false
-        }
-      )
-  }
-}
-function openNewEventModal() {
-
-  clearEventForm()
-
-  document
-    .getElementById(
-      'eventModalTitle'
-    )
-    .textContent =
-      'Add Event'
-
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'eventModal'
-      )
+    setValue(
+      'eventArea',
+      ''
     )
 
-  modal.show()
-} 
-window.editEvent =
-async function (eventId) {
-
-  const event =
-    events.find(
-      e =>
-        e.event_id === eventId
-    )
-
-  if (!event) {
     return
   }
 
-  clearError()
-
-  document
-    .getElementById(
-      'eventModalTitle'
-    )
-    .textContent =
-      'Edit Event'
-
   setValue(
-    'eventId',
-    event.event_id
+    'eventArea',
+    `${town} ${type}`
   )
-  
-  setValue(
-  'eventCategoryId',
-  event.event_category_id
-)
+}
 
-  setValue(
-    'eventCode',
-    event.event_code
-  )
+async function buildOccurrencePayload() {
 
-  setValue(
-    'eventName',
-    event.event_name
-  )
+  const townId =
+    await getOrCreateTown()
 
-  setValue(
-    'countryId',
-    event.country_id
-  )
-setValue(
-  'countyId',
-  event.county_id
-)
+  return {
 
-await loadSubcounties(
-  event.county_id
-)
+    event_id:
+      getValue(
+        'eventId'
+      ),
 
-setValue(
-  'subcountyId',
-  event.subcounty_id
-)
+    sponsor_id:
+      getValue(
+        'sponsorId'
+      ) || null,
 
-await loadTowns(
-  event.subcounty_id
-)
+    country_id:
+      getValue(
+        'countryId'
+      ),
 
-setValue(
-  'townName',
-  event.town_master
-    ?.town_name || ''
-)
-  setValue(
-    'city',
-    event.city
-  )
+    county_id:
+      getValue(
+        'countyId'
+      ),
 
-  setValue(
-    'organizer',
-    event.organizer
-  )
+    subcounty_id:
+      getValue(
+        'subcountyId'
+      ),
 
-  setValue(
-    'eventTypeId',
-    event.event_type_id
-  )
+    town_id:
+      townId,
 
-  setValue(
-    'startDate',
-    event.start_date
-  )
+    organizer:
+      getValue(
+        'organizer'
+      ),
 
-  setValue(
-    'endDate',
-    event.end_date
-  )
+    event_area:
+      getValue(
+        'eventArea'
+      ),
 
-  setValue(
-    'startTime',
-    event.start_time
-  )
+    start_date:
+      getValue(
+        'startDate'
+      ),
 
-  setValue(
-    'endTime',
-    event.end_time
-  )
+    end_date:
+      getValue(
+        'endDate'
+      ),
 
-  setValue(
-  'eventStatus',
-  event.status_master?.status_name ||
-  'Automatic'
-)
+    start_time:
+      getValue(
+        'startTime'
+      ),
 
-  const sponsorsSelect =
-    document.getElementById(
-      'sponsorIds'
-    )
+    end_time:
+      getValue(
+        'endTime'
+      ),
 
-  if (
-    sponsorsSelect
-  ) {
-
-    const selectedSponsors =
-      (
-        event.event_sponsors ||
-        []
-      ).map(
-        s =>
-          s.sponsor_id
-      )
-
-    Array
-      .from(
-        sponsorsSelect.options
-      )
-      .forEach(
-        option => {
-
-          option.selected =
-            selectedSponsors.includes(
-              option.value
-            )
-        }
+    status_id:
+      getValue(
+        'occurrenceStatusId'
       )
   }
-
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'eventModal'
-      )
-    )
-
-  modal.show()
 }
-function validateEvent() {
 
-  clearError()
+async function getOrCreateTown() {
+
+  const town =
+    getValue(
+      'townName'
+    ).trim()
+
+  if (!town) {
+
+    throw new Error(
+      'Town is required'
+    )
+  }
+
+  const existing =
+    await window
+      .supabaseClient
+      .from(
+        'town_master'
+      )
+      .select(`
+        town_id,
+        town_name
+      `)
+      .eq(
+        'subcounty_id',
+        getValue(
+          'subcountyId'
+        )
+      )
+      .ilike(
+        'town_name',
+        town
+      )
+      .maybeSingle()
+
+  if (
+    existing.data
+  ) {
+
+    return existing.data.town_id
+  }
+
+  const inserted =
+    await window
+      .supabaseClient
+      .from(
+        'town_master'
+      )
+      .insert({
+
+        town_name:
+          town,
+
+        subcounty_id:
+          getValue(
+            'subcountyId'
+          )
+      })
+      .select()
+      .single()
+
+  if (
+    inserted.error
+  ) {
+
+    throw inserted.error
+  }
+
+  return inserted
+    .data
+    .town_id
+}
+
+
+function validateOccurrence() {
 
   if (
     !getValue(
-      'eventName'
-    ).trim()
+      'eventId'
+    )
   ) {
 
     showError(
-      'Event Name is required'
+      'Event is required'
     )
 
     return false
@@ -1272,97 +1051,59 @@ function validateEvent() {
     return false
   }
 
- if (
+  if (
+    !getValue(
+      'countyId'
+    )
+  ) {
+
+    showError(
+      'County is required'
+    )
+
+    return false
+  }
+
+  if (
+    !getValue(
+      'subcountyId'
+    )
+  ) {
+
+    showError(
+      'Subcounty is required'
+    )
+
+    return false
+  }
+
+  if (
+    !getValue(
+      'townName'
+    )
+  ) {
+
+    showError(
+      'Town is required'
+    )
+
+    return false
+  }
+ 
+if (
   !getValue(
-    'countyId'
+    'startDate'
   )
 ) {
 
   showError(
-    'County is required'
+    'Start Date is required'
   )
 
   return false
 }
 
 if (
-  !getValue(
-    'subcountyId'
-  )
-) {
-
-  showError(
-    'Sub County is required'
-  )
-
-  return false
-}
-
-if (
-  !getValue(
-    'townName'
-  )
-)
-{
-  showError(
-    'Town is required'
-  )
-
-  return false
-}
-
-  if (
-    !getValue(
-      'city'
-    ).trim()
-  ) {
-
-    showError(
-      'City is required'
-    )
-
-    return false
-  }
-
-  if (
-    !getValue(
-      'eventTypeId'
-    )
-  ) {
-
-    showError(
-      'Event Type is required'
-    )
-
-    return false
-  }
-  if (
-  !getValue(
-    'eventCategoryId'
-  )
-) {
-
-  showError(
-    'Event Category is required'
-  )
-
-  return false
-}
-
-  if (
-    !getValue(
-      'startDate'
-    )
-  ) {
-
-    showError(
-      'Start Date is required'
-    )
-
-    return false
-  }
-
-  if (
   !getValue(
     'endDate'
   )
@@ -1375,355 +1116,105 @@ if (
   return false
 }
 
-const startTime =
-  getValue(
-    'startTime'
+const isEditMode =
+  !!getValue(
+    'eventInstanceId'
   )
 
-const endTime =
-  getValue(
-    'endTime'
-  )
-const startDate =
-  getValue(
-    'startDate'
-  )
-
-const endDate =
-  getValue(
-    'endDate'
-  )
 if (
-  startDate >
-  endDate
+  isEditMode &&
+  !getValue(
+    'occurrenceStatusId'
+  )
 ) {
 
   showError(
-    'End Date must be on or after Start Date'
+    'Event Status is required'
   )
 
   return false
 }
+  clearError()
 
-if (
-  startDate === endDate &&
-  startTime &&
-  endTime &&
-  startTime >= endTime
-) {
-
-  showError(
-    'End Time must be after Start Time'
-  )
-
-  return false
+  return true
 }
 
-return true
-}
-async function saveSponsors(
-  eventId
-) {
-
-  const sponsorsSelect =
-    document.getElementById(
-      'sponsorIds'
-    )
+async function saveSame() {
 
   if (
-    !sponsorsSelect
+    btnSaveOccurrence.disabled
   ) {
+
     return
   }
 
-  const selectedSponsors =
-    Array
-      .from(
-        sponsorsSelect
-          .selectedOptions
-      )
-      .map(
-        option =>
-          option.value
-      )
-
-  if (
-    selectedSponsors.length === 0
-  ) {
-    return
-  }
-
-  const sponsorRows =
-    selectedSponsors.map(
-      sponsorId => ({
-
-        event_id:
-          eventId,
-
-        sponsor_id:
-          sponsorId
-      })
-    )
-
-  const { error } =
-    await window
-      .supabaseClient
-      .from(
-        'event_sponsors'
-      )
-      .insert(
-        sponsorRows
-      )
-
-  if (error) {
-    throw error
-  }
-}
-async function updateSponsors(
-  eventId
-) {
-
-  await window
-    .supabaseClient
-    .from(
-      'event_sponsors'
-    )
-    .delete()
-    .eq(
-      'event_id',
-      eventId
-    )
-
-  await saveSponsors(
-    eventId
-  )
-}
-async function saveEvent() {
+  btnSaveOccurrence.disabled =
+    true
 
   try {
 
     if (
-      !validateEvent()
+      !validateOccurrence()
     ) {
+
+      btnSaveOccurrence.disabled =
+        false
+
       return
     }
 
-    showLoading()
+    const payload =
+      await buildOccurrencePayload()
 
-    const eventId =
+    const eventInstanceId =
       getValue(
-        'eventId'
+        'eventInstanceId'
       )
-  
- let selectedTown =
-  towns.find(
-    town =>
-
-      town.town_name
-        .trim()
-        .toLowerCase()
-
-      ===
-
-      getValue(
-        'townName'
-      )
-        .trim()
-        .toLowerCase()
-  )
-
-if (!selectedTown) {
-
-  showError(
-    'Town must exist in the selected Sub County'
-  )
-
-  hideLoading()
-
-  return
-}
-
-   const payload = {
-
-  event_name:
-    getValue(
-      'eventName'
-    ),
-
-  country_id:
-    getValue(
-      'countryId'
-    ) || null,
-
-  county_id:
-    getValue(
-      'countyId'
-    ) || null,
-
-  subcounty_id:
-    getValue(
-      'subcountyId'
-    ) || null,
-
-  town_id:
-  selectedTown
-    ?.town_id || null,
-
-  city:
-    getValue(
-      'city'
-    ),
-
-  organizer:
-    getValue(
-      'organizer'
-    ) || null,
-
-  event_type_id:
-    getValue(
-      'eventTypeId'
-    ) || null,
-  
- event_category_id:
-  getValue(
-    'eventCategoryId'
-  ) || null,
-
-  start_date:
-    getValue(
-      'startDate'
-    ),
-
-  end_date:
-    getValue(
-      'endDate'
-    ),
-
-  start_time:
-    getValue(
-      'startTime'
-    ) || null,
-
-  end_time:
-    getValue(
-      'endTime'
-    ) || null,
-
-
-}
-
-    let error
-    let savedEventId
 
     if (
-      eventId
+      !eventInstanceId
     ) {
 
+      showError(
+        'No Event Occurrence selected'
+      )
 
+      btnSaveOccurrence.disabled =
+        false
 
-      const result =
-        await window
-          .supabaseClient
-          .from(
-            'events'
-          )
-          .update(
-            payload
-          )
-          .eq(
-            'event_id',
-            eventId
-          )
-          .select()
-
-      error =
-        result.error
-
-      if (
-  result.error
-) {
-  throw result.error
-}
-
-savedEventId =
-  result.data?.[0]
-    ?.event_id
-
-if (
-  !savedEventId
-) {
-  throw new Error(
-    'Event ID not returned after save'
-  )
-}
-
-await updateSponsors(
-  savedEventId
-)
-
-    } else {
-
-      const result =
-  await window
-    .supabaseClient
-    .from(
-      'events'
-    )
-    .insert(
-      payload
-    )
-    .select()
-
-if (
-  result.error
-) {
-  throw result.error
-}
-
-savedEventId =
-  result.data?.[0]
-    ?.event_id
-
-console.log(
-  'Saved Event ID:',
-  savedEventId
-)
-
-if (
-  !savedEventId
-) {
-  throw new Error(
-    'Event insert succeeded but no event_id was returned'
-  )
-}
-
-await saveSponsors(
-  savedEventId
-)
+      return
     }
 
-    if (
+    const {
       error
-    ) {
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'event_instances'
+        )
+        .update(
+          payload
+        )
+        .eq(
+          'event_instance_id',
+          eventInstanceId
+        )
+
+    if (error) {
+
       throw error
     }
 
-    const modal =
-      coreui.Modal
-        .getInstance(
-          document
-            .getElementById(
-              'eventModal'
-            )
-        )
+    await saveParticipantRegistrations(
+      eventInstanceId
+    )
 
-    if (
-      modal
-    ) {
-      modal.hide()
-    }
+    await loadOccurrences()
 
-    await loadEvents()
+    showSuccess(
+      'Event Occurrence Updated'
+    )
 
   } catch (
     error
@@ -1739,172 +1230,97 @@ await saveSponsors(
 
   } finally {
 
-    hideLoading()
-
+    btnSaveOccurrence.disabled =
+      false
   }
 }
-window.confirmDeleteEvent =
-function (
-  eventId
-) {
-window.cancelEvent =
-async function (
-  eventId
-) {
 
-  try {
+async function saveNew() {
 
-    const { error } =
-      await window
-        .supabaseClient
-        .from(
-          'events'
-        )
-        .update({
-
-          status_id:
-            'dd9f0359-5454-4d3d-9db1-b794cbeb8e4d'
-
-        })
-        .eq(
-          'event_id',
-          eventId
-        )
-
-    if (error) {
-      throw error
-    }
-
-    await loadEvents()
-
-  } catch (
-    error
+  if (
+    btnSaveOccurrenceAsNew.disabled
   ) {
 
-    alert(
-      error.message
-    )
-
+    return
   }
-}
-window.restoreEvent =
-async function (
-  eventId
-) {
+
+  btnSaveOccurrenceAsNew.disabled =
+    true
 
   try {
-
-    const { error } =
-      await window
-        .supabaseClient
-        .from(
-          'events'
-        )
-        .update({
-
-          status_id:
-            'e0898929-e07d-4731-8ad6-ed8f0978a261'
-
-        })
-        .eq(
-          'event_id',
-          eventId
-        )
-
-    if (error) {
-      throw error
-    }
-
-    await loadEvents()
-
-  } catch (
-    error
-  ) {
-
-    alert(
-      error.message
-    )
-
-  }
-}
-
-  setValue(
-    'deleteEventId',
-    eventId
-  )
-
-  const modal =
-    new coreui.Modal(
-      document
-        .getElementById(
-          'deleteEventModal'
-        )
-    )
-
-  modal.show()
-}
-async function deleteEvent() {
-
-  try {
-
-    const eventId =
-      getValue(
-        'deleteEventId'
-      )
 
     if (
-      !eventId
+      !validateOccurrence()
     ) {
+
+      btnSaveOccurrenceAsNew.disabled =
+        false
+
       return
     }
 
-    showLoading()
+    const payload =
+      await buildOccurrencePayload()
 
-    await window
-      .supabaseClient
-      .from(
-        'event_sponsors'
-      )
-      .delete()
-      .eq(
-        'event_id',
-        eventId
+    const plannedStatus =
+      document.querySelector(
+        '#occurrenceStatusId option[data-code="PLANNED"]'
       )
 
-    const { error } =
+    if (
+      plannedStatus
+    ) {
+
+      payload.status_id =
+        plannedStatus.value
+    }
+
+    const {
+      data,
+      error
+    } =
       await window
         .supabaseClient
         .from(
-          'events'
+          'event_instances'
         )
-        .delete()
-        .eq(
-          'event_id',
-          eventId
+        .insert(
+          payload
         )
+        .select()
+        .single()
 
-    if (
-      error
-    ) {
+    if (error) {
+
       throw error
     }
 
-    const modal =
-      coreui.Modal
-        .getInstance(
-          document
-            .getElementById(
-              'deleteEventModal'
-            )
-        )
+    await saveParticipantRegistrations(
+      data.event_instance_id,
+      false
+    )
 
-    if (
-      modal
-    ) {
-      modal.hide()
-    }
+    await loadOccurrences()
 
-    await loadEvents()
+    setValue(
+      'eventInstanceId',
+      ''
+    )
+
+    showSuccess(
+      'Event Occurrence Created'
+    )
+
+clearOccurrenceForm()
+
+const modal =
+  coreui.Modal.getInstance(
+    document.getElementById(
+      'occurrenceModal'
+    )
+  )
+
+modal?.hide()
 
   } catch (
     error
@@ -1914,64 +1330,183 @@ async function deleteEvent() {
       error
     )
 
-    alert(
+    showError(
       error.message
     )
 
   } finally {
 
-    hideLoading()
-
+    btnSaveOccurrenceAsNew.disabled =
+      false
   }
 }
-async function initializeEvents() {
+
+async function saveParticipantRegistrations(
+  eventInstanceId,
+  isUpdate = true
+) {
+
+  if (isUpdate) {
+
+  const {
+    error: deleteError
+  }
+  =
+  await window
+    .supabaseClient
+    .from(
+      'participant_instances'
+    )
+    .delete()
+    .eq(
+      'event_instance_id',
+      eventInstanceId
+    )
+
+  if (
+    deleteError
+  ) {
+
+    throw deleteError
+  }
+}
+
+
+  if (
+    !selectedParticipants.length
+  ) {
+
+    return
+  }
+
+  const participantStatus =
+    getValue(
+      'participantStatusId'
+    ) || null
+
+  const registrations =
+    selectedParticipants.map(
+      participant => ({
+
+        event_instance_id:
+          eventInstanceId,
+
+        participant_ref_id:
+          participant.participant_id,
+
+        participant_status_id:
+          participantStatus
+      })
+    )
+
+  const {
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'participant_instances'
+      )
+      .insert(
+        registrations
+      )
+
+  if (error) {
+
+    throw error
+  }
+}
+async function checkDependencies(
+  occurrenceId
+) {
+
+  const {
+    count,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'participant_instances'
+      )
+      .select(
+        '*',
+        {
+          count: 'exact',
+          head: true
+        }
+      )
+      .eq(
+        'event_instance_id',
+        occurrenceId
+      )
+
+  if (error) {
+
+    throw error
+  }
+
+  return {
+    participantCount:
+      count || 0
+  }
+}
+
+async function deleteOccurrence(
+  occurrenceId
+) {
+
+  const dependencyInfo =
+    await checkDependencies(
+      occurrenceId
+    )
+
+  const confirmed =
+    confirm(
+      `Delete Event Occurrence?\n\nParticipants: ${dependencyInfo.participantCount}`
+    )
+
+  if (!confirmed) {
+
+    return
+  }
 
   try {
 
-    if (
-      !window.supabaseClient
-    ) {
+    const {
+      error
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'event_instances'
+        )
+        .delete()
+        .eq(
+          'event_instance_id',
+          occurrenceId
+        )
 
-      console.error(
-        'Supabase client not found'
-      )
+    if (error) {
 
-      return
+      throw error
     }
 
-    await loadCountries()
-
-    await loadCounties()
-
-    await loadEventTypes()
-
-    await loadEventCategories()
-
-    await loadSponsors()
-
-    const sponsorSelect =
-      document.getElementById(
-        'sponsorIds'
+    eventOccurrences =
+      eventOccurrences.filter(
+        item =>
+          item.event_instance_id !==
+          occurrenceId
       )
 
-    if (
-      sponsorSelect &&
-      !sponsorSelect.tomselect
-    ) {
+    filteredOccurrences =
+      [...eventOccurrences]
 
-      new TomSelect(
-        '#sponsorIds',
-        {
-          plugins: [
-            'remove_button'
-          ],
-          create: false,
-          maxItems: null
-        }
-      )
-    }
+    renderOccurrences()
 
-    await loadEvents()
+    showSuccess(
+  'Event Occurrence Deleted'
+)
 
   } catch (
     error
@@ -1980,192 +1515,686 @@ async function initializeEvents() {
     console.error(
       error
     )
+
+    showError(
+      error.message
+    )
   }
 }
 
-document
-  .addEventListener(
-    'DOMContentLoaded',
-    initializeEvents
-  )
-document.addEventListener(
-  'DOMContentLoaded',
-  () => {
+async function loadOccurrences() {
 
-    document
-      .getElementById('btnAddEvent')
-      ?.addEventListener(
-        'click',
-        openNewEventModal
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_instances'
       )
-
-    document
-      .getElementById('btnSaveEvent')
-      ?.addEventListener(
-        'click',
-        saveEvent
-      )
-
-    document
-      .getElementById(
-        'btnConfirmDeleteEvent'
-      )
-      ?.addEventListener(
-        'click',
-        deleteEvent
-      )
-
-    document
-      .getElementById('searchEvent')
-      ?.addEventListener(
-        'input',
-        searchEvents
-      )
-
-    document
-      .getElementById(
-        'btnRefreshEvents'
-      )
-      ?.addEventListener(
-        'click',
-        loadEvents
-      )
-
-   document
-  .getElementById(
-    'btnPreviousPage'
-  )
-  ?.addEventListener(
-    'click',
-    () => {
-
-      if (
-        currentPage > 1
-      ) {
-
-        currentPage--
-
-        renderEvents()
-
-      }
-    }
-  )
-
-    document
-      .getElementById(
-        'btnNextPage'
-      )
-      ?.addEventListener(
-        'click',
-        () => {
-
-          const totalPages =
-            Math.ceil(
-              filteredEvents.length /
-              PAGE_SIZE
-            )
-
-          if (
-            currentPage <
-            totalPages
-          ) {
-
-            currentPage++
-
-            renderEvents()
-          }
+      .select(`
+        *,
+        events(
+          event_id,
+          event_name
+        ),
+        sponsor_master(
+          sponsor_name
+        ),
+        status_master(
+          status_name
+        ),
+        participant_instances(
+          participant_instance_id
+        )
+      `)
+      .order(
+        'created_at',
+        {
+          ascending: false
         }
       )
-document
-  .getElementById(
-    'countyId'
-  )
-  ?.addEventListener(
-    'change',
-    async event => {
 
-      await loadSubcounties(
-        event.target.value
-      )
+  if (error) {
 
-      setValue(
-        'subcountyId',
-        ''
-      )
-
-      setValue(
-        'townId',
-        ''
-      )
-    }
-  )
-
-document
-  .getElementById(
-    'subcountyId'
-  )
-  ?.addEventListener(
-    'change',
-    async event => {
-
-      await loadTowns(
-        event.target.value
-      )
-
-      setValue(
-        'townId',
-        ''
-      )
-    }
-  )
-
-  }
-)
-
-window.managePrograms =
-async function (
-  eventId
-) {
-
-  const event =
-    events.find(
-      e =>
-        e.event_id ===
-        eventId
+    console.error(
+      error
     )
 
-  if (!event) {
+    return
+  }
+
+  eventOccurrences =
+    data || []
+
+  filteredOccurrences =
+    [...eventOccurrences]
+
+  renderOccurrences()
+}
+
+
+function renderParticipants() {
+
+  selectedParticipants = []
+
+  if (
+    !participantSelectionContainer
+  ) {
+
+    return
+  }
+
+  participantSelectionContainer
+    .innerHTML = ''
+
+  if (
+    modeTeams?.checked
+  ) {
+
+    renderTeams()
+
+  } else if (
+    modeAthletes?.checked
+  ) {
+
+    renderAthletes()
+
+  } else {
+
+    renderMixed()
+  }
+
+  bindParticipantSelection()
+}
+
+function renderTeams() {
+
+  participantSelectionContainer
+    .innerHTML = ''
+
+  participants
+    .filter(
+      participant =>
+        participant
+          .participant_type_code ===
+        'TEAM'
+    )
+    .forEach(
+      participant => {
+
+        participantSelectionContainer
+          .innerHTML += `
+
+          <div class="form-check">
+
+            <input
+              class="form-check-input participant-check"
+              type="checkbox"
+              data-type="TEAM"
+              value="${participant.participant_ref_id}"
+            >
+
+            <label class="form-check-label">
+
+              ${participant.display_name}
+
+            </label>
+
+          </div>
+          `
+      }
+    )
+}
+function renderAthletes() {
+
+  participantSelectionContainer
+    .innerHTML = ''
+
+  participants
+    .filter(
+      participant =>
+        participant
+          .participant_type_code ===
+        'ATHLETE'
+    )
+    .forEach(
+      participant => {
+
+        participantSelectionContainer
+          .innerHTML += `
+
+          <div class="form-check">
+
+            <input
+              class="form-check-input participant-check"
+              type="checkbox"
+              data-type="ATHLETE"
+              value="${participant.participant_ref_id}"
+            >
+
+            <label class="form-check-label">
+
+              ${participant.display_name}
+
+            </label>
+
+          </div>
+          `
+      }
+    )
+}
+
+function renderMixed() {
+
+  participantSelectionContainer
+    .innerHTML = ''
+
+  participants.forEach(
+    participant => {
+
+      participantSelectionContainer
+        .innerHTML += `
+
+        <div class="form-check">
+
+          <input
+            class="form-check-input participant-check"
+            type="checkbox"
+            data-type="${participant.participant_type_code}"
+            value="${participant.participant_ref_id}"
+          >
+
+          <label class="form-check-label">
+
+            ${participant.display_name}
+            (${participant.participant_type_code})
+
+          </label>
+
+        </div>
+        `
+    }
+  )
+}
+
+function bindParticipantSelection() {
+
+  const checkboxes =
+    document.querySelectorAll(
+      '.participant-check'
+    )
+
+  checkboxes.forEach(
+    checkbox => {
+
+      checkbox.addEventListener(
+        'change',
+        handleParticipantSelection
+      )
+    }
+  )
+}
+
+function handleParticipantSelection(
+  event
+) {
+
+  const checkbox =
+    event.target
+
+  const participant = {
+
+    participant_type:
+      checkbox.dataset.type,
+
+    participant_id:
+      checkbox.value
+  }
+
+  if (
+    checkbox.checked
+  ) {
+
+    selectedParticipants.push(
+      participant
+    )
+
+    return
+  }
+
+  selectedParticipants =
+    selectedParticipants.filter(
+      item =>
+        !(
+          item.participant_type ===
+            participant.participant_type &&
+          item.participant_id ===
+            participant.participant_id
+        )
+    )
+}
+
+function renderOccurrences() {
+
+  if (
+    !occurrenceTableBody
+  ) {
+
+    return
+  }
+
+  occurrenceTableBody.innerHTML =
+    ''
+
+  const start =
+    (
+      currentPage - 1
+    ) * PAGE_SIZE
+
+  const end =
+    start + PAGE_SIZE
+
+  const pageData =
+    filteredOccurrences.slice(
+      start,
+      end
+    )
+
+  pageData.forEach(
+    occurrence => {
+
+      const participantCount =
+        occurrence
+          .participant_instances
+          ?.length || 0
+
+ const eventMaster =
+  events.find(
+    event =>
+      event.event_id ===
+      occurrence.event_id
+  )
+
+const eventTypeName =
+  eventMaster
+    ?.event_type_master
+    ?.event_type_name || ''
+      occurrenceTableBody.innerHTML += `
+
+        <tr>
+
+          <td>
+            ${
+              occurrence.events
+                ?.event_name || ''
+            }
+          </td>
+
+          <td>
+  ${eventTypeName}
+</td>
+
+          <td>
+            ${
+              occurrence.event_area || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.organizer || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.sponsor_master
+                ?.sponsor_name || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.start_date || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.end_date || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.start_time || ''
+            }
+          </td>
+
+          <td>
+            ${
+              occurrence.end_time || ''
+            }
+          </td>
+
+          <td>
+            ${participantCount}
+          </td>
+
+          <td>
+            ${
+              occurrence.status_master
+                ?.status_name || ''
+            }
+          </td>
+
+          <td>
+
+            <button
+  class="btn btn-sm btn-primary me-1"
+  onclick="editOccurrence('${occurrence.event_instance_id}')"
+>
+
+  Edit
+
+</button>
+
+<button
+  class="btn btn-sm btn-danger"
+  onclick="deleteOccurrence('${occurrence.event_instance_id}')"
+>
+
+  Delete
+
+</button>
+
+          </td>
+
+        </tr>
+      `
+    }
+  )
+
+  if (
+    paginationInfo
+  ) {
+
+    paginationInfo.textContent =
+      `${filteredOccurrences.length} record(s)`
+  }
+
+  renderPagination()
+}
+
+
+function renderPagination() {
+
+  const container =
+    document.getElementById(
+      'paginationContainer'
+    )
+
+  if (
+    !container
+  ) {
+
+    return
+  }
+
+  container.innerHTML =
+    ''
+
+  const totalPages =
+    Math.max(
+      1,
+      Math.ceil(
+        filteredOccurrences.length /
+        PAGE_SIZE
+      )
+    )
+
+  for (
+    let i = 1;
+    i <= totalPages;
+    i++
+  ) {
+
+    container.innerHTML += `
+
+      <li class="page-item ${
+        i === currentPage
+          ? 'active'
+          : ''
+      }">
+
+        <a
+          href="#"
+          class="page-link"
+          onclick="goToPage(${i})"
+        >
+
+          ${i}
+
+        </a>
+
+      </li>
+    `
+  }
+}
+
+window.goToPage =
+function (
+  page
+) {
+
+  currentPage =
+    page
+
+  renderOccurrences()
+}
+
+
+function searchOccurrences() {
+
+  const term =
+    (
+      searchOccurrence
+        ?.value || ''
+    )
+      .toLowerCase()
+
+  filteredOccurrences =
+    eventOccurrences.filter(
+      occurrence =>
+
+        (
+          occurrence.events
+            ?.event_name || ''
+        )
+          .toLowerCase()
+          .includes(
+            term
+          ) ||
+
+        (
+          occurrence.event_area || ''
+        )
+          .toLowerCase()
+          .includes(
+            term
+          ) ||
+
+        (
+          occurrence.organizer || ''
+        )
+          .toLowerCase()
+          .includes(
+            term
+          )
+    )
+
+  currentPage = 1
+
+  renderOccurrences()
+}
+
+
+window.editOccurrence =
+async function (
+  occurrenceId
+) {
+
+
+  const occurrence =
+    eventOccurrences.find(
+      item =>
+        item.event_instance_id ===
+        occurrenceId
+    )
+
+  if (!occurrence) {
+
     return
   }
 
   setValue(
-    'programEventId',
-    eventId
+    'eventInstanceId',
+    occurrence.event_instance_id
+  )
+ btnSaveOccurrence
+  ?.classList
+  .remove(
+    'd-none'
   )
 
-  document
-    .getElementById(
-      'programEventName'
-    ).textContent =
-      event.event_name
-
-  await loadPrograms(
-    eventId
+btnSaveOccurrenceAsNew
+  ?.classList
+  .remove(
+    'd-none'
   )
 
+document
+  .getElementById(
+    'occurrenceStatusCard'
+  )
+  ?.classList
+  .remove(
+    'd-none'
+  )
+
+  setValue(
+    'eventId',
+    occurrence.event_id
+  )
+
+  await Promise.resolve(
+  handleEventSelection()
+)
+
+  setValue(
+    'sponsorId',
+    occurrence.sponsor_id
+  )
+
+  setValue(
+    'countryId',
+    occurrence.country_id
+  )
+
+  await loadCountyOptions(
+    occurrence.country_id
+  )
+
+  setValue(
+    'countyId',
+    occurrence.county_id
+  )
+
+  await loadSubcounties(
+    occurrence.county_id
+  )
+
+  setValue(
+    'subcountyId',
+    occurrence.subcounty_id
+  )
+
+  await loadTowns(
+    occurrence.subcounty_id
+  )
+
+const town =
+  towns.find(
+    item =>
+      item.town_id ===
+      occurrence.town_id
+  )
+
+setValue(
+  'townName',
+  town?.town_name || ''
+)
+
+generateEventArea()
+
+setValue(
+  'organizer',
+  occurrence.organizer
+)
+
+  setValue(
+    'organizer',
+    occurrence.organizer
+  )
+
+  setValue(
+    'eventArea',
+    occurrence.event_area
+  )
+
+  setValue(
+    'startDate',
+    occurrence.start_date
+  )
+
+  setValue(
+    'endDate',
+    occurrence.end_date
+  )
+
+  setValue(
+    'startTime',
+    occurrence.start_time
+  )
+
+  setValue(
+    'endTime',
+    occurrence.end_time
+  )
+
+  setValue(
+    'occurrenceStatusId',
+    occurrence.status_id
+  )
+  await loadOccurrenceParticipants(
+  occurrenceId
+)
   const modal =
     new coreui.Modal(
       document.getElementById(
-        'programModal'
+        'occurrenceModal'
       )
     )
 
   modal.show()
-
 }
+window.deleteOccurrence =
+  deleteOccurrence
 
-async function loadPrograms(
-  eventId
+async function loadOccurrenceParticipants(
+  occurrenceId
 ) {
 
   const {
@@ -2175,199 +2204,374 @@ async function loadPrograms(
     await window
       .supabaseClient
       .from(
-        'event_programs'
+        'participant_instances'
       )
-      .select('*')
+      .select(`
+  participant_ref_id,
+  participant_status_id
+`)
       .eq(
-        'event_id',
-        eventId
-      )
-      .order(
-        'sort_order'
+        'event_instance_id',
+        occurrenceId
       )
 
   if (error) {
 
-    console.error(error)
+    console.error(
+      error
+    )
 
     return
   }
 
-  programs =
-    data || []
+  selectedParticipants =
+    []
 
-  renderPrograms()
-
-}
-
-function renderPrograms() {
-
-  const body =
-    document.getElementById(
-      'programTableBody'
-    )
-
-  if (!body) {
-    return
-  }
-
-  body.innerHTML = ''
-
-  programs.forEach(
-    program => {
-
-      body.innerHTML += `
-        <tr>
-
-          <td>
-            ${program.program_name}
-          </td>
-
-          <td>
-            ${program.program_type}
-          </td>
-
-          <td>
-            ${
-              program.days_per_week || ''
-            }
-          </td>
-
-          <td>
-            ${
-              program.active
-                ? 'Yes'
-                : 'No'
-            }
-          </td>
-
-          <td>
-
-            <button
-              class="btn btn-sm btn-danger"
-              onclick="deleteProgram('${program.program_id}')"
-            >
-              Delete
-            </button>
-
-          </td>
-
-        </tr>
-      `
-    }
-  )
-
-}
-async function saveProgram() {
-
-  const eventId =
-    getValue(
-      'programEventId'
-    )
-
-  const payload = {
-
-    event_id:
-      eventId,
-
-    program_name:
-      getValue(
-        'programName'
-      ),
-
-    program_type:
-      getValue(
-        'programType'
-      ),
-
-    days_per_week:
-      getValue(
-        'daysPerWeek'
-      ) || null
-
-  }
-
-  const {
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
+  const selectedIds =
+    (data || [])
+      .map(
+        item =>
+          item.participant_ref_id
       )
-      .insert(
-        payload
-      )
-
-  if (error) {
-
-    alert(
-      error.message
-    )
-
-    return
-  }
-
-  setValue(
-    'programName',
-    ''
-  )
-
-  setValue(
-    'programType',
-    ''
-  )
-
-  setValue(
-    'daysPerWeek',
-    ''
-  )
-
-  await loadPrograms(
-    eventId
-  )
-
-}
-window.deleteProgram =
-async function (
-  programId
+if (
+  data &&
+  data.length
 ) {
 
-  const {
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .delete()
-      .eq(
-        'program_id',
-        programId
-      )
+  setValue(
+    'participantStatusId',
+    data[0]
+      .participant_status_id || ''
+  )
+}
 
-  if (error) {
 
-    alert(
-      error.message
+  document
+    .querySelectorAll(
+      '.participant-check'
     )
+    .forEach(
+      checkbox => {
 
-    return
-  }
+        checkbox.checked =
+          selectedIds.includes(
+            checkbox.value
+          )
 
-  await loadPrograms(
-    getValue(
-      'programEventId'
+        if (
+          checkbox.checked
+        ) {
+
+          selectedParticipants.push({
+
+            participant_id:
+              checkbox.value,
+
+            participant_type:
+              checkbox.dataset.type
+          })
+        }
+      }
     )
+}
+
+function clearOccurrenceForm() {
+
+  setValue(
+    'eventInstanceId',
+    ''
   )
 
+  setValue(
+    'eventId',
+    ''
+  )
+
+  setValue(
+    'eventCategory',
+    ''
+  )
+
+  setValue(
+    'eventType',
+    ''
+  )
+
+  setValue(
+    'sponsorId',
+    ''
+  )
+
+  setValue(
+    'countryId',
+    ''
+  )
+
+  setValue(
+    'countyId',
+    ''
+  )
+
+  setValue(
+    'subcountyId',
+    ''
+  )
+
+  setValue(
+    'townName',
+    ''
+  )
+
+  setValue(
+    'eventArea',
+    ''
+  )
+
+  setValue(
+    'organizer',
+    ''
+  )
+
+  setValue(
+    'startDate',
+    ''
+  )
+
+  setValue(
+    'endDate',
+    ''
+  )
+
+  setValue(
+    'startTime',
+    ''
+  )
+
+  setValue(
+    'endTime',
+    ''
+  )
+
+  setValue(
+    'occurrenceStatusId',
+    ''
+  )
+
+  setValue(
+    'participantStatusId',
+    ''
+  )
+
+  selectedParticipants = []
+
+  renderParticipants()
+
+  clearError()
 }
+
 document
   .getElementById(
-    'btnSaveProgram'
+    'occurrenceStatusCard'
   )
-  ?.addEventListener(
-    'click',
-    saveProgram
+  ?.classList
+  .add(
+    'd-none'
   )
+
+
+// =====================================================
+// PHASE 2 EVENT LISTENERS
+// =====================================================
+
+if (eventId) {
+
+  eventId.addEventListener(
+    'change',
+    handleEventSelection
+  )
+}
+
+if (countryId) {
+
+  countryId.addEventListener(
+    'change',
+    async () => {
+
+      await loadCountyOptions(
+        countryId.value
+      )
+
+      countyId.value = ''
+
+      subcountyId.innerHTML =
+        `
+          <option value="">
+            Select Subcounty
+          </option>
+        `
+
+      if (townSuggestions) {
+        townSuggestions.innerHTML = ''
+      }
+
+      setValue(
+        'townName',
+        ''
+      )
+
+      setValue(
+        'eventArea',
+        ''
+      )
+    }
+  )
+}
+
+if (countyId) {
+
+  countyId.addEventListener(
+    'change',
+    async () => {
+
+      await loadSubcounties(
+        countyId.value
+      )
+
+      if (townSuggestions) {
+        townSuggestions.innerHTML = ''
+      }
+
+      setValue(
+        'townName',
+        ''
+      )
+
+      setValue(
+        'eventArea',
+        ''
+      )
+    }
+  )
+}
+
+if (subcountyId) {
+
+  subcountyId.addEventListener(
+    'change',
+    async () => {
+
+      await loadTowns(
+        subcountyId.value
+      )
+
+
+      setValue(
+        'townName',
+        ''
+      )
+
+      setValue(
+        'eventArea',
+        ''
+      )
+    }
+  )
+}
+
+if (townName) {
+
+  townName.addEventListener(
+    'input',
+    generateEventArea
+  )
+}
+
+if (modeTeams) {
+
+  modeTeams.addEventListener(
+    'change',
+    renderParticipants
+  )
+}
+
+if (modeAthletes) {
+
+  modeAthletes.addEventListener(
+    'change',
+    renderParticipants
+  )
+}
+
+if (modeMixed) {
+
+  modeMixed.addEventListener(
+    'change',
+    renderParticipants
+  )
+}
+if (
+  btnSaveOccurrence
+) {
+
+  btnSaveOccurrence
+    .addEventListener(
+      'click',
+      saveSame
+    )
+}
+
+if (
+  btnSaveOccurrenceAsNew
+) {
+
+  btnSaveOccurrenceAsNew
+    .addEventListener(
+      'click',
+      saveNew
+    )
+}
+
+if (
+  searchOccurrence
+) {
+
+  searchOccurrence
+    .addEventListener(
+      'input',
+      searchOccurrences
+    )
+}
+
+if (
+  btnNewOccurrence
+) {
+
+  btnNewOccurrence
+    .addEventListener(
+      'click',
+      () => {
+
+        clearOccurrenceForm()
+        btnSaveOccurrence
+  ?.classList
+  .add(
+    'd-none'
+  )
+
+btnSaveOccurrenceAsNew
+  ?.classList
+  .remove(
+    'd-none'
+  )
+
+        const modal =
+          new coreui.Modal(
+            document.getElementById(
+              'occurrenceModal'
+            )
+          )
+
+        modal.show()
+      }
+    )
+}
