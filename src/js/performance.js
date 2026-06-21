@@ -22,10 +22,12 @@ let events = []
 
 let sourceRecords = []
 let selectedTeamId = null
-
+let trainingCategoryId = null
+let competitionCategoryId = null
 let selectedParticipantId = null
 let cancelledStatusId = null
-
+let selectedParticipantInstanceId = null
+let selectedAthleteId = null
 const performanceLoading =
   document.getElementById(
     'performanceLoading'
@@ -87,16 +89,47 @@ async function loadStatusIds() {
 async function loadEvents() {
 
   const {
+    data: categories,
+    error: categoryError
+  } =
+    await db
+      .from(
+        'event_category_master'
+      )
+      .select(`
+        event_category_id,
+        category_code
+      `)
+
+  if (categoryError) {
+    throw categoryError
+  }
+
+  trainingCategoryId =
+    categories.find(
+      c =>
+        c.category_code ===
+        'TRAINING'
+    )?.event_category_id
+
+  competitionCategoryId =
+    categories.find(
+      c =>
+        c.category_code ===
+        'COMPETITION'
+    )?.event_category_id
+
+  const {
     data,
     error
   } =
     await db
       .from('events')
       .select(`
-  event_id,
-  event_name,
-  event_category
-`)
+        event_id,
+        event_name,
+        event_category_id
+      `)
       .order(
         'event_name'
       )
@@ -107,28 +140,6 @@ async function loadEvents() {
 
   events =
     data || []
-
-  const select =
-    document.getElementById(
-      'eventId'
-    )
-
-  select.innerHTML =
-    '<option value="">Select Event</option>'
-
-  events.forEach(
-    event => {
-
-      select.innerHTML += `
-        <option
-          value="${event.event_id}"
-        >
-          ${event.event_name}
-        </option>
-      `
-
-    }
-  )
 
 }
 
@@ -144,20 +155,38 @@ function filterEventsBySource() {
       'eventId'
     )
 
-  if (
-    !select
-  ) {
+  if (!select) {
     return
   }
 
   select.innerHTML =
     '<option value="">Select Event</option>'
 
+  let categoryId = null
+
+  if (
+    sourceType ===
+    'TRAINING'
+  ) {
+
+    categoryId =
+      trainingCategoryId
+
+  } else if (
+    sourceType ===
+    'COMPETITION'
+  ) {
+
+    categoryId =
+      competitionCategoryId
+
+  }
+
   events
     .filter(
       event =>
-        event.event_category ===
-        sourceType
+        event.event_category_id ===
+        categoryId
     )
     .forEach(
       event => {
@@ -174,13 +203,13 @@ function filterEventsBySource() {
     )
 
 }
-
 async function loadTrainingSources(
   eventId
 ) {
 
   const {
-    data
+    data,
+    error
   } =
     await db
       .from(
@@ -189,12 +218,31 @@ async function loadTrainingSources(
       .select(`
         training_id,
         training_date,
-        session_type
+        participant_id,
+        participant_instance_id,
+        athlete_id,
+        team_id,
+
+        participant_instances(
+          participant_ref_id,
+
+          participant_registry(
+            display_name
+          ),
+
+          event_instances(
+            event_area
+          )
+        )
       `)
       .eq(
         'event_id',
         eventId
       )
+
+  if (error) {
+    throw error
+  }
 
   sourceRecords =
     data || []
@@ -205,7 +253,8 @@ async function loadCompetitionSources(
 ) {
 
   const {
-    data
+    data,
+    error
   } =
     await db
       .from(
@@ -214,17 +263,39 @@ async function loadCompetitionSources(
       .select(`
         result_id,
         competition_date,
-        position
+        position,
+        participant_id,
+        participant_instance_id,
+        athlete_id,
+        team_id,
+
+        participant_instances(
+          participant_ref_id,
+
+          participant_registry(
+            display_name
+          ),
+
+          event_instances(
+            event_area
+          )
+        )
       `)
       .eq(
         'event_id',
         eventId
       )
 
+  if (error) {
+    throw error
+  }
+
   sourceRecords =
     data || []
 
 }
+
+
 function populateSourceRecords() {
 
   const select =
@@ -256,8 +327,21 @@ function populateSourceRecords() {
           <option
             value="${record.training_id}"
           >
-            ${record.training_date || ''}
-            - ${record.session_type || ''}
+            ${
+  record
+    .participant_instances
+    ?.event_instances
+    ?.event_area || ''
+}
+ - ${
+  record
+    .participant_instances
+    ?.participant_registry
+    ?.display_name || ''
+}
+ - ${
+  record.training_date || ''
+}
           </option>
         `
 
@@ -267,8 +351,21 @@ function populateSourceRecords() {
           <option
             value="${record.result_id}"
           >
-            ${record.competition_date || ''}
-            - Position ${record.position || ''}
+            ${
+  record
+    .participant_instances
+    ?.event_instances
+    ?.event_area || ''
+}
+ - ${
+  record
+    .participant_instances
+    ?.participant_registry
+    ?.display_name || ''
+}
+ - ${
+  record.competition_date || ''
+}
           </option>
         `
 
@@ -341,9 +438,9 @@ if (
 
 }
 
-await loadAvailableTeams(
-  eventId
-)
+// await loadAvailableTeams(
+ //  eventId
+// )
 
   if (
     sourceType ===
@@ -366,69 +463,6 @@ await loadAvailableTeams(
 
 }
 
-async function loadAvailableTeams(eventId) {
-
-  const { data: usedTeams } =
-    await db
-      .from('performance')
-      .select('team_id')
-      .eq('event_id', eventId)
-
-  const usedIds =
-    (usedTeams || [])
-      .map(r => r.team_id)
-
-  const { data, error } =
-    await db
-      .from('event_participants')
-      .select(`
-        participant_id,
-        team_id,
-        teams (
-          team_name
-        )
-      `)
-      .eq('event_id', eventId)
-.neq(
-  'status_id',
-  cancelledStatusId
-)
-
-  if (error) {
-    throw error
-  }
-
-  const available =
-    (data || [])
-      .filter(
-        row =>
-          !usedIds.includes(
-            row.team_id
-          )
-      )
-
-  const select =
-    document.getElementById(
-      'teamId'
-    )
-
-  select.innerHTML =
-    '<option value="">Select Team</option>'
-
-  available.forEach(
-    row => {
-
-      select.innerHTML += `
-        <option
-          value="${row.team_id}"
-          data-participant="${row.participant_id}"
-        >
-          ${row.teams?.team_name || ''}
-        </option>
-      `
-    }
-  )
-}
 
 
 async function loadSourceRecordDetails() {
@@ -463,18 +497,20 @@ async function loadSourceRecordDetails() {
 } =
   await db
     .from('training_log')
-    .select(`
-      training_id,
-      training_date,
-      participant_id,
-      team_id,
-      distance_km,
-      duration_minutes,
-      avg_speed_kmh,
-      teams (
-        team_name
-      )
-    `)
+.select(`
+  training_id,
+  training_date,
+  participant_id,
+  participant_instance_id,
+  athlete_id,
+  team_id,
+  distance_km,
+  duration_minutes,
+  avg_speed_kmh,
+  teams (
+    team_name
+  )
+`)
     .eq(
       'training_id',
       recordId
@@ -489,6 +525,36 @@ async function loadSourceRecordDetails() {
 
     source = data
 
+const teamSelect =
+  document.getElementById(
+    'teamId'
+  )
+
+if (teamSelect) {
+
+  teamSelect.innerHTML = `
+    <option
+      value="${source.team_id || ''}"
+    >
+      ${source.teams?.team_name || ''}
+    </option>
+  `
+
+  teamSelect.disabled = true
+
+}
+
+selectedParticipantId =
+  source.participant_id || null
+
+selectedTeamId =
+  source.team_id || null
+
+selectedParticipantInstanceId =
+  source.participant_instance_id || null
+
+selectedAthleteId =
+  source.athlete_id || null
 
     setValue(
       'performanceDate',
@@ -503,32 +569,31 @@ async function loadSourceRecordDetails() {
   } else {
 
     const {
-      data,
-      error
-    } =
-      await db
-        .from(
-          'race_results'
-        )
-        .select(`
-  result_id,
-  participant_id,
-  competition_date,
-  team_id,
-  distance_km,
-  duration_minutes,
-  avg_speed_kmh,
-  max_speed_kmh,
-  teams(
-    team_name
-  )
-`)
-          
-        .eq(
-          'result_id',
-          recordId
-        )
-        .single()
+  data,
+  error
+} =
+  await db
+    .from('race_results')
+    .select(`
+      result_id,
+      participant_id,
+      participant_instance_id,
+      athlete_id,
+      competition_date,
+      team_id,
+      distance_km,
+      duration_minutes,
+      avg_speed_kmh,
+      max_speed_kmh,
+      teams(
+        team_name
+      )
+    `)
+    .eq(
+      'result_id',
+      recordId
+    )
+    .single()
 
     if (
       error
@@ -537,7 +602,42 @@ async function loadSourceRecordDetails() {
     }
 
    source = data
+ const teamSelect =
+  document.getElementById(
+    'teamId'
+  )
+
+if (teamSelect) {
+
+  teamSelect.innerHTML = `
+    <option
+      value="${source.team_id || ''}"
+    >
+      ${source.teams?.team_name || ''}
+    </option>
+  `
+
+  teamSelect.disabled = true
+
+}
+
    
+selectedParticipantId =
+  source.participant_id || null
+
+selectedTeamId =
+  source.team_id || null
+selectedParticipantInstanceId =
+  source.participant_instance_id || null
+
+selectedAthleteId =
+  source.athlete_id || null
+
+setValue(
+  'teamId',
+  source.team_id || ''
+)
+
 
     setValue(
       'performanceDate',
@@ -969,7 +1069,16 @@ function clearPerformanceForm() {
   selectedTeamId = null
 
 selectedParticipantId = null
+const teamSelect =
+  document.getElementById(
+    'teamId'
+  )
 
+if (teamSelect) {
+
+  teamSelect.disabled = false
+
+}
   setValue(
     'performanceId',
     ''
@@ -1152,12 +1261,13 @@ function validatePerformance() {
   }
 
   if (
+  !selectedParticipantId &&
   !selectedTeamId
 ) {
 
   showError(
-  'Please select a team'
-)
+    'Selected source record has no participant'
+  )
 
   return false
 
@@ -1230,6 +1340,12 @@ async function savePerformance() {
 
       participant_id:
   selectedParticipantId,
+
+participant_instance_id:
+  selectedParticipantInstanceId,
+
+athlete_id:
+  selectedAthleteId,
 
 team_id:
   selectedTeamId,

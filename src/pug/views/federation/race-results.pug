@@ -16,7 +16,7 @@ block view
 
             button.btn.btn-primary(
               type='button'
-              id='btnAddResult'
+              id='btnAddTraining'
             )
               i.fa.fa-plus.me-2
               | Add Result
@@ -24,7 +24,7 @@ block view
           .card-body
 
             div.d-none.text-center.mb-3(
-              id='resultLoading'
+              id='trainingLoading'
             )
               .spinner-border.text-primary
 
@@ -34,8 +34,8 @@ block view
 
                 input.form-control(
                   type='text'
-                  id='searchResult'
-                  placeholder='Search Event, Program, Team or Medal'
+                  id='searchTraining'
+                  placeholder='Search Event, Program, Team or Session'
                 )
 
             .table-responsive
@@ -45,19 +45,23 @@ block view
                 thead
 
                   tr
-
+                    th Date
+                    th Type
+                    th Athlete / Team
                     th Event
+                    th Occurrence
                     th Program
-                    th Team
-                    th Distance
-                    th Duration
-                    th Avg Speed
+                    th Status
                     th Position
                     th Points
                     th Medal
+                    th Session
+                    th Distance
+                    th Duration
+                    th Avg Speed
                     th Actions
 
-                tbody#resultsTableBody
+                tbody#trainingTableBody
 
             .row.mt-3
 
@@ -65,7 +69,7 @@ block view
 
                 button.btn.btn-secondary(
                   type='button'
-                  id='btnRefreshResults'
+                  id='btnRefreshTraining'
                 )
                   | Refresh
 
@@ -87,19 +91,19 @@ block view
                   | Next
 
   .modal.fade(
-    id='resultModal'
+    id='competitionResultModal'
     tabindex='-1'
     aria-hidden='true'
   )
 
-    .modal-dialog.modal-lg
+    .modal-dialog.modal-xl
 
       .modal-content
 
         .modal-header
 
           h5.modal-title
-            | Race Result
+            | Race Results
 
           button.btn-close(
             type='button'
@@ -125,25 +129,84 @@ block view
 
             .col-md-4
 
-              label.form-label Program / Discipline
+              label.form-label Event Occurrence
+
+              select.form-select(
+                id='eventInstanceId'
+              )
+
+                option(value='')
+                  | Select Occurrence
+
+            .col-md-12
+
+              label.form-label Competition Participants
+
+              .mt-2.competition-group-options
+
+                .form-check.form-check-inline
+
+                  input.form-check-input(
+                    type='radio'
+                    name='competitionType'
+                    id='competitionTypeIndividual'
+                    value='INDIVIDUAL'
+                  )
+
+                  label.form-check-label(
+                    for='competitionTypeIndividual'
+                  )
+                    | Individual
+
+                .form-check.form-check-inline
+
+                  input.form-check-input(
+                    type='radio'
+                    name='competitionType'
+                    id='competitionTypeTeam'
+                    value='TEAM'
+                    checked
+                  )
+
+                  label.form-check-label(
+                    for='competitionTypeTeam'
+                  )
+                    | Team
+
+            .col-md-4
+
+              label.form-label Program
 
               select.form-select(
                 id='programId'
               )
 
-                option(value='') Select Event First
+                option(value='')
+                  | Select Program
 
             .col-md-4
 
-              label.form-label Team
+              label.form-label Participant
 
               select.form-select(
                 id='participantId'
               )
 
-                option(value='') Select Program First
+                option(value='')
+                  | Select Participant
 
             .col-md-4
+
+              label.form-label Participant Status
+
+              select.form-select(
+                id='participantStatusId'
+              )
+
+                option(value='')
+                  | Select Status
+
+            .col-md-3
 
               label.form-label Competition Date
 
@@ -152,7 +215,67 @@ block view
                 id='competitionDate'
               )
 
-            .col-md-4
+            .col-md-3
+
+              label.form-label Competition Week
+
+              input.form-control(
+                type='text'
+                id='competitionWeek'
+              )
+
+            .col-md-3
+
+              label.form-label Competition Day
+
+              input.form-control(
+                type='text'
+                id='competitionDay'
+              )
+
+            .col-md-3
+
+              label.form-label County
+
+              select.form-select(
+                id='countyId'
+                disabled
+              )
+
+                option(value='')
+                  | Select County
+
+            .col-md-3
+
+              label.form-label Subcounty
+
+              select.form-select(
+                id='subcountyId'
+                disabled
+              )
+
+                option(value='')
+                  | Select Subcounty
+
+            .col-md-3
+
+              label.form-label Town
+
+              input.form-control(
+                id='townName'
+                readonly
+              )
+
+            .col-md-3
+
+              label.form-label Session Type
+
+              input.form-control(
+                id='sessionType'
+                readonly
+              )
+
+            .col-md-3
 
               label.form-label Start Time
 
@@ -161,7 +284,7 @@ block view
                 id='startTime'
               )
 
-            .col-md-4
+            .col-md-3
 
               label.form-label End Time
 
@@ -170,7 +293,7 @@ block view
                 id='endTime'
               )
 
-            .col-md-4
+            .col-md-3
 
               label.form-label Duration (Minutes)
 
@@ -180,20 +303,57 @@ block view
                 readonly
               )
 
-            .col-md-4
+            .col-md-3
+
+              label.form-label Position
+
+              input.form-control(
+                type='number'
+                id='position'
+                min='1'
+              )
+
+            .col-md-3
+
+              label.form-label Points
+
+              input.form-control(
+                type='number'
+                id='points'
+              )
+
+            .col-md-3
+
+              label.form-label Medal
+
+              input.form-control(
+                id='medal'
+                readonly
+              )
+
+            .col-md-3
+
+              label.form-label Max Speed
+
+              input.form-control(
+                type='number'
+                step='0.01'
+                id='maxSpeedKmh'
+              )
+
+            .col-md-3
 
               label.form-label Distance (KM)
 
               input.form-control(
                 type='number'
-                min='0'
                 step='0.01'
                 id='distanceKm'
               )
 
             .col-md-4
 
-              label.form-label Average Speed (KM/H)
+              label.form-label Average Speed
 
               input.form-control(
                 type='number'
@@ -203,47 +363,44 @@ block view
 
             .col-md-4
 
-              label.form-label Maximum Speed (KM/H)
+              label.form-label Indoor Session
 
-              input.form-control(
-                type='number'
-                min='0'
-                step='0.01'
-                id='maxSpeedKmh'
+              select.form-select(
+                id='indoorSession'
               )
+
+                option(value='false') No
+                option(value='true') Yes
 
             .col-md-4
 
-              label.form-label Position
+              label.form-label Attendance
 
-              input.form-control(
-                type='number'
-                min='1'
-                id='position'
+              select.form-select(
+                id='attendance'
               )
 
-            .col-md-4
-
-              label.form-label Points
-
-              input.form-control(
-                type='number'
-                min='0'
-                id='points'
-              )
+                option(value='true') Present
+                option(value='false') Absent
 
             .col-md-12
 
-              label.form-label Medal
+              label.form-label Notes
 
-              input.form-control(
-                id='medal'
-                readonly
+              textarea.form-control(
+                rows='3'
+                id='notes'
               )
 
-          .mt-3.text-danger(
-            id='resultFormError'
-          )
+          .mt-3
+
+            .alert.alert-danger.d-none(
+              id='trainingFormError'
+            )
+
+            .alert.alert-success.d-none(
+              id='trainingFormSuccess'
+            )
 
         .modal-footer
 
@@ -255,12 +412,12 @@ block view
 
           button.btn.btn-success(
             type='button'
-            id='btnSaveResult'
+            id='btnsaveCompetitionResult'
           )
             | Save Result
 
   .modal.fade(
-    id='deleteResultModal'
+    id='deleteCompetitionResultModal'
     tabindex='-1'
     aria-hidden='true'
   )
@@ -272,7 +429,7 @@ block view
         .modal-header
 
           h5.modal-title
-            | Delete Result
+            | Delete Race Result
 
           button.btn-close(
             type='button'
@@ -286,7 +443,7 @@ block view
 
           input(
             type='hidden'
-            id='deleteResultId'
+            id='deleteresultId'
           )
 
         .modal-footer
@@ -299,9 +456,9 @@ block view
 
           button.btn.btn-danger(
             type='button'
-            id='btnConfirmDeleteResult'
+            id='btnConfirmdeleteCompetitionResult'
           )
-            | Delete Result
+            | Delete Competition Result
 
 append pageScripts
 

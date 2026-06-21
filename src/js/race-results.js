@@ -1,55 +1,265 @@
 ﻿/* global coreui */
+/* eslint camelcase: 0 */
+/* eslint-disable no-console */
 /* eslint-disable no-alert */
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 10
 
-let currentPage = 1;
+const db =
+  window.supabaseClient
 
-let results = [];
-let filteredResults = [];
+let competitionResults = []
 
-let events = [];
+let filteredcompetitionResults = []
 
-let programs = [];
+let events = []
 
-let participants = [];
+let programs = []
+let occurrences = []
+let participants = []
+let participantStatuses = []
+let towns = []
+let counties = []
+let selectedParticipantStatus = ''
+let subcounties = []
+let currentPage = 1
 
-let resultModal = null;
-let deleteResultModal = null;
-const db = window.supabaseClient;
+const competitionResultLoading =
+  document.getElementById(
+    'trainingLoading'
+  )
 
-const $ = id => document.getElementById(id);
-function getMedal(position) {
-  const pos = Number(position);
+const competitionResultFormError =
+  document.getElementById(
+    'competitionResultFormError'
+  )
 
-  if (pos === 1) return 'Gold';
-  if (pos === 2) return 'Silver';
-  if (pos === 3) return 'Bronze';
+const competitionResultTableBody =
+  document.getElementById(
+    'trainingTableBody'
+  )
 
-  return '';
+const searchTraining =
+  document.getElementById(
+    'searchTraining'
+  )
+
+const paginationInfo =
+  document.getElementById(
+    'paginationInfo'
+  )
+
+function showLoading() {
+
+  competitionResultLoading
+    ?.classList.remove(
+      'd-none'
+    )
+
 }
 
+function hideLoading() {
+
+  competitionResultLoading
+    ?.classList.add(
+      'd-none'
+    )
+
+}
+
+async function loadParticipantStatuses() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'status_master'
+      )
+      .select(`
+        status_id,
+        status_name,
+        status_code
+      `)
+      .eq(
+        'entity_type',
+        'PARTICIPANT'
+      )
+      .order(
+        'status_name'
+      )
+
+  if (
+    error
+  ) {
+    throw error
+  }
+
+  participantStatuses =
+    data || []
+
+  const select =
+    document.getElementById(
+      'participantStatusId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Status
+      </option>
+    `
+
+  participantStatuses.forEach(
+    status => {
+
+      select.innerHTML += `
+        <option value="${status.status_id}">
+          ${status.status_name}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+
+function showError(message) {
+
+  if (
+    !competitionResultFormError
+  ) {
+    return
+  }
+
+  competitionResultFormError.textContent =
+    message
+
+  competitionResultFormError.classList.remove(
+    'd-none'
+  )
+
+  setTimeout(
+    () => {
+
+      competitionResultFormError.classList.add(
+        'd-none'
+      )
+
+    },
+    5000
+  )
+
+}
+function showSuccess(message) {
+
+  const successBox =
+    document.getElementById(
+      'trainingFormSuccess'
+    )
+
+  if (
+    successBox
+  ) {
+
+    successBox.textContent =
+      message
+
+    successBox.classList.remove(
+      'd-none'
+    )
+
+    setTimeout(
+      () => {
+
+        successBox.classList.add(
+          'd-none'
+        )
+
+      },
+      3000
+    )
+  }
+
+}
+
+
+function clearError() {
+
+  if (
+    competitionResultFormError
+  ) {
+
+    competitionResultFormError.textContent = ''
+
+  }
+
+}
+
+function getValue(id) {
+
+  return (
+    document.getElementById(id)
+      ?.value || ''
+  )
+
+}
+
+function setValue(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(id)
+
+  if (!element) {
+    return
+  }
+
+  element.value =
+    value === null ||
+    value === undefined
+      ? ''
+      : String(value)
+
+}
 function calculateDuration() {
 
   const start =
-    $('startTime').value;
+    getValue(
+      'startTime'
+    )
 
   const end =
-    $('endTime').value;
+    getValue(
+      'endTime'
+    )
 
-  if (!start || !end) {
-    return;
+  if (
+    !start ||
+    !end
+  ) {
+    return
   }
 
   const startDate =
     new Date(
       `1970-01-01T${start}`
-    );
+    )
 
   const endDate =
     new Date(
       `1970-01-01T${end}`
-    );
+    )
 
   const minutes =
     Math.round(
@@ -57,14 +267,18 @@ function calculateDuration() {
         endDate -
         startDate
       ) / 60000
-    );
+    )
 
-  if (minutes >= 0) {
+  if (
+    minutes >= 0
+  ) {
 
-    $('durationMinutes').value =
-      minutes;
+    setValue(
+      'durationMinutes',
+      minutes
+    )
 
-    calculateAverageSpeed();
+    calculateAverageSpeed()
   }
 }
 
@@ -72,80 +286,124 @@ function calculateAverageSpeed() {
 
   const distance =
     Number(
-      $('distanceKm').value
-    );
+      getValue(
+        'distanceKm'
+      )
+    )
 
   const duration =
     Number(
-      $('durationMinutes').value
-    );
+      getValue(
+        'durationMinutes'
+      )
+    )
 
   if (
     !distance ||
     !duration
   ) {
 
-    $('avgSpeedKmh').value =
-      '';
+    setValue(
+      'avgSpeedKmh',
+      ''
+    )
 
-    return;
+    return
   }
 
   const speed =
     distance /
-    (duration / 60);
+    (duration / 60)
 
-  $('avgSpeedKmh').value =
-    speed.toFixed(2);
+  setValue(
+    'avgSpeedKmh',
+    speed.toFixed(2)
+  )
+}
+async function loadCompetitionEvents() {
+
+ const {
+  data: category,
+  error: categoryError
+} =
+  await db
+    .from(
+      'event_category_master'
+    )
+    .select(
+      'event_category_id'
+    )
+    .eq(
+      'category_code',
+      'COMPETITION'
+    )
+    .single()
+
+if (
+  categoryError
+) {
+
+  throw categoryError
 }
 
-function showLoading() {
-  $('resultLoading').classList.remove('d-none');
-}
-
-function hideLoading() {
-  $('resultLoading').classList.add('d-none');
-}
-async function loadEvents() {
-
-  const { data, error } = await db
-    .from('events')
-.select(`
-  event_id,
-  event_name
-`)
-.eq(
-  'event_category',
-  'COMPETITION'
-)
-.order(
-  'event_name'
-)
+const {
+  data,
+  error
+} =
+  await db
+    .from(
+      'events'
+    )
+    .select(`
+      event_id,
+      event_name
+    `)
+    .eq(
+      'event_category_id',
+      category.event_category_id
+    )
+      .order(
+        'event_name'
+      )
 
   if (error) {
-    console.error(error);
-    return;
+    throw error
   }
 
-  events = data || [];
+  events =
+    data || []
 
-  $('eventId').innerHTML =
-    '<option value="">Select Event</option>';
+  const select =
+    document.getElementById(
+      'eventId'
+    )
 
-  events.forEach(event => {
+  if (!select) {
+    return
+  }
 
-    $('eventId').insertAdjacentHTML(
-      'beforeend',
-      `
-      <option value="${event.event_id}">
+  select.innerHTML =
+    `
+    <option value="">
+      Select Event
+    </option>
+    `
+
+  for (
+    const event
+    of events
+  ) {
+
+    select.innerHTML += `
+      <option
+        value="${event.event_id}"
+      >
         ${event.event_name}
       </option>
-      `
-    );
+    `
+  }
 
-  });
 }
-
 async function loadPrograms(
   eventId
 ) {
@@ -166,10 +424,6 @@ async function loadPrograms(
         'event_id',
         eventId
       )
-      .eq(
-        'program_type',
-        'COMPETITION'
-      )
 
   if (error) {
     throw error
@@ -178,33 +432,47 @@ async function loadPrograms(
   programs =
     data || []
 
-  $('programId').innerHTML =
+  const select =
+    document.getElementById(
+      'programId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
     `
     <option value="">
       Select Program
     </option>
     `
 
-  programs.forEach(
-    program => {
+  for (
+    const program
+    of programs
+  ) {
 
-      $('programId')
-        .insertAdjacentHTML(
-          'beforeend',
-          `
-          <option value="${program.program_id}">
-            ${program.program_name}
-          </option>
-          `
-        )
-
-    }
-  )
+    select.innerHTML += `
+      <option
+        value="${program.program_id}"
+      >
+        ${program.program_name}
+      </option>
+    `
+  }
 
 }
-async function loadParticipants(
-  programId
+
+async function loadOccurrences(
+  eventId
 ) {
+
+  if (
+    !eventId
+  ) {
+    return
+  }
 
   const {
     data,
@@ -212,21 +480,131 @@ async function loadParticipants(
   } =
     await db
       .from(
-        'event_participants'
+        'event_instances'
       )
       .select(`
-  participant_id,
-  team_id,
-  program_id,
+        event_instance_id,
+        event_area,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
+        county_id,
+        subcounty_id,
+        town_id,
+        program_id,
 
-  teams(
-    team_name
+        events(
+          event_id,
+          event_type_id,
+
+          event_type_master(
+            event_type_id,
+            event_type_name
+          )
+        ),
+
+        subcounty_master(
+          subcounty_name
+        ),
+
+        town_master(
+          town_name
+        )
+      `)
+      .eq(
+        'event_id',
+        eventId
+      )
+      .order(
+        'start_date'
+      )
+
+  if (
+    error
+  ) {
+    throw error
+  }
+
+  occurrences =
+    data || []
+
+  const select =
+    document.getElementById(
+      'eventInstanceId'
+    )
+
+  if (
+    !select
+  ) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Occurrence
+      </option>
+    `
+
+  occurrences.forEach(
+    occurrence => {
+
+      select.innerHTML += `
+        <option
+          value="${occurrence.event_instance_id}"
+        >
+          ${occurrence.event_area}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+async function loadParticipants(
+occurrenceId,  
+programId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+  .from(
+    'participant_instances'
+  )
+  .select(`
+  participant_instance_id,
+  participant_ref_id,
+  participant_status_id,
+
+  participant_registry(
+    participant_ref_id,
+    source_id,
+    display_name,
+
+    participant_type_master(
+      participant_type_code
+    )
+  ),
+
+  status_master(
+    status_id,
+    status_code,
+    status_name
   )
 `)
-      .eq(
-        'program_id',
-        programId
-      )
+  .eq(
+    'event_instance_id',
+    occurrenceId
+  )
+  .eq(
+    'program_id',
+    programId
+  )
 
   if (error) {
     throw error
@@ -235,25 +613,249 @@ async function loadParticipants(
   participants =
     data || []
 
-  $('participantId').innerHTML =
+  const select =
+    document.getElementById(
+      'participantId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
     `
     <option value="">
       Select Participant
     </option>
     `
 
-  participants.forEach(
-    participant => {
+  for (
+  const participant
+  of participants
+) {
 
-      $('participantId')
-        .insertAdjacentHTML(
-          'beforeend',
-          `
-          <option value="${participant.participant_id}">
-            ${participant.teams?.team_name || ''}
-          </option>
-          `
-        )
+  const selectedType =
+    document.querySelector(
+      'input[name="competitionType"]:checked'
+    )?.value
+
+  const participantType =
+    participant
+      .participant_registry
+      ?.participant_type_master
+      ?.participant_type_code
+
+  if (
+    selectedType ===
+    'TEAM'
+    &&
+    participantType !==
+    'TEAM'
+  ) {
+    continue
+  }
+
+  if (
+    selectedType ===
+    'INDIVIDUAL'
+    &&
+    participantType !==
+    'ATHLETE'
+  ) {
+    continue
+  }
+
+  select.innerHTML += `
+    <option
+      value="${participant.participant_instance_id}"
+    >
+      ${
+        participant
+          .participant_registry
+          ?.display_name || ''
+      }
+    </option>
+  `
+}
+applyParticipantStatusRules()
+}
+
+
+
+function applyParticipantStatusRules() {
+
+  const statusId =
+    getValue(
+      'participantStatusId'
+    )
+
+  const status =
+    participantStatuses.find(
+      row =>
+        row.status_id ===
+        statusId
+    )
+
+  selectedParticipantStatus =
+    status
+      ?.status_code
+      ?.toUpperCase() || ''
+
+  const metricsAllowed =
+    selectedParticipantStatus ===
+    'PARTICIPATED'
+
+  const distanceField =
+    document.getElementById(
+      'distanceKm'
+    )
+
+  if (
+    distanceField
+  ) {
+
+    distanceField.disabled =
+      !metricsAllowed
+
+    if (
+      !metricsAllowed
+    ) {
+
+      distanceField.value = ''
+
+      setValue(
+        'avgSpeedKmh',
+        ''
+      )
+
+      setValue(
+        'durationMinutes',
+        ''
+      )
+
+    }
+
+  }
+
+}
+
+
+
+
+async function loadCounties() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'county_master'
+      )
+      .select(`
+        county_id,
+        county_name
+      `)
+      .order(
+        'county_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  counties =
+    data || []
+
+  const select =
+    document.getElementById(
+      'countyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select County
+    </option>
+    `
+
+  counties.forEach(
+    county => {
+
+      select.innerHTML += `
+        <option
+          value="${county.county_id}"
+        >
+          ${county.county_name}
+        </option>
+      `
+
+    }
+  )
+
+}
+
+async function loadSubcounties(
+  countyId
+) {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'subcounty_master'
+      )
+      .select(`
+        subcounty_id,
+        subcounty_name
+      `)
+      .eq(
+        'county_id',
+        countyId
+      )
+      .order(
+        'subcounty_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  subcounties =
+    data || []
+
+  const select =
+    document.getElementById(
+      'subcountyId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+    <option value="">
+      Select Subcounty
+    </option>
+    `
+
+  subcounties.forEach(
+    subcounty => {
+
+      select.innerHTML += `
+        <option
+          value="${subcounty.subcounty_id}"
+        >
+          ${subcounty.subcounty_name}
+        </option>
+      `
 
     }
   )
@@ -261,742 +863,1809 @@ async function loadParticipants(
 }
 
 
-async function loadResults() {
+async function loadTowns(
+  subcountyId
+) {
 
-  showLoading();
-
-  const { data, error } = await db
-    .from('race_results')
-    .select(`
-  result_id,
-  event_id,
-  team_id,
-  participant_id,
-  competition_date,
-  start_time,
-  end_time,
-  duration_minutes,
-  distance_km,
-  avg_speed_kmh,
-  max_speed_kmh,
-  position,
-  points,
-  medal,
-
-  events (
-    event_name
-  ),
-
-  teams (
-    team_name
-  ),
-
-  event_participants (
-    participant_id,
-    program_id,
-
-    event_programs (
-      program_name
-    )
-  )
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+  'town_master'
+)
+.select(`
+  town_id,
+  town_name,
+  subcounty_id
 `)
-    .order('position');
-
-  hideLoading();
+.eq(
+  'subcounty_id',
+  subcountyId
+)
+.order(
+  'town_name'
+)
 
   if (error) {
-    console.error(error);
-    return;
+    throw error
   }
 
-  results = data || [];
-  filteredResults = [...results];
+  towns =
+    data || []
 
-  renderResults();
+  const datalist =
+    document.getElementById(
+      'townList'
+    )
+
+  if (!datalist) {
+    return
+  }
+
+  datalist.innerHTML = ''
+
+  towns.forEach(
+    town => {
+
+      datalist.innerHTML += `
+        <option value="${town.town_name}">
+      `
+
+    }
+  )
+
 }
-function renderResults() {
+
+async function loadcompetitionResults() {
+
+  try {
+
+    showLoading()
+
+    const {
+      data,
+      error
+    } =
+      await db
+  .from(
+    'race_results'
+  )
+  .select(`
+  *,
+
+  town_master(
+    town_name
+  ),
+
+  
+
+ participant_instances(
+
+  participant_instance_id,
+
+  program_id,
+
+  event_instance_id,
+
+  participant_registry(
+    participant_ref_id,
+    display_name,
+
+    participant_type_master(
+      participant_type_code
+    )
+  ),
+
+  event_programs(
+    program_id,
+    program_name
+  ),
+
+  event_instances(
+    event_instance_id,
+    event_area,
+
+    events(
+      event_name
+    )
+  ),
+
+  status_master(
+    status_code
+  )
+)
+`)
+        .order(
+          'competition_date',
+          {
+            ascending: false
+          }
+        )
+
+    if (error) {
+      throw error
+    }
+
+    competitionResults =
+      data || []
+
+    filteredcompetitionResults =
+      [...competitionResults]
+
+    rendercompetitionResults()
+
+  } catch (error) {
+
+    console.error(error)
+
+    showError(
+  'Failed to load competition results'
+)
+
+  } finally {
+
+    hideLoading()
+
+  }
+
+}
+function rendercompetitionResults() {
+
+  if (
+    !trainingTableBody
+  ) {
+    return
+  }
 
   const start =
-    (currentPage - 1) * PAGE_SIZE;
+    (
+      currentPage - 1
+    ) * PAGE_SIZE
 
-  const pageData =
-    filteredResults.slice(
+  const end =
+    start + PAGE_SIZE
+
+  const pageRows =
+    filteredcompetitionResults.slice(
       start,
-      start + PAGE_SIZE
-    );
+      end
+    )
 
-  $('resultsTableBody').innerHTML = '';
+  trainingTableBody.innerHTML =
+    ''
 
-  pageData.forEach(result => {
+  if (
+    pageRows.length === 0
+  ) {
 
-    $('resultsTableBody').insertAdjacentHTML(
-      'beforeend',
+    trainingTableBody.innerHTML =
       `
       <tr>
-
-        <td>
-  ${result.events?.event_name || ''}
-</td>
-
-<td>
-  ${
-    result.event_participants
-      ?.event_programs
-      ?.program_name || ''
-  }
-</td>
-
-<td>
-  ${result.teams?.team_name || ''}
-</td>
-
-<td>
-  ${result.distance_km || ''}
-</td>
-
-<td>
-  ${result.duration_minutes || ''}
-</td>
-
-<td>
-  ${result.avg_speed_kmh || ''}
-</td>
-
-<td>
-  ${result.position || ''}
-</td>
-
-<td>
-  ${result.points || 0}
-</td>
-
-        <td>
-          ${result.medal || ''}
+        <td
+          colspan="15"
+          class="text-center"
+        >
+          No Training Records Found
         </td>
-
-        <td>
-
-          <button
-            class="btn btn-sm btn-primary me-1"
-            onclick="editResult('${result.result_id}')"
-          >
-            Edit
-          </button>
-
-          <button
-            class="btn btn-sm btn-danger"
-            onclick="deleteResult('${result.result_id}')"
-          >
-            Delete
-          </button>
-
-        </td>
-
       </tr>
       `
-    );
 
-  });
+    updatePagination()
+
+    return
+  }
+
+  for (
+  const competitionResult
+  of pageRows
+) {
+
+  const type =
+    competitionResult
+      .participant_instances
+      ?.participant_registry
+      ?.participant_type_master
+      ?.participant_type_code || ''
+
+  const participantName =
+    competitionResult
+      .participant_instances
+      ?.participant_registry
+      ?.display_name || ''
+
+  const eventName =
+    competitionResult
+      .participant_instances
+      ?.event_instances
+      ?.events
+      ?.event_name || ''
+
+  const occurrence =
+    competitionResult
+      .participant_instances
+      ?.event_instances
+      ?.event_area || ''
+
+  const program =
+    competitionResult
+      .participant_instances
+      ?.event_programs
+      ?.program_name || ''
+
+  const status =
+    competitionResult
+      .participant_instances
+      ?.status_master
+      ?.status_code || ''
+
+  const session =
+    competitionResult.session_type || ''
+
+  const position =
+    competitionResult.position ?? ''
+
+  const points =
+    competitionResult.points ?? ''
+
+  const medal =
+    competitionResult.medal ?? ''
+
+  competitionResultTableBody.innerHTML += `
+    <tr>
+
+      <td>${competitionResult.competition_date || ''}</td>
+      <td>${type}</td>
+      <td>${participantName}</td>
+      <td>${eventName}</td>
+      <td>${occurrence}</td>
+      <td>${program}</td>
+      <td>${status}</td>
+      <td>${position}</td>
+      <td>${points}</td>
+      <td>${medal}</td>
+      <td>${session}</td>
+      <td>${competitionResult.distance_km ?? ''}</td>
+      <td>${competitionResult.duration_minutes ?? ''}</td>
+      <td>${competitionResult.avg_speed_kmh ?? ''}</td>
+
+      <td>
+
+        <button
+          class="btn btn-sm btn-warning me-1"
+          onclick="editCompetitionResult('${competitionResult.result_id}')"
+        >
+          Edit
+        </button>
+
+        <button
+          class="btn btn-sm btn-danger"
+          onclick="confirmdeleteCompetitionResult('${competitionResult.result_id}')"
+        >
+          Delete
+        </button>
+
+      </td>
+
+    </tr>
+  `
+}
+
+  updatePagination()
+
+}
+
+
+function updatePagination() {
 
   const totalPages =
     Math.max(
       1,
       Math.ceil(
-        filteredResults.length / PAGE_SIZE
+        filteredcompetitionResults.length /
+        PAGE_SIZE
       )
-    );
-
-  $('paginationInfo').textContent =
-    `Page ${currentPage} of ${totalPages}`;
-}
-function searchResults() {
-
-  const search =
-    (
-      $('searchResult')?.value || ''
     )
-      .trim()
-      .toLowerCase();
 
-  if (!search) {
+  if (
+    paginationInfo
+  ) {
 
-    filteredResults =
-      [...results];
-
-  } else {
-
-    filteredResults =
-      results.filter(result =>
-
-        (
-          result.events?.event_name || ''
-        )
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (
-          result.teams?.team_name || ''
-        )
-          .toLowerCase()
-          .includes(search)
-
-        ||
-
-        (
-          result.medal || ''
-        )
-          .toLowerCase()
-          .includes(search)
-
-      );
+    paginationInfo.textContent =
+      `Page ${currentPage} of ${totalPages}`
 
   }
 
-  currentPage = 1;
+  const previousButton =
+    document.getElementById(
+      'btnPreviousPage'
+    )
 
-  renderResults();
+  const nextButton =
+    document.getElementById(
+      'btnNextPage'
+    )
+
+  if (
+    previousButton
+  ) {
+
+    previousButton.disabled =
+      currentPage <= 1
+
+  }
+
+  if (
+    nextButton
+  ) {
+
+    nextButton.disabled =
+      currentPage >= totalPages
+
+  }
+
 }
-async function saveResult() {
+
+function searchcompetitionResults() {
+
+  const search =
+    (
+      searchTraining?.value || ''
+    )
+      .trim()
+      .toLowerCase()
+
+  filteredcompetitionResults =
+
+    search ?
+
+      competitionResults.filter(
+  competitionResult => {
+
+    return (
+
+      (
+        competitionResult
+          .participant_instances
+          ?.participant_registry
+          ?.display_name || ''
+      )
+        .toLowerCase()
+        .includes(search)
+
+      ||
+
+      (
+        competitionResult
+          .participant_instances
+          ?.event_instances
+          ?.events
+          ?.event_name || ''
+      )
+        .toLowerCase()
+        .includes(search)
+
+      ||
+
+      (
+        competitionResult
+          .participant_instances
+          ?.event_programs
+          ?.program_name || ''
+      )
+        .toLowerCase()
+        .includes(search)
+
+      ||
+
+      (
+        competitionResult.session_type || ''
+      )
+        .toLowerCase()
+        .includes(search)
+
+      ||
+
+      (
+        competitionResult.notes || ''
+      )
+        .toLowerCase()
+        .includes(search)
+
+    )
+
+  }
+)
+      :
+
+      [...competitionResults]
+
+  currentPage = 1
+
+  rendercompetitionResults()
+
+}
+function clearTrainingForm() {
+
+  clearError()
+
+  setValue(
+    'resultId',
+    ''
+  )
+
+  setValue(
+  'eventId',
+  ''
+)
+
+setValue(
+  'programId',
+  ''
+)
+setValue(
+  'eventInstanceId',
+  ''
+)
+setValue(
+  'participantId',
+  ''
+)
+
+  setValue(
+    'sessionType',
+    ''
+  )
+  
+setValue(
+  'position',
+  ''
+)
+
+setValue(
+  'points',
+  ''
+)
+
+setValue(
+  'medal',
+  ''
+)
+
+setValue(
+  'maxSpeedKmh',
+  ''
+)
+
+  setValue(
+  'startTime',
+  ''
+)
+
+setValue(
+  'endTime',
+  ''
+)
+
+setValue(
+  'avgSpeedKmh',
+  ''
+)
+
+setValue(
+  'indoorSession',
+  'false'
+)
+
+  setValue(
+    'distanceKm',
+    ''
+  )
+
+  setValue(
+    'durationMinutes',
+    ''
+  )
+
+  setValue(
+    'notes',
+    ''
+  )
+
+  setValue(
+    'attendance',
+    'true'
+  )
+setValue(
+  'competitionWeek',
+  ''
+)
+
+setValue(
+  'competitionDay',
+  ''
+)
+  setValue(
+    'competitionDate',
+    new Date()
+      .toISOString()
+      .split('T')[0]
+  )
+
+}
+function openNewTrainingModal() {
+
+  clearTrainingForm()
+
+  const modal =
+    new coreui.Modal(
+      document.getElementById(
+        'competitionResultModal'
+      )
+    )
+
+  modal.show()
+
+}
+function validateTraining() {
+
+  clearError()
+
+  if (
+    !getValue(
+      'competitionDate'
+    )
+  ) {
+
+    showError(
+      'Competition Date is required'
+    )
+
+    return false
+  }
+
+  if (
+  !getValue(
+    'programId'
+  )
+) {
+
+  showError(
+    'Program is required'
+  )
+
+  return false
+
+}
+
+if (
+  !getValue(
+    'participantId'
+  )
+) {
+
+  showError(
+    'Participant is required'
+  )
+
+  return false
+
+}
+{
+
+  showError(
+    'Participant is required'
+  )
+
+  return false
+
+}
+  if (
+    !getValue(
+      'sessionType'
+    )
+  ) {
+
+    showError(
+      'Session Type is required'
+    )
+
+    return false
+  }
+
+
+  if (
+    getValue(
+      'attendance'
+    ) === ''
+  ) {
+
+    showError(
+      'Attendance is required'
+    )
+
+    return false
+  }
+if (
+  selectedParticipantStatus ===
+  'PARTICIPATED'
+) {
+
+  if (
+    !getValue(
+      'distanceKm'
+    )
+  ) {
+
+    showError(
+      'Distance is required'
+    )
+
+    return false
+  }
+
+  if (
+    !getValue(
+      'durationMinutes'
+    )
+  ) {
+
+    showError(
+      'Duration is required'
+    )
+
+    return false
+  }
+}
+  return true
+
+}
+
+
+async function saveCompetitionResult() {
 
   try {
 
-    const resultId =
-      $('resultId').value;
-
-    const eventId =
-      $('eventId').value;
+    if (
+      !validateTraining()
+    ) {
+      return
+    }
 
     const participantId =
-  $('participantId').value;
+      getValue(
+        'participantId'
+      )
 
-const participant =
+    const participant =
   participants.find(
     p =>
-      p.participant_id ===
+      p.participant_instance_id ===
       participantId
-  );
-
-if (!participant) {
-
-  throw new Error(
-    'Participant is required'
-  );
-
-}
-
-    const position =
-      Number(
-        $('position').value
-      );
-
-   const competitionDate =
-  $('competitionDate').value;
-
-const startTime =
-  $('startTime').value;
-
-const endTime =
-  $('endTime').value;
-
-const durationMinutes =
-  Number(
-    $('durationMinutes').value
-  );
-
-const distanceKm =
-  Number(
-    $('distanceKm').value
-  );
-
-const avgSpeedKmh =
-  Number(
-    $('avgSpeedKmh').value
-  );
-
-const maxSpeedKmh =
-  Number(
-    $('maxSpeedKmh').value
-  );
-
-    const points =
-      Number(
-        $('points').value || 0
-      );
-
-    if (!eventId) {
-  throw new Error(
-    'Event is required'
-  );
-}
-
-if (!participantId) {
-  throw new Error(
-    'Team is required'
-  );
-}
-
-if (!competitionDate) {
-
-  throw new Error(
-    'Competition Date is required'
-  );
-
-}
-
-if (!startTime) {
-
-  throw new Error(
-    'Start Time is required'
-  );
-
-}
-
-if (!endTime) {
-
-  throw new Error(
-    'End Time is required'
-  );
-
-}
-
-if (!distanceKm) {
-
-  throw new Error(
-    'Distance is required'
-  );
-
-}
-
-if (!position) {
-  throw new Error(
-    'Position is required'
-  );
-}
-
-    const duplicateQuery =
-  db
-    .from('race_results')
-    .select('result_id')
-    .eq(
-      'event_id',
-      eventId
-    )
-    .eq(
-      'team_id',
-      participant.team_id
-    );
-
-    if (resultId) {
-      duplicateQuery.neq(
-        'result_id',
-        resultId
-      );
-    }
-
-    const {
-      data: duplicates,
-      error: duplicateError
-    } = await duplicateQuery;
-
-    if (duplicateError) {
-      throw duplicateError;
-    }
+  )
 
     if (
-      duplicates &&
-      duplicates.length
+      !participant
     ) {
 
       throw new Error(
-        'Team already has a result for this event'
-      );
+        'Please select a valid participant'
+      )
+
+    }
+
+    const selectedStatus =
+      participantStatuses.find(
+        row =>
+          row.status_id ===
+          getValue(
+            'participantStatusId'
+          )
+      )
+
+    const statusCode =
+      selectedStatus
+        ?.status_code
+        ?.toUpperCase() || ''
+
+    const metricsAllowed = [
+
+      'PARTICIPATED',
+      'DISQUALIFIED',
+      'DID_NOT_COMPLETE'
+
+    ].includes(
+      statusCode
+    )
+
+    const competitionType =
+      document.querySelector(
+        'input[name="competitionType"]:checked'
+      )?.value
+
+    const occurrence =
+  occurrences.find(
+    row =>
+      row.event_instance_id ===
+      getValue(
+        'eventInstanceId'
+      )
+  )
+
+if (
+  !occurrence
+) {
+
+  throw new Error(
+    'Occurrence not found'
+  )
+
+}
+
+    const selectedStatusId =
+      getValue(
+        'participantStatusId'
+      )
+
+    if (
+      participant?.participant_instance_id &&
+      selectedStatusId
+    ) {
+
+      const {
+        error: statusError
+      } =
+        await db
+          .from(
+            'participant_instances'
+          )
+          .update({
+
+            participant_status_id:
+              selectedStatusId
+
+          })
+          .eq(
+            'participant_instance_id',
+            participant.participant_instance_id
+          )
+
+      if (
+        statusError
+      ) {
+        throw statusError
+      }
 
     }
 
     const payload = {
 
-  event_id:
-    eventId,
+      town_id:
+  occurrence.town_id || null,
 
-participant_id:
-  participantId,
+      competition_date:
+        getValue(
+          'competitionDate'
+        ),
+
+      competition_week:
+        getValue(
+          'competitionWeek'
+        ),
+
+      competition_day:
+        getValue(
+          'competitionDay'
+        ),
+
+      start_time:
+        getValue(
+          'startTime'
+        ),
+
+      end_time:
+        getValue(
+          'endTime'
+        ),
+
+      avg_speed_kmh:
+
+        metricsAllowed
+
+          ?
+
+          Number(
+            getValue(
+              'avgSpeedKmh'
+            )
+          )
+
+          :
+
+          null,
+
+      indoor_session:
+        getValue(
+          'indoorSession'
+        ) === 'true',
+
+      participant_id:
+  participant.participant_ref_id,
+
+      participant_instance_id:
+  participant
+    ?.participant_instance_id || null,
+
+event_id:
+  getValue(
+    'eventId'
+  ),
+
+event_instance_id:
+  getValue(
+    'eventInstanceId'
+  ),
+
+program_id:
+  getValue(
+    'programId'
+  ),
 
 team_id:
-  participant.team_id,
 
-  competition_date:
-    competitionDate,
+  competitionType ===
+  'TEAM'
 
-  start_time:
-    startTime,
+    ?
 
-  end_time:
-    endTime,
+    participant
+      .participant_registry
+      ?.source_id
 
-  duration_minutes:
-    durationMinutes,
+    :
 
-  distance_km:
-    distanceKm,
+    null,
 
-  avg_speed_kmh:
-    avgSpeedKmh,
+athlete_id:
 
-  max_speed_kmh:
-    maxSpeedKmh,
+  competitionType ===
+  'INDIVIDUAL'
 
-  position:
-    position,
+    ?
 
-  points:
-    points
-};
+    participant
+      .participant_registry
+      ?.source_id
 
-    let error;
+    :
 
-    if (resultId) {
+    null,
+     participant_source_id:
+
+  participant
+    ?.participant_registry
+    ?.source_id || null,
+
+      session_type:
+        getValue(
+          'sessionType'
+        ),
+
+     distance_km:
+
+  metricsAllowed
+
+    ?
+
+    Number(
+      getValue(
+        'distanceKm'
+      )
+    )
+
+    :
+
+    null,
+
+duration_minutes:
+
+  metricsAllowed
+
+    ?
+
+    Number(
+      getValue(
+        'durationMinutes'
+      )
+    )
+
+    :
+
+    null,
+
+position:
+  Number(
+    getValue(
+      'position'
+    )
+  ) || null,
+
+points:
+  Number(
+    getValue(
+      'points'
+    )
+  ) || 0,
+
+medal:
+  getValue(
+    'medal'
+  ),
+
+max_speed_kmh:
+  Number(
+    getValue(
+      'maxSpeedKmh'
+    )
+  ) || null,
+
+      attendance:
+        getValue(
+          'attendance'
+        ) === 'true',
+
+      notes:
+        getValue(
+          'notes'
+        )
+
+    }
+
+    const resultId =
+      getValue(
+        'resultId'
+      )
+
+    let error
+
+    if (
+      resultId
+    ) {
 
       const response =
         await db
-          .from('race_results')
-          .update(payload)
+          .from(
+            'race_results'
+          )
+          .update(
+            payload
+          )
           .eq(
             'result_id',
             resultId
-          );
+          )
 
       error =
-        response.error;
+        response.error
 
     } else {
 
       const response =
         await db
-          .from('race_results')
-          .insert(payload);
+          .from(
+            'race_results'
+          )
+          .insert(
+            payload
+          )
 
       error =
-        response.error;
+        response.error
+
     }
 
-    if (error) {
-      throw error;
+    if (
+      error
+    ) {
+      throw error
     }
+
+    await db.rpc(
+      'rebuild_competition_rankings'
+    )
 
     coreui.Modal
       .getInstance(
-        $('resultModal')
+        document.getElementById(
+          'competitionResultModal'
+        )
       )
-      ?.hide();
+      ?.hide()
 
-    await loadResults();
+    await loadcompetitionResults()
 
-  } catch (error) {
+    showSuccess(
+      resultId
+  ? 'Competition Result Updated'
+  : 'Competition Result Saved'
+    )
 
-    console.error(error);
+  } catch (
+    error
+  ) {
 
-    $('resultFormError').textContent =
-      error.message;
+    console.error(
+      error
+    )
+
+    console.error(
+  'RACE RESULT SAVE',
+  error
+)
+
+showError(
+  JSON.stringify(error)
+)
+
   }
+
 }
-window.editResult =
+window.editCompetitionResult =
 async function (
   resultId
 ) {
 
-  const result =
-    results.find(
+  const competitionResult =
+    competitionResults.find(
       item =>
         item.result_id ===
         resultId
-    );
+    )
 
-  if (!result) {
-    return;
+  if (
+    !competitionResult
+  ) {
+    return
   }
 
-  $('resultFormError').textContent =
-    '';
+  clearError()
 
-  $('resultId').value =
-    result.result_id;
+  setValue(
+    'resultId',
+    competitionResult.result_id
+  )
 
-  $('eventId').value =
-    result.event_id;
+  setValue(
+    'competitionDate',
+    competitionResult.competition_date
+  )
+
+  setValue(
+    'eventId',
+    competitionResult.event_id
+  )
+
+  await loadOccurrences(
+    competitionResult.event_id
+  )
+
+  setValue(
+    'eventInstanceId',
+    competitionResult
+      .participant_instances
+      ?.event_instance_id || ''
+  )
 
   await loadPrograms(
-  result.event_id
-)
+    competitionResult.event_id
+  )
 
-const {
-  data: participantRecord,
-  error: participantError
-} =
-  await db
-    .from(
-      'event_participants'
-    )
-    .select(`
-      participant_id,
-      team_id,
-      program_id
-    `)
-    .eq(
-      'participant_id',
-      result.participant_id
-    )
-    .single()
+  setValue(
+    'programId',
+    competitionResult
+      .participant_instances
+      ?.program_id || ''
+  )
 
-if (
-  participantError
-) {
-  throw participantError
-}
+  await loadParticipants(
+    competitionResult
+      .participant_instances
+      ?.event_instance_id,
+    competitionResult
+      .participant_instances
+      ?.program_id
+  )
 
-$('programId').value =
-  participantRecord.program_id
+  const participantType =
+    competitionResult
+      .participant_instances
+      ?.participant_registry
+      ?.participant_type_master
+      ?.participant_type_code
 
-await loadParticipants(
-  participantRecord.program_id
-)
+  if (
+    participantType === 'TEAM'
+  ) {
 
-$('participantId').value =
-  participantRecord.participant_id
+    document.getElementById(
+      'competitionTypeTeam'
+    ).checked = true
 
-  $('position').value =
-    result.position || '';
+  } else {
 
+    document.getElementById(
+      'competitionTypeIndividual'
+    ).checked = true
 
-
-  $('points').value =
-    result.points || '';
-   $('competitionDate').value =
-  result.competition_date || '';
-
-$('startTime').value =
-  result.start_time || '';
-
-$('endTime').value =
-  result.end_time || '';
-
-$('durationMinutes').value =
-  result.duration_minutes || '';
-
-$('distanceKm').value =
-  result.distance_km || '';
-
-$('avgSpeedKmh').value =
-  result.avg_speed_kmh || '';
-
-$('maxSpeedKmh').value =
-  result.max_speed_kmh || '';
-  $('medal').value =
-    getMedal(
-      result.position
-    );
-
-  if (!resultModal) {
-
-    resultModal =
-      new coreui.Modal(
-        $('resultModal')
-      );
   }
 
-  resultModal.show();
-};
-window.deleteResult =
+  setValue(
+    'participantId',
+    competitionResult.participant_id
+  )
+
+  setValue(
+    'participantStatusId',
+    competitionResult
+      .participant_instances
+      ?.participant_status_id || ''
+  )
+
+  applyParticipantStatusRules()
+
+  setValue(
+    'startTime',
+    competitionResult.start_time
+  )
+
+  setValue(
+    'endTime',
+    competitionResult.end_time
+  )
+
+  setValue(
+    'avgSpeedKmh',
+    competitionResult.avg_speed_kmh
+  )
+
+  setValue(
+    'indoorSession',
+    competitionResult.indoor_session
+      ? 'true'
+      : 'false'
+  )
+
+  setValue(
+    'sessionType',
+    competitionResult.session_type
+  )
+
+  setValue(
+    'distanceKm',
+    competitionResult.distance_km
+  )
+
+  setValue(
+    'position',
+    competitionResult.position
+  )
+
+  setValue(
+    'points',
+    competitionResult.points
+  )
+
+  setValue(
+    'medal',
+    competitionResult.medal
+  )
+
+  setValue(
+    'maxSpeedKmh',
+    competitionResult.max_speed_kmh
+  )
+
+  setValue(
+    'competitionWeek',
+    competitionResult.competition_week
+  )
+
+  setValue(
+    'competitionDay',
+    competitionResult.competition_day
+  )
+
+  setValue(
+    'durationMinutes',
+    competitionResult.duration_minutes
+  )
+
+  setValue(
+    'attendance',
+    competitionResult.attendance
+      ? 'true'
+      : 'false'
+  )
+
+  setValue(
+    'notes',
+    competitionResult.notes
+  )
+
+  const modal =
+    new coreui.Modal(
+      document.getElementById(
+        'competitionResultModal'
+      )
+    )
+
+  modal.show()
+
+}
+  
+window.confirmdeleteCompetitionResult =
 function (
   resultId
 ) {
 
-  $('deleteResultId').value =
-    resultId;
+  setValue(
+    'deleteresultId',
+    resultId
+  )
 
-  if (
-    !deleteResultModal
-  ) {
+  const modal =
+    new coreui.Modal(
+      document.getElementById(
+        'deleteCompetitionResultModal'
+      )
+    )
 
-    deleteResultModal =
-      new coreui.Modal(
-        $('deleteResultModal')
-      );
+  modal.show()
+
+}
+
+function getMedal(
+  position
+) {
+
+  const pos =
+    Number(position)
+
+  if (pos === 1) {
+    return 'Gold'
   }
 
-  deleteResultModal.show();
-};
+  if (pos === 2) {
+    return 'Silver'
+  }
 
-async function confirmDeleteResult() {
+  if (pos === 3) {
+    return 'Bronze'
+  }
+
+  return ''
+
+}
+
+document
+  .getElementById(
+    'position'
+  )
+  ?.addEventListener(
+    'input',
+    e => {
+
+      setValue(
+        'medal',
+        getMedal(
+          e.target.value
+        )
+      )
+
+    }
+  )
+
+async function deleteCompetitionResult() {
 
   try {
 
     const resultId =
-      $('deleteResultId').value;
+      getValue(
+        'deleteresultId'
+      )
 
-    const { error } =
+    const {
+      error
+    } =
       await db
-        .from('race_results')
+        .from(
+          'race_results'
+        )
         .delete()
         .eq(
           'result_id',
           resultId
-        );
+        )
 
-    if (error) {
-      throw error;
+    if (
+      error
+    ) {
+      throw error
     }
 
-    deleteResultModal?.hide();
+    await db.rpc(
+      'rebuild_competition_rankings'
+    )
 
-    await loadResults();
+    coreui.Modal
+      .getInstance(
+        document.getElementById(
+          'deleteCompetitionResultModal'
+        )
+      )
+      ?.hide()
 
-  } catch (error) {
+    await loadcompetitionResults()
 
-    console.error(error);
+  } catch (
+    error
+  ) {
 
-    alert(
-      error.message
-    );
+    console.error(
+      error
+    )
+
+    showError(
+  error.message
+)
+
   }
+
 }
-function wireButtons() {
+function wireEvents() {
 
-  $('searchResult')
-    ?.addEventListener(
-      'input',
-      searchResults
-    );
-
-  $('btnRefreshResults')
-    ?.addEventListener(
-      'click',
-      loadResults
-    );
-   $('startTime')
+  document
+  .getElementById(
+    'participantStatusId'
+  )
   ?.addEventListener(
     'change',
-    calculateDuration
-  );
+    applyParticipantStatusRules
+  )
 
-$('endTime')
-  ?.addEventListener(
-    'change',
-    calculateDuration
-  );
-
-$('distanceKm')
-  ?.addEventListener(
-    'input',
-    calculateAverageSpeed
-  );
-  $('btnSaveResult')
+document
+    .getElementById(
+      'eventInstanceId'
+    )
     ?.addEventListener(
-      'click',
-      saveResult
-    );
+      'change',
+      async () => {
 
-  $('btnConfirmDeleteResult')
-    ?.addEventListener(
-      'click',
-      confirmDeleteResult
-    );
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
 
-  $('btnAddResult')
-    ?.addEventListener(
-      'click',
-      () => {
-
-        $('resultId').value = '';
-
-        $('eventId').value = '';
-
-        $('programId').innerHTML =
-`
-<option value="">
-  Select Event First
-</option>
-`;
-
-$('participantId').innerHTML =
-`
-<option value="">
-  Select Program First
-</option>
-`;
-
-        $('position').value = '';
-
-        $('competitionDate').value = '';
-
-$('startTime').value = '';
-
-$('endTime').value = '';
-
-$('durationMinutes').value = '';
-
-$('distanceKm').value = '';
-
-$('avgSpeedKmh').value = '';
-
-$('maxSpeedKmh').value = '';
-
-        $('points').value = '';
-
-        $('medal').value = '';
-
-        $('resultFormError').textContent =
-          '';
-
-        if (!resultModal) {
-
-          resultModal =
-            new coreui.Modal(
-              $('resultModal')
-            );
+        if (
+          !occurrenceId
+        ) {
+          return
         }
 
-        resultModal.show();
+        const occurrence =
+          occurrences.find(
+            row =>
+              row.event_instance_id ===
+              occurrenceId
+          )
+
+        if (
+          !occurrence
+        ) {
+          return
+        }
+
+        // Program
+
+        if (
+          occurrence.program_id
+        ) {
+
+          setValue(
+            'programId',
+            occurrence.program_id
+          )
+
+        }
+
+        // Date & Time
+
+        setValue(
+          'competitionDate',
+          occurrence.start_date
+        )
+
+        setValue(
+          'startTime',
+          occurrence.start_time
+        )
+
+        setValue(
+          'endTime',
+          occurrence.end_time
+        )
+
+        // Location
+
+        setValue(
+          'countyId',
+          occurrence.county_id
+        )
+
+        await loadSubcounties(
+          occurrence.county_id
+        )
+
+        setValue(
+          'subcountyId',
+          occurrence.subcounty_id
+        )
+
+        await loadTowns(
+          occurrence.subcounty_id
+        )
+
+        setValue(
+          'townName',
+          occurrence
+            .town_master
+            ?.town_name || ''
+        )
+  setValue(
+  'sessionType',
+  occurrence
+    ?.events
+    ?.event_type_master
+    ?.event_type_name || ''
+)
+        // Duration
+
+        calculateDuration()
+
+        // Week & Day
+
+        const date =
+          new Date(
+            occurrence.start_date
+          )
+
+        setValue(
+          'competitionDay',
+          date.toLocaleDateString(
+            'en-US',
+            {
+              weekday: 'long'
+            }
+          )
+        )
+
+        const week =
+          Math.ceil(
+            date.getDate() / 7
+          )
+
+        const month =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              month: 'long'
+            }
+          )
+
+        setValue(
+          'competitionWeek',
+          `${month} Week ${week} ${date.getFullYear()}`
+        )
+
+        // Participants
+
+        
+
       }
-    );
+    )
 
- $('eventId')
-  ?.addEventListener(
-    'change',
-    async event => {
+  document
+    .getElementById(
+      'competitionDate'
+    )
+    ?.addEventListener(
+      'change',
+      e => {
 
-      await loadPrograms(
-        event.target.value
-      );
+        const date =
+          new Date(
+            e.target.value
+          )
 
-    }
-  );
+        const dayName =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              weekday: 'long'
+            }
+          )
 
-$('programId')
-  ?.addEventListener(
-    'change',
-    async event => {
+        setValue(
+          'competitionDay',
+          dayName
+        )
 
-      await loadParticipants(
-        event.target.value
-      );
+        const monthName =
+          date.toLocaleDateString(
+            'en-US',
+            {
+              month: 'long'
+            }
+          )
 
-    }
-  );
-  $('position')
+        const year =
+          date.getFullYear()
+
+        const weekNumber =
+          Math.ceil(
+            date.getDate() / 7
+          )
+
+        setValue(
+          'competitionWeek',
+          `${monthName} Week ${weekNumber} ${year}`
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'countyId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        setValue(
+          'subcountyId',
+          ''
+        )
+
+        await loadSubcounties(
+          e.target.value
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'subcountyId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        await loadTowns(
+          e.target.value
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'btnAddTraining'
+    )
+    ?.addEventListener(
+      'click',
+      openNewTrainingModal
+    )
+
+  document
+    .getElementById(
+      'btnsaveCompetitionResult'
+    )
+    ?.addEventListener(
+      'click',
+      saveCompetitionResult
+    )
+
+  document
+    .getElementById(
+      'startTime'
+    )
+    ?.addEventListener(
+      'change',
+      calculateDuration
+    )
+
+  document
+    .getElementById(
+      'endTime'
+    )
+    ?.addEventListener(
+      'change',
+      calculateDuration
+    )
+
+  document
+    .getElementById(
+      'distanceKm'
+    )
     ?.addEventListener(
       'input',
-      event => {
+      calculateAverageSpeed
+    )
 
-        $('medal').value =
-          getMedal(
-            event.target.value
-          );
+  document
+    .getElementById(
+      'eventId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        setValue(
+          'programId',
+          ''
+        )
+
+        setValue(
+          'participantId',
+          ''
+        )
+
+        setValue(
+          'eventInstanceId',
+          ''
+        )
+
+        await Promise.all([
+          loadPrograms(
+            e.target.value
+          ),
+          loadOccurrences(
+            e.target.value
+          )
+        ])
+
       }
-    );
+    )
 
-  $('btnPreviousPage')
+  document
+    .getElementById(
+      'programId'
+    )
+    ?.addEventListener(
+      'change',
+      async e => {
+
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
+
+        if (
+          !occurrenceId
+        ) {
+          return
+        }
+
+        setValue(
+          'participantId',
+          ''
+        )
+
+        await loadParticipants(
+          occurrenceId,
+          e.target.value
+        )
+
+      }
+    )
+
+  document
+    .getElementById(
+      'competitionTypeIndividual'
+    )
+    ?.addEventListener(
+      'change',
+      async () => {
+
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
+
+        const programId =
+          getValue(
+            'programId'
+          )
+
+        if (
+          occurrenceId &&
+          programId
+        ) {
+
+          await loadParticipants(
+            occurrenceId,
+            programId
+          )
+
+        }
+
+      }
+    )
+
+  document
+    .getElementById(
+      'competitionTypeTeam'
+    )
+    ?.addEventListener(
+      'change',
+      async () => {
+
+        const occurrenceId =
+          getValue(
+            'eventInstanceId'
+          )
+
+        const programId =
+          getValue(
+            'programId'
+          )
+
+        if (
+          occurrenceId &&
+          programId
+        ) {
+
+          await loadParticipants(
+            occurrenceId,
+            programId
+          )
+
+        }
+
+      }
+    )
+
+  document
+    .getElementById(
+      'btnRefreshTraining'
+    )
+    ?.addEventListener(
+      'click',
+      loadcompetitionResults
+    )
+
+  document
+    .getElementById(
+      'btnConfirmdeleteCompetitionResult'
+    )
+    ?.addEventListener(
+      'click',
+      deleteCompetitionResult
+    )
+
+  searchTraining
+    ?.addEventListener(
+      'input',
+      searchcompetitionResults
+    )
+
+  document
+    .getElementById(
+      'btnPreviousPage'
+    )
     ?.addEventListener(
       'click',
       () => {
@@ -1005,67 +2674,126 @@ $('programId')
           currentPage > 1
         ) {
 
-          currentPage--;
+          currentPage--
 
-          renderResults();
+          rendercompetitionResults()
+
         }
-      }
-    );
 
-  $('btnNextPage')
+      }
+    )
+
+  document
+    .getElementById(
+      'btnNextPage'
+    )
     ?.addEventListener(
       'click',
       () => {
 
         const totalPages =
-          Math.ceil(
-            filteredResults.length /
-            PAGE_SIZE
-          );
+          Math.max(
+            1,
+            Math.ceil(
+              filteredcompetitionResults.length /
+              PAGE_SIZE
+            )
+          )
 
         if (
           currentPage <
           totalPages
         ) {
 
-          currentPage++;
+          currentPage++
 
-          renderResults();
+          rendercompetitionResults()
+
         }
+
       }
-    );
+    )
+
 }
-async function initializeRaceResults() {
+async function initializecompetitionResults() {
 
   try {
 
-    resultModal =
-      new coreui.Modal(
-        $('resultModal')
-      );
+    await loadCompetitionEvents()
 
-    deleteResultModal =
-      new coreui.Modal(
-        $('deleteResultModal')
-      );
+await loadCounties()
 
-    await loadEvents();
+await loadcompetitionResults()
 
-    await loadResults();
+await loadParticipantStatuses()
+    
 
-    wireButtons();
+    wireEvents()
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
 
-    console.error(error);
+    console.error(
+      error
+    )
 
-    alert(
-      error.message
-    );
+    showError(
+  error.message
+)
+
   }
+
 }
+document
+  .getElementById('startTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById('endTime')
+  ?.addEventListener(
+    'change',
+    calculateDuration
+  )
+
+document
+  .getElementById('distanceKm')
+  ?.addEventListener(
+    'input',
+    calculateAverageSpeed
+  )
 
 document.addEventListener(
   'DOMContentLoaded',
-  initializeRaceResults
-);
+  initializecompetitionResults
+)
+document
+  .getElementById(
+    'participantId'
+  )
+  ?.addEventListener(
+    'change',
+    () => {
+
+      const participant =
+  participants.find(
+    row =>
+      row.participant_instance_id ===
+      getValue(
+        'participantId'
+      )
+  )
+
+      setValue(
+        'participantStatusId',
+        participant
+          ?.participant_status_id || ''
+      )
+
+      applyParticipantStatusRules()
+
+    }
+  )

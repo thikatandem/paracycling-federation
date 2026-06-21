@@ -26,6 +26,8 @@ let selectedParticipants = []
 
 let participantRegistrations = []
 
+let pendingDeleteIds = []
+
 let currentPage = 1
 
 const pageSize = 10
@@ -179,6 +181,74 @@ function showError(
   }
 }
 
+
+function showDeleteConfirmation(
+  participantInstanceId = null,
+  participantInstanceIds = []
+) {
+
+  pendingDeleteIds =
+    participantInstanceId
+      ? [participantInstanceId]
+      : participantInstanceIds
+
+  document.getElementById(
+    'deleteRegistrationMessage'
+  ).textContent =
+    pendingDeleteIds.length === 1
+      ? 'Remove this participant from the selected event?'
+      : `Remove ${pendingDeleteIds.length} selected participants from this event?`
+
+  coreui.Modal
+    .getOrCreateInstance(
+      document.getElementById(
+        'deleteRegistrationModal'
+      )
+    )
+    .show()
+}
+
+
+function toggleBulkDeleteButton() {
+
+  const button =
+    document.getElementById(
+      'btnBulkDelete'
+    )
+
+  if (
+    !button
+  ) {
+
+    return
+  }
+
+  const checked =
+    document.querySelectorAll(
+      '.registration-check:checked'
+    ).length
+button.classList.toggle(
+  'd-none',
+  checked === 0
+)
+
+const text =
+  document.getElementById(
+    'bulkDeleteText'
+  )
+
+if (
+  text
+) {
+
+  text.textContent =
+    checked === 1
+      ? 'Remove 1 Selected Participant'
+      : `Remove ${checked} Selected Participants`
+}
+}
+
+
 async function initializeParticipants() {
 
   try {
@@ -284,6 +354,24 @@ document
     bulkStatusUpdate
   )
 
+
+document
+  .getElementById(
+    'btnConfirmDelete'
+  )
+  ?.addEventListener(
+    'click',
+    confirmDeleteRegistrations
+  )
+
+document
+  .getElementById(
+    'btnBulkDelete'
+  )
+  ?.addEventListener(
+    'click',
+    bulkDeleteRegistrations
+  )
 }
 
 
@@ -1258,7 +1346,7 @@ Object.values(
 
       <tr class="group-row">
 
-        <td colspan="12">
+        <td colspan="13">
 
           <strong>
             ${group.eventName}
@@ -1283,6 +1371,17 @@ Object.values(
         tbody.innerHTML += `
 
           <tr>
+
+            <td>
+
+              <input
+  type="checkbox"
+  class="registration-check"
+  value="${registration.participant_instance_id}"
+  onchange="toggleBulkDeleteButton()"
+>
+
+            </td>
 
             <td>
               ${
@@ -1311,36 +1410,36 @@ Object.values(
             </td>
 
             <td>
-  ${
-    registration
-      .event_instances
-      ?.start_date || ''
-  }
-</td>
+              ${
+                registration
+                  .event_instances
+                  ?.start_date || ''
+              }
+            </td>
 
             <td>
-  ${
-    registration
-      .event_instances
-      ?.start_time || ''
-  }
-</td>
-
-           <td>
-  ${
-    registration
-      .event_instances
-      ?.end_date || ''
-  }
-</td>
+              ${
+                registration
+                  .event_instances
+                  ?.start_time || ''
+              }
+            </td>
 
             <td>
-  ${
-    registration
-      .event_instances
-      ?.end_time || ''
-  }
-</td>
+              ${
+                registration
+                  .event_instances
+                  ?.end_date || ''
+              }
+            </td>
+
+            <td>
+              ${
+                registration
+                  .event_instances
+                  ?.end_time || ''
+              }
+            </td>
 
             <td>
               ${
@@ -1381,18 +1480,14 @@ Object.values(
                 class="btn btn-sm btn-primary me-1"
                 onclick="editRegistration('${registration.participant_instance_id}')"
               >
-
                 Edit
-
               </button>
 
               <button
                 class="btn btn-sm btn-danger"
                 onclick="deleteRegistration('${registration.participant_instance_id}')"
               >
-
-                Delete
-
+                Remove
               </button>
 
             </td>
@@ -1404,6 +1499,7 @@ Object.values(
   }
 )
  renderPagination()
+toggleBulkDeleteButton()
 
 }
 
@@ -2000,6 +2096,35 @@ function exportPdf() {
   window.print()
 }
 
+function bulkDeleteRegistrations() {
+
+  const selectedIds =
+    [
+      ...document.querySelectorAll(
+        '.registration-check:checked'
+      )
+    ].map(
+      checkbox => checkbox.value
+    )
+
+  if (
+    selectedIds.length === 0
+  ) {
+
+    showError(
+      'Please select at least one participant to remove.'
+    )
+
+    return
+  }
+
+  showDeleteConfirmation(
+    null,
+    selectedIds
+  )
+}
+
+
 
 async function bulkStatusUpdate() {
 
@@ -2138,63 +2263,91 @@ if (
   )
 }
 
+async function confirmDeleteRegistrations() {
+
+  try {
+
+    const {
+      error
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'participant_instances'
+        )
+        .delete()
+        .in(
+          'participant_instance_id',
+          pendingDeleteIds
+        )
+
+    if (
+      error
+    ) {
+
+      throw error
+    }
+
+    await loadRegistrations()
+
+    showSuccess(
+      pendingDeleteIds.length === 1
+        ? 'Participant removed from the event successfully.'
+        : `${pendingDeleteIds.length} participants removed from the event successfully.`
+    )
+
+    coreui.Modal
+      .getOrCreateInstance(
+        document.getElementById(
+          'deleteRegistrationModal'
+        )
+      )
+      .hide()
+
+  } catch (
+    error
+  ) {
+
+    showError(
+      error.message
+    )
+  }
+}
+
 
 window.deleteRegistration =
   async function (
     participantInstanceId
   ) {
 
-    try {
+    showDeleteConfirmation(
+      participantInstanceId
+    )
+  }
 
-      const confirmed =
-        confirm(
-          'Delete Registration?'
-        )
 
-      if (
-        !confirmed
-      ) {
+window.toggleBulkDeleteButton =
+  function () {
 
-        return
-      }
-
-      const {
-        error
-      } =
-        await window
-          .supabaseClient
-          .from(
-            'participant_instances'
-          )
-          .delete()
-          .eq(
-            'participant_instance_id',
-            participantInstanceId
-          )
-
-      if (
-        error
-      ) {
-
-        throw error
-      }
-
-      await loadRegistrations()
-
-      showSuccess(
-        'Registration Deleted'
+    const button =
+      document.getElementById(
+        'btnBulkDelete'
       )
 
-    } catch (
-      error
+    if (
+      !button
     ) {
 
-      console.error(
-        error
-      )
-
-      showError(
-        error.message
-      )
+      return
     }
+
+    const checked =
+      document.querySelectorAll(
+        '.registration-check:checked'
+      ).length
+
+    button.classList.toggle(
+      'd-none',
+      checked === 0
+    )
   }

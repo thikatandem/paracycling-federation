@@ -57,6 +57,14 @@ block view
                   i.fa.fa-file-pdf.me-2
                   | PDF
 
+              .col-md-3
+                button.btn.btn-outline-danger.w-100.d-none(
+                  type='button'
+                  id='btnBulkDelete'
+                )
+                  i.fa.fa-trash.me-2
+                  | Remove Selected
+
             .row.mb-3
 
               .col-md-3
@@ -102,7 +110,19 @@ block view
                   .card-body.text-center
                     h3#attendanceRate 0%
                     div Attendance Rate
+            .row.mb-2
 
+              .col-12.text-end
+
+                button.btn.btn-danger.d-none(
+                  type='button'
+                  id='btnBulkDelete'
+                )
+
+                  i.fa.fa-trash.me-2
+
+                  span#bulkDeleteText
+                    | Remove Selected            
             .table-responsive
 
               table.table.table-hover.table-bordered.table-sm(
@@ -110,6 +130,7 @@ block view
               )
                 thead
                   tr
+                    th(style='width:40px') Select
                     th Event Name
                     th Subcounty
                     th Event Area
@@ -340,6 +361,48 @@ block view
             id='btnSaveParticipantRegistration'
           )
             | Save Registration
+
+  .modal.fade(
+    id='deleteRegistrationModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Remove Participants
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          p#deleteRegistrationMessage
+
+          p.text-muted.mb-0
+            | This action removes participants from the selected event only.
+            | Participant records remain in the federation system.
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmDelete'
+          )
+            | Remove
 
 append pageScripts
 

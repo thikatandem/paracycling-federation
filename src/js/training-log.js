@@ -363,9 +363,31 @@ const {
         'event_name'
       )
 
-  if (error) {
-    throw error
-  }
+  const {
+  count
+} =
+  await db
+    .from(
+      'performance'
+    )
+    .select(
+      '*',
+      { count: 'exact', head: true }
+    )
+    .eq(
+      'training_id',
+      trainingId
+    )
+
+if (count > 0) {
+
+  showError(
+    'This training session has already been enhanced with performance data and cannot be deleted. Delete the associated performance record first.'
+  )
+
+  return
+
+}
 
   events =
     data || []
@@ -1256,6 +1278,58 @@ function renderTrainingLogs() {
   updatePagination()
 
 }
+
+
+function updatePagination() {
+
+  const totalPages =
+    Math.max(
+      1,
+      Math.ceil(
+        filteredTrainingLogs.length /
+        PAGE_SIZE
+      )
+    )
+
+  if (
+    paginationInfo
+  ) {
+
+    paginationInfo.textContent =
+      `Page ${currentPage} of ${totalPages}`
+
+  }
+
+  const previousButton =
+    document.getElementById(
+      'btnPreviousPage'
+    )
+
+  const nextButton =
+    document.getElementById(
+      'btnNextPage'
+    )
+
+  if (
+    previousButton
+  ) {
+
+    previousButton.disabled =
+      currentPage <= 1
+
+  }
+
+  if (
+    nextButton
+  ) {
+
+    nextButton.disabled =
+      currentPage >= totalPages
+
+  }
+
+}
+
 function searchTrainingLogs() {
 
   const search =

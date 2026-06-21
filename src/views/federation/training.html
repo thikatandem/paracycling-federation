@@ -372,20 +372,12 @@
                     </div>
                     <div class="row mt-3">
                       <div class="col-md-6">
-                        <button class="btn btn-secondary" type="button" id="btnRefreshTraining">
-                          <Refresh></Refresh>
-                        </button>
+                        <button class="btn btn-secondary" type="button" id="btnRefreshTraining">Refresh</button>
                       </div>
                       <div class="col-md-6 text-end">
-                        <button class="btn btn-outline-primary me-2" type="button" id="btnPreviousPage">
-                          <Previous></Previous>
-                        </button>
-                        <span class="mx-2" id="paginationInfo">
-                          <Page>1</Page>
-                        </span>
-                        <button class="btn btn-outline-primary" type="button" id="btnNextPage">
-                          <Next></Next>
-                        </button>
+                        <button class="btn btn-outline-primary me-2" type="button" id="btnPreviousPage">Previous</button>
+                        <span class="mx-2" id="paginationInfo">Page 1</span>
+                        <button class="btn btn-outline-primary" type="button" id="btnNextPage">Next</button>
                       </div>
                     </div>
                   </div>
@@ -410,58 +402,38 @@
                     <div class="col-md-4">
                       <label class="form-label">Event Occurrence</label>
                       <select class="form-select" id="eventInstanceId">
-                        <option value="">
-                          <select>
-                            Occurrence
-                          </select>
-                        </option>
+                        <option value="">Select Occurrence</option>
                       </select>
                     </div>
                     <div class="col-md-12">
                       <label class="form-label">Training Groups</label>
-                      <div class="mt-2">
+                      <div class="mt-2 training-group-options">
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="trainingType" id="trainingTypeIndividual" value="INDIVIDUAL">
-                          <label class="form-check-label" for="trainingTypeIndividual">
-                            <Individual></Individual>
-                          </label>
+                          <label class="form-check-label" for="trainingTypeIndividual">Individual</label>
                         </div>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="trainingType" id="trainingTypeTeam" value="TEAM" checked>
-                          <label class="form-check-label" for="trainingTypeTeam">
-                            <Team></Team>
-                          </label>
+                          <label class="form-check-label" for="trainingTypeTeam">Team</label>
                         </div>
                       </div>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Program</label>
                       <select class="form-select" id="programId">
-                        <option value="">
-                          <select>
-                            Program
-                          </select>
-                        </option>
+                        <option value="">Select Program</option>
                       </select>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Participant</label>
                       <select class="form-select" id="participantId">
-                        <option value="">
-                          <select>
-                            Participant
-                          </select>
-                        </option>
+                        <option value="">Select Participant</option>
                       </select>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Participant Status</label>
                       <select class="form-select" id="participantStatusId">
-                        <option value="">
-                          <select>
-                            Status
-                          </select>
-                        </option>
+                        <option value="">Select Status</option>
                       </select>
                     </div>
                     <div class="col-md-3">
@@ -479,21 +451,13 @@
                     <div class="col-md-3">
                       <label class="form-label">County</label>
                       <select class="form-select" id="countyId" disabled>
-                        <option value="">
-                          <select>
-                            County
-                          </select>
-                        </option>
+                        <option value="">Select County</option>
                       </select>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Subcounty</label>
                       <select class="form-select" id="subcountyId" disabled>
-                        <option value="">
-                          <select>
-                            Subcounty
-                          </select>
-                        </option>
+                        <option value="">Select Subcounty</option>
                       </select>
                     </div>
                     <div class="col-md-3">
@@ -549,12 +513,8 @@
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">
-                    <Cancel></Cancel>
-                  </button>
-                  <button class="btn btn-success" type="button" id="btnSaveTraining">
-                    <Save>Training</Save>
-                  </button>
+                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Cancel</button>
+                  <button class="btn btn-success" type="button" id="btnSaveTraining">Save Training</button>
                 </div>
               </div>
             </div>
@@ -567,18 +527,12 @@
                   <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                  <p>
-                    <Are>you sure you want to delete this training record?</Are>
-                  </p>
+                  <p>Are you sure you want to delete this training record?</p>
                   <input type="hidden" id="deleteTrainingId">
                 </div>
                 <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">
-                    <Cancel></Cancel>
-                  </button>
-                  <button class="btn btn-danger" type="button" id="btnConfirmDeleteTraining">
-                    <Delete>Training</Delete>
-                  </button>
+                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Cancel</button>
+                  <button class="btn btn-danger" type="button" id="btnConfirmDeleteTraining">Delete Training</button>
                 </div>
               </div>
             </div>
