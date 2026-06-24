@@ -507,8 +507,14 @@ async function loadSourceRecordDetails() {
   distance_km,
   duration_minutes,
   avg_speed_kmh,
-  teams (
+
+  teams(
     team_name
+  ),
+
+  athletes(
+    first_name,
+    last_name
   )
 `)
     .eq(
@@ -525,22 +531,24 @@ async function loadSourceRecordDetails() {
 
     source = data
 
-const teamSelect =
+const participantDisplay =
   document.getElementById(
-    'teamId'
+    'participantDisplay'
   )
 
-if (teamSelect) {
+if (participantDisplay) {
 
-  teamSelect.innerHTML = `
-    <option
-      value="${source.team_id || ''}"
-    >
-      ${source.teams?.team_name || ''}
-    </option>
-  `
+  participantDisplay.value =
 
-  teamSelect.disabled = true
+    source.team_id
+
+      ? source.teams?.team_name || ''
+
+      : source.athlete_id
+
+      ? `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim()
+
+      : ''
 
 }
 
@@ -568,12 +576,12 @@ selectedAthleteId =
 
   } else {
 
-    const {
-  data,
-  error
-} =
-  await db
-    .from('race_results')
+  const {
+    data,
+    error
+  } =
+    await db
+      .from('race_results')
     .select(`
       result_id,
       participant_id,
@@ -585,8 +593,14 @@ selectedAthleteId =
       duration_minutes,
       avg_speed_kmh,
       max_speed_kmh,
+
       teams(
         team_name
+      ),
+
+      athletes(
+        first_name,
+        last_name
       )
     `)
     .eq(
@@ -602,22 +616,24 @@ selectedAthleteId =
     }
 
    source = data
- const teamSelect =
+const participantDisplay =
   document.getElementById(
-    'teamId'
+    'participantDisplay'
   )
 
-if (teamSelect) {
+if (participantDisplay) {
 
-  teamSelect.innerHTML = `
-    <option
-      value="${source.team_id || ''}"
-    >
-      ${source.teams?.team_name || ''}
-    </option>
-  `
+  participantDisplay.value =
 
-  teamSelect.disabled = true
+    source.team_id
+
+      ? source.teams?.team_name || ''
+
+      : source.athlete_id
+
+      ? `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim()
+
+      : ''
 
 }
 
@@ -636,6 +652,11 @@ selectedAthleteId =
 setValue(
   'teamId',
   source.team_id || ''
+)
+
+setValue(
+  'athleteId',
+  source.athlete_id || ''
 )
 
 
@@ -1109,6 +1130,16 @@ if (teamSelect) {
   ''
 )
 
+setValue(
+  'participantDisplay',
+  ''
+) 
+
+setValue(
+  'athleteId',
+  ''
+)
+
   setValue(
     'distanceKm',
     ''
@@ -1485,14 +1516,14 @@ team_id:
     }
 
     if (
-      !payload.team_id
-    ) {
+  !payload.participant_instance_id
+) {
 
-      throw new Error(
-        'Team could not be resolved from selected participant'
-      )
+  throw new Error(
+    'Participant instance is required.'
+  )
 
-    }
+}
 
     let error
 
@@ -1929,26 +1960,7 @@ document
     handleSourceChange
   )
 
- document
-  .getElementById(
-    'teamId'
-  )
-  ?.addEventListener(
-    'change',
-    event => {
-
-      selectedTeamId =
-        event.target.value
-
-      const option =
-        event.target.selectedOptions[0]
-
-      selectedParticipantId =
-        option?.dataset
-          ?.participant || null
-
-    }
-  )
+ 
 
   document
     .getElementById(

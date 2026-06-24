@@ -165,14 +165,23 @@ block view
 
             .col-md-3
 
-              label.form-label Team
+              label.form-label Participant
 
-              select.form-select(
-                id='teamId'
-                
+              input.form-control(
+                type='text'
+                id='participantDisplay'
+                readonly
               )
-               option(value='')
-                 | Select Team
+
+              input(
+                type='hidden'
+                id='teamId'
+              )
+
+              input(
+                type='hidden'
+                id='athleteId'
+              )
 
             .col-md-3
 
