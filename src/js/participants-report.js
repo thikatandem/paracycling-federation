@@ -364,49 +364,43 @@ async function loadParticipationData() {
       error
     } =
      await window.supabaseClient
-  .from(
-    'event_participants'
-  )
-  .select(`
-    *,
+  .from('participant_instances')
+.select(`
+  participant_instance_id,
+  participant_ref_id,
+  registration_date,
+  participant_status_id,
+  program_id,
+
+  status_master(
+    status_id,
+    status_name
+  ),
+
+  event_programs(
+    program_id,
+    program_name
+  ),
+
+  event_instances(
+    event_instance_id,
+    event_id,
+
     events(
       event_id,
-      event_name,
-      start_date,
-      end_date
-    ),
-    status_master(
-      status_id,
-      status_name
-    ),
-    event_programs(
-      program_id,
-      program_name
-    ),
-    teams(
-      team_id,
-      team_code,
-      team_name,
-      pilot_athlete_id,
-      stoker_athlete_id,
-      pilot:pilot_athlete_id(
-        athlete_id,
-        athlete_code,
-        first_name,
-        last_name,
-        county_id,
-        classification_id
-      ),
-      stoker:stoker_athlete_id(
-        athlete_id,
-        athlete_code,
-        first_name,
-        last_name,
-        county_id,
-        classification_id
-      )
+      event_name
     )
-  `)
+  ),
+
+  participant_registry(
+    participant_ref_id,
+    source_id,
+    display_name,
+    participant_type_master(
+      participant_type_code
+    )
+  )
+`)
     if (error) {
 
       throw error
@@ -460,38 +454,36 @@ function buildSummaryCards() {
   const uniqueEvents =
     new Set()
 
-  const uniqueTeams =
+  const uniqueParticipants =
     new Set()
 
   const uniquePrograms =
     new Set()
 
-  const uniqueAthletes =
-    new Set()
+ 
 
-  const uniqueCounties =
-    new Set()
+  
 
   participationRecords.forEach(
     record => {
 
       if (
-        record.event_id
+       record.event_instances?.events?.event_id
       ) {
 
         uniqueEvents.add(
-          record.event_id
+          record.event_instances?.events?.event_id
         )
       }
 
       if (
-        record.team_id
-      ) {
+  record.participant_ref_id
+) {
 
-        uniqueTeams.add(
-          record.team_id
-        )
-      }
+  uniqueParticipants.add(
+    record.participant_ref_id
+  )
+}
 
       if (
         record.program_id
@@ -502,47 +494,7 @@ function buildSummaryCards() {
         )
       }
 
-      const pilot =
-        record.teams?.pilot
-
-      const stoker =
-        record.teams?.stoker
-
-      if (
-        pilot?.athlete_id
-      ) {
-
-        uniqueAthletes.add(
-          pilot.athlete_id
-        )
-
-        if (
-          pilot.county_id
-        ) {
-
-          uniqueCounties.add(
-            pilot.county_id
-          )
-        }
-      }
-
-      if (
-        stoker?.athlete_id
-      ) {
-
-        uniqueAthletes.add(
-          stoker.athlete_id
-        )
-
-        if (
-          stoker.county_id
-        ) {
-
-          uniqueCounties.add(
-            stoker.county_id
-          )
-        }
-      }
+     
     }
   )
 
@@ -557,14 +509,14 @@ function buildSummaryCards() {
   )
 
   setText(
-    'uniqueTeamsCard',
-    uniqueTeams.size
-  )
+  'uniqueTeamsCard',
+  uniqueParticipants.size
+)
 
   setText(
-    'uniqueAthletesCard',
-    uniqueAthletes.size
-  )
+  'uniqueAthletesCard',
+  uniqueParticipants.size
+)
 
   setText(
     'programsUtilizedCard',
@@ -572,9 +524,9 @@ function buildSummaryCards() {
   )
 
   setText(
-    'countiesRepresentedCard',
-    uniqueCounties.size
-  )
+  'countiesRepresentedCard',
+  '-'
+)
 }
 
 /* =====================================================
@@ -601,7 +553,7 @@ function buildEventAnalysis() {
     record => {
 
       const eventName =
-        record.events?.event_name ||
+        record.event_instances?.events?.event_name ||
         'Unknown Event'
 
       if (!statistics[eventName]) {
@@ -615,11 +567,22 @@ function buildEventAnalysis() {
 
       statistics[eventName].registrations += 1
 
-      if (record.team_id) {
-        statistics[eventName].teams.add(
-          record.team_id
-        )
-      }
+      if (
+  record.participant_ref_id
+) {
+
+  statistics[eventName]
+    .athletes
+    .add(
+      record.participant_ref_id
+    )
+
+  statistics[eventName]
+    .teams
+    .add(
+      record.participant_ref_id
+    )
+}
 
       if (record.program_id) {
         statistics[eventName].programs.add(
@@ -627,23 +590,7 @@ function buildEventAnalysis() {
         )
       }
 
-      const pilot =
-        record.teams?.pilot
-
-      const stoker =
-        record.teams?.stoker
-
-      if (pilot?.athlete_id) {
-        statistics[eventName]
-          .athletes
-          .add(pilot.athlete_id)
-      }
-
-      if (stoker?.athlete_id) {
-        statistics[eventName]
-          .athletes
-          .add(stoker.athlete_id)
-      }
+      
     }
   )
 
@@ -687,31 +634,31 @@ function buildTeamAnalysis() {
   participationRecords.forEach(
     record => {
 
-      const team =
-        record.teams
+      const participant =
+        record.participant_registry
 
       if (
-        !team
+        !participant
       ) {
 
         return
       }
 
+      const participantId =
+        participant.participant_ref_id
+
       if (
         !statistics[
-          team.team_id
+          participantId
         ]
       ) {
 
         statistics[
-          team.team_id
+          participantId
         ] = {
 
-          teamCode:
-            team.team_code,
-
-          teamName:
-            team.team_name,
+          displayName:
+            participant.display_name,
 
           events:
             new Set(),
@@ -720,29 +667,29 @@ function buildTeamAnalysis() {
             new Set(),
 
           latestEvent:
-            '',
-
-          status:
-            'Active'
+            ''
         }
       }
 
       statistics[
-        team.team_id
+        participantId
       ].events.add(
-        record.event_id
+        record.event_instances
+          ?.events
+          ?.event_id
       )
 
       statistics[
-        team.team_id
+        participantId
       ].programs.add(
         record.program_id
       )
 
       statistics[
-        team.team_id
+        participantId
       ].latestEvent =
-        record.events
+        record.event_instances
+          ?.events
           ?.event_name || ''
     }
   )
@@ -754,12 +701,12 @@ function buildTeamAnalysis() {
 
       body.innerHTML += `
         <tr>
-          <td>${item.teamCode || ''}</td>
-          <td>${item.teamName || ''}</td>
+          <td>-</td>
+          <td>${item.displayName}</td>
           <td>${item.events.size}</td>
           <td>${item.programs.size}</td>
           <td>${item.latestEvent}</td>
-          <td>${item.status}</td>
+          <td>Active</td>
         </tr>
       `
     }
@@ -784,86 +731,77 @@ function buildAthleteAnalysis() {
 
   body.innerHTML = ''
 
-  const athletes = {}
+  const participants = {}
 
   participationRecords.forEach(
     record => {
 
-      ;[
-        record.teams?.pilot,
-        record.teams?.stoker
-      ].forEach(
-        athlete => {
+      const participant =
+        record.participant_registry
 
-          if (!athlete) {
+      if (
+        !participant
+      ) {
 
-            return
-          }
+        return
+      }
 
-          if (
-            !athletes[
-              athlete.athlete_id
-            ]
-          ) {
+      const participantId =
+        participant.participant_ref_id
 
-            athletes[
-              athlete.athlete_id
-            ] = {
-              athlete,
-              events: new Set(),
-              programs: new Set()
-            }
-          }
+      if (
+        !participants[
+          participantId
+        ]
+      ) {
 
-          athletes[
-            athlete.athlete_id
-          ].events.add(
-            record.event_id
-          )
+        participants[
+          participantId
+        ] = {
 
-          athletes[
-            athlete.athlete_id
-          ].programs.add(
-            record.program_id
-          )
+          displayName:
+            participant.display_name,
+
+          participantType:
+            participant
+              ?.participant_type_master
+              ?.participant_type_code || '',
+
+          events:
+            new Set(),
+
+          programs:
+            new Set()
         }
+      }
+
+      participants[
+        participantId
+      ].events.add(
+        record.event_instances
+          ?.events
+          ?.event_id
+      )
+
+      participants[
+        participantId
+      ].programs.add(
+        record.program_id
       )
     }
   )
 
   Object.values(
-    athletes
+    participants
   ).forEach(
     item => {
 
-      const athlete =
-        item.athlete
-
       body.innerHTML += `
         <tr>
-          <td>${athlete.athlete_code || ''}</td>
-          <td>
-            ${athlete.first_name || ''}
-            ${athlete.last_name || ''}
-          </td>
-          <td>
-            ${
-              classificationsLookup.find(
-                c =>
-                  c.classification_id ===
-                  athlete.classification_id
-              )?.classification_code || '-'
-            }
-          </td>
-          <td>
-            ${
-              countiesLookup.find(
-                c =>
-                  c.county_id ===
-                  athlete.county_id
-              )?.county_name || '-'
-            }
-          </td>
+          <td>-</td>
+          <td>${item.displayName}</td>
+          <td>${item.participantType}</td>
+          <td>-</td>
           <td>${item.events.size}</td>
           <td>${item.programs.size}</td>
         </tr>
@@ -892,82 +830,51 @@ function buildClassificationAnalysis() {
 
   const statistics = {}
 
-  let totalRegistrations = 0
-
   participationRecords.forEach(
     record => {
 
-      ;[
-        record.teams?.pilot,
-        record.teams?.stoker
-      ].forEach(
-        athlete => {
+      const type =
+        record
+          ?.participant_registry
+          ?.participant_type_master
+          ?.participant_type_code ||
+        'Unknown'
 
-          if (!athlete) {
+      if (
+        !statistics[type]
+      ) {
 
-            return
-          }
+        statistics[type] = {
 
-          const classification =
-            classificationsLookup.find(
-              item =>
-                item.classification_id ===
-                athlete.classification_id
-            )
+          participants:
+            new Set(),
 
-          const code =
-            classification
-              ?.classification_code ||
-            'Unknown'
-
-          if (
-            !statistics[code]
-          ) {
-
-            statistics[code] = {
-
-              athletes:
-                new Set(),
-
-              registrations: 0
-            }
-          }
-
-          statistics[code]
-            .athletes
-            .add(
-              athlete.athlete_id
-            )
-
-          statistics[code]
-            .registrations += 1
-
-          totalRegistrations += 1
+          registrations: 0
         }
-      )
+      }
+
+      statistics[type]
+        .participants
+        .add(
+          record.participant_ref_id
+        )
+
+      statistics[type]
+        .registrations += 1
     }
   )
 
   Object.entries(
     statistics
   ).forEach(
-    ([code, item]) => {
-
-      const percentage =
-        totalRegistrations
-          ? (
-              item.registrations /
-              totalRegistrations *
-              100
-            ).toFixed(1)
-          : 0
+    ([type, item]) => {
 
       body.innerHTML += `
         <tr>
-          <td>${code}</td>
-          <td>${item.athletes.size}</td>
+          <td>${type}</td>
+          <td>${item.participants.size}</td>
           <td>${item.registrations}</td>
-          <td>${percentage}%</td>
+          <td>-</td>
         </tr>
       `
     }
@@ -990,129 +897,16 @@ function buildCountyAnalysis() {
     return
   }
 
-  body.innerHTML = ''
-
-  const statistics = {}
-
-  let totalRegistrations = 0
-
-  participationRecords.forEach(
-    record => {
-
-      ;[
-        record.teams?.pilot,
-        record.teams?.stoker
-      ].forEach(
-        athlete => {
-
-          if (!athlete) {
-
-            return
-          }
-
-          const county =
-            countiesLookup.find(
-              item =>
-                item.county_id ===
-                athlete.county_id
-            )
-
-          const countyName =
-            county?.county_name ||
-            'Unknown'
-
-          if (
-            !statistics[countyName]
-          ) {
-
-            statistics[countyName] = {
-
-              athletes:
-                new Set(),
-
-              teams:
-                new Set(),
-
-              registrations: 0
-            }
-          }
-
-          statistics[countyName]
-            .athletes
-            .add(
-              athlete.athlete_id
-            )
-
-          statistics[countyName]
-            .teams
-            .add(
-              record.team_id
-            )
-
-          statistics[countyName]
-            .registrations += 1
-
-          totalRegistrations += 1
-        }
-      )
-    }
-  )
-
-  Object.entries(
-    statistics
-  )
-    .sort(
-      (
-        a,
-        b
-      ) =>
-        b[1]
-          .registrations -
-        a[1]
-          .registrations
-    )
-    .forEach(
-      (
-        [county, item]
-      ) => {
-
-        const percentage =
-          totalRegistrations
-            ? (
-                item.registrations /
-                totalRegistrations *
-                100
-              ).toFixed(1)
-            : 0
-
-        body.innerHTML += `
-          <tr>
-
-            <td>
-              ${county}
-            </td>
-
-            <td>
-              ${item.athletes.size}
-            </td>
-
-            <td>
-              ${item.teams.size}
-            </td>
-
-            <td>
-              ${item.registrations}
-            </td>
-
-            <td>
-              ${percentage}%
-            </td>
-
-          </tr>
-        `
-      }
-    )
+  body.innerHTML = `
+    <tr>
+      <td colspan="5">
+        County analysis unavailable in Participant Registry architecture.
+      </td>
+    </tr>
+  `
 }
+
+
 /* =====================================================
    PROGRAM ANALYSIS
 ===================================================== */
@@ -1236,86 +1030,36 @@ function applyParticipationSearch() {
       record => {
 
         const eventName =
-          record.events
+          record.event_instances
+            ?.events
             ?.event_name || ''
 
         const programName =
           record.event_programs
             ?.program_name || ''
 
-        const teamCode =
-          record.teams
-            ?.team_code || ''
+        const participantName =
+          record
+            .participant_registry
+            ?.display_name || ''
 
-        const teamName =
-          record.teams
-            ?.team_name || ''
-
-        const pilotName =
-          `
-            ${record.teams?.pilot?.first_name || ''}
-            ${record.teams?.pilot?.last_name || ''}
-          `
-
-        const stokerName =
-          `
-            ${record.teams?.stoker?.first_name || ''}
-            ${record.teams?.stoker?.last_name || ''}
-          `
-
-        const pilotCode =
-          record.teams?.pilot
-            ?.athlete_code || ''
-
-        const stokerCode =
-          record.teams?.stoker
-            ?.athlete_code || ''
+        const participantType =
+          record
+            .participant_registry
+            ?.participant_type_master
+            ?.participant_type_code || ''
 
         const statusName =
           record.status_master
             ?.status_name || ''
-        const countyName =
-  countiesLookup.find(
-    county =>
-      county.county_id ===
-      record.teams?.pilot?.county_id
-  )?.county_name ||
 
-  countiesLookup.find(
-    county =>
-      county.county_id ===
-      record.teams?.stoker?.county_id
-  )?.county_name ||
-
-  ''
-
-const classificationCode =
-  classificationsLookup.find(
-    classification =>
-      classification.classification_id ===
-      record.teams?.pilot?.classification_id
-  )?.classification_code ||
-
-  classificationsLookup.find(
-    classification =>
-      classification.classification_id ===
-      record.teams?.stoker?.classification_id
-  )?.classification_code ||
-
-  ''
         const searchableText =
           `
             ${eventName}
             ${programName}
-            ${teamCode}
-            ${teamName}
-            ${pilotName}
-            ${stokerName}
-            ${pilotCode}
-            ${stokerCode}
+            ${participantName}
+            ${participantType}
             ${statusName}
-            ${countyName}
-            ${classificationCode}
           `
             .toLowerCase()
 
@@ -1332,7 +1076,6 @@ const classificationCode =
 
   updateParticipationPagination()
 }
-
 /* =====================================================
    FILTERS
 ===================================================== */
@@ -1387,8 +1130,7 @@ const countyId =
 
         if (
           eventId &&
-          record.event_id !==
-            eventId
+          record.event_instances?.events?.event_id !== eventId
         ) {
 
           return false
@@ -1405,24 +1147,13 @@ const countyId =
 
         if (
           statusId &&
-          record.status_id !==
-            statusId
+          record.participant_status_id !== statusId
         ) {
 
           return false
         }
-       const pilotCounty =
-  record.teams?.pilot
-    ?.county_id
-
-const stokerCounty =
-  record.teams?.stoker
-    ?.county_id
-
-if (
-  countyId &&
-  pilotCounty !== countyId &&
-  stokerCounty !== countyId
+       if (
+  countyId
 ) {
 
   return false
@@ -1448,7 +1179,7 @@ if (
 
           const searchableText =
             `
-              ${record.events?.event_name || ''}
+              ${record.event_instances?.events?.event_name || ''}
               ${record.event_programs?.program_name || ''}
               ${record.teams?.team_code || ''}
               ${record.teams?.team_name || ''}
@@ -1520,12 +1251,10 @@ function sortParticipationData(
         case 'event':
 
           valueA =
-            a.events
-              ?.event_name || ''
+            a.event_instances?.events?.event_name || ''
 
           valueB =
-            b.events
-              ?.event_name || ''
+            b.event_instances?.events?.event_name || ''
 
           break
 
@@ -1635,135 +1364,74 @@ function renderParticipationTable() {
     )
 
   pageRecords.forEach(
-    record => {
+  record => {
 
-      const pilot =
-        record.teams?.pilot
+    body.innerHTML += `
+      <tr>
 
-      const stoker =
-        record.teams?.stoker
+        <td>
+          ${
+            record.event_instances?.events?.event_name ||
+            '-'
+          }
+        </td>
 
-      body.innerHTML += `
-        <tr>
+        <td>
+          ${
+            record.event_programs?.program_name ||
+            '-'
+          }
+        </td>
 
-          <td>
-            ${
-              record.events
-                ?.event_name ||
-              '-'
-            }
-          </td>
+        <td>
+          ${
+            record.participant_registry?.display_name ||
+            '-'
+          }
+        </td>
 
-          <td>
-            ${
-              record.event_programs
-                ?.program_name ||
-              '-'
-            }
-          </td>
+        <td>
+          ${
+            record.participant_registry
+              ?.participant_type_master
+              ?.participant_type_code ||
+            '-'
+          }
+        </td>
 
-          <td>
-            ${
-              record.teams
-                ?.team_code ||
-              '-'
-            }
-          </td>
+        <td>
+          ${
+            record.registration_date
+              ? new Date(
+                  record.registration_date
+                ).toLocaleDateString()
+              : '-'
+          }
+        </td>
 
-          <td>
-            ${
-              record.teams
-                ?.team_name ||
-              '-'
-            }
-          </td>
+        <td>
+          ${
+            record.status_master
+              ?.status_name ||
+            '-'
+          }
+        </td>
 
-          <td>
-            ${
-              pilot
-                ? `${pilot.first_name || ''} ${pilot.last_name || ''}`
-                : '-'
-            }
-          </td>
+        <td>
+          <button
+            class="btn btn-sm btn-primary"
+            onclick="viewParticipationRecord(
+              '${record.participant_instance_id}'
+            )"
+          >
+            View
+          </button>
+        </td>
 
-          <td>
-            ${
-              stoker
-                ? `${stoker.first_name || ''} ${stoker.last_name || ''}`
-                : '-'
-            }
-          </td>
-
-          <td>
-            ${
-              record.registration_date
-                ? new Date(
-                    record.registration_date
-                  )
-                    .toLocaleDateString()
-                : '-'
-            }
-          </td>
-
-          <td>
-            ${
-              record.status_master
-                ?.status_name ||
-              '-'
-            }
-          </td>
-
-          <td>
-  ${
-    countiesLookup.find(
-      county =>
-        county.county_id ===
-        pilot?.county_id
-    )?.county_name ||
-    countiesLookup.find(
-      county =>
-        county.county_id ===
-        stoker?.county_id
-    )?.county_name ||
-    '-'
+      </tr>
+    `
   }
-</td>
-
-<td>
-  ${
-    classificationsLookup.find(
-      classification =>
-        classification.classification_id ===
-        pilot?.classification_id
-    )?.classification_code ||
-
-    classificationsLookup.find(
-      classification =>
-        classification.classification_id ===
-        stoker?.classification_id
-    )?.classification_code ||
-
-    '-'
-  }
-</td>
-
-          <td>
-
-            <button
-              class="btn btn-sm btn-primary"
-              onclick="viewParticipationRecord(
-                '${record.participant_id}'
-              )"
-            >
-              View
-            </button>
-
-          </td>
-
-        </tr>
-      `
-    }
-  )
+)
 }
 
 /* =====================================================
@@ -1867,7 +1535,7 @@ async function viewParticipationRecord(
     const record =
       participationRecords.find(
         item =>
-          item.participant_id ===
+          item.participant_instance_id ===
           participantId
       )
 
@@ -1880,16 +1548,11 @@ async function viewParticipationRecord(
       return
     }
 
-    const pilot =
-      record.teams?.pilot
-
-    const stoker =
-      record.teams?.stoker
-
     setText(
       'reportEventName',
-      record.events?.event_name ||
-      '-'
+      record.event_instances
+        ?.events
+        ?.event_name || '-'
     )
 
     setText(
@@ -1915,74 +1578,90 @@ async function viewParticipationRecord(
 
     setText(
       'reportTeamCode',
-      record.teams?.team_code ||
-      '-'
+      record
+        .participant_registry
+        ?.participant_type_master
+        ?.participant_type_code || '-'
     )
 
     setText(
       'reportTeamName',
-      record.teams?.team_name ||
-      '-'
+      record
+        .participant_registry
+        ?.display_name || '-'
     )
 
-    const pilotContainer =
+    const participantContainer =
       getElement(
         'pilotParticipationInfo'
       )
 
-    if (pilotContainer) {
+    if (
+      participantContainer
+    ) {
 
-      pilotContainer.innerHTML =
+      participantContainer.innerHTML =
         `
           <p>
-            <strong>Code:</strong>
-            ${pilot?.athlete_code || '-'}
+            <strong>Participant:</strong>
+            ${
+              record
+                .participant_registry
+                ?.display_name || '-'
+            }
           </p>
 
           <p>
-            <strong>Name:</strong>
+            <strong>Type:</strong>
             ${
-              pilot
-                ? `${pilot.first_name || ''} ${pilot.last_name || ''}`
-                : '-'
+              record
+                .participant_registry
+                ?.participant_type_master
+                ?.participant_type_code || '-'
             }
           </p>
         `
     }
 
-    const stokerContainer =
+    const secondaryContainer =
       getElement(
         'stokerParticipationInfo'
       )
 
-    if (stokerContainer) {
+    if (
+      secondaryContainer
+    ) {
 
-      stokerContainer.innerHTML =
+      secondaryContainer.innerHTML =
         `
           <p>
-            <strong>Code:</strong>
-            ${stoker?.athlete_code || '-'}
+            <strong>Participant Ref:</strong>
+            ${
+              record
+                .participant_registry
+                ?.participant_ref_id || '-'
+            }
           </p>
 
           <p>
-            <strong>Name:</strong>
+            <strong>Source ID:</strong>
             ${
-              stoker
-                ? `${stoker.first_name || ''} ${stoker.last_name || ''}`
-                : '-'
+              record
+                .participant_registry
+                ?.source_id || '-'
             }
           </p>
         `
     }
 
-    const teamId =
-      record.team_id
+    const participantRefId =
+      record.participant_ref_id
 
-    const teamRecords =
+    const participantRecords =
       participationRecords.filter(
         item =>
-          item.team_id ===
-          teamId
+          item.participant_ref_id ===
+          participantRefId
       )
 
     const uniqueEvents =
@@ -1991,15 +1670,19 @@ async function viewParticipationRecord(
     const uniquePrograms =
       new Set()
 
-    teamRecords.forEach(
+    participantRecords.forEach(
       item => {
 
         if (
-          item.event_id
+          item.event_instances
+            ?.events
+            ?.event_id
         ) {
 
           uniqueEvents.add(
-            item.event_id
+            item.event_instances
+              ?.events
+              ?.event_id
           )
         }
 
@@ -2024,47 +1707,15 @@ async function viewParticipationRecord(
       uniquePrograms.size
     )
 
-    const countySet =
-  new Set()
+    setText(
+      'metricCounties',
+      '-'
+    )
 
-const classificationSet =
-  new Set()
-
-;[
-  pilot,
-  stoker
-].forEach(
-  athlete => {
-
-    if (
-      athlete?.county_id
-    ) {
-
-      countySet.add(
-        athlete.county_id
-      )
-    }
-
-    if (
-      athlete?.classification_id
-    ) {
-
-      classificationSet.add(
-        athlete.classification_id
-      )
-    }
-  }
-)
-
-setText(
-  'metricCounties',
-  countySet.size
-)
-
-setText(
-  'metricClassifications',
-  classificationSet.size
-)
+    setText(
+      'metricClassifications',
+      '-'
+    )
 
     const modalElement =
       getElement(
@@ -2085,14 +1736,15 @@ setText(
 
   } catch (error) {
 
-    console.error(error)
+    console.error(
+      error
+    )
 
     showError(
       'Failed to load participation details'
     )
   }
 }
-
 /* =====================================================
    EXPORTS
 ===================================================== */

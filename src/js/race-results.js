@@ -1452,15 +1452,7 @@ if (
   return false
 
 }
-{
 
-  showError(
-    'Participant is required'
-  )
-
-  return false
-
-}
   if (
     !getValue(
       'sessionType'
@@ -1544,6 +1536,42 @@ async function saveCompetitionResult() {
       p.participant_instance_id ===
       participantId
   )
+
+const participantType =
+  participant
+    ?.participant_registry
+    ?.participant_type_master
+    ?.participant_type_code
+
+const athleteId =
+
+  participantType ===
+  'ATHLETE'
+
+    ?
+
+    participant
+      ?.participant_registry
+      ?.source_id
+
+    :
+
+    null
+
+const teamId =
+
+  participantType ===
+  'TEAM'
+
+    ?
+
+    participant
+      ?.participant_registry
+      ?.source_id
+
+    :
+
+    null
 
     if (
       !participant
@@ -1691,7 +1719,9 @@ if (
         ) === 'true',
 
       participant_id:
-  participant.participant_ref_id,
+  participant
+    ?.participant_registry
+    ?.participant_ref_id || null,
 
       participant_instance_id:
   participant
@@ -1713,34 +1743,11 @@ program_id:
   ),
 
 team_id:
-
-  competitionType ===
-  'TEAM'
-
-    ?
-
-    participant
-      .participant_registry
-      ?.source_id
-
-    :
-
-    null,
+  teamId,
 
 athlete_id:
+  athleteId,
 
-  competitionType ===
-  'INDIVIDUAL'
-
-    ?
-
-    participant
-      .participant_registry
-      ?.source_id
-
-    :
-
-    null,
      participant_source_id:
 
   participant
@@ -1798,10 +1805,7 @@ points:
     )
   ) || 0,
 
-medal:
-  getValue(
-    'medal'
-  ),
+
 
 max_speed_kmh:
   Number(
@@ -1827,6 +1831,22 @@ max_speed_kmh:
         'resultId'
       )
 
+
+console.log(
+  'RACE RESULTS PAYLOAD'
+)
+
+console.table(
+  payload
+)
+
+console.log(
+  'PARTICIPANT'
+)
+
+console.log(
+  participant
+)
     let error
 
     if (
@@ -1904,8 +1924,29 @@ max_speed_kmh:
   error
 )
 
+console.log(
+  'MESSAGE',
+  error.message
+)
+
+console.log(
+  'DETAILS',
+  error.details
+)
+
+console.log(
+  'HINT',
+  error.hint
+)
+
+console.log(
+  'CODE',
+  error.code
+)
+
 showError(
-  JSON.stringify(error)
+  error.message ||
+  'Save failed'
 )
 
   }
@@ -2001,9 +2042,10 @@ async function (
   }
 
   setValue(
-    'participantId',
-    competitionResult.participant_id
-  )
+  'participantId',
+  competitionResult
+    .participant_instance_id
+)
 
   setValue(
     'participantStatusId',
@@ -2178,6 +2220,7 @@ async function deleteCompetitionResult() {
     const {
       error
     } =
+
       await db
         .from(
           'race_results'

@@ -1,0 +1,454 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .alert.alert-danger.d-none(
+      id='trainingReportError'
+    )
+
+    .alert.alert-success.d-none(
+      id='trainingReportSuccess'
+    )
+
+    .row.mb-4
+
+      .col-md-8
+
+        h2.mb-1
+          i.fa.fa-chart-line.me-2
+          | Training Results Report
+
+        p.text-body-secondary.mb-0
+          | Federation Training Intelligence & Performance Analytics
+
+      .col-md-4.text-end
+
+        button.btn.btn-outline-primary.me-2(
+          type='button'
+          id='btnRefreshTrainingReport'
+        )
+          i.fa.fa-sync.me-1
+          | Refresh
+
+        button.btn.btn-success(
+          type='button'
+          id='btnOpenExportTrainingReport'
+        )
+          i.fa.fa-download.me-1
+          | Export
+
+    .card.mb-4
+
+      .card-header
+
+        strong
+          i.fa.fa-filter.me-2
+          | Report Filters
+
+      .card-body
+
+        .row.g-3
+
+          .col-md-3
+            label.form-label Event
+            select.form-select(id='filterEventId')
+
+          .col-md-3
+            label.form-label Program
+            select.form-select(id='filterProgramId')
+
+          .col-md-3
+            label.form-label County
+            select.form-select(id='filterCountyId')
+
+          .col-md-3
+            label.form-label Participant Status
+            select.form-select(id='filterStatusId')
+
+          .col-md-3
+            label.form-label Start Date
+            input.form-control(type='date' id='filterStartDate')
+
+          .col-md-3
+            label.form-label End Date
+            input.form-control(type='date' id='filterEndDate')
+
+          .col-md-6.text-end.align-self-end
+
+            button.btn.btn-primary.me-2(type='button' id='btnApplyTrainingReportFilters')
+              | Apply Filters
+
+            button.btn.btn-outline-secondary(type='button' id='btnClearTrainingReportFilters')
+              | Clear
+
+    .row.mb-4
+
+      .col-md-3
+        .card.text-bg-primary
+          .card-body
+            h6 Total Sessions
+            h2(id='summaryTotalSessions') 0
+
+      .col-md-3
+        .card.text-bg-success
+          .card-body
+            h6 Participants
+            h2(id='summaryParticipants') 0
+
+      .col-md-3
+        .card.text-bg-info
+          .card-body
+            h6 Distance KM
+            h2(id='summaryDistance') 0
+
+      .col-md-3
+        .card.text-bg-warning
+          .card-body
+            h6 Attendance %
+            h2(id='summaryAttendance') 0%
+
+    .row.mb-4
+
+      .col-md-3
+        .card
+          .card-body
+            h6 Avg Speed
+            h3(id='summaryAverageSpeed') 0
+
+      .col-md-3
+        .card
+          .card-body
+            h6 Avg Duration
+            h3(id='summaryAverageDuration') 0
+
+      .col-md-3
+        .card
+          .card-body
+            h6 Best Week
+            h3(id='summaryBestWeek') -
+
+      .col-md-3
+        .card
+          .card-body
+            h6 Top County
+            h3(id='summaryTopCounty') -
+
+    .card.mb-4
+
+      .card-header
+
+        strong
+          i.fa.fa-table.me-2
+          | Training Records
+
+      .card-body
+
+        .table-responsive
+
+          table.table.table-striped.table-hover
+
+            thead
+              tr
+                th Date
+                th Event
+                th Program
+                th Participant
+                th County
+                th Session Type
+                th Distance KM
+                th Duration
+                th Avg Speed
+                th Attendance
+
+            tbody(id='trainingResultsTableBody')
+
+        .row.mt-3
+
+          .col-md-6
+            span(id='trainingPaginationInfo')
+              | Page 1 of 1
+
+          .col-md-6.text-end
+
+            button.btn.btn-outline-primary.me-2(type='button' id='btnPreviousTrainingPage')
+              | Previous
+
+            button.btn.btn-outline-primary(type='button' id='btnNextTrainingPage')
+              | Next
+
+    .card.mb-4
+
+      .card-header
+        strong Event Analysis
+
+      .card-body
+
+        .table-responsive
+
+          table.table.table-striped
+
+            thead
+              tr
+                th Event
+                th Sessions
+                th Participants
+                th Distance
+                th Duration
+                th Actions
+
+            tbody(id='eventAnalysisTableBody')
+
+    .card.mb-4
+
+      .card-header
+        strong Program Analysis
+
+      .card-body
+
+        .table-responsive
+          table.table.table-bordered
+            thead
+              tr
+                th Program
+                th Sessions
+                th Distance
+                th Duration
+                th Attendance
+            tbody(id='programAnalysisTableBody')
+
+    .card.mb-4
+
+      .card-header
+        strong Participant Performance
+
+      .card-body
+
+        input.form-control.mb-3(
+          type='text'
+          id='searchParticipantAnalysis'
+          placeholder='Search participant'
+        )
+
+        .table-responsive
+
+          table.table.table-hover
+
+            thead
+              tr
+                th Action
+                th Participant
+                th Sessions
+                th Distance
+                th Duration
+                th Avg Speed
+                th Attendance %
+
+            tbody(id='participantAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Team Analysis
+      .card-body
+        .table-responsive
+          table.table
+            thead
+              tr
+                th Team
+                th Sessions
+                th Participants
+                th Distance
+                th Avg Speed
+            tbody(id='teamAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong County Analysis
+      .card-body
+        .table-responsive
+          table.table
+            thead
+              tr
+                th County
+                th Sessions
+                th Participants
+                th Distance
+            tbody(id='countyAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Participant Status Analysis
+      .card-body
+        .table-responsive
+          table.table
+            thead
+              tr
+                th Status
+                th Count
+                th Percentage
+            tbody(id='statusAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Weekly Training Analysis
+      .card-body
+        .table-responsive
+          table.table
+            thead
+              tr
+                th Week
+                th Sessions
+                th Distance
+                th Participants
+            tbody(id='weeklyAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Session Type Analysis
+      .card-body
+        .table-responsive
+          table.table
+            thead
+              tr
+                th Session Type
+                th Sessions
+                th Distance
+                th Duration
+            tbody(id='sessionTypeAnalysisTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Executive Dashboard
+      .card-body
+        #executiveDashboardContainer
+
+    .card.mb-4
+      .card-header
+        strong Attendance Intelligence
+      .card-body
+        #attendanceIntelligenceContainer
+
+    .card.mb-4
+      .card-header
+        strong Performance Correlation
+      .card-body
+        #performanceCorrelationContainer
+
+    .card.mb-4
+      .card-header
+        strong Top Performers
+      .card-body
+        #topPerformersContainer
+
+    .card.mb-4
+      .card-header
+        strong Risk Analysis
+      .card-body
+        #riskAnalysisContainer
+
+    .card.mb-4
+      .card-header
+        strong County Rankings
+      .card-body
+        #countyRankingsContainer
+
+    .card.mb-4
+      .card-header
+        strong Program Effectiveness
+      .card-body
+        #programEffectivenessContainer
+
+    .card.mb-4
+      .card-header
+        strong Training Load Analysis
+      .card-body
+        #trainingLoadContainer
+
+    .card.mb-4
+      .card-header
+        strong Attendance Trends
+      .card-body
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th Week
+                th Present
+                th Absent
+                th Attendance %
+            tbody(id='attendanceTrendTableBody')
+
+    .card.mb-4
+      .card-header
+        strong Recommendations
+      .card-body
+        #recommendationsContainer
+
+    .card.mb-4
+
+      .card-header
+        strong Export Report
+
+      .card-body.text-center
+
+        button.btn.btn-success.me-2(type='button' id='btnExportTrainingExcel')
+          | Excel
+
+        button.btn.btn-primary.me-2(type='button' id='btnExportTrainingPdf')
+          | PDF
+
+        button.btn.btn-secondary(type='button' id='btnExportTrainingCsv')
+          | CSV
+
+    .modal.fade(
+      id='trainingInsightsModal'
+      tabindex='-1'
+    )
+
+      .modal-dialog.modal-xl
+
+        .modal-content
+
+          .modal-header
+
+            h5.modal-title
+              | Training Intelligence Insights
+
+            button.btn-close(
+              type='button'
+              data-coreui-dismiss='modal'
+            )
+
+          .modal-body
+            #trainingInsightsContainer
+
+          .modal-footer
+            button.btn.btn-secondary(
+              type='button'
+              data-coreui-dismiss='modal'
+            )
+              | Close
+
+append pageScripts
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.2/dist/jspdf.plugin.autotable.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js'
+  )
+
+  script(
+    type='module'
+    src='/js/reports/training-results-report.js'
+  )

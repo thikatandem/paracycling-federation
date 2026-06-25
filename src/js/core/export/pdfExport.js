@@ -3,8 +3,13 @@
 // ParaCycling Federation Management System
 // =====================================================
 
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+const {
+  jsPDF
+} = window.jspdf
+
+const autoTable =
+  window.jspdf
+    ?.autoTable
 
 import {
   EXPORT_CONFIG,

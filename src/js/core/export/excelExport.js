@@ -3,8 +3,11 @@
 // ParaCycling Federation Management System
 // =====================================================
 
-import ExcelJS from 'exceljs'
-import { saveAs } from 'file-saver'
+const ExcelJS =
+  window.ExcelJS
+
+const saveAs =
+  window.saveAs
 
 import {
   buildFileName,

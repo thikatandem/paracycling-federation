@@ -336,218 +336,415 @@
       <div class="body flex-grow-1">
         <div class="container-lg px-4">
           <div class="container-fluid">
-            <div class="row">
-              <div class="col-12">
-                <div class="card mb-4">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>Event Occurrences</strong>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-primary" type="button" id="btnNewOccurrence">
-                        <i class="fa fa-plus me-2"></i>
-                        New Event Occurrence
-                      </button>
-                    </div>
+            <div class="alert alert-danger d-none" id="trainingReportError"></div>
+            <div class="alert alert-success d-none" id="trainingReportSuccess"></div>
+            <div class="row mb-4">
+              <div class="col-md-8">
+                <h2 class="mb-1">
+                  <i class="fa fa-chart-line me-2"></i>
+                  Training Results Report
+                </h2>
+                <p class="text-body-secondary mb-0">Federation Training Intelligence & Performance Analytics</p>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-outline-primary me-2" type="button" id="btnRefreshTrainingReport">
+                  <i class="fa fa-sync me-1"></i>
+                  Refresh
+                </button>
+                <button class="btn btn-success" type="button" id="btnOpenExportTrainingReport">
+                  <i class="fa fa-download me-1"></i>
+                  Export
+                </button>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header">
+                <strong>
+                  <i class="fa fa-filter me-2"></i>
+                  Report Filters
+                </strong>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <label class="form-label">Event</label>
+                    <select class="form-select" id="filterEventId"></select>
                   </div>
-                  <div class="card-body">
-                    <div class="row mb-3">
-                      <div class="col-md-4">
-                        <input class="form-control" type="text" id="searchOccurrence" placeholder="Search Event Occurrences">
-                      </div>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-striped table-hover">
-                        <thead>
-                          <tr>
-                            <th>Event Name</th>
-                            <th>Event Type</th>
-                            <th>Event Area</th>
-                            <th>Organizer</th>
-                            <th>Sponsor</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Participants</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody id="occurrenceTableBody"></tbody>
-                      </table>
-                    </div>
-                    <div class="row mt-3">
-                      <div class="col-md-6"><small class="text-muted" id="paginationInfo"></small></div>
-                      <div class="col-md-6 text-end">
-                        <ul class="pagination justify-content-end mb-0" id="paginationContainer"></ul>
-                      </div>
-                    </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Program</label>
+                    <select class="form-select" id="filterProgramId"></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">County</label>
+                    <select class="form-select" id="filterCountyId"></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Participant Status</label>
+                    <select class="form-select" id="filterStatusId"></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Start Date</label>
+                    <input class="form-control" type="date" id="filterStartDate">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">End Date</label>
+                    <input class="form-control" type="date" id="filterEndDate">
+                  </div>
+                  <div class="col-md-6 text-end align-self-end">
+                    <button class="btn btn-primary me-2" type="button" id="btnApplyTrainingReportFilters">Apply Filters</button>
+                    <button class="btn btn-outline-secondary" type="button" id="btnClearTrainingReportFilters">Clear</button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="modal fade" id="occurrenceModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Event Occurrence</h5>
-                  <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="card text-bg-primary">
+                  <div class="card-body">
+                    <h6>Total Sessions</h6>
+                    <h2 id="summaryTotalSessions">0</h2>
+                  </div>
                 </div>
-                <div class="modal-body">
-                  <input type="hidden" id="eventInstanceId">
-                  <div class="card mb-4">
-                    <div class="card-header"><strong>Event Bundle</strong></div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-4 mb-3">
-                          <label class="form-label">Event Name</label>
-                          <select class="form-select" id="eventId">
-                            <option value="">Select Event Name</option>
-                          </select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                          <label class="form-label">Event Category</label>
-                          <input class="form-control" id="eventCategory" readonly>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                          <label class="form-label">Event Type</label>
-                          <input class="form-control" id="eventType" readonly>
-                        </div>
-                      </div>
-                    </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card text-bg-success">
+                  <div class="card-body">
+                    <h6>Participants</h6>
+                    <h2 id="summaryParticipants">0</h2>
                   </div>
-                  <div class="card mb-4">
-                    <div class="card-header"><strong>Event Occurrence Details</strong></div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-6 mb-3">
-                          <label class="form-label">Organizer</label>
-                          <input class="form-control" id="organizer" placeholder="Organizer">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                          <label class="form-label">Sponsor</label>
-                          <select class="form-select" id="sponsorId">
-                            <option value="">Select Sponsor</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">Country</label>
-                          <select class="form-select" id="countryId">
-                            <option value="">Select Country</option>
-                          </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">County</label>
-                          <select class="form-select" id="countyId">
-                            <option value="">Select County</option>
-                          </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">Subcounty</label>
-                          <select class="form-select" id="subcountyId">
-                            <option value="">Select Subcounty</option>
-                          </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">Town</label>
-                          <input class="form-control" id="townName" list="townSuggestions" placeholder="Type or Select Town">
-                          <datalist id="townSuggestions"></datalist>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-6 mb-3">
-                          <label class="form-label">Event Area</label>
-                          <input class="form-control" id="eventArea" readonly>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4">
-                    <div class="card-header"><strong>Event Schedule</strong></div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">Start Date</label>
-                          <input class="form-control" type="date" id="startDate">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">End Date</label>
-                          <input class="form-control" type="date" id="endDate">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">Start Time</label>
-                          <input class="form-control" type="time" id="startTime">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                          <label class="form-label">End Time</label>
-                          <input class="form-control" type="time" id="endTime">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4">
-                    <div class="card-header"><strong>Participant Mode</strong></div>
-                    <div class="card-body">
-                      <div class="row mb-3">
-                        <div class="col-md-12">
-                          <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="participantMode" id="modeTeams" value="TEAM" checked>
-                            <label class="form-check-label" for="modeTeams">Teams</label>
-                          </div>
-                          <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="participantMode" id="modeAthletes" value="ATHLETE">
-                            <label class="form-check-label" for="modeAthletes">Athletes</label>
-                          </div>
-                          <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="participantMode" id="modeMixed" value="MIXED">
-                            <label class="form-check-label" for="modeMixed">Mixed</label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12">
-                          <label class="form-label">Available Participants</label>
-                          <div class="border rounded p-3" style="max-height: 350px; overflow-y: auto">
-                            <div id="participantSelectionContainer"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4">
-                    <div class="card-header"><strong>Participant Status</strong></div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-4 mb-3">
-                          <label class="form-label">Participant Status</label>
-                          <select class="form-select" id="participantStatusId">
-                            <option value="">Select Participant Status</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card mb-4" id="occurrenceStatusCard">
-                    <div class="card-header"><strong>Event Occurrence Status</strong></div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-4 mb-3">
-                          <label class="form-label">Status</label>
-                          <select class="form-select" id="occurrenceStatusId">
-                            <option value="">Select Status</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="alert alert-danger d-none" id="occurrenceError"></div>
                 </div>
-                <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Close</button>
-                  <button class="btn btn-primary" type="button" id="btnSaveOccurrence">Save Same</button>
-                  <button class="btn btn-success" type="button" id="btnSaveOccurrenceAsNew">Save New</button>
+              </div>
+              <div class="col-md-3">
+                <div class="card text-bg-info">
+                  <div class="card-body">
+                    <h6>Distance KM</h6>
+                    <h2 id="summaryDistance">0</h2>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card text-bg-warning">
+                  <div class="card-body">
+                    <h6>Attendance %</h6>
+                    <h2 id="summaryAttendance">0%</h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Avg Speed</h6>
+                    <h3 id="summaryAverageSpeed">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Avg Duration</h6>
+                    <h3 id="summaryAverageDuration">0</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Best Week</h6>
+                    <h3 id="summaryBestWeek">-</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <h6>Top County</h6>
+                    <h3 id="summaryTopCounty">-</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header">
+                <strong>
+                  <i class="fa fa-table me-2"></i>
+                  Training Records
+                </strong>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Event</th>
+                        <th>Program</th>
+                        <th>Participant</th>
+                        <th>County</th>
+                        <th>Session Type</th>
+                        <th>Distance KM</th>
+                        <th>Duration</th>
+                        <th>Avg Speed</th>
+                        <th>Attendance</th>
+                      </tr>
+                    </thead>
+                    <tbody id="trainingResultsTableBody"></tbody>
+                  </table>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-md-6"><span id="trainingPaginationInfo">Page 1 of 1</span></div>
+                  <div class="col-md-6 text-end">
+                    <button class="btn btn-outline-primary me-2" type="button" id="btnPreviousTrainingPage">Previous</button>
+                    <button class="btn btn-outline-primary" type="button" id="btnNextTrainingPage">Next</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Event Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Event</th>
+                        <th>Sessions</th>
+                        <th>Participants</th>
+                        <th>Distance</th>
+                        <th>Duration</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="eventAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Program Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Program</th>
+                        <th>Sessions</th>
+                        <th>Distance</th>
+                        <th>Duration</th>
+                        <th>Attendance</th>
+                      </tr>
+                    </thead>
+                    <tbody id="programAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Participant Performance</strong></div>
+              <div class="card-body">
+                <input class="form-control mb-3" type="text" id="searchParticipantAnalysis" placeholder="Search participant">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Action</th>
+                        <th>Participant</th>
+                        <th>Sessions</th>
+                        <th>Distance</th>
+                        <th>Duration</th>
+                        <th>Avg Speed</th>
+                        <th>Attendance %</th>
+                      </tr>
+                    </thead>
+                    <tbody id="participantAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Team Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Team</th>
+                        <th>Sessions</th>
+                        <th>Participants</th>
+                        <th>Distance</th>
+                        <th>Avg Speed</th>
+                      </tr>
+                    </thead>
+                    <tbody id="teamAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>County Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>County</th>
+                        <th>Sessions</th>
+                        <th>Participants</th>
+                        <th>Distance</th>
+                      </tr>
+                    </thead>
+                    <tbody id="countyAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Participant Status Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Status</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody id="statusAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Weekly Training Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Week</th>
+                        <th>Sessions</th>
+                        <th>Distance</th>
+                        <th>Participants</th>
+                      </tr>
+                    </thead>
+                    <tbody id="weeklyAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Session Type Analysis</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Session Type</th>
+                        <th>Sessions</th>
+                        <th>Distance</th>
+                        <th>Duration</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sessionTypeAnalysisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Executive Dashboard</strong></div>
+              <div class="card-body">
+                <div id="executiveDashboardContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Attendance Intelligence</strong></div>
+              <div class="card-body">
+                <div id="attendanceIntelligenceContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Performance Correlation</strong></div>
+              <div class="card-body">
+                <div id="performanceCorrelationContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Top Performers</strong></div>
+              <div class="card-body">
+                <div id="topPerformersContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Risk Analysis</strong></div>
+              <div class="card-body">
+                <div id="riskAnalysisContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>County Rankings</strong></div>
+              <div class="card-body">
+                <div id="countyRankingsContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Program Effectiveness</strong></div>
+              <div class="card-body">
+                <div id="programEffectivenessContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Training Load Analysis</strong></div>
+              <div class="card-body">
+                <div id="trainingLoadContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Attendance Trends</strong></div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Week</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance %</th>
+                      </tr>
+                    </thead>
+                    <tbody id="attendanceTrendTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Recommendations</strong></div>
+              <div class="card-body">
+                <div id="recommendationsContainer"></div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header"><strong>Export Report</strong></div>
+              <div class="card-body text-center">
+                <button class="btn btn-success me-2" type="button" id="btnExportTrainingExcel">Excel</button>
+                <button class="btn btn-primary me-2" type="button" id="btnExportTrainingPdf">PDF</button>
+                <button class="btn btn-secondary" type="button" id="btnExportTrainingCsv">CSV</button>
+              </div>
+            </div>
+            <div class="modal fade" id="trainingInsightsModal" tabindex="-1">
+              <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Training Intelligence Insights</h5>
+                    <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div id="trainingInsightsContainer"></div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">Close</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -591,6 +788,10 @@
     <script src="js/supabase.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    <script src="js/events.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+    <script type="module" src="/js/reports/training-results-report.js"></script>
   </body>
 </html>

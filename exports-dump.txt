@@ -1,0 +1,3488 @@
+ 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\csvExport.js 
+================================================== 
+1:﻿// =====================================================
+2:// CSV EXPORT
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:import {
+7:  MIME_TYPES,
+8:  CSV_OPTIONS,
+9:  buildFileName
+10:}
+11:from './exportConstants.js'
+12:
+13:// =====================================================
+14:// CSV ESCAPING
+15:// =====================================================
+16:
+17:export function escapeCsvValue(
+18:  value
+19:) {
+20:
+21:  if (
+22:    value === null ||
+23:    value === undefined
+24:  ) {
+25:
+26:    return ''
+27:
+28:  }
+29:
+30:  let stringValue =
+31:    String(value)
+32:
+33:  stringValue =
+34:    stringValue.replace(
+35:      /"/g,
+36:      '""'
+37:    )
+38:
+39:  if (
+40:
+41:    stringValue.includes(',') ||
+42:
+43:    stringValue.includes('"') ||
+44:
+45:    stringValue.includes('\n') ||
+46:
+47:    stringValue.includes('\r')
+48:
+49:  ) {
+50:
+51:    stringValue =
+52:      `"${stringValue}"`
+53:
+54:  }
+55:
+56:  return stringValue
+57:
+58:}
+59:
+60:// =====================================================
+61:// CSV ROW
+62:// =====================================================
+63:
+64:export function buildCsvRow(
+65:  values = []
+66:) {
+67:
+68:  return values
+69:    .map(
+70:      escapeCsvValue
+71:    )
+72:    .join(
+73:      CSV_OPTIONS.delimiter
+74:    )
+75:
+76:}
+77:
+78:// =====================================================
+79:// CSV CONTENT
+80:// =====================================================
+81:
+82:export function buildCsvContent({
+83:
+84:  data = [],
+85:
+86:  columns = []
+87:
+88:}) {
+89:
+90:  const rows = []
+91:
+92:  const headerRow =
+93:    columns.map(
+94:      column =>
+95:        column.label ||
+96:        column.title ||
+97:        column.key
+98:    )
+99:
+100:  rows.push(
+101:    buildCsvRow(
+102:      headerRow
+103:    )
+104:  )
+105:
+106:  data.forEach(
+107:    record => {
+108:
+109:      const row =
+110:        columns.map(
+111:          column => {
+112:
+113:            const value =
+114:              record[
+115:                column.key
+116:              ]
+117:
+118:            return value ?? ''
+119:
+120:          }
+121:        )
+122:
+123:      rows.push(
+124:        buildCsvRow(
+125:          row
+126:        )
+127:      )
+128:
+129:    }
+130:  )
+131:
+132:  return rows.join(
+133:    CSV_OPTIONS.lineBreak
+134:  )
+135:
+136:}
+137:
+138:// =====================================================
+139:// UTF8 BOM
+140:// =====================================================
+141:
+142:export function addUtf8Bom(
+143:  content
+144:) {
+145:
+146:  return (
+147:    '\uFEFF' +
+148:    content
+149:  )
+150:
+151:}
+152:
+153:// =====================================================
+154:// DOWNLOAD BLOB
+155:// =====================================================
+156:
+157:export function downloadBlob({
+158:
+159:  blob,
+160:
+161:  fileName
+162:
+163:}) {
+164:
+165:  const url =
+166:    URL.createObjectURL(
+167:      blob
+168:    )
+169:
+170:  const link =
+171:    document.createElement(
+172:      'a'
+173:    )
+174:
+175:  link.href =
+176:    url
+177:
+178:  link.download =
+179:    fileName
+180:
+181:  document.body.appendChild(
+182:    link
+183:  )
+184:
+185:  link.click()
+186:
+187:  document.body.removeChild(
+188:    link
+189:  )
+190:
+191:  URL.revokeObjectURL(
+192:    url
+193:  )
+194:
+195:}
+196:
+197:// =====================================================
+198:// DOWNLOAD CSV
+199:// =====================================================
+200:
+201:export function downloadCsv({
+202:
+203:  data = [],
+204:
+205:  columns = [],
+206:
+207:  reportName =
+208:    'Export'
+209:
+210:}) {
+211:
+212:  const csvContent =
+213:    buildCsvContent({
+214:
+215:      data,
+216:
+217:      columns
+218:
+219:    })
+220:
+221:  const content =
+222:    addUtf8Bom(
+223:      csvContent
+224:    )
+225:
+226:  const blob =
+227:    new Blob(
+228:      [content],
+229:      {
+230:        type:
+231:          MIME_TYPES.CSV
+232:      }
+233:    )
+234:
+235:  downloadBlob({
+236:
+237:    blob,
+238:
+239:    fileName:
+240:      `${buildFileName(
+241:        reportName
+242:      )}.csv`
+243:
+244:  })
+245:
+246:}
+247:
+248:// =====================================================
+249:// EXPORT CURRENT PAGE
+250:// =====================================================
+251:
+252:export function exportCurrentPage({
+253:
+254:  paginator,
+255:
+256:  columns,
+257:
+258:  reportName
+259:
+260:}) {
+261:
+262:  downloadCsv({
+263:
+264:    data:
+265:      paginator.getPage(),
+266:
+267:    columns,
+268:
+269:    reportName
+270:
+271:  })
+272:
+273:}
+274:
+275:// =====================================================
+276:// EXPORT ALL
+277:// =====================================================
+278:
+279:export function exportAll({
+280:
+281:  data,
+282:
+283:  columns,
+284:
+285:  reportName
+286:
+287:}) {
+288:
+289:  downloadCsv({
+290:
+291:    data,
+292:
+293:    columns,
+294:
+295:    reportName
+296:
+297:  })
+298:
+299:}
+300:
+301:// =====================================================
+302:// EXPORT SELECTED
+303:// =====================================================
+304:
+305:export function exportSelected({
+306:
+307:  selectedRows,
+308:
+309:  columns,
+310:
+311:  reportName
+312:
+313:}) {
+314:
+315:  downloadCsv({
+316:
+317:    data:
+318:      selectedRows,
+319:
+320:    columns,
+321:
+322:    reportName
+323:
+324:  })
+325:
+326:}
+327:
+328:// =====================================================
+329:// REQUIRED COLUMN
+330:// =====================================================
+331:
+332:export function requiredHeader(
+333:  header
+334:) {
+335:
+336:  return `${header} *`
+337:
+338:}
+339:
+340:// =====================================================
+341:// TEMPLATE HEADERS
+342:// =====================================================
+343:
+344:export function buildTemplateHeaders(
+345:
+346:  columns = []
+347:
+348:) {
+349:
+350:  return columns.map(
+351:    column =>
+352:
+353:      column.required
+354:        ? requiredHeader(
+355:            column.label
+356:          )
+357:        : column.label
+358:  )
+359:
+360:}
+361:
+362:// =====================================================
+363:// TEMPLATE CSV
+364:// =====================================================
+365:
+366:export function buildTemplateCsv({
+367:
+368:  columns = [],
+369:
+370:  sampleRows = []
+371:
+372:}) {
+373:
+374:  const rows = []
+375:
+376:  rows.push(
+377:
+378:    buildCsvRow(
+379:      buildTemplateHeaders(
+380:        columns
+381:      )
+382:    )
+383:
+384:  )
+385:
+386:  sampleRows.forEach(
+387:    row => {
+388:
+389:      rows.push(
+390:
+391:        buildCsvRow(
+392:          columns.map(
+393:            column =>
+394:
+395:              row[
+396:                column.key
+397:              ] ?? ''
+398:          )
+399:        )
+400:
+401:      )
+402:
+403:    }
+404:  )
+405:
+406:  return rows.join(
+407:    CSV_OPTIONS.lineBreak
+408:  )
+409:
+410:}
+411:
+412:// =====================================================
+413:// DOWNLOAD TEMPLATE
+414:// =====================================================
+415:
+416:export function downloadCsvTemplate({
+417:
+418:  columns = [],
+419:
+420:  sampleRows = [],
+421:
+422:  reportName =
+423:    'Template'
+424:
+425:}) {
+426:
+427:  const content =
+428:    addUtf8Bom(
+429:
+430:      buildTemplateCsv({
+431:
+432:        columns,
+433:
+434:        sampleRows
+435:
+436:      })
+437:
+438:    )
+439:
+440:  const blob =
+441:    new Blob(
+442:      [content],
+443:      {
+444:        type:
+445:          MIME_TYPES.CSV
+446:      }
+447:    )
+448:
+449:  downloadBlob({
+450:
+451:    blob,
+452:
+453:    fileName:
+454:      `${buildFileName(
+455:        reportName
+456:      )}_Template.csv`
+457:
+458:  })
+459:
+460:}
+461:
+462:// =====================================================
+463:// IMPORT ERROR CSV
+464:// =====================================================
+465:
+466:export function downloadImportErrors({
+467:
+468:  errors = [],
+469:
+470:  reportName =
+471:    'ImportErrors'
+472:
+473:}) {
+474:
+475:  const columns = [
+476:
+477:    {
+478:      key: 'row',
+479:      label: 'Row'
+480:    },
+481:
+482:    {
+483:      key: 'field',
+484:      label: 'Field'
+485:    },
+486:
+487:    {
+488:      key: 'value',
+489:      label: 'Value'
+490:    },
+491:
+492:    {
+493:      key: 'message',
+494:      label: 'Error'
+495:    }
+496:
+497:  ]
+498:
+499:  downloadCsv({
+500:
+501:    data:
+502:      errors,
+503:
+504:    columns,
+505:
+506:    reportName
+507:
+508:  })
+509:
+510:}
+511:
+512:// =====================================================
+513:// VALIDATE EXPORT CONFIG
+514:// =====================================================
+515:
+516:export function validateCsvExport({
+517:
+518:  data,
+519:
+520:  columns
+521:
+522:}) {
+523:
+524:  const errors = []
+525:
+526:  if (
+527:    !Array.isArray(data)
+528:  ) {
+529:
+530:    errors.push(
+531:      'Data must be an array.'
+532:    )
+533:
+534:  }
+535:
+536:  if (
+537:    !Array.isArray(columns)
+538:  ) {
+539:
+540:    errors.push(
+541:      'Columns must be an array.'
+542:    )
+543:
+544:  }
+545:
+546:  if (
+547:    columns.length === 0
+548:  ) {
+549:
+550:    errors.push(
+551:      'At least one column is required.'
+552:    )
+553:
+554:  }
+555:
+556:  return {
+557:
+558:    valid:
+559:      errors.length === 0,
+560:
+561:    errors
+562:
+563:  }
+564:
+565:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\errorExport.js 
+================================================== 
+1:﻿// =====================================================
+2:// ERROR EXPORT
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:import {
+7:  downloadCsv
+8:}
+9:from './csvExport.js'
+10:
+11:import {
+12:  downloadErrorWorkbook
+13:}
+14:from './excelExport.js'
+15:
+16:import {
+17:  downloadPdfErrors,
+18:  downloadSummaryPdf
+19:}
+20:from './pdfExport.js'
+21:
+22:// =====================================================
+23:// STANDARD ERROR COLUMNS
+24:// =====================================================
+25:
+26:export const ERROR_COLUMNS = [
+27:
+28:  {
+29:    key: 'row',
+30:    label: 'Row'
+31:  },
+32:
+33:  {
+34:    key: 'field',
+35:    label: 'Field'
+36:  },
+37:
+38:  {
+39:    key: 'value',
+40:    label: 'Value'
+41:  },
+42:
+43:  {
+44:    key: 'message',
+45:    label: 'Error Message'
+46:  }
+47:
+48:]
+49:
+50:// =====================================================
+51:// BUILD IMPORT SUMMARY
+52:// =====================================================
+53:
+54:export function buildImportSummary({
+55:
+56:  totalRows = 0,
+57:
+58:  successfulRows = 0,
+59:
+60:  failedRows = 0,
+61:
+62:  skippedRows = 0,
+63:
+64:  startedAt = null,
+65:
+66:  completedAt = null
+67:
+68:}) {
+69:
+70:  return {
+71:
+72:    totalRows,
+73:
+74:    successfulRows,
+75:
+76:    failedRows,
+77:
+78:    skippedRows,
+79:
+80:    successRate:
+81:      totalRows > 0
+82:        ? (
+83:            (
+84:              successfulRows /
+85:              totalRows
+86:            ) * 100
+87:          ).toFixed(2)
+88:        : 0,
+89:
+90:    startedAt,
+91:
+92:    completedAt
+93:
+94:  }
+95:
+96:}
+97:
+98:// =====================================================
+99:// ERROR GROUPING
+100:// =====================================================
+101:
+102:export function groupErrorsByField(
+103:  errors = []
+104:) {
+105:
+106:  const grouped = {}
+107:
+108:  errors.forEach(
+109:    error => {
+110:
+111:      const field =
+112:        error.field ||
+113:        'Unknown'
+114:
+115:      if (
+116:        !grouped[field]
+117:      ) {
+118:
+119:        grouped[field] = 0
+120:
+121:      }
+122:
+123:      grouped[field]++
+124:
+125:    }
+126:  )
+127:
+128:  return grouped
+129:
+130:}
+131:
+132:// =====================================================
+133:// ERROR GROUPING BY MESSAGE
+134:// =====================================================
+135:
+136:export function groupErrorsByMessage(
+137:  errors = []
+138:) {
+139:
+140:  const grouped = {}
+141:
+142:  errors.forEach(
+143:    error => {
+144:
+145:      const message =
+146:        error.message ||
+147:        'Unknown Error'
+148:
+149:      if (
+150:        !grouped[message]
+151:      ) {
+152:
+153:        grouped[message] = 0
+154:
+155:      }
+156:
+157:      grouped[message]++
+158:
+159:    }
+160:  )
+161:
+162:  return grouped
+163:
+164:}
+165:
+166:// =====================================================
+167:// CSV ERROR REPORT
+168:// =====================================================
+169:
+170:export function downloadImportErrorsCsv({
+171:
+172:  errors = [],
+173:
+174:  reportName =
+175:    'Import Errors'
+176:
+177:}) {
+178:
+179:  downloadCsv({
+180:
+181:    data:
+182:      errors,
+183:
+184:    columns:
+185:      ERROR_COLUMNS,
+186:
+187:    reportName
+188:
+189:  })
+190:
+191:}
+192:
+193:// =====================================================
+194:// EXCEL ERROR REPORT
+195:// =====================================================
+196:
+197:export async function downloadImportErrorsExcel({
+198:
+199:  errors = [],
+200:
+201:  reportName =
+202:    'Import Errors'
+203:
+204:}) {
+205:
+206:  await downloadErrorWorkbook({
+207:
+208:    reportName,
+209:
+210:    errors
+211:
+212:  })
+213:
+214:}
+215:
+216:// =====================================================
+217:// PDF ERROR REPORT
+218:// =====================================================
+219:
+220:export function downloadImportErrorsPdf({
+221:
+222:  errors = [],
+223:
+224:  reportName =
+225:    'Import Errors'
+226:
+227:}) {
+228:
+229:  downloadPdfErrors({
+230:
+231:    reportName,
+232:
+233:    errors
+234:
+235:  })
+236:
+237:}
+238:
+239:// =====================================================
+240:// FULL ERROR PACKAGE
+241:// =====================================================
+242:
+243:export async function downloadFullErrorPackage({
+244:
+245:  errors = [],
+246:
+247:  reportName =
+248:    'Import Errors'
+249:
+250:}) {
+251:
+252:  downloadImportErrorsCsv({
+253:
+254:    errors,
+255:
+256:    reportName
+257:
+258:  })
+259:
+260:  await downloadImportErrorsExcel({
+261:
+262:    errors,
+263:
+264:    reportName
+265:
+266:  })
+267:
+268:  downloadImportErrorsPdf({
+269:
+270:    errors,
+271:
+272:    reportName
+273:
+274:  })
+275:
+276:}
+277:
+278:// =====================================================
+279:// UPLOAD SUMMARY PDF
+280:// =====================================================
+281:
+282:export function downloadUploadSummary({
+283:
+284:  summary
+285:
+286:}) {
+287:
+288:  downloadSummaryPdf({
+289:
+290:    reportName:
+291:      'Upload Summary',
+292:
+293:    summary
+294:
+295:  })
+296:
+297:}
+298:
+299:// =====================================================
+300:// IMPORT DIAGNOSTICS
+301:// =====================================================
+302:
+303:export function buildDiagnostics({
+304:
+305:  errors = []
+306:
+307:}) {
+308:
+309:  return {
+310:
+311:    totalErrors:
+312:      errors.length,
+313:
+314:    fieldBreakdown:
+315:      groupErrorsByField(
+316:        errors
+317:      ),
+318:
+319:    errorBreakdown:
+320:      groupErrorsByMessage(
+321:        errors
+322:      )
+323:
+324:  }
+325:
+326:}
+327:
+328:// =====================================================
+329:// IMPORT RESULT OBJECT
+330:// =====================================================
+331:
+332:export function createImportResult({
+333:
+334:  totalRows = 0,
+335:
+336:  successfulRows = 0,
+337:
+338:  failedRows = 0,
+339:
+340:  skippedRows = 0,
+341:
+342:  errors = []
+343:
+344:}) {
+345:
+346:  const summary =
+347:    buildImportSummary({
+348:
+349:      totalRows,
+350:
+351:      successfulRows,
+352:
+353:      failedRows,
+354:
+355:      skippedRows,
+356:
+357:      startedAt:
+358:        new Date()
+359:          .toISOString(),
+360:
+361:      completedAt:
+362:        new Date()
+363:          .toISOString()
+364:
+365:    })
+366:
+367:  return {
+368:
+369:    success:
+370:      failedRows === 0,
+371:
+372:    summary,
+373:
+374:    diagnostics:
+375:      buildDiagnostics({
+376:
+377:        errors
+378:
+379:      }),
+380:
+381:    errors
+382:
+383:  }
+384:
+385:}
+386:
+387:// =====================================================
+388:// HUMAN READABLE IMPORT MESSAGE
+389:// =====================================================
+390:
+391:export function buildImportMessage({
+392:
+393:  totalRows,
+394:
+395:  successfulRows,
+396:
+397:  failedRows
+398:
+399:}) {
+400:
+401:  if (
+402:    failedRows === 0
+403:  ) {
+404:
+405:    return `Import completed successfully. ${successfulRows} records imported.`
+406:
+407:  }
+408:
+409:  return `Import completed with issues. ${successfulRows} imported, ${failedRows} failed out of ${totalRows} records.`
+410:
+411:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\excelExport.js 
+================================================== 
+1:﻿// =====================================================
+2:// EXCEL EXPORT
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:import ExcelJS from 'exceljs'
+7:import { saveAs } from 'file-saver'
+8:
+9:import {
+10:  buildFileName,
+11:  EXPORT_CONFIG
+12:}
+13:from './exportConstants.js'
+14:
+15:// =====================================================
+16:// WORKBOOK
+17:// =====================================================
+18:
+19:export function createWorkbook(
+20:  title = 'Report'
+21:) {
+22:
+23:  const workbook =
+24:    new ExcelJS.Workbook()
+25:
+26:  workbook.creator =
+27:    EXPORT_CONFIG.organization
+28:
+29:  workbook.company =
+30:    EXPORT_CONFIG.organization
+31:
+32:  workbook.subject =
+33:    title
+34:
+35:  workbook.title =
+36:    title
+37:
+38:  workbook.created =
+39:    new Date()
+40:
+41:  return workbook
+42:
+43:}
+44:
+45:// =====================================================
+46:// SAVE WORKBOOK
+47:// =====================================================
+48:
+49:export async function saveWorkbook({
+50:
+51:  workbook,
+52:
+53:  reportName
+54:
+55:}) {
+56:
+57:  const buffer =
+58:    await workbook.xlsx.writeBuffer()
+59:
+60:  const blob =
+61:    new Blob(
+62:      [buffer],
+63:      {
+64:        type:
+65:          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+66:      }
+67:    )
+68:
+69:  saveAs(
+70:    blob,
+71:    `${buildFileName(
+72:      reportName
+73:    )}.xlsx`
+74:  )
+75:
+76:}
+77:
+78:// =====================================================
+79:// AUTOFIT
+80:// =====================================================
+81:
+82:export function autoFitColumns(
+83:  worksheet
+84:) {
+85:
+86:  worksheet.columns.forEach(
+87:    column => {
+88:
+89:      let maxLength =
+90:        15
+91:
+92:      column.eachCell(
+93:        {
+94:          includeEmpty:
+95:            true
+96:        },
+97:        cell => {
+98:
+99:          const length =
+100:            String(
+101:              cell.value || ''
+102:            ).length
+103:
+104:          maxLength =
+105:            Math.max(
+106:              maxLength,
+107:              length + 2
+108:            )
+109:
+110:        }
+111:      )
+112:
+113:      column.width =
+114:        Math.min(
+115:          maxLength,
+116:          50
+117:        )
+118:
+119:    }
+120:  )
+121:
+122:}
+123:
+124:// =====================================================
+125:// HEADER STYLE
+126:// =====================================================
+127:
+128:export function styleHeaderRow(
+129:  worksheet
+130:) {
+131:
+132:  const header =
+133:    worksheet.getRow(1)
+134:
+135:  header.font = {
+136:
+137:    bold: true,
+138:
+139:    size: 11
+140:
+141:  }
+142:
+143:  header.alignment = {
+144:
+145:    vertical:
+146:      'middle',
+147:
+148:    horizontal:
+149:      'center'
+150:
+151:  }
+152:
+153:  header.eachCell(
+154:    cell => {
+155:
+156:      cell.fill = {
+157:
+158:        type:
+159:          'pattern',
+160:
+161:        pattern:
+162:          'solid',
+163:
+164:        fgColor: {
+165:          argb:
+166:            'D9EAD3'
+167:        }
+168:
+169:      }
+170:
+171:      cell.border = {
+172:
+173:        top: {
+174:          style:
+175:            'thin'
+176:        },
+177:
+178:        left: {
+179:          style:
+180:            'thin'
+181:        },
+182:
+183:        bottom: {
+184:          style:
+185:            'thin'
+186:        },
+187:
+188:        right: {
+189:          style:
+190:            'thin'
+191:        }
+192:
+193:      }
+194:
+195:    }
+196:  )
+197:
+198:}
+199:
+200:// =====================================================
+201:// FREEZE HEADER
+202:// =====================================================
+203:
+204:export function freezeHeader(
+205:  worksheet
+206:) {
+207:
+208:  worksheet.views = [
+209:
+210:    {
+211:      state:
+212:        'frozen',
+213:
+214:      ySplit:
+215:        1
+216:    }
+217:
+218:  ]
+219:
+220:}
+221:
+222:// =====================================================
+223:// FILTERS
+224:// =====================================================
+225:
+226:export function addFilters(
+227:  worksheet
+228:) {
+229:
+230:  worksheet.autoFilter = {
+231:
+232:    from: 'A1',
+233:
+234:    to: {
+235:      row: 1,
+236:      column:
+237:        worksheet.columnCount
+238:    }
+239:
+240:  }
+241:
+242:}
+243:
+244:// =====================================================
+245:// ADD TABLE SHEET
+246:// =====================================================
+247:
+248:export function addWorksheet({
+249:
+250:  workbook,
+251:
+252:  sheetName,
+253:
+254:  data = [],
+255:
+256:  columns = []
+257:
+258:}) {
+259:
+260:  const worksheet =
+261:    workbook.addWorksheet(
+262:      sheetName
+263:    )
+264:
+265:  worksheet.columns =
+266:    columns.map(
+267:      column => ({
+268:
+269:        header:
+270:          column.label,
+271:
+272:        key:
+273:          column.key
+274:
+275:      })
+276:    )
+277:
+278:  data.forEach(
+279:    row => {
+280:
+281:      worksheet.addRow(
+282:        row
+283:      )
+284:
+285:    }
+286:  )
+287:
+288:  styleHeaderRow(
+289:    worksheet
+290:  )
+291:
+292:  freezeHeader(
+293:    worksheet
+294:  )
+295:
+296:  addFilters(
+297:    worksheet
+298:  )
+299:
+300:  autoFitColumns(
+301:    worksheet
+302:  )
+303:
+304:  return worksheet
+305:
+306:}
+307:
+308:// =====================================================
+309:// SINGLE SHEET EXPORT
+310:// =====================================================
+311:
+312:export async function downloadExcel({
+313:
+314:  reportName,
+315:
+316:  columns,
+317:
+318:  data
+319:
+320:}) {
+321:
+322:  const workbook =
+323:    createWorkbook(
+324:      reportName
+325:    )
+326:
+327:  addWorksheet({
+328:
+329:    workbook,
+330:
+331:    sheetName:
+332:      reportName,
+333:
+334:    columns,
+335:
+336:    data
+337:
+338:  })
+339:
+340:  await saveWorkbook({
+341:
+342:    workbook,
+343:
+344:    reportName
+345:
+346:  })
+347:
+348:}
+349:
+350:// =====================================================
+351:// MULTI SHEET EXPORT
+352:// =====================================================
+353:
+354:export async function downloadExcelWorkbook({
+355:
+356:  reportName,
+357:
+358:  sheets = []
+359:
+360:}) {
+361:
+362:  const workbook =
+363:    createWorkbook(
+364:      reportName
+365:    )
+366:
+367:  sheets.forEach(
+368:    sheet => {
+369:
+370:      addWorksheet({
+371:
+372:        workbook,
+373:
+374:        sheetName:
+375:          sheet.sheetName,
+376:
+377:        columns:
+378:          sheet.columns,
+379:
+380:        data:
+381:          sheet.data
+382:
+383:      })
+384:
+385:    }
+386:  )
+387:
+388:  await saveWorkbook({
+389:
+390:    workbook,
+391:
+392:    reportName
+393:
+394:  })
+395:
+396:}
+397:
+398:// =====================================================
+399:// SUMMARY SHEET
+400:// =====================================================
+401:
+402:export function addSummarySheet({
+403:
+404:  workbook,
+405:
+406:  title,
+407:
+408:  summary = {}
+409:
+410:}) {
+411:
+412:  const worksheet =
+413:    workbook.addWorksheet(
+414:      'Summary'
+415:    )
+416:
+417:  worksheet.addRow(
+418:    [title]
+419:  )
+420:
+421:  worksheet.addRow([])
+422:
+423:  Object.entries(
+424:    summary
+425:  ).forEach(
+426:    ([key, value]) => {
+427:
+428:      worksheet.addRow(
+429:        [
+430:          key,
+431:          value
+432:        ]
+433:      )
+434:
+435:    }
+436:  )
+437:
+438:  autoFitColumns(
+439:    worksheet
+440:  )
+441:
+442:  return worksheet
+443:
+444:}
+445:
+446:// =====================================================
+447:// IMPORT TEMPLATE
+448:// =====================================================
+449:
+450:export async function downloadImportTemplate({
+451:
+452:  reportName,
+453:
+454:  columns,
+455:
+456:  sampleRows = []
+457:
+458:}) {
+459:
+460:  const workbook =
+461:    createWorkbook(
+462:      reportName
+463:    )
+464:
+465:  addWorksheet({
+466:
+467:    workbook,
+468:
+469:    sheetName:
+470:      'Template',
+471:
+472:    columns,
+473:
+474:    data:
+475:      sampleRows
+476:
+477:  })
+478:
+479:  await saveWorkbook({
+480:
+481:    workbook,
+482:
+483:    reportName:
+484:      `${reportName}_Template`
+485:
+486:  })
+487:
+488:}
+489:
+490:// =====================================================
+491:// LOOKUP SHEET
+492:// =====================================================
+493:
+494:export function addLookupSheet({
+495:
+496:  workbook,
+497:
+498:  sheetName,
+499:
+500:  values = []
+501:
+502:}) {
+503:
+504:  const worksheet =
+505:    workbook.addWorksheet(
+506:      sheetName
+507:    )
+508:
+509:  values.forEach(
+510:    value => {
+511:
+512:      worksheet.addRow(
+513:        [value]
+514:      )
+515:
+516:    }
+517:  )
+518:
+519:  autoFitColumns(
+520:    worksheet
+521:  )
+522:
+523:  return worksheet
+524:
+525:}
+526:
+527:// =====================================================
+528:// HIDDEN LOOKUP SHEET
+529:// =====================================================
+530:
+531:export function hideWorksheet(
+532:  worksheet
+533:) {
+534:
+535:  worksheet.state =
+536:    'hidden'
+537:
+538:}
+539:
+540:// =====================================================
+541:// ERROR WORKBOOK
+542:// =====================================================
+543:
+544:export async function downloadErrorWorkbook({
+545:
+546:  reportName,
+547:
+548:  errors = []
+549:
+550:}) {
+551:
+552:  const workbook =
+553:    createWorkbook(
+554:      reportName
+555:    )
+556:
+557:  const worksheet =
+558:    workbook.addWorksheet(
+559:      'Errors'
+560:    )
+561:
+562:  worksheet.columns = [
+563:
+564:    {
+565:      header:
+566:        'Row',
+567:
+568:      key:
+569:        'row'
+570:    },
+571:
+572:    {
+573:      header:
+574:        'Field',
+575:
+576:      key:
+577:        'field'
+578:    },
+579:
+580:    {
+581:      header:
+582:        'Value',
+583:
+584:      key:
+585:        'value'
+586:    },
+587:
+588:    {
+589:      header:
+590:        'Error',
+591:
+592:      key:
+593:        'message'
+594:    }
+595:
+596:  ]
+597:
+598:  errors.forEach(
+599:    error => {
+600:
+601:      worksheet.addRow(
+602:        error
+603:      )
+604:
+605:    }
+606:  )
+607:
+608:  styleHeaderRow(
+609:    worksheet
+610:  )
+611:
+612:  autoFitColumns(
+613:    worksheet
+614:  )
+615:
+616:  await saveWorkbook({
+617:
+618:    workbook,
+619:
+620:    reportName:
+621:      `${reportName}_Errors`
+622:
+623:  })
+624:
+625:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\exportConstants.js 
+================================================== 
+1:﻿// =====================================================
+2:// EXPORT CONSTANTS
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:export const EXPORT_CONFIG = {
+7:
+8:  organization:
+9:    'Kenya ParaCycling Federation',
+10:
+11:  systemName:
+12:    'Federation Management System',
+13:
+14:  reportFooter:
+15:    'Kenya ParaCycling Federation',
+16:
+17:  generatedBy:
+18:    'ParaCycling Federation System',
+19:
+20:  defaultSheetName:
+21:    'Report',
+22:
+23:  defaultCsvDelimiter:
+24:    ',',
+25:
+26:  defaultDateFormat:
+27:    'YYYY-MM-DD',
+28:
+29:  defaultDateTimeFormat:
+30:    'YYYY-MM-DD HH:mm',
+31:
+32:  defaultPdfOrientation:
+33:    'landscape',
+34:
+35:  defaultPdfSize:
+36:    'a4',
+37:
+38:  defaultFilePrefix:
+39:    'KPF'
+40:
+41:}
+42:
+43:// =====================================================
+44:// FILE TYPES
+45:// =====================================================
+46:
+47:export const FILE_TYPES = {
+48:
+49:  CSV:
+50:    'csv',
+51:
+52:  XLSX:
+53:    'xlsx',
+54:
+55:  PDF:
+56:    'pdf'
+57:
+58:}
+59:
+60:// =====================================================
+61:// MIME TYPES
+62:// =====================================================
+63:
+64:export const MIME_TYPES = {
+65:
+66:  CSV:
+67:    'text/csv;charset=utf-8;',
+68:
+69:  XLSX:
+70:    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+71:
+72:  PDF:
+73:    'application/pdf'
+74:
+75:}
+76:
+77:// =====================================================
+78:// DEFAULT FILE NAMES
+79:// =====================================================
+80:
+81:export const REPORT_NAMES = {
+82:
+83:  ATHLETES:
+84:    'Athletes',
+85:
+86:  TEAMS:
+87:    'Teams',
+88:
+89:  TEAM_MEMBERS:
+90:    'Team Members',
+91:
+92:  EVENTS:
+93:    'Events',
+94:
+95:  PARTICIPANTS:
+96:    'Participants',
+97:
+98:  TRAINING:
+99:    'Training Log',
+100:
+101:  PERFORMANCE:
+102:    'Performance',
+103:
+104:  RACE_RESULTS:
+105:    'Race Results',
+106:
+107:  RANKINGS:
+108:    'Competition Rankings'
+109:
+110:}
+111:
+112:// =====================================================
+113:// IMPORT TEMPLATE TITLES
+114:// =====================================================
+115:
+116:export const TEMPLATE_NAMES = {
+117:
+118:  ATHLETES:
+119:    'Athlete Import Template',
+120:
+121:  TEAMS:
+122:    'Team Import Template',
+123:
+124:  TEAM_MEMBERS:
+125:    'Team Member Import Template',
+126:
+127:  EVENTS:
+128:    'Event Import Template',
+129:
+130:  PARTICIPANTS:
+131:    'Participant Import Template',
+132:
+133:  TRAINING:
+134:    'Training Import Template',
+135:
+136:  PERFORMANCE:
+137:    'Performance Import Template',
+138:
+139:  RACE_RESULTS:
+140:    'Race Results Import Template'
+141:
+142:}
+143:
+144:// =====================================================
+145:// PDF STYLES
+146:// =====================================================
+147:
+148:export const PDF_STYLES = {
+149:
+150:  titleSize:
+151:    18,
+152:
+153:  subtitleSize:
+154:    12,
+155:
+156:  bodySize:
+157:    10,
+158:
+159:  footerSize:
+160:    8,
+161:
+162:  margin:
+163:    20
+164:
+165:}
+166:
+167:// =====================================================
+168:// EXCEL STYLES
+169:// =====================================================
+170:
+171:export const EXCEL_STYLES = {
+172:
+173:  headerRowHeight:
+174:    25,
+175:
+176:  defaultColumnWidth:
+177:    20,
+178:
+179:  titleFontSize:
+180:    16,
+181:
+182:  headerFontSize:
+183:    12
+184:
+185:}
+186:
+187:// =====================================================
+188:// CSV OPTIONS
+189:// =====================================================
+190:
+191:export const CSV_OPTIONS = {
+192:
+193:  delimiter:
+194:    ',',
+195:
+196:  quote:
+197:    '"',
+198:
+199:  lineBreak:
+200:    '\r\n'
+201:
+202:}
+203:
+204:// =====================================================
+205:// DOWNLOAD HELPERS
+206:// =====================================================
+207:
+208:export function buildFileName(
+209:  reportName
+210:) {
+211:
+212:  const now =
+213:    new Date()
+214:
+215:  const year =
+216:    now.getFullYear()
+217:
+218:  const month =
+219:    String(
+220:      now.getMonth() + 1
+221:    ).padStart(
+222:      2,
+223:      '0'
+224:    )
+225:
+226:  const day =
+227:    String(
+228:      now.getDate()
+229:    ).padStart(
+230:      2,
+231:      '0'
+232:    )
+233:
+234:  return `${EXPORT_CONFIG.defaultFilePrefix}_${reportName}_${year}${month}${day}`
+235:
+236:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\exportService.js 
+================================================== 
+1:﻿// =====================================================
+2:// EXPORT SERVICE
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:// =====================================================
+7:// CSV
+8:// =====================================================
+9:
+10:export {
+11:
+12:  downloadCsv,
+13:
+14:  exportCurrentPage,
+15:
+16:  exportAll,
+17:
+18:  exportSelected,
+19:
+20:  downloadCsvTemplate,
+21:
+22:  downloadImportErrors
+23:
+24:}
+25:from './csvExport.js'
+26:
+27:// =====================================================
+28:// EXCEL
+29:// =====================================================
+30:
+31:export {
+32:
+33:  downloadExcel,
+34:
+35:  downloadExcelWorkbook,
+36:
+37:  downloadImportTemplate,
+38:
+39:  downloadErrorWorkbook,
+40:
+41:  addWorksheet,
+42:
+43:  addSummarySheet
+44:
+45:}
+46:from './excelExport.js'
+47:
+48:// =====================================================
+49:// PDF
+50:// =====================================================
+51:
+52:export {
+53:
+54:  downloadPdf,
+55:
+56:  downloadPdfErrors,
+57:
+58:  downloadSummaryPdf
+59:
+60:}
+61:from './pdfExport.js'
+62:
+63:// =====================================================
+64:// TEMPLATES
+65:// =====================================================
+66:
+67:export {
+68:
+69:  downloadAthleteTemplate,
+70:
+71:  downloadImportTemplate as downloadFederationTemplate
+72:
+73:}
+74:from './templateExport.js'
+75:
+76:// =====================================================
+77:// ERRORS
+78:// =====================================================
+79:
+80:export {
+81:
+82:  downloadImportErrorsCsv,
+83:
+84:  downloadImportErrorsExcel,
+85:
+86:  downloadImportErrorsPdf,
+87:
+88:  downloadFullErrorPackage,
+89:
+90:  downloadUploadSummary,
+91:
+92:  createImportResult,
+93:
+94:  buildImportMessage
+95:
+96:}
+97:from './errorExport.js'
+98:
+99:// =====================================================
+100:// EXPORT TYPES
+101:// =====================================================
+102:
+103:export const EXPORT_TYPES = {
+104:
+105:  CSV:
+106:    'csv',
+107:
+108:  EXCEL:
+109:    'excel',
+110:
+111:  PDF:
+112:    'pdf'
+113:
+114:}
+115:
+116:// =====================================================
+117:// GENERIC EXPORT
+118:// =====================================================
+119:
+120:export async function exportData({
+121:
+122:  type,
+123:
+124:  reportName,
+125:
+126:  columns,
+127:
+128:  data,
+129:
+130:  filters = {},
+131:
+132:  summary = {}
+133:
+134:}) {
+135:
+136:  switch (
+137:    String(type)
+138:      .toLowerCase()
+139:  ) {
+140:
+141:    case 'csv':
+142:
+143:      return downloadCsv({
+144:
+145:        reportName,
+146:
+147:        columns,
+148:
+149:        data
+150:
+151:      })
+152:
+153:    case 'excel':
+154:
+155:      return downloadExcel({
+156:
+157:        reportName,
+158:
+159:        columns,
+160:
+161:        data
+162:
+163:      })
+164:
+165:    case 'pdf':
+166:
+167:      return downloadPdf({
+168:
+169:        reportName,
+170:
+171:        columns,
+172:
+173:        data,
+174:
+175:        filters,
+176:
+177:        summary
+178:
+179:      })
+180:
+181:    default:
+182:
+183:      throw new Error(
+184:        `Unsupported export type: ${type}`
+185:      )
+186:
+187:  }
+188:
+189:}
+190:
+191:
+192:
+193:
+194:// =====================================================
+195:// FILTERED DATA
+196:// =====================================================
+197:
+198:export async function exportFilteredRows({
+199:
+200:  type,
+201:
+202:  rows,
+203:
+204:  columns,
+205:
+206:  reportName,
+207:
+208:  filters = {},
+209:
+210:  summary = {}
+211:
+212:}) {
+213:
+214:  return exportData({
+215:
+216:    type,
+217:
+218:    reportName,
+219:
+220:    columns,
+221:
+222:    data:
+223:      rows,
+224:
+225:    filters,
+226:
+227:    summary
+228:
+229:  })
+230:
+231:}
+232:
+233:// =====================================================
+234:// ALL DATA
+235:// =====================================================
+236:
+237:export async function exportAllRows({
+238:
+239:  type,
+240:
+241:  data,
+242:
+243:  columns,
+244:
+245:  reportName,
+246:
+247:  filters = {},
+248:
+249:  summary = {}
+250:
+251:}) {
+252:
+253:  return exportData({
+254:
+255:    type,
+256:
+257:    reportName,
+258:
+259:    columns,
+260:
+261:    data,
+262:
+263:    filters,
+264:
+265:    summary
+266:
+267:  })
+268:
+269:}
+270:
+271:// =====================================================
+272:// SELECTED ROWS
+273:// =====================================================
+274:
+275:export async function exportSelectedRows({
+276:
+277:  type,
+278:
+279:  selectedRows,
+280:
+281:  columns,
+282:
+283:  reportName,
+284:
+285:  filters = {},
+286:
+287:  summary = {}
+288:
+289:}) {
+290:
+291:  return exportData({
+292:
+293:    type,
+294:
+295:    reportName,
+296:
+297:    columns,
+298:
+299:    data:
+300:      selectedRows,
+301:
+302:    filters,
+303:
+304:    summary
+305:
+306:  })
+307:
+308:}
+309:
+310:// =====================================================
+311:// FEDERATION EXPORT
+312:// =====================================================
+313:
+314:export async function exportFederationReport({
+315:
+316:  type,
+317:
+318:  reportName,
+319:
+320:  columns,
+321:
+322:  data,
+323:
+324:  summary = {},
+325:
+326:  filters = {}
+327:
+328:}) {
+329:
+330:  return exportData({
+331:
+332:    type,
+333:
+334:    reportName,
+335:
+336:    columns,
+337:
+338:    data,
+339:
+340:    summary,
+341:
+342:    filters
+343:
+344:  })
+345:
+346:}
+347:
+348:// =====================================================
+349:// BULK EXPORT
+350:// =====================================================
+351:
+352:export async function exportMultipleReports({
+353:
+354:  reports = []
+355:
+356:}) {
+357:
+358:  const results = []
+359:
+360:  for (
+361:    const report
+362:    of reports
+363:  ) {
+364:
+365:    try {
+366:
+367:      await exportData(
+368:        report
+369:      )
+370:
+371:      results.push({
+372:
+373:        report:
+374:          report.reportName,
+375:
+376:        success:
+377:          true
+378:
+379:      })
+380:
+381:    } catch (
+382:      error
+383:    ) {
+384:
+385:      results.push({
+386:
+387:        report:
+388:          report.reportName,
+389:
+390:        success:
+391:          false,
+392:
+393:        error:
+394:          error.message
+395:
+396:      })
+397:
+398:    }
+399:
+400:  }
+401:
+402:  return results
+403:
+404:}
+405:
+406:// =====================================================
+407:// TEMPLATE EXPORT
+408:// =====================================================
+409:
+410:export async function exportTemplate({
+411:
+412:  reportName,
+413:
+414:  sheetName,
+415:
+416:  columns,
+417:
+418:  sampleRows,
+419:
+420:  instructions,
+421:
+422:  lookups
+423:
+424:}) {
+425:
+426:  return downloadFederationTemplate({
+427:
+428:    reportName,
+429:
+430:    sheetName,
+431:
+432:    columns,
+433:
+434:    sampleRows,
+435:
+436:    instructions,
+437:
+438:    lookups
+439:
+440:  })
+441:
+442:}
+443:
+444:// =====================================================
+445:// IMPORT FAILURE PACKAGE
+446:// =====================================================
+447:
+448:export async function exportImportFailure({
+449:
+450:  reportName,
+451:
+452:  errors,
+453:
+454:  summary
+455:
+456:}) {
+457:
+458:  await downloadFullErrorPackage({
+459:
+460:    reportName,
+461:
+462:    errors
+463:
+464:  })
+465:
+466:  downloadUploadSummary({
+467:
+468:    summary
+469:
+470:  })
+471:
+472:}
+473:
+474:// =====================================================
+475:// EXPORT MENU CONFIG
+476:// =====================================================
+477:
+478:export function buildExportMenu({
+479:
+480:  includeCsv = true,
+481:
+482:  includeExcel = true,
+483:
+484:  includePdf = true
+485:
+486:} = {}) {
+487:
+488:  const menu = []
+489:
+490:  if (
+491:    includeCsv
+492:  ) {
+493:
+494:    menu.push({
+495:
+496:      type:
+497:        'csv',
+498:
+499:      label:
+500:        'Export CSV'
+501:
+502:    })
+503:
+504:  }
+505:
+506:  if (
+507:    includeExcel
+508:  ) {
+509:
+510:    menu.push({
+511:
+512:      type:
+513:        'excel',
+514:
+515:      label:
+516:        'Export Excel'
+517:
+518:    })
+519:
+520:  }
+521:
+522:  if (
+523:    includePdf
+524:  ) {
+525:
+526:    menu.push({
+527:
+528:      type:
+529:        'pdf',
+530:
+531:      label:
+532:        'Export PDF'
+533:
+534:    })
+535:
+536:  }
+537:
+538:  return menu
+539:
+540:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\pdfExport.js 
+================================================== 
+1:﻿// =====================================================
+2:// PDF EXPORT
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:import jsPDF from 'jspdf'
+7:import autoTable from 'jspdf-autotable'
+8:
+9:import {
+10:  EXPORT_CONFIG,
+11:  buildFileName
+12:}
+13:from './exportConstants.js'
+14:
+15:// =====================================================
+16:// DOCUMENT
+17:// =====================================================
+18:
+19:export function createPdf({
+20:
+21:  orientation =
+22:    'landscape',
+23:
+24:  unit =
+25:    'mm',
+26:
+27:  format =
+28:    'a4'
+29:
+30:} = {}) {
+31:
+32:  return new jsPDF({
+33:
+34:    orientation,
+35:    unit,
+36:    format
+37:
+38:  })
+39:
+40:}
+41:
+42:// =====================================================
+43:// HEADER
+44:// =====================================================
+45:
+46:export function addReportHeader({
+47:
+48:  pdf,
+49:
+50:  reportTitle,
+51:
+52:  reportSubtitle = ''
+53:
+54:}) {
+55:
+56:  pdf.setFontSize(18)
+57:
+58:  pdf.text(
+59:
+60:    EXPORT_CONFIG.organization,
+61:
+62:    14,
+63:
+64:    15
+65:
+66:  )
+67:
+68:  pdf.setFontSize(14)
+69:
+70:  pdf.text(
+71:    reportTitle,
+72:    14,
+73:    24
+74:  )
+75:
+76:  if (
+77:    reportSubtitle
+78:  ) {
+79:
+80:    pdf.setFontSize(10)
+81:
+82:    pdf.text(
+83:      reportSubtitle,
+84:      14,
+85:      30
+86:    )
+87:
+88:  }
+89:
+90:}
+91:
+92:// =====================================================
+93:// GENERATED INFO
+94:// =====================================================
+95:
+96:export function addGeneratedInfo({
+97:
+98:  pdf,
+99:
+100:  generatedBy =
+101:    EXPORT_CONFIG.generatedBy
+102:
+103:}) {
+104:
+105:  const pageWidth =
+106:    pdf.internal.pageSize.width
+107:
+108:  const now =
+109:    new Date()
+110:
+111:  pdf.setFontSize(8)
+112:
+113:  pdf.text(
+114:
+115:    `Generated: ${now.toLocaleString()}`,
+116:
+117:    pageWidth - 70,
+118:
+119:    15
+120:
+121:  )
+122:
+123:  pdf.text(
+124:
+125:    `Generated By: ${generatedBy}`,
+126:
+127:    pageWidth - 70,
+128:
+129:    20
+130:
+131:  )
+132:
+133:}
+134:
+135:// =====================================================
+136:// FILTERS SECTION
+137:// =====================================================
+138:
+139:export function addFiltersSection({
+140:
+141:  pdf,
+142:
+143:  filters = {}
+144:
+145:}) {
+146:
+147:  let y = 38
+148:
+149:  const entries =
+150:    Object.entries(
+151:      filters
+152:    )
+153:
+154:  if (
+155:    entries.length === 0
+156:  ) {
+157:
+158:    return y
+159:
+160:  }
+161:
+162:  pdf.setFontSize(10)
+163:
+164:  pdf.text(
+165:    'Filters Applied',
+166:    14,
+167:    y
+168:  )
+169:
+170:  y += 6
+171:
+172:  entries.forEach(
+173:
+174:    ([key, value]) => {
+175:
+176:      pdf.text(
+177:
+178:        `${key}: ${value}`,
+179:
+180:        18,
+181:
+182:        y
+183:
+184:      )
+185:
+186:      y += 5
+187:
+188:    }
+189:
+190:  )
+191:
+192:  return y
+193:
+194:}
+195:
+196:// =====================================================
+197:// SUMMARY SECTION
+198:// =====================================================
+199:
+200:export function addSummarySection({
+201:
+202:  pdf,
+203:
+204:  summary = {},
+205:
+206:  startY = 40
+207:
+208:}) {
+209:
+210:  const entries =
+211:    Object.entries(
+212:      summary
+213:    )
+214:
+215:  if (
+216:    entries.length === 0
+217:  ) {
+218:
+219:    return startY
+220:
+221:  }
+222:
+223:  pdf.setFontSize(10)
+224:
+225:  pdf.text(
+226:    'Summary',
+227:    14,
+228:    startY
+229:  )
+230:
+231:  let y =
+232:    startY + 6
+233:
+234:  entries.forEach(
+235:
+236:    ([key, value]) => {
+237:
+238:      pdf.text(
+239:
+240:        `${key}: ${value}`,
+241:
+242:        18,
+243:
+244:        y
+245:
+246:      )
+247:
+248:      y += 5
+249:
+250:    }
+251:
+252:  )
+253:
+254:  return y
+255:
+256:}
+257:
+258:// =====================================================
+259:// TABLE
+260:// =====================================================
+261:
+262:export function addTable({
+263:
+264:  pdf,
+265:
+266:  columns = [],
+267:
+268:  data = [],
+269:
+270:  startY = 50
+271:
+272:}) {
+273:
+274:  autoTable(
+275:    pdf,
+276:    {
+277:
+278:      startY,
+279:
+280:      head: [
+281:
+282:        columns.map(
+283:          column =>
+284:            column.label
+285:        )
+286:
+287:      ],
+288:
+289:      body:
+290:
+291:        data.map(
+292:          row =>
+293:
+294:            columns.map(
+295:              column =>
+296:
+297:                row[
+298:                  column.key
+299:                ] ?? ''
+300:            )
+301:        ),
+302:
+303:      styles: {
+304:
+305:        fontSize:
+306:          8
+307:
+308:      },
+309:
+310:      headStyles: {
+311:
+312:        fillColor:
+313:          [60, 120, 60]
+314:
+315:      }
+316:
+317:    }
+318:  )
+319:
+320:  return (
+321:    pdf.lastAutoTable
+322:      ?.finalY || startY
+323:  )
+324:
+325:}
+326:
+327:// =====================================================
+328:// FOOTER
+329:// =====================================================
+330:
+331:export function addFooter(
+332:  pdf
+333:) {
+334:
+335:  const pageCount =
+336:    pdf.internal
+337:      .getNumberOfPages()
+338:
+339:  for (
+340:
+341:    let page = 1;
+342:
+343:    page <= pageCount;
+344:
+345:    page++
+346:
+347:  ) {
+348:
+349:    pdf.setPage(
+350:      page
+351:    )
+352:
+353:    const width =
+354:      pdf.internal
+355:        .pageSize
+356:        .getWidth()
+357:
+358:    const height =
+359:      pdf.internal
+360:        .pageSize
+361:        .getHeight()
+362:
+363:    pdf.setFontSize(
+364:      8
+365:    )
+366:
+367:    pdf.text(
+368:
+369:      EXPORT_CONFIG.reportFooter,
+370:
+371:      14,
+372:
+373:      height - 8
+374:
+375:    )
+376:
+377:    pdf.text(
+378:
+379:      `Page ${page} of ${pageCount}`,
+380:
+381:      width - 35,
+382:
+383:      height - 8
+384:
+385:    )
+386:
+387:  }
+388:
+389:}
+390:
+391:// =====================================================
+392:// SAVE
+393:// =====================================================
+394:
+395:export function savePdf({
+396:
+397:  pdf,
+398:
+399:  reportName
+400:
+401:}) {
+402:
+403:  pdf.save(
+404:
+405:    `${buildFileName(
+406:      reportName
+407:    )}.pdf`
+408:
+409:  )
+410:
+411:}
+412:
+413:// =====================================================
+414:// SIMPLE REPORT
+415:// =====================================================
+416:
+417:export function downloadPdf({
+418:
+419:  reportName,
+420:
+421:  columns,
+422:
+423:  data,
+424:
+425:  filters = {},
+426:
+427:  summary = {},
+428:
+429:  orientation =
+430:    'landscape'
+431:
+432:}) {
+433:
+434:  const pdf =
+435:    createPdf({
+436:
+437:      orientation
+438:
+439:    })
+440:
+441:  addReportHeader({
+442:
+443:    pdf,
+444:
+445:    reportTitle:
+446:      reportName
+447:
+448:  })
+449:
+450:  addGeneratedInfo({
+451:    pdf
+452:  })
+453:
+454:  let currentY =
+455:    addFiltersSection({
+456:
+457:      pdf,
+458:
+459:      filters
+460:
+461:    })
+462:
+463:  currentY =
+464:    addSummarySection({
+465:
+466:      pdf,
+467:
+468:      summary,
+469:
+470:      startY:
+471:        currentY + 5
+472:
+473:    })
+474:
+475:  addTable({
+476:
+477:    pdf,
+478:
+479:    columns,
+480:
+481:    data,
+482:
+483:    startY:
+484:      currentY + 10
+485:
+486:  })
+487:
+488:  addFooter(
+489:    pdf
+490:  )
+491:
+492:  savePdf({
+493:
+494:    pdf,
+495:
+496:    reportName
+497:
+498:  })
+499:
+500:}
+501:
+502:// =====================================================
+503:// IMPORT ERROR REPORT
+504:// =====================================================
+505:
+506:export function downloadPdfErrors({
+507:
+508:  reportName,
+509:
+510:  errors = []
+511:
+512:}) {
+513:
+514:  const columns = [
+515:
+516:    {
+517:      key: 'row',
+518:      label: 'Row'
+519:    },
+520:
+521:    {
+522:      key: 'field',
+523:      label: 'Field'
+524:    },
+525:
+526:    {
+527:      key: 'value',
+528:      label: 'Value'
+529:    },
+530:
+531:    {
+532:      key: 'message',
+533:      label: 'Error'
+534:    }
+535:
+536:  ]
+537:
+538:  downloadPdf({
+539:
+540:    reportName,
+541:
+542:    columns,
+543:
+544:    data:
+545:      errors
+546:
+547:  })
+548:
+549:}
+550:
+551:// =====================================================
+552:// SUMMARY REPORT
+553:// =====================================================
+554:
+555:export function downloadSummaryPdf({
+556:
+557:  reportName,
+558:
+559:  summary
+560:
+561:}) {
+562:
+563:  const pdf =
+564:    createPdf()
+565:
+566:  addReportHeader({
+567:
+568:    pdf,
+569:
+570:    reportTitle:
+571:      reportName
+572:
+573:  })
+574:
+575:  addGeneratedInfo({
+576:    pdf
+577:  })
+578:
+579:  addSummarySection({
+580:
+581:    pdf,
+582:
+583:    summary,
+584:
+585:    startY: 40
+586:
+587:  })
+588:
+589:  addFooter(
+590:    pdf
+591:  )
+592:
+593:  savePdf({
+594:
+595:    pdf,
+596:
+597:    reportName
+598:
+599:  })
+600:
+601:} 
+================================================== 
+FILE: E:\paracycling\src\js\core\export\templateExport.js 
+================================================== 
+1:﻿// =====================================================
+2:// TEMPLATE EXPORT
+3:// ParaCycling Federation Management System
+4:// =====================================================
+5:
+6:import ExcelJS from 'exceljs'
+7:
+8:import {
+9:  saveAs
+10:}
+11:from 'file-saver'
+12:
+13:import {
+14:  createWorkbook,
+15:  autoFitColumns,
+16:  styleHeaderRow,
+17:  hideWorksheet
+18:}
+19:from './excelExport.js'
+20:
+21:import {
+22:  buildFileName
+23:}
+24:from './exportConstants.js'
+25:
+26:// =====================================================
+27:// SAVE TEMPLATE
+28:// =====================================================
+29:
+30:async function saveTemplate({
+31:
+32:  workbook,
+33:
+34:  reportName
+35:
+36:}) {
+37:
+38:  const buffer =
+39:    await workbook.xlsx.writeBuffer()
+40:
+41:  const blob =
+42:    new Blob(
+43:      [buffer],
+44:      {
+45:        type:
+46:          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+47:      }
+48:    )
+49:
+50:  saveAs(
+51:
+52:    blob,
+53:
+54:    `${buildFileName(
+55:      reportName
+56:    )}.xlsx`
+57:
+58:  )
+59:
+60:}
+61:
+62:// =====================================================
+63:// INSTRUCTIONS SHEET
+64:// =====================================================
+65:
+66:export function addInstructionsSheet({
+67:
+68:  workbook,
+69:
+70:  title,
+71:
+72:  instructions = []
+73:
+74:}) {
+75:
+76:  const sheet =
+77:    workbook.addWorksheet(
+78:      'Instructions'
+79:    )
+80:
+81:  sheet.addRow(
+82:    [title]
+83:  )
+84:
+85:  sheet.addRow([])
+86:
+87:  instructions.forEach(
+88:    instruction => {
+89:
+90:      sheet.addRow(
+91:        [instruction]
+92:      )
+93:
+94:    }
+95:  )
+96:
+97:  sheet.getRow(1)
+98:    .font = {
+99:
+100:    bold: true,
+101:
+102:    size: 16
+103:
+104:  }
+105:
+106:  autoFitColumns(
+107:    sheet
+108:  )
+109:
+110:  return sheet
+111:
+112:}
+113:
+114:// =====================================================
+115:// TEMPLATE SHEET
+116:// =====================================================
+117:
+118:export function addTemplateSheet({
+119:
+120:  workbook,
+121:
+122:  sheetName,
+123:
+124:  columns = [],
+125:
+126:  sampleRows = []
+127:
+128:}) {
+129:
+130:  const sheet =
+131:    workbook.addWorksheet(
+132:      sheetName
+133:    )
+134:
+135:  sheet.columns =
+136:    columns.map(
+137:      column => ({
+138:
+139:        header:
+140:          column.required
+141:            ? `${column.label} *`
+142:            : column.label,
+143:
+144:        key:
+145:          column.key
+146:
+147:      })
+148:    )
+149:
+150:  sampleRows.forEach(
+151:    row => {
+152:
+153:      sheet.addRow(
+154:        row
+155:      )
+156:
+157:    }
+158:  )
+159:
+160:  styleHeaderRow(
+161:    sheet
+162:  )
+163:
+164:  autoFitColumns(
+165:    sheet
+166:  )
+167:
+168:  return sheet
+169:
+170:}
+171:
+172:// =====================================================
+173:// LOOKUP SHEET
+174:// =====================================================
+175:
+176:export function addLookupSheet({
+177:
+178:  workbook,
+179:
+180:  sheetName,
+181:
+182:  values = [],
+183:
+184:  hidden = true
+185:
+186:}) {
+187:
+188:  const sheet =
+189:    workbook.addWorksheet(
+190:      sheetName
+191:    )
+192:
+193:  values.forEach(
+194:    value => {
+195:
+196:      sheet.addRow(
+197:        [value]
+198:      )
+199:
+200:    }
+201:  )
+202:
+203:  autoFitColumns(
+204:    sheet
+205:  )
+206:
+207:  if (
+208:    hidden
+209:  ) {
+210:
+211:    hideWorksheet(
+212:      sheet
+213:    )
+214:
+215:  }
+216:
+217:  return sheet
+218:
+219:}
+220:
+221:// =====================================================
+222:// DROPDOWN VALIDATION
+223:// =====================================================
+224:
+225:export function addDropdownValidation({
+226:
+227:  worksheet,
+228:
+229:  column,
+230:
+231:  lookupSheet,
+232:
+233:  rowCount = 5000
+234:
+235:}) {
+236:
+237:  for (
+238:    let row = 2;
+239:    row <= rowCount;
+240:    row++
+241:  ) {
+242:
+243:    worksheet.getCell(
+244:      `${column}${row}`
+245:    ).dataValidation = {
+246:
+247:      type:
+248:        'list',
+249:
+250:      allowBlank:
+251:        true,
+252:
+253:      formulae: [
+254:
+255:        `'${lookupSheet}'!$A$1:$A$5000`
+256:
+257:      ]
+258:
+259:    }
+260:
+261:  }
+262:
+263:}
+264:
+265:// =====================================================
+266:// REQUIRED FIELD HIGHLIGHT
+267:// =====================================================
+268:
+269:export function highlightRequiredColumns({
+270:
+271:  worksheet,
+272:
+273:  requiredColumns = []
+274:
+275:}) {
+276:
+277:  worksheet.getRow(1)
+278:    .eachCell(
+279:      (cell, index) => {
+280:
+281:        const letter =
+282:          worksheet.getColumn(
+283:            index
+284:          ).letter
+285:
+286:        if (
+287:
+288:          requiredColumns.includes(
+289:            letter
+290:          )
+291:
+292:        ) {
+293:
+294:          cell.fill = {
+295:
+296:            type:
+297:              'pattern',
+298:
+299:            pattern:
+300:              'solid',
+301:
+302:            fgColor: {
+303:              argb:
+304:                'FFF2CC'
+305:            }
+306:
+307:          }
+308:
+309:        }
+310:
+311:      }
+312:    )
+313:
+314:}
+315:
+316:// =====================================================
+317:// MASTER TEMPLATE
+318:// =====================================================
+319:
+320:export async function downloadImportTemplate({
+321:
+322:  reportName,
+323:
+324:  sheetName,
+325:
+326:  columns,
+327:
+328:  sampleRows = [],
+329:
+330:  instructions = [],
+331:
+332:  lookups = []
+333:
+334:}) {
+335:
+336:  const workbook =
+337:    createWorkbook(
+338:      reportName
+339:    )
+340:
+341:  addInstructionsSheet({
+342:
+343:    workbook,
+344:
+345:    title:
+346:      `${reportName} Import Template`,
+347:
+348:    instructions
+349:
+350:  })
+351:
+352:  const templateSheet =
+353:    addTemplateSheet({
+354:
+355:      workbook,
+356:
+357:      sheetName,
+358:
+359:      columns,
+360:
+361:      sampleRows
+362:
+363:    })
+364:
+365:  lookups.forEach(
+366:    lookup => {
+367:
+368:      addLookupSheet({
+369:
+370:        workbook,
+371:
+372:        sheetName:
+373:          lookup.sheetName,
+374:
+375:        values:
+376:          lookup.values
+377:
+378:      })
+379:
+380:    }
+381:  )
+382:
+383:  await saveTemplate({
+384:
+385:    workbook,
+386:
+387:    reportName:
+388:      `${reportName}_Template`
+389:
+390:  })
+391:
+392:}
+393:
+394:// =====================================================
+395:// ATHLETE TEMPLATE
+396:// =====================================================
+397:
+398:export async function downloadAthleteTemplate() {
+399:
+400:  await downloadImportTemplate({
+401:
+402:    reportName:
+403:      'Athletes',
+404:
+405:    sheetName:
+406:      'Athletes',
+407:
+408:    columns: [
+409:
+410:      {
+411:        key:
+412:          'athlete_code',
+413:
+414:        label:
+415:          'Athlete Code',
+416:
+417:        required:
+418:          true
+419:      },
+420:
+421:      {
+422:        key:
+423:          'full_name',
+424:
+425:        label:
+426:          'Full Name',
+427:
+428:        required:
+429:          true
+430:      },
+431:
+432:      {
+433:        key:
+434:          'gender',
+435:
+436:        label:
+437:          'Gender',
+438:
+439:        required:
+440:          true
+441:      },
+442:
+443:      {
+444:        key:
+445:          'date_of_birth',
+446:
+447:        label:
+448:          'Date Of Birth',
+449:
+450:        required:
+451:          true
+452:      }
+453:
+454:    ],
+455:
+456:    sampleRows: [
+457:
+458:      {
+459:        athlete_code:
+460:          'ATH001',
+461:
+462:        full_name:
+463:          'John Doe',
+464:
+465:        gender:
+466:          'Male',
+467:
+468:        date_of_birth:
+469:          '1995-05-12'
+470:      }
+471:
+472:    ],
+473:
+474:    instructions: [
+475:
+476:      'Complete all required fields marked with *',
+477:
+478:      'Do not change column names',
+479:
+480:      'Remove sample rows before upload',
+481:
+482:      'Gender must match available lookup values'
+483:
+484:    ]
+485:
+486:  })
+487:
+488:}

@@ -1782,13 +1782,23 @@ async function saveTraining() {
         participantId,
 
       participant_instance_id:
-        participant
-          ?.participant_instance_id || null,
+  participant
+    ?.participant_instance_id || null,
 
-      event_id:
-        getValue(
-          'eventId'
-        ),
+event_id:
+  getValue(
+    'eventId'
+  ),
+
+event_instance_id:
+  getValue(
+    'eventInstanceId'
+  ) || null,
+
+program_id:
+  getValue(
+    'programId'
+  ) || null,
 
       team_id:
 

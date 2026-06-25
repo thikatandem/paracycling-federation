@@ -435,34 +435,36 @@ async function loadEventReportData() {
       data,
       error
     } =
-      await window.supabaseClient
-        .from(
-          'events'
-        )
-        .select(`
-          *,
-          country_master(
-            country_name
-          ),
-          county_master(
-            county_name
-          ),
-          town_master(
-            town_name
-          ),
-          status_master(
-            status_name
-          ),
-          event_category_master!fk_events_event_category(
-  category_name
-),
-          event_sponsors(
-  *,
-  sponsor_master(
-    sponsor_name
-  )
-)
-        `)
+     await window.supabaseClient
+  .from('event_instances')
+  .select(`
+    *,
+    events(
+      event_id,
+      event_name,
+      event_category_master(
+        category_name
+      )
+    ),
+    county_master(
+      county_name
+    ),
+    subcounty_master(
+      subcounty_name
+    ),
+    town_master(
+      town_name
+    ),
+    status_master(
+      status_name
+    ),
+    event_sponsors(
+      *,
+      sponsor_master(
+        sponsor_name
+      )
+    )
+  `)
 
     if (error) {
       throw error
@@ -565,7 +567,7 @@ function updateSummaryCards() {
   const competition =
     eventReportData.filter(
       event =>
-        event.event_category_master
+        event.events?.event_category_master
           ?.category_name
           ?.toLowerCase()
           .includes(
@@ -576,7 +578,7 @@ function updateSummaryCards() {
   const training =
     eventReportData.filter(
       event =>
-        event.event_category_master
+        event.events?.event_category_master
           ?.category_name
           ?.toLowerCase()
           .includes(
@@ -703,7 +705,7 @@ function buildCategoryAnalysis() {
     event => {
 
       const category =
-        event.event_category_master
+        event.events?.event_category_master
           ?.category_name ||
         event.event_category ||
         'Unknown'
@@ -882,7 +884,7 @@ function applyFilters() {
           [
             event.event_code || '',
 
-            event.event_name || '',
+            event.events?.event_name || '',
 
             event.organizer || '',
 
@@ -898,7 +900,7 @@ function applyFilters() {
             event.status_master
               ?.status_name || '',
 
-            event.event_category_master
+            event.events?.event_category_master
               ?.category_name || ''
           ]
             .join(' ')
@@ -1262,14 +1264,14 @@ function renderTable() {
 
             <td>
               ${
-                event.event_name ||
+                event.events?.event_name ||
                 ''
               }
             </td>
 
             <td>
               ${
-                event.event_category_master
+                event.events?.event_category_master
                   ?.category_name ||
                 ''
               }
@@ -1578,7 +1580,7 @@ async function (
 
     setText(
       'reportEventName',
-      event.event_name
+      event.events?.event_name
     )
 
     setText(
@@ -1709,7 +1711,7 @@ function exportCsv() {
 
         event.event_code,
 
-        event.event_name,
+        event.events?.event_name,
 
         event
           .event_category_master
