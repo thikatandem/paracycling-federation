@@ -8,14 +8,47 @@ const {
 } = window.jspdf
 
 const autoTable =
-  window.jspdf
-    ?.autoTable
+  window.autoTable
+
+console.log(
+  'window.autoTable',
+  window.autoTable
+)
 
 import {
   EXPORT_CONFIG,
   buildFileName
 }
 from './exportConstants.js'
+
+import {
+
+  createAttendanceChart,
+
+  createCountyChart,
+
+  createStatusDonutChart,
+
+  createTrainingLoadChart,
+
+  createTeamVsIndividualChart,
+
+  createPerformanceTrendChart,
+
+  createSpeedDistributionChart,
+
+  createClassificationChart,
+
+  createMonthlyRegistrationChart,
+
+  createGenderDistributionChart,
+
+  createRaceGapChart,
+
+  destroyPdfCharts
+
+}
+from '../../reports/chartExport.js'
 
 export const PDF_COLORS = {
 
@@ -152,55 +185,89 @@ export function addKpiPage({
   )
 
   pdf.text(
-    'Executive Dashboard',
-    14,
-    20
-  )
+  'Executive Performance Dashboard',
+  14,
+  20
+)
 
   let x = 14
 
   let y = 35
 
-  kpis.forEach(
+ kpis.forEach(
 
-    (
-      card,
-      index
-    ) => {
+  (
+    card,
+    index
+  ) => {
 
-      addKpiCard({
+    addKpiCard({
 
-        pdf,
+      pdf,
 
-        x,
+      x,
 
-        y,
+      y,
 
-        title:
-          card.title,
+      title:
+        card.title,
 
-        value:
-          card.value,
+      value:
+        card.value,
 
-        color:
-          card.color
-      })
+      color:
+        card.color
+    })
 
-      x += 70
+    pdf.setFontSize(
+      8
+    )
 
-      if (
-        (
-          index + 1
-        ) % 4 === 0
-      ) {
+    const notes = {
 
-        x = 14
+      Athletes:
+        'Active participants',
 
-        y += 40
-      }
+      Sessions:
+        'Training activity',
+
+      Attendance:
+        'Participation level',
+
+      'Distance KM':
+        'Distance covered'
 
     }
-  )
+
+    pdf.text(
+
+      notes[
+        card.title
+      ] || '',
+
+      x + 5,
+
+      y + 35
+
+    )
+
+    x += 70
+
+    if (
+      (
+        index + 1
+      ) % 4 === 0
+    ) {
+
+      x = 14
+
+      y += 50
+
+    }
+
+  }
+)
+  
 }
 
 export function addCoverPage({
@@ -233,21 +300,16 @@ export function addCoverPage({
     logoBase64
   ) {
 
+
     addFederationLogo({
+  pdf,
+  logoBase64,
+  x: 131,
+  y: 20,
+  width: 35,
+  height: 35
+})
 
-      pdf,
-
-      logoBase64,
-
-      x: 20,
-
-      y: 20,
-
-      width: 35,
-
-      height: 35
-
-    })
 
   }
 
@@ -261,39 +323,183 @@ export function addCoverPage({
     26
   )
 
-  pdf.text(
-    'KENYA PARA CYCLING FEDERATION',
-    20,
-    80
-  )
+ const centerX = 148.5
+
+pdf.setFont(
+  'helvetica',
+  'bold'
+)
+
+pdf.setFontSize(
+  30
+)
+
+pdf.text(
+
+  'THIKA TANDEM PARACYCLING CLUB',
+
+  centerX,
+
+  75,
+
+  {
+    align:
+      'center'
+  }
+
+)
 
   pdf.setFontSize(
     22
   )
 
-  pdf.text(
-    reportTitle,
-    20,
-    105
-  )
+  pdf.setFontSize(
+  22
+)
+
+pdf.text(
+
+  reportTitle,
+
+  centerX,
+
+  105,
+
+  {
+    align:
+      'center'
+  }
+
+)
+
 
   pdf.setFontSize(
     12
   )
 
-  pdf.text(
-    `Period: ${reportPeriod}`,
-    20,
-    125
-  )
+ pdf.setFontSize(
+  14
+)
+
+pdf.text(
+
+  `Reporting Period: ${reportPeriod}`,
+
+  centerX,
+
+  125,
+
+  {
+    align:
+      'center'
+  }
+
+)
+
+  pdf.setFontSize(
+  8
+)
+
+pdf.text(
+
+  `Generated ${generatedDate}`,
+
+  centerX,
+
+  190,
+
+  {
+    align:
+      'center'
+  }
+
+)
+
+}
+
+export function addReportContext({
+
+  pdf,
+
+  filters = {}
+
+}) {
+
+  pdf.addPage()
+
+  pdf.setFontSize(20)
 
   pdf.text(
-    `Generated: ${generatedDate}`,
-    20,
-    135
+    'Report Context',
+    14,
+    20
+  )
+
+  const entries =
+    Object.entries(
+      filters
+    )
+
+  let x = 14
+  let y = 40
+
+  entries.forEach(
+
+    ([key, value], index) => {
+
+      pdf.setFillColor(
+        248,
+        249,
+        250
+      )
+
+      pdf.roundedRect(
+        x,
+        y,
+        60,
+        30,
+        3,
+        3,
+        'F'
+      )
+
+      pdf.setFontSize(10)
+
+      pdf.text(
+        key,
+        x + 4,
+        y + 8
+      )
+
+      pdf.setFontSize(14)
+
+      pdf.text(
+        String(
+          value || 'All'
+        ),
+        x + 4,
+        y + 20
+      )
+
+      x += 70
+
+      if (
+        (
+          index + 1
+        ) % 4 === 0
+      ) {
+
+        x = 14
+
+        y += 40
+      }
+
+    }
+
   )
 
 }
+
 
 // =====================================================
 // DASHBOARD PAGE
@@ -945,6 +1151,25 @@ export function addFooter(
 }
 
 // =====================================================
+// FEDERATION REPORT BUILDER
+// =====================================================
+
+
+// =====================================================
+// TRAINING REPORT
+// =====================================================
+
+
+
+// =====================================================
+// PERFORMANCE REPORT
+// =====================================================
+
+
+
+
+
+// =====================================================
 // SAVE
 // =====================================================
 
@@ -1153,5 +1378,1235 @@ export function downloadSummaryPdf({
     reportName
 
   })
+
+}
+
+// =====================================================
+// FEDERATION REPORT BUILDER
+// =====================================================
+
+
+// =====================================================
+// TRAINING REPORT
+// =====================================================
+
+export async function downloadTrainingReportPdf({
+
+  reportPeriod,
+
+  filters = {},
+
+  logoBase64 = null,
+  columns = [],
+
+  data = [],
+
+  insights = [],
+
+  attendanceLabels = [],
+
+  attendanceValues = [],
+
+  countyLabels = [],
+
+  countyTotals = [],
+
+  participated = 0,
+
+  absent = 0,
+
+  late = 0,
+
+  excused = 0,
+
+  distanceLabels = [],
+
+  distanceValues = [],
+
+  teamCount = 0,
+
+  individualCount = 0,
+
+  totalAthletes = 0,
+
+  totalSessions = 0,
+
+  attendancePercentage = 0,
+
+  totalDistance = 0
+
+}) {
+
+  try {
+
+    const attendanceChart =
+      await createAttendanceChart({
+
+        labels:
+          attendanceLabels,
+
+        attendance:
+          attendanceValues
+
+      })
+
+    const countyChart =
+      await createCountyChart({
+
+        labels:
+          countyLabels,
+
+        totals:
+          countyTotals
+
+      })
+
+    const statusChart =
+      await createStatusDonutChart({
+
+        participated,
+
+        absent,
+
+        late,
+
+        excused
+
+      })
+
+    const loadChart =
+      await createTrainingLoadChart({
+
+        labels:
+          distanceLabels,
+
+        distances:
+          distanceValues
+
+      })
+
+    const scopeChart =
+      await createTeamVsIndividualChart({
+
+        team:
+          teamCount,
+
+        individual:
+          individualCount
+
+      })
+
+ const uniqueOccurrences =
+
+  new Set(
+
+    data.map(
+      row =>
+
+        row.event_instances
+          ?.event_area
+    )
+    .filter(Boolean)
+
+  )
+
+
+const dates =
+
+  data
+    .map(
+      row =>
+        row.training_date
+    )
+    .filter(Boolean)
+    .sort()
+
+const oldestDate =
+  dates[0]
+
+const newestDate =
+  dates[
+    dates.length - 1
+  ]
+
+const actualReportPeriod =
+
+  oldestDate === newestDate
+
+    ? oldestDate
+
+    : `${oldestDate} - ${newestDate}`
+
+const reportTitle =
+
+  uniqueOccurrences.size === 1
+
+    ?
+
+    `${[
+      ...uniqueOccurrences
+    ][0]} Training Performance Report`
+
+    :
+
+    'Training Combined Performance Report'
+
+
+    const pdf =
+  buildFederationReport({
+
+    reportTitle,
+
+    reportPeriod:
+      actualReportPeriod,
+         
+        filters,
+
+        logoBase64,
+
+        insights,
+
+        columns,
+
+        data,
+
+        kpis: [
+
+          {
+            title:
+              'Athletes',
+
+            value:
+              totalAthletes,
+
+            color:
+              PDF_COLORS.primary
+          },
+
+          {
+            title:
+              'Sessions',
+
+            value:
+              totalSessions,
+
+            color:
+              PDF_COLORS.info
+          },
+
+          {
+            title:
+              'Attendance',
+
+            value:
+              `${attendancePercentage}%`,
+
+            color:
+              PDF_COLORS.secondary
+          },
+
+          {
+            title:
+              'Distance KM',
+
+            value:
+              totalDistance,
+
+            color:
+              PDF_COLORS.dark
+          }
+
+        ],
+
+        charts: [
+
+          {
+            image:
+              attendanceChart,
+
+            title:
+              'Attendance Trend',
+
+            x: 10,
+
+            y: 35,
+
+            width: 130,
+
+            height: 80
+          },
+
+          {
+            image:
+              countyChart,
+
+            title:
+              'County Activity',
+
+            x: 150,
+
+            y: 35,
+
+            width: 130,
+
+            height: 80
+          },
+
+          {
+            image:
+              statusChart,
+
+            title:
+              'Status Breakdown',
+
+            x: 10,
+
+            y: 120,
+
+            width: 120,
+
+            height: 80
+          },
+
+          {
+            image:
+              loadChart,
+
+            title:
+              'Training Load',
+
+            x: 140,
+
+            y: 120,
+
+            width: 120,
+
+            height: 80
+          },
+
+          {
+            image:
+              scopeChart,
+
+            title:
+              'Team vs Individual',
+
+            x: 10,
+
+            y: 205,
+
+            width: 100,
+
+            height: 60
+          }
+
+        ]
+
+      })
+
+    savePdf({
+
+      pdf,
+
+      reportName:
+        'Training_Report'
+
+    })
+
+  }
+  finally {
+
+    destroyPdfCharts()
+
+  }
+
+}
+
+// =====================================================
+// PERFORMANCE REPORT
+// =====================================================
+
+export async function downloadPerformanceReportPdf({
+
+  reportPeriod,
+
+  logoBase64 = null,
+
+  columns = [],
+
+  data = [],
+
+  insights = [],
+
+  speedLabels = [],
+
+  speedValues = [],
+
+  trendLabels = [],
+
+  trendValues = [],
+
+  podium = null,
+
+  totalAthletes = 0,
+
+  averageSpeed = 0,
+
+  bestSpeed = 0,
+
+  improvement = 0
+
+}) {
+
+  try {
+
+    const trendChart =
+      await createPerformanceTrendChart({
+
+        labels:
+          trendLabels,
+
+        speeds:
+          trendValues
+
+      })
+
+    const speedChart =
+      await createSpeedDistributionChart({
+
+        labels:
+          speedLabels,
+
+        values:
+          speedValues
+
+      })
+
+    const pdf =
+      buildFederationReport({
+
+        reportTitle:
+          'Performance Report',
+
+        reportPeriod,
+
+        logoBase64,
+
+        insights,
+
+        podium,
+
+        columns,
+
+        data,
+
+        kpis: [
+
+          {
+
+            title:
+              'Athletes',
+
+            value:
+              totalAthletes,
+
+            color:
+              PDF_COLORS.primary
+
+          },
+
+          {
+
+            title:
+              'Average Speed',
+
+            value:
+              averageSpeed,
+
+            color:
+              PDF_COLORS.info
+
+          },
+
+          {
+
+            title:
+              'Best Speed',
+
+            value:
+              bestSpeed,
+
+            color:
+              PDF_COLORS.secondary
+
+          },
+
+          {
+
+            title:
+              'Improvement',
+
+            value:
+              `${improvement}%`,
+
+            color:
+              PDF_COLORS.dark
+
+          }
+
+        ],
+
+        charts: [
+
+          {
+
+            image:
+              trendChart,
+
+            title:
+              'Performance Trend',
+
+            x: 10,
+
+            y: 35,
+
+            width: 130,
+
+            height: 80
+
+          },
+
+          {
+
+            image:
+              speedChart,
+
+            title:
+              'Speed Distribution',
+
+            x: 150,
+
+            y: 35,
+
+            width: 130,
+
+            height: 80
+
+          }
+
+        ]
+
+      })
+
+    savePdf({
+
+      pdf,
+
+      reportName:
+        'Performance_Report'
+
+    })
+
+  }
+  finally {
+
+    destroyPdfCharts()
+
+  }
+
+}
+
+// =====================================================
+// PARTICIPANTS REPORT
+// =====================================================
+
+export async function downloadParticipantsReportPdf({
+
+  reportPeriod,
+
+  logoBase64 = null,
+
+  columns = [],
+
+  data = [],
+
+  insights = [],
+
+  classificationLabels = [],
+
+  classificationCounts = [],
+
+  registrationLabels = [],
+
+  registrationTotals = [],
+
+  male = 0,
+
+  female = 0,
+
+  totalRegistered = 0,
+
+  active = 0,
+
+  inactive = 0,
+
+  suspended = 0
+
+}) {
+
+  try {
+
+    const classificationChart =
+      await createClassificationChart({
+
+        labels:
+          classificationLabels,
+
+        counts:
+          classificationCounts
+
+      })
+
+    const registrationChart =
+      await createMonthlyRegistrationChart({
+
+        labels:
+          registrationLabels,
+
+        totals:
+          registrationTotals
+
+      })
+
+    const genderChart =
+      await createGenderDistributionChart({
+
+        male,
+
+        female
+
+      })
+
+    const pdf =
+      buildFederationReport({
+
+        reportTitle:
+          'Participants Report',
+
+        reportPeriod,
+
+        logoBase64,
+
+        insights,
+
+        columns,
+
+        data,
+
+        kpis: [
+
+          {
+
+            title:
+              'Registered',
+
+            value:
+              totalRegistered,
+
+            color:
+              PDF_COLORS.primary
+
+          },
+
+          {
+
+            title:
+              'Active',
+
+            value:
+              active,
+
+            color:
+              PDF_COLORS.info
+
+          },
+
+          {
+
+            title:
+              'Inactive',
+
+            value:
+              inactive,
+
+            color:
+              PDF_COLORS.secondary
+
+          },
+
+          {
+
+            title:
+              'Suspended',
+
+            value:
+              suspended,
+
+            color:
+              PDF_COLORS.danger
+
+          }
+
+        ],
+
+        charts: [
+
+          {
+
+            image:
+              registrationChart,
+
+            title:
+              'Registration Growth',
+
+            x: 10,
+
+            y: 35,
+
+            width: 130,
+
+            height: 80
+
+          },
+
+          {
+
+            image:
+              classificationChart,
+
+            title:
+              'Classification Distribution',
+
+            x: 150,
+
+            y: 35,
+
+            width: 120,
+
+            height: 80
+
+          },
+
+          {
+
+            image:
+              genderChart,
+
+            title:
+              'Gender Distribution',
+
+            x: 10,
+
+            y: 120,
+
+            width: 120,
+
+            height: 80
+
+          }
+
+        ]
+
+      })
+
+    savePdf({
+
+      pdf,
+
+      reportName:
+        'Participants_Report'
+
+    })
+
+  }
+  finally {
+
+    destroyPdfCharts()
+
+  }
+
+}
+
+// =====================================================
+// RACE RESULTS REPORT
+// =====================================================
+
+export async function downloadRaceResultsPdf({
+
+  eventName,
+
+  eventDate,
+
+  logoBase64 = null,
+
+  columns = [],
+
+  data = [],
+
+  insights = [],
+
+  podium = null,
+
+  gapLabels = [],
+
+  gapValues = [],
+
+  totalCompetitors = 0,
+
+  finishRate = 0,
+
+  averageSpeed = 0,
+
+  fastestTime = ''
+
+}) {
+
+  try {
+
+    const gapChart =
+      await createRaceGapChart({
+
+        labels:
+          gapLabels,
+
+        gaps:
+          gapValues
+
+      })
+
+    const pdf =
+      buildFederationReport({
+
+        reportTitle:
+          eventName,
+
+        reportPeriod:
+          eventDate,
+
+        logoBase64,
+
+        insights,
+
+        podium,
+
+        columns,
+
+        data,
+
+        kpis: [
+
+          {
+
+            title:
+              'Competitors',
+
+            value:
+              totalCompetitors,
+
+            color:
+              PDF_COLORS.primary
+
+          },
+
+          {
+
+            title:
+              'Finish Rate',
+
+            value:
+              `${finishRate}%`,
+
+            color:
+              PDF_COLORS.info
+
+          },
+
+          {
+
+            title:
+              'Average Speed',
+
+            value:
+              averageSpeed,
+
+            color:
+              PDF_COLORS.secondary
+
+          },
+
+          {
+
+            title:
+              'Fastest Time',
+
+            value:
+              fastestTime,
+
+            color:
+              PDF_COLORS.dark
+
+          }
+
+        ],
+
+        charts: [
+
+          {
+
+            image:
+              gapChart,
+
+            title:
+              'Race Time Gaps',
+
+            x: 10,
+
+            y: 35,
+
+            width: 150,
+
+            height: 90
+
+          }
+
+        ]
+
+      })
+
+    savePdf({
+
+      pdf,
+
+      reportName:
+        eventName
+
+    })
+
+  }
+  finally {
+
+    destroyPdfCharts()
+
+  }
+
+}
+
+
+export function addParticipantSummary({
+
+  pdf,
+
+  participants = []
+
+}) {
+
+  if (
+    !participants.length
+  ) {
+
+    return
+
+  }
+
+  pdf.addPage()
+
+  pdf.setFontSize(
+    18
+  )
+
+  pdf.text(
+    'Participant Summary',
+    14,
+    20
+  )
+
+  autoTable(
+    pdf,
+    {
+
+      startY: 30,
+
+      head: [[
+
+        'Participant',
+
+        'Sessions',
+
+        'Distance',
+
+        'Duration'
+
+      ]],
+
+      body:
+
+        participants.map(
+          row => [
+
+            row.participant,
+
+            row.sessions,
+
+            row.distance,
+
+            row.duration
+
+          ]
+        )
+
+    }
+  )
+
+}
+
+
+
+// =====================================================
+// FEDERATION REPORT BUILDER
+// =====================================================
+
+export function buildFederationReport({
+
+  reportTitle,
+
+  reportPeriod,
+
+  filters = {},
+
+  participantSummary = [],
+
+  kpis = [],
+
+  charts = [],
+
+  insights = [],
+
+  podium = null,
+
+  columns = [],
+
+  data = [],
+
+  logoBase64 = null
+
+}) {
+
+  const pdf =
+    createPdf({
+
+      orientation:
+        'landscape'
+
+    })
+
+  addCoverPage({
+
+    pdf,
+
+    reportTitle,
+
+    reportPeriod,
+
+    generatedDate:
+      new Date()
+        .toLocaleDateString(),
+
+    logoBase64
+
+  })
+
+  addReportContext({
+
+    pdf,
+
+    filters
+
+  })
+
+  addKpiPage({
+
+    pdf,
+
+    kpis
+
+  })
+
+  addDashboardPage({
+
+    pdf,
+
+    title:
+      'Federation Analytics Dashboard'
+
+  })
+
+  charts.forEach(
+  chart => {
+
+    addChartImage({
+
+      pdf,
+
+      imageData:
+        chart.image,
+
+      x:
+        chart.x,
+
+      y:
+        chart.y,
+
+      width:
+        chart.width,
+
+      height:
+        chart.height,
+
+      title:
+        chart.title
+
+    })
+
+  }
+)
+
+pdf.setFontSize(
+  14
+)
+
+pdf.text(
+  'Training Intelligence Summary',
+  120,
+  205
+)
+
+pdf.setFontSize(
+  9
+)
+
+pdf.text(
+  'Attendance trend indicates participant engagement.',
+  120,
+  215
+)
+
+pdf.text(
+  'County activity highlights training concentration.',
+  120,
+  222
+)
+
+pdf.text(
+  'Status distribution reflects participation levels.',
+  120,
+  229
+)
+
+pdf.text(
+  'Training load shows volume progression.',
+  120,
+  236
+)
+
+pdf.text(
+  'Team vs Individual reflects session composition.',
+  120,
+  243
+)
+
+if (
+  insights.length
+) {
+
+  addInsightsSection({
+
+    pdf,
+
+    insights
+
+  })
+
+}
+  addParticipantSummary({
+
+    pdf,
+
+    participants:
+      participantSummary
+
+  })
+
+  pdf.addPage()
+
+  pdf.setFontSize(
+    18
+  )
+
+  const uniqueOccurrences =
+
+  new Set(
+
+    data.map(
+      row =>
+        row.occurrence
+    )
+
+  )
+
+const detailTitle =
+
+  uniqueOccurrences.size === 1
+
+    ?
+
+    [...uniqueOccurrences][0]
+
+    :
+
+    'Detailed Training Log'
+
+pdf.text(
+
+  detailTitle,
+
+  148.5,
+
+  15,
+
+  {
+    align:
+      'center'
+  }
+
+)
+
+
+  addTable({
+
+    pdf,
+
+    columns,
+
+    data,
+
+    startY: 25
+
+  })
+
+  addFooter(
+    pdf
+  )
+
+  return pdf
 
 }

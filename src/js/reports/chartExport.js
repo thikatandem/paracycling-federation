@@ -1,4 +1,8 @@
-﻿export const CHART_COLORS = {
+﻿/* global Chart */
+
+const Chart =
+  window.Chart
+export const CHART_COLORS = {
 
   primary: '#198754',
 
@@ -84,7 +88,7 @@ export function createChartCanvas() {
 }
 
 
-export async function exportChartImage(
+async function exportChartImage(
   chart
 ) {
 
@@ -92,9 +96,11 @@ export async function exportChartImage(
     resolve =>
       setTimeout(
         resolve,
-        300
+        500
       )
   )
+
+  chart.update()
 
   return chart
     .toBase64Image()

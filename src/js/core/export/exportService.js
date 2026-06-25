@@ -24,6 +24,8 @@ export {
 }
 from './csvExport.js'
 
+
+
 // =====================================================
 // EXCEL
 // =====================================================
@@ -55,11 +57,20 @@ export {
 
   downloadPdfErrors,
 
-  downloadSummaryPdf
+  downloadSummaryPdf,
+
+  buildFederationReport,
+
+  downloadTrainingReportPdf,
+
+  downloadPerformanceReportPdf,
+
+  downloadParticipantsReportPdf,
+
+  downloadRaceResultsPdf
 
 }
 from './pdfExport.js'
-
 // =====================================================
 // TEMPLATES
 // =====================================================

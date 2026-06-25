@@ -17,6 +17,7 @@ import {
 }
 from '../core/domService.js'
 
+
 import {
   calculateAverage,
   calculateTotal,
@@ -28,11 +29,15 @@ import {
   downloadCsv
 }
 from '../core/export/csvExport.js'
+
+
 import {
 
   downloadExcelWorkbook,
 
-  downloadPdf
+  downloadPdf,
+
+  downloadTrainingReportPdf
 
 }
 from '../core/export/exportService.js'
@@ -5544,120 +5549,569 @@ async function exportTrainingExcel() {
     )
   }
 }
-function exportTrainingPdf() {
+
+console.log(
+  'PDF CLICKED'
+)
+
+async function exportTrainingPdf() {
 
   try {
 
-    const rows =
-      filteredTrainingRecords.map(
-        record => ({
+    const attendanceData =
+      buildAttendanceIntelligence()
 
-          event:
-            record.event_instances
-              ?.events
-              ?.event_name,
+    const attendanceLabels =
+      attendanceData.map(
+        row => row.week
+      )
 
-          participant:
+    const attendanceValues =
+      attendanceData.map(
+        row => Number(
+          row.percentage.toFixed(1)
+        )
+      )
+
+    const countyStats = {}
+
+    filteredTrainingRecords.forEach(
+      record => {
+
+        const county =
+
+          record
+            ?.event_instances
+            ?.county_master
+            ?.county_name ||
+
+          'Unknown'
+
+        countyStats[county] =
+
+          (
+            countyStats[county] || 0
+          ) + 1
+
+      }
+    )
+
+    const countyLabels =
+      Object.keys(
+        countyStats
+      )
+
+    const countyTotals =
+      Object.values(
+        countyStats
+      )
+
+    const distanceByWeek = {}
+
+    filteredTrainingRecords.forEach(
+      record => {
+
+        const week =
+
+          record.training_week ||
+          'Unknown'
+
+        distanceByWeek[week] =
+
+          (
+            distanceByWeek[week] || 0
+          ) +
+
+          Number(
+            record.distance_km || 0
+          )
+
+      }
+    )
+
+    const distanceLabels =
+      Object.keys(
+        distanceByWeek
+      )
+
+    const distanceValues =
+      Object.values(
+        distanceByWeek
+      )
+
+    let participated = 0
+    let absent = 0
+    let late = 0
+    let excused = 0
+
+    filteredTrainingRecords.forEach(
+      record => {
+
+        const statusId =
+
+          record
+            ?.participant_instances
+            ?.participant_status_id
+
+        const status =
+          statusesLookup.find(
+            item =>
+              item.status_id ===
+              statusId
+          )
+
+        const statusName =
+          (
+            status?.status_name || ''
+          )
+            .toUpperCase()
+
+        if (
+          statusName.includes(
+            'PARTICIP'
+          )
+        ) {
+          participated++
+        }
+
+        else if (
+          statusName.includes(
+            'ABSENT'
+          )
+        ) {
+          absent++
+        }
+
+        else if (
+          statusName.includes(
+            'LATE'
+          )
+        ) {
+          late++
+        }
+
+        else if (
+          statusName.includes(
+            'EXCUSED'
+          )
+        ) {
+          excused++
+        }
+
+      }
+    )
+
+    const totalAthletes =
+      new Set(
+
+        filteredTrainingRecords.map(
+          record =>
+
             record
               ?.participant_instances
               ?.participant_registry
-              ?.display_name,
+              ?.participant_ref_id
+        )
 
-          county:
-            record.event_instances
-              ?.county_master
-              ?.county_name,
+      ).size
 
-          distance:
-            record.distance_km,
+    const totalSessions =
+      filteredTrainingRecords.length
 
-          speed:
-            record.avg_speed_kmh
-        })
+    const attendancePercentageValue =
+
+      totalSessions
+
+        ?
+
+        (
+          participated /
+          totalSessions
+        ) * 100
+
+        :
+
+        0
+
+    const totalDistance =
+
+      filteredTrainingRecords.reduce(
+
+        (
+          total,
+          record
+        ) =>
+
+          total +
+
+          Number(
+            record.distance_km || 0
+          ),
+
+        0
+
       )
 
-    downloadPdf({
+    const insights = [
 
-      reportName:
-        'Training Results Report',
+      `Total sessions: ${totalSessions}`,
 
-      summary: {
+      `Attendance rate: ${attendancePercentageValue.toFixed(1)}%`,
 
-        Sessions:
-          filteredTrainingRecords.length,
+      `Total athletes: ${totalAthletes}`,
 
-        Participants:
-          new Set(
+      `Distance covered: ${totalDistance.toFixed(2)} km`
 
-            filteredTrainingRecords.map(
-              record =>
+    ]
 
-                record
-                  ?.participant_instances
-                  ?.participant_registry
-                  ?.participant_ref_id
-            )
+    const pdfRows =
 
-          ).size
-      },
+  filteredTrainingRecords.map(
+    record => ({
 
-      columns: [
+      training_date:
+        record.training_date || '',
 
-        {
-          key:
-            'event',
+      training_week:
+        record.training_week || '',
 
-          label:
-            'Event'
-        },
+      training_day:
+        record.training_day || '',
 
-        {
-          key:
-            'participant',
+      event_name:
+        record.event_instances
+          ?.events
+          ?.event_name || '',
 
-          label:
-            'Participant'
-        },
+      occurrence:
+        record.event_instances
+          ?.event_area || '',
 
-        {
-          key:
-            'county',
+      program_name:
+        record.event_programs
+          ?.program_name || '',
 
-          label:
-            'County'
-        },
+      participant_name:
+        record
+          ?.participant_instances
+          ?.participant_registry
+          ?.display_name || '',
 
-        {
-          key:
-            'distance',
+      county_name:
+        record.event_instances
+          ?.county_master
+          ?.county_name || '',
 
-          label:
-            'Distance'
-        },
+      town_name:
+        record.event_instances
+          ?.town_master
+          ?.town_name || '',
 
-        {
-          key:
-            'speed',
+      session_type:
+        record.session_type || '',
 
-          label:
-            'Avg Speed'
-        }
-      ],
+      start_time:
+        record.start_time || '',
+
+      end_time:
+        record.end_time || '',
+
+      distance_km:
+        record.distance_km || '',
+
+      duration_minutes:
+        record.duration_minutes || '',
+
+      avg_speed_kmh:
+        record.avg_speed_kmh || '',
+
+      attendance:
+        record.attendance
+          ? 'Present'
+          : 'Absent'
+
+    })
+  )
+
+
+    const columns = [
+
+  {
+    key: 'training_date',
+    label: 'Date'
+  },
+
+  {
+    key: 'training_week',
+    label: 'Week'
+  },
+
+  {
+    key: 'training_day',
+    label: 'Day'
+  },
+
+  {
+    key: 'event_name',
+    label: 'Event'
+  },
+
+  {
+    key: 'occurrence',
+    label: 'Occurrence'
+  },
+
+  {
+    key: 'program_name',
+    label: 'Program'
+  },
+
+  {
+    key: 'participant_name',
+    label: 'Participant'
+  },
+
+  {
+    key: 'county_name',
+    label: 'County'
+  },
+
+  {
+    key: 'town_name',
+    label: 'Town'
+  },
+
+  {
+    key: 'session_type',
+    label: 'Session'
+  },
+
+  {
+    key: 'start_time',
+    label: 'Start'
+  },
+
+  {
+    key: 'end_time',
+    label: 'End'
+  },
+
+  {
+    key: 'distance_km',
+    label: 'Distance'
+  },
+
+  {
+    key: 'duration_minutes',
+    label: 'Duration'
+  },
+
+  {
+    key: 'avg_speed_kmh',
+    label: 'Speed'
+  },
+
+  {
+    key: 'attendance',
+    label: 'Attendance'
+  }
+
+]
+const selectedEvent =
+
+  document
+    .getElementById(
+      'filterEventId'
+    )
+    ?.selectedOptions?.[0]
+    ?.text ||
+
+  'All'
+
+const selectedOccurrence =
+
+  document
+    .getElementById(
+      'filterOccurrenceId'
+    )
+    ?.selectedOptions?.[0]
+    ?.text ||
+
+  'All'
+
+const selectedProgram =
+
+  document
+    .getElementById(
+      'filterProgramId'
+    )
+    ?.selectedOptions?.[0]
+    ?.text ||
+
+  'All'
+
+const selectedCounty =
+
+  document
+    .getElementById(
+      'filterCountyId'
+    )
+    ?.selectedOptions?.[0]
+    ?.text ||
+
+  'All'
+
+
+    await downloadTrainingReportPdf({
+
+      reportPeriod:
+
+        `${getValue(
+          'filterStartDate'
+        ) || 'All'} - ${getValue(
+          'filterEndDate'
+        ) || 'All'}`,
+
+
+filters: {
+
+  Event:
+
+    document
+      .getElementById(
+        'filterEventId'
+      )
+      ?.selectedOptions?.[0]
+      ?.text ||
+
+    'All Events',
+
+  Occurrence:
+
+    document
+      .getElementById(
+        'filterOccurrenceId'
+      )
+      ?.selectedOptions?.[0]
+      ?.text ||
+
+    'All Occurrences',
+
+  Program:
+
+    document
+      .getElementById(
+        'filterProgramId'
+      )
+      ?.selectedOptions?.[0]
+      ?.text ||
+
+    'All Programs',
+
+  County:
+
+    document
+      .getElementById(
+        'filterCountyId'
+      )
+      ?.selectedOptions?.[0]
+      ?.text ||
+
+    'All Counties',
+
+  Status:
+
+    document
+      .getElementById(
+        'filterStatusId'
+      )
+      ?.selectedOptions?.[0]
+      ?.text ||
+
+    'All Statuses',
+
+  StartDate:
+
+    getValue(
+      'filterStartDate'
+    ) || 'All',
+
+  EndDate:
+
+    getValue(
+      'filterEndDate'
+    ) || 'All'
+
+},
+      columns,
 
       data:
-        rows
+        pdfRows,
+
+      insights,
+
+      attendanceLabels,
+
+      attendanceValues,
+
+      countyLabels,
+
+      countyTotals,
+
+      participated,
+
+      absent,
+
+      late,
+
+      excused,
+
+      distanceLabels,
+
+      distanceValues,
+
+      teamCount: 0,
+
+      individualCount:
+        totalAthletes,
+
+      totalAthletes,
+
+      totalSessions,
+
+      attendancePercentage:
+        attendancePercentageValue.toFixed(
+          1
+        ),
+
+      totalDistance:
+        totalDistance.toFixed(
+          2
+        )
+
     })
 
-    showSuccess(
-      'PDF report exported successfully'
-    )
-
-  } catch (error) {
-
-    console.error(error)
-
-    showError(
-      'Failed to export PDF report'
-    )
   }
+
+  catch (error) {
+
+  console.error(
+    'PDF EXPORT ERROR',
+    error
+  )
+
+  alert(
+    `PDF Export Failed:\n\n${
+      error?.message ||
+      JSON.stringify(error, null, 2)
+    }`
+  )
+
+  showError(
+    error?.message ||
+    'Failed to export PDF report'
+  )
+
+}
+
 }
