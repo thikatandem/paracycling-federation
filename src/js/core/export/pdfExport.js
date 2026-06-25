@@ -17,6 +17,24 @@ import {
 }
 from './exportConstants.js'
 
+export const PDF_COLORS = {
+
+  primary: [25, 135, 84],
+
+  secondary: [255, 193, 7],
+
+  dark: [33, 37, 41],
+
+  light: [248, 249, 250],
+
+  info: [13, 202, 240],
+
+  danger: [220, 53, 69]
+
+}
+
+
+
 // =====================================================
 // DOCUMENT
 // =====================================================
@@ -43,6 +61,539 @@ export function createPdf({
   })
 
 }
+
+
+export function addKpiCard({
+
+  pdf,
+
+  x,
+
+  y,
+
+  width = 60,
+
+  height = 30,
+
+  title,
+
+  value,
+
+  color = PDF_COLORS.primary
+
+}) {
+
+  pdf.setFillColor(
+    ...color
+  )
+
+  pdf.roundedRect(
+
+    x,
+
+    y,
+
+    width,
+
+    height,
+
+    3,
+
+    3,
+
+    'F'
+  )
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
+  )
+
+  pdf.setFontSize(
+    10
+  )
+
+  pdf.text(
+    title,
+    x + 5,
+    y + 10
+  )
+
+  pdf.setFontSize(
+    18
+  )
+
+  pdf.text(
+    String(value),
+    x + 5,
+    y + 22
+  )
+
+  pdf.setTextColor(
+    0,
+    0,
+    0
+  )
+}
+
+export function addKpiPage({
+
+  pdf,
+
+  kpis = []
+
+}) {
+
+  pdf.addPage()
+
+  pdf.setFontSize(
+    18
+  )
+
+  pdf.text(
+    'Executive Dashboard',
+    14,
+    20
+  )
+
+  let x = 14
+
+  let y = 35
+
+  kpis.forEach(
+
+    (
+      card,
+      index
+    ) => {
+
+      addKpiCard({
+
+        pdf,
+
+        x,
+
+        y,
+
+        title:
+          card.title,
+
+        value:
+          card.value,
+
+        color:
+          card.color
+      })
+
+      x += 70
+
+      if (
+        (
+          index + 1
+        ) % 4 === 0
+      ) {
+
+        x = 14
+
+        y += 40
+      }
+
+    }
+  )
+}
+
+export function addCoverPage({
+
+  pdf,
+
+  reportTitle,
+
+  reportPeriod,
+
+  generatedDate,
+
+  logoBase64 = null
+
+}) {
+
+  pdf.setFillColor(
+    ...PDF_COLORS.primary
+  )
+
+  pdf.rect(
+    0,
+    0,
+    297,
+    210,
+    'F'
+  )
+
+  if (
+    logoBase64
+  ) {
+
+    addFederationLogo({
+
+      pdf,
+
+      logoBase64,
+
+      x: 20,
+
+      y: 20,
+
+      width: 35,
+
+      height: 35
+
+    })
+
+  }
+
+  pdf.setTextColor(
+    255,
+    255,
+    255
+  )
+
+  pdf.setFontSize(
+    26
+  )
+
+  pdf.text(
+    'KENYA PARA CYCLING FEDERATION',
+    20,
+    80
+  )
+
+  pdf.setFontSize(
+    22
+  )
+
+  pdf.text(
+    reportTitle,
+    20,
+    105
+  )
+
+  pdf.setFontSize(
+    12
+  )
+
+  pdf.text(
+    `Period: ${reportPeriod}`,
+    20,
+    125
+  )
+
+  pdf.text(
+    `Generated: ${generatedDate}`,
+    20,
+    135
+  )
+
+}
+
+// =====================================================
+// DASHBOARD PAGE
+// =====================================================
+
+export function addDashboardPage({
+
+  pdf,
+
+  title = 'Analytics Dashboard'
+
+}) {
+
+  pdf.addPage()
+
+  pdf.setFontSize(
+    20
+  )
+
+  pdf.setTextColor(
+    ...PDF_COLORS.dark
+  )
+
+  pdf.text(
+    title,
+    14,
+    20
+  )
+
+  pdf.setDrawColor(
+    220,
+    220,
+    220
+  )
+
+  pdf.line(
+    14,
+    25,
+    280,
+    25
+  )
+
+}
+
+// =====================================================
+// CHART IMAGE
+// =====================================================
+
+export function addChartImage({
+
+  pdf,
+
+  imageData,
+
+  x,
+
+  y,
+
+  width = 120,
+
+  height = 80,
+
+  title = ''
+
+}) {
+
+  if (
+    title
+  ) {
+
+    pdf.setFontSize(
+      11
+    )
+
+    pdf.text(
+      title,
+      x,
+      y - 4
+    )
+
+  }
+
+  pdf.addImage(
+
+    imageData,
+
+    'PNG',
+
+    x,
+
+    y,
+
+    width,
+
+    height
+
+  )
+
+}
+
+// =====================================================
+// INSIGHTS SECTION
+// =====================================================
+
+export function addInsightsSection({
+
+  pdf,
+
+  insights = [],
+
+  startY = 140
+
+}) {
+
+  pdf.setFontSize(
+    14
+  )
+
+  pdf.text(
+    'Key Insights',
+    14,
+    startY
+  )
+
+  let y =
+    startY + 10
+
+  insights.forEach(
+    insight => {
+
+      pdf.setFontSize(
+        10
+      )
+
+      pdf.text(
+
+        `• ${insight}`,
+
+        18,
+
+        y
+
+      )
+
+      y += 8
+
+    }
+  )
+
+  return y
+
+}
+
+// =====================================================
+// PODIUM SECTION
+// =====================================================
+
+export function addPodiumSection({
+
+  pdf,
+
+  first,
+
+  second,
+
+  third,
+
+  startY = 40
+
+}) {
+
+  pdf.setFontSize(
+    18
+  )
+
+  pdf.text(
+    'Top Performers',
+    14,
+    startY
+  )
+
+  pdf.setFillColor(
+    255,
+    215,
+    0
+  )
+
+  pdf.roundedRect(
+    100,
+    startY + 20,
+    60,
+    40,
+    3,
+    3,
+    'F'
+  )
+
+  pdf.setFillColor(
+    192,
+    192,
+    192
+  )
+
+  pdf.roundedRect(
+    30,
+    startY + 30,
+    60,
+    30,
+    3,
+    3,
+    'F'
+  )
+
+  pdf.setFillColor(
+    205,
+    127,
+    50
+  )
+
+  pdf.roundedRect(
+    170,
+    startY + 35,
+    60,
+    25,
+    3,
+    3,
+    'F'
+  )
+
+  pdf.setTextColor(
+    0,
+    0,
+    0
+  )
+
+  pdf.text(
+    `🥇 ${first}`,
+    105,
+    startY + 42
+  )
+
+  pdf.text(
+    `🥈 ${second}`,
+    35,
+    startY + 47
+  )
+
+  pdf.text(
+    `🥉 ${third}`,
+    175,
+    startY + 50
+  )
+
+}
+
+// =====================================================
+// FEDERATION LOGO
+// =====================================================
+
+export function addFederationLogo({
+
+  pdf,
+
+  logoBase64,
+
+  x = 14,
+
+  y = 10,
+
+  width = 30,
+
+  height = 30
+
+}) {
+
+  if (
+    !logoBase64
+  ) {
+
+    return
+  }
+
+  pdf.addImage(
+
+    logoBase64,
+
+    'PNG',
+
+    x,
+
+    y,
+
+    width,
+
+    height
+
+  )
+
+}
+
 
 // =====================================================
 // HEADER

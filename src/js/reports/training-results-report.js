@@ -1128,18 +1128,26 @@ async function loadTrainingRecords() {
   event_instances(
   event_instance_id,
   event_area,
+  start_date,
+  end_date,
+  start_time,
+  end_time,
 
-    county_master(
-      county_id,
-      county_name
-    ),
-
-    events(
-      event_id,
-      event_name
-    )
+  county_master(
+    county_id,
+    county_name
   ),
 
+  town_master(
+    town_id,
+    town_name
+  ),
+
+  events(
+    event_id,
+    event_name
+  )
+),
   event_programs(
     program_id,
     program_name
@@ -4440,53 +4448,87 @@ function renderTrainingTable() {
         '-'
 
       html += `
-        <tr>
+        <td>${record.training_date || ''}</td>
 
-          <td>
-            ${record.training_date || ''}
-          </td>
+<td>${record.training_week || ''}</td>
 
-          <td>
-            ${eventName}
-          </td>
+<td>${record.training_day || ''}</td>
 
-          <td>
-            ${programName}
-          </td>
+<td>
+  ${
+    record.event_instances
+      ?.events
+      ?.event_name || ''
+  }
+</td>
 
-          <td>
-            ${participant}
-          </td>
+<td>
+  ${
+    record.event_instances
+      ?.event_area || ''
+  }
+</td>
 
-          <td>
-            ${countyName}
-          </td>
+<td>
+  ${
+    record.event_programs
+      ?.program_name || ''
+  }
+</td>
 
-          <td>
-            ${record.session_type || ''}
-          </td>
+<td>
+  ${
+    record.participant_instances
+      ?.participant_registry
+      ?.display_name || ''
+  }
+</td>
 
-          <td>
-            ${record.distance_km || 0}
-          </td>
+<td>
+  ${
+    record.event_instances
+      ?.county_master
+      ?.county_name || ''
+  }
+</td>
 
-          <td>
-            ${record.duration_minutes || 0}
-          </td>
+<td>
+  ${
+    record.event_instances
+      ?.town_master
+      ?.town_name || ''
+  }
+</td>
 
-          <td>
-            ${record.avg_speed_kmh || 0}
-          </td>
+<td>${record.session_type || ''}</td>
 
-          <td>
-            ${
-              record.attendance
-                ? 'Present'
-                : 'Absent'
-            }
-          </td>
+<td>${record.start_time || ''}</td>
 
-        </tr>
+<td>${record.end_time || ''}</td>
+
+<td>${record.distance_km ?? ''}</td>
+
+<td>${record.duration_minutes ?? ''}</td>
+
+<td>${record.avg_speed_kmh ?? ''}</td>
+
+<td>
+  ${
+    record.attendance
+      ? 'Present'
+      : 'Absent'
+  }
+</td>
+
+<td>
+  ${
+    record.indoor_session
+      ? 'Yes'
+      : 'No'
+  }
+</td>
+
+<td>${record.notes || ''}</td>
       `
     }
   )
@@ -4814,64 +4856,80 @@ function exportTrainingCsv() {
   }
 
   const rows =
-    filteredTrainingRecords.map(
-      record => ({
+  filteredTrainingRecords.map(
+    record => ({
 
-        training_date:
-          record.training_date,
+      training_date:
+        record.training_date,
 
-        training_week:
-          record.training_week,
+      training_week:
+        record.training_week,
 
-        training_day:
-          record.training_day,
+      training_day:
+        record.training_day,
 
-        event:
-          record.event_instances
-            ?.events
-            ?.event_name || '',
+      event:
+        record.event_instances
+          ?.events
+          ?.event_name || '',
 
-        program:
-          record.event_programs
-            ?.program_name || '',
+      occurrence:
+        record.event_instances
+          ?.event_area || '',
 
-        participant:
-          record
-            ?.participant_instances
-            ?.participant_registry
-            ?.display_name || '',
+      program:
+        record.event_programs
+          ?.program_name || '',
 
-        county:
-          record.event_instances
-            ?.county_master
-            ?.county_name || '',
+      participant:
+        record
+          ?.participant_instances
+          ?.participant_registry
+          ?.display_name || '',
 
-        session_type:
-          record.session_type,
+      county:
+        record.event_instances
+          ?.county_master
+          ?.county_name || '',
 
-        distance_km:
-          record.distance_km,
+      town:
+        record.event_instances
+          ?.town_master
+          ?.town_name || '',
 
-        duration_minutes:
-          record.duration_minutes,
+      session_type:
+        record.session_type || '',
 
-        avg_speed_kmh:
-          record.avg_speed_kmh,
+      start_time:
+        record.start_time || '',
 
-        attendance:
-          record.attendance
-            ? 'Present'
-            : 'Absent',
+      end_time:
+        record.end_time || '',
 
-        indoor_session:
-          record.indoor_session
-            ? 'Yes'
-            : 'No',
+      distance_km:
+        record.distance_km || '',
 
-        notes:
-          record.notes || ''
-      })
-    )
+      duration_minutes:
+        record.duration_minutes || '',
+
+      avg_speed_kmh:
+        record.avg_speed_kmh || '',
+
+      attendance:
+        record.attendance
+          ? 'Present'
+          : 'Absent',
+
+      indoor_session:
+        record.indoor_session
+          ? 'Yes'
+          : 'No',
+
+      notes:
+        record.notes || ''
+
+    })
+  )
 
   downloadCsv({
 
@@ -4880,81 +4938,40 @@ function exportTrainingCsv() {
 
   columns: [
 
-    {
-      key:'training_date',
-      label:'Training Date'
-    },
+    { key:'training_date', label:'Training Date' },
+    { key:'training_week', label:'Training Week' },
+    { key:'training_day', label:'Training Day' },
 
-    {
-      key:'training_week',
-      label:'Training Week'
-    },
+    { key:'event', label:'Event' },
+    { key:'occurrence', label:'Occurrence' },
+    { key:'program', label:'Program' },
 
-    {
-      key:'training_day',
-      label:'Training Day'
-    },
+    { key:'participant', label:'Participant' },
 
-    {
-      key:'event',
-      label:'Event'
-    },
+    { key:'county', label:'County' },
+    { key:'town', label:'Town' },
 
-    {
-      key:'program',
-      label:'Program'
-    },
+    { key:'session_type', label:'Session Type' },
 
-    {
-      key:'participant',
-      label:'Participant'
-    },
+    { key:'start_time', label:'Start Time' },
+    { key:'end_time', label:'End Time' },
 
-    {
-      key:'county',
-      label:'County'
-    },
+    { key:'distance_km', label:'Distance KM' },
 
-    {
-      key:'session_type',
-      label:'Session Type'
-    },
+    { key:'duration_minutes', label:'Duration Minutes' },
 
-    {
-      key:'distance_km',
-      label:'Distance KM'
-    },
+    { key:'avg_speed_kmh', label:'Average Speed' },
 
-    {
-      key:'duration_minutes',
-      label:'Duration Minutes'
-    },
+    { key:'attendance', label:'Attendance' },
 
-    {
-      key:'avg_speed_kmh',
-      label:'Average Speed'
-    },
+    { key:'indoor_session', label:'Indoor Session' },
 
-    {
-      key:'attendance',
-      label:'Attendance'
-    },
-
-    {
-      key:'indoor_session',
-      label:'Indoor Session'
-    },
-
-    {
-      key:'notes',
-      label:'Notes'
-    }
+    { key:'notes', label:'Notes' }
 
   ],
 
   data:
     rows
-
 })
 
   showSuccess(
@@ -5112,6 +5129,8 @@ async function exportTrainingExcel() {
 
   try {
 
+
+
     const summaryData = [
 
       {
@@ -5142,52 +5161,135 @@ async function exportTrainingExcel() {
       }
     ]
 
-    const rawData =
-      filteredTrainingRecords.map(
-        record => ({
+   const rawData =
+  filteredTrainingRecords.map(
+    record => ({
 
-          training_date:
-            record.training_date,
+      
 
-          week:
-            record.training_week,
+      training_date:
+        record.training_date,
 
-          event:
-            record.event_instances
-              ?.events
-              ?.event_name,
+      training_week:
+        record.training_week,
 
-          program:
-            record.event_programs
-              ?.program_name,
+      training_day:
+        record.training_day,
 
-          participant:
+      event:
+        record.event_instances
+          ?.events
+          ?.event_name || '',
+
+      
+
+      occurrence:
+        record.event_instances
+          ?.event_area || '',
+
+      occurrence_start_date:
+        record.event_instances
+          ?.start_date || '',
+
+      occurrence_end_date:
+        record.event_instances
+          ?.end_date || '',
+
+      occurrence_start_time:
+        record.event_instances
+          ?.start_time || '',
+
+      occurrence_end_time:
+        record.event_instances
+          ?.end_time || '',
+
+      program:
+        record.event_programs
+          ?.program_name || '',
+
+      participant:
+        record
+          ?.participant_instances
+          ?.participant_registry
+          ?.display_name || '',
+
+      
+
+      
+
+      participant_type:
+        record
+          ?.participant_instances
+          ?.participant_registry
+          ?.participant_type_master
+          ?.participant_type_code || '',
+
+      county:
+        record.event_instances
+          ?.county_master
+          ?.county_name || '',
+
+      town:
+        record.event_instances
+          ?.town_master
+          ?.town_name || '',
+
+      session_type:
+        record.session_type || '',
+
+      training_start_time:
+        record.start_time || '',
+
+      training_end_time:
+        record.end_time || '',
+
+      distance_km:
+        record.distance_km || 0,
+
+      duration_minutes:
+        record.duration_minutes || 0,
+
+      avg_speed_kmh:
+        record.avg_speed_kmh || 0,
+
+      attendance:
+        record.attendance
+          ? 'Present'
+          : 'Absent',
+
+      indoor_session:
+        record.indoor_session
+          ? 'Yes'
+          : 'No',
+
+      participant_status:
+        statusesLookup.find(
+          status =>
+            status.status_id ===
             record
               ?.participant_instances
-              ?.participant_registry
-              ?.display_name,
+              ?.participant_status_id
+        )?.status_name || '',
 
-          county:
-            record.event_instances
-              ?.county_master
-              ?.county_name,
+      notes:
+        record.notes || '',
 
-          distance:
-            record.distance_km,
+      
 
-          duration:
-            record.duration_minutes,
+      avg_watts:
+        record.performance?.[0]
+          ?.avg_watts || 0,
 
-          speed:
-            record.avg_speed_kmh,
+      normalized_power:
+        record.performance?.[0]
+          ?.normalized_power || 0,
 
-          attendance:
-            record.attendance
-          ? 'Present'
-          : 'Absent'
-        })
-      )
+      training_stress_score:
+        record.performance?.[0]
+          ?.training_stress_score || 0
 
+    })
+  )
     await downloadExcelWorkbook({
 
       reportName:
@@ -5198,123 +5300,235 @@ async function exportTrainingExcel() {
         {
 
           sheetName:
-            'Summary',
+            'Training Data',
 
           columns: [
 
-            {
-              key:
-                'metric',
+ 
 
-              label:
-                'Metric'
-            },
+  {
+    key:'training_date',
+    label:'Training Date'
+  },
 
-            {
-              key:
-                'value',
+  {
+    key:'training_week',
+    label:'Week'
+  },
 
-              label:
-                'Value'
-            }
-          ],
+  {
+    key:'training_day',
+    label:'Day'
+  },
 
-          data:
-            summaryData
-        },
+  {
+    key:'event',
+    label:'Event'
+  },
 
-        {
+ 
 
-          sheetName:
-            'Training Records',
+  {
+    key:'occurrence',
+    label:'Occurrence'
+  },
 
-          columns: [
+  {
+    key:'occurrence_start_date',
+    label:'Occurrence Start Date'
+  },
 
-            {
-              key:
-                'training_date',
+  {
+    key:'occurrence_end_date',
+    label:'Occurrence End Date'
+  },
 
-              label:
-                'Date'
-            },
+  {
+    key:'occurrence_start_time',
+    label:'Occurrence Start Time'
+  },
 
-            {
-              key:
-                'week',
+  {
+    key:'occurrence_end_time',
+    label:'Occurrence End Time'
+  },
 
-              label:
-                'Week'
-            },
+  {
+    key:'program',
+    label:'Program'
+  },
 
-            {
-              key:
-                'event',
+  {
+    key:'participant',
+    label:'Participant'
+  },
 
-              label:
-                'Event'
-            },
+  
+  
 
-            {
-              key:
-                'program',
+  {
+    key:'participant_type',
+    label:'Participant Type'
+  },
 
-              label:
-                'Program'
-            },
+  {
+    key:'county',
+    label:'County'
+  },
 
-            {
-              key:
-                'participant',
+  {
+    key:'town',
+    label:'Town'
+  },
 
-              label:
-                'Participant'
-            },
+  {
+    key:'session_type',
+    label:'Session Type'
+  },
 
-            {
-              key:
-                'county',
+  {
+    key:'training_start_time',
+    label:'Training Start'
+  },
 
-              label:
-                'County'
-            },
+  {
+    key:'training_end_time',
+    label:'Training End'
+  },
 
-            {
-              key:
-                'distance',
+  {
+    key:'distance_km',
+    label:'Distance KM'
+  },
 
-              label:
-                'Distance KM'
-            },
+  {
+    key:'duration_minutes',
+    label:'Duration Minutes'
+  },
 
-            {
-              key:
-                'duration',
+  {
+    key:'avg_speed_kmh',
+    label:'Average Speed'
+  },
 
-              label:
-                'Duration'
-            },
+  {
+    key:'attendance',
+    label:'Attendance'
+  },
 
-            {
-              key:
-                'speed',
+  {
+    key:'participant_status',
+    label:'Participant Status'
+  },
 
-              label:
-                'Avg Speed'
-            },
+  {
+    key:'indoor_session',
+    label:'Indoor Session'
+  },
 
-            {
-              key:
-                'attendance',
+  {
+    key:'avg_watts',
+    label:'Average Watts'
+  },
 
-              label:
-                'Attendance'
-            }
-          ],
+  {
+    key:'normalized_power',
+    label:'Normalized Power'
+  },
+
+  {
+    key:'training_stress_score',
+    label:'TSS'
+  },
+
+  {
+    key:'notes',
+    label:'Notes'
+  }
+
+],
 
           data:
             rawData
-        }
-      ]
+        },
+{
+    sheetName:
+      'Event Analysis',
+
+    columns: [
+      { key:'event', label:'Event' },
+      { key:'sessions', label:'Sessions' },
+      { key:'participants', label:'Participants' },
+      { key:'distance', label:'Distance KM' }
+    ],
+
+    data:
+      Object.values(
+        filteredTrainingRecords.reduce(
+          (acc, record) => {
+
+            const event =
+              record.event_instances
+                ?.events
+                ?.event_name ||
+              'Unknown'
+
+            if (!acc[event]) {
+
+              acc[event] = {
+
+                event,
+
+                sessions: 0,
+
+                participants:
+                  new Set(),
+
+                distance: 0
+              }
+            }
+
+            acc[event].sessions++
+
+            acc[event].distance +=
+              Number(
+                record.distance_km || 0
+              )
+
+            acc[event]
+              .participants
+              .add(
+                record
+                  ?.participant_instances
+                  ?.participant_registry
+                  ?.participant_ref_id
+              )
+
+            return acc
+
+          },
+          {}
+        )
+      ).map(
+        item => ({
+
+          event:
+            item.event,
+
+          sessions:
+            item.sessions,
+
+          participants:
+            item.participants.size,
+
+          distance:
+            item.distance.toFixed(2)
+        })
+      )
+  }
+]
+
+      
     })
 
     showSuccess(
