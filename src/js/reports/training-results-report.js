@@ -717,6 +717,23 @@ function handleEventFilterChange() {
       'filterEventId'
     )
 
+const occurrenceId =
+  getValue(
+    'filterOccurrenceId'
+  )
+
+if (occurrenceId) {
+
+  filteredTrainingRecords =
+    filteredTrainingRecords.filter(
+      record =>
+
+        record.event_instances
+          ?.event_instance_id ===
+        occurrenceId
+    )
+}
+
   if (!eventId) {
 
     replaceOptions({
@@ -792,11 +809,13 @@ const statusMap =
     record => {
 
       if (
-        record.event_id !==
-        eventId
-      ) {
-        return
-      }
+  record.event_instances
+    ?.events
+    ?.event_id !==
+  eventId
+) {
+  return
+}
 
       const occurrence =
         record.event_instances
@@ -966,9 +985,10 @@ function handleOccurrenceFilterChange() {
     record => {
 
       if (
-        record.event_instance_id ===
-        occurrenceId
-      ) {
+  record.event_instances
+    ?.event_instance_id ===
+  occurrenceId
+) {
 
         const program =
           record.event_programs
@@ -1036,18 +1056,21 @@ function handleProgramFilterChange() {
     record => {
 
       if (
-        eventId &&
-        record.event_id !==
-        eventId
-      ) {
+  eventId &&
+  record.event_instances
+    ?.events
+    ?.event_id !==
+  eventId
+) {
         return
       }
 
-      if (
-        occurrenceId &&
-        record.event_instance_id !==
-        occurrenceId
-      ) {
+     if (
+  occurrenceId &&
+  record.event_instances
+    ?.event_instance_id !==
+  occurrenceId
+) {
         return
       }
 
@@ -1228,7 +1251,10 @@ function applyTrainingFilters() {
   filteredTrainingRecords =
     filteredTrainingRecords.filter(
       record =>
-        record.event_id ===
+
+        record.event_instances
+          ?.events
+          ?.event_id ===
         eventId
     )
 }
@@ -1441,9 +1467,10 @@ function buildSummaryCards() {
         )
 
       const speed =
-        Number(
-          record.avg_speed_kmh || 0
-        )
+  Number(
+    record.performance?.[0]
+      ?.avg_speed_kmh || 0
+  )
 
       const duration =
         Number(
@@ -1731,10 +1758,11 @@ function buildParticipantAnalysis() {
         )
 
       stat.speeds.push(
-        Number(
-          record.avg_speed_kmh || 0
-        )
-      )
+  Number(
+    record.performance?.[0]
+      ?.avg_speed_kmh || 0
+  )
+)
 
       if (
         record.attendance
@@ -2166,14 +2194,20 @@ function buildEventAnalysis() {
   filteredTrainingRecords.forEach(
     record => {
 
-      const eventId =
-  record.event_id
+     const eventId =
+
+  record.event_instances
+    ?.events
+    ?.event_id
 
       const eventName =
   eventsLookup.find(
     e =>
       e.event_id ===
-      record.event_id
+record.event_instances
+  ?.events
+  ?.event_id
+
   )?.event_name ||
   'Unknown Event'
 
@@ -2277,8 +2311,10 @@ async function viewEventTraining(
     const records =
       filteredTrainingRecords.filter(
         record =>
-          record.event_id ===
-          eventId
+          record.event_instances
+  ?.events
+  ?.event_id ===
+eventId
       )
 
     if (!records.length) {
@@ -2347,12 +2383,14 @@ async function viewEventTraining(
         }
 
         bestSpeed =
-          Math.max(
-            bestSpeed,
-            Number(
-              record.avg_speed_kmh || 0
-            )
-          )
+  Math.max(
+    bestSpeed,
+    Number(
+      record.performance?.[0]
+        ?.avg_speed_kmh || 0
+    )
+  )
+
       }
     )
 
@@ -2532,9 +2570,10 @@ async function viewParticipantTraining(
         }
 
         const speed =
-          Number(
-            record.avg_speed_kmh || 0
-          )
+  Number(
+    record.performance?.[0]
+      ?.avg_speed_kmh || 0
+  )
 
         if (speed > 0) {
 
@@ -2778,10 +2817,11 @@ function buildTrainingIntelligence() {
       }
 
       stat.speeds.push(
-        Number(
-          record.avg_speed_kmh || 0
-        )
-      )
+  Number(
+    record.performance?.[0]
+      ?.avg_speed_kmh || 0
+  )
+)
     }
   )
 
@@ -3479,9 +3519,10 @@ function buildProgramEffectiveness() {
         )
 
       const speed =
-        Number(
-          record.avg_speed_kmh || 0
-        )
+  Number(
+    record.performance?.[0]
+      ?.avg_speed_kmh || 0
+  )
 
       if (
         speed > 0
@@ -5606,38 +5647,40 @@ async function exportTrainingPdf() {
         countyStats
       )
 
-    const distanceByWeek = {}
+   const weeklyStats = {}
 
-    filteredTrainingRecords.forEach(
-      record => {
+filteredTrainingRecords.forEach(
+  record => {
 
-        const week =
+    const week =
+      record.training_week
 
-          record.training_week ||
-          'Unknown'
+    if (!week) {
+      return
+    }
 
-        distanceByWeek[week] =
+    weeklyStats[week] =
 
-          (
-            distanceByWeek[week] || 0
-          ) +
+      (
+        weeklyStats[week] || 0
+      ) +
 
-          Number(
-            record.distance_km || 0
-          )
-
-      }
-    )
-
-    const distanceLabels =
-      Object.keys(
-        distanceByWeek
+      Number(
+        record.distance_km || 0
       )
 
-    const distanceValues =
-      Object.values(
-        distanceByWeek
-      )
+  }
+)
+
+const distanceLabels =
+  Object.keys(
+    weeklyStats
+  )
+
+const distanceValues =
+  Object.values(
+    weeklyStats
+  )
 
     let participated = 0
     let absent = 0
@@ -5823,7 +5866,8 @@ async function exportTrainingPdf() {
         record.duration_minutes || '',
 
       avg_speed_kmh:
-        record.avg_speed_kmh || '',
+  record.performance?.[0]
+    ?.avg_speed_kmh || '',
 
       attendance:
         record.attendance
@@ -5960,17 +6004,51 @@ const selectedCounty =
     ?.text ||
 
   'All'
+const teamCount =
 
+  filteredTrainingRecords.filter(
+    record =>
+      record.training_scope ===
+      'TEAM'
+  ).length
 
-    await downloadTrainingReportPdf({
+const individualCount =
 
-      reportPeriod:
+  filteredTrainingRecords.filter(
+    record =>
+      record.training_scope ===
+      'INDIVIDUAL'
+  ).length
 
-        `${getValue(
-          'filterStartDate'
-        ) || 'All'} - ${getValue(
-          'filterEndDate'
-        ) || 'All'}`,
+const trainingDates =
+
+  filteredTrainingRecords
+    .map(
+      record =>
+        record.training_date
+    )
+    .filter(Boolean)
+    .sort()
+
+const reportPeriod =
+
+  trainingDates.length
+
+    ?
+
+    `${trainingDates[0]} - ${
+      trainingDates[
+        trainingDates.length - 1
+      ]
+    }`
+
+    :
+
+    'No Training Dates'
+
+   await downloadTrainingReportPdf({
+
+  reportPeriod,
 
 
 filters: {
@@ -6070,10 +6148,9 @@ filters: {
 
       distanceValues,
 
-      teamCount: 0,
+      teamCount,
 
-      individualCount:
-        totalAthletes,
+individualCount,
 
       totalAthletes,
 

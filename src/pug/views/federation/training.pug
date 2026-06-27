@@ -51,7 +51,7 @@ block view
                     th Event
                     th Occurrence
                     th Program
-                    th Status
+                    th Outcome
                     th Session
                     th Distance
                     th Duration
@@ -192,16 +192,32 @@ block view
                 option(value='')
                   | Select Participant
 
+              input.form-control.mt-2.d-none(
+                id='participantDisplay'
+                readonly
+              )
+
             .col-md-4
 
-              label.form-label Participant Status
+              label.form-label Attendance Status
 
               select.form-select(
-                id='participantStatusId'
+                id='attendanceStatusId'
               )
 
                 option(value='')
-                  | Select Status
+                  | Select Attendance Status
+
+            .col-md-4
+
+              label.form-label Outcome Status
+
+              select.form-select(
+                id='outcomeStatusId'
+              )
+
+                option(value='')
+                  | Select Outcome Status
 
             .col-md-3
 

@@ -169,3 +169,91 @@ body {
   white-space: nowrap;
 }
 
+.status-cancelled {
+  background: #dc3545;
+  color: #fff;
+}
+
+.status-open {
+  background: #29ab87;
+  color: #fff;
+}
+
+.status-ongoing {
+  background: #00c853;
+  color: #fff;
+}
+
+.status-completed {
+  background: #d98c3f;
+  color: #fff;
+}
+
+.status-planned {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.status-rescheduled {
+  background: #ffd600;
+  color: #000;
+}
+
+.status-registered {
+  background:#29ab87;
+  color:#fff;
+}
+
+.status-confirmed {
+  background:#4caf50;
+  color:#fff;
+}
+
+.status-approved {
+  background:#7ed957;
+  color:#fff;
+}
+
+.status-rejected {
+  background:#dc3545;
+  color:#fff;
+}
+
+.status-suspended {
+  background:#8b0000;
+  color:#fff;
+}
+
+.status-withdrawn {
+  background:#0d6efd;
+  color:#fff;
+}
+.bundle-spacer td {
+  height: 14px;
+  border: none !important;
+  background: transparent;
+}
+
+.group-row td {
+  border-top: 3px solid #dee2e6 !important;
+}
+
+.bundle-header {
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+
+
+.bundle-header {
+  position: relative;
+}
+
+.bundle-header strong {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+

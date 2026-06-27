@@ -340,11 +340,17 @@
               <div class="col-12">
                 <div class="card mb-4">
                   <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>Participant Registrations</strong>
-                    <button class="btn btn-primary" type="button" id="btnNewParticipantRegistration">
-                      <i class="fa fa-plus me-2"></i>
-                      New Registration
-                    </button>
+                    <div><strong>Participant Registrations</strong></div>
+                    <div>
+                      <button class="btn btn-danger ms-3" type="button" id="btnDeleteAllBundles">
+                        <i class="fa fa-trash me-2"></i>
+                        DELETE ALL BUNDLES
+                      </button>
+                      <button class="btn btn-primary" type="button" id="btnNewParticipantRegistration">
+                        <i class="fa fa-plus me-2"></i>
+                        New Registration
+                      </button>
+                    </div>
                   </div>
                   <div class="card-body">
                     <div class="row mb-3">
@@ -553,7 +559,13 @@
                     </div>
                   </div>
                   <div class="card mb-4">
-                    <div class="card-header"><strong>Available Participants</strong></div>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <strong>Available Participants</strong>
+                      <button class="btn btn-success btn-sm" type="button" id="btnSelectAllParticipants">
+                        <i class="fa fa-check-square me-2"></i>
+                        Select All
+                      </button>
+                    </div>
                     <div class="card-body">
                       <div class="row mb-3">
                         <div class="col-md-4">
@@ -581,7 +593,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="card mb-4">
+                  <div class="card mb-4" id="participantStatusCard">
                     <div class="card-header"><strong>Participant Status</strong></div>
                     <div class="card-body">
                       <div class="row">

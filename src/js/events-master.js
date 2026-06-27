@@ -189,22 +189,51 @@ async function loadPrograms(
             ${program.program_name}
           </td>
 
-          <td>
+         <td>
 
-            <button
-              class="btn btn-sm btn-danger"
-              onclick="deleteProgram('${program.program_id}')">
+  <button
+    class="btn btn-sm btn-primary me-1"
+    onclick="editProgram(
+      '${program.program_id}',
+      '${program.program_name}'
+    )">
 
-              Delete
+    Edit
 
-            </button>
+  </button>
 
-          </td>
+  <button
+    class="btn btn-sm btn-danger"
+    onclick="deleteProgram('${program.program_id}')">
 
+    Delete
+
+  </button>
+
+</td>
         </tr>
       `
     }
   )
+
+}
+
+
+window.editProgram =
+function(
+  programId,
+  programName
+) {
+
+  document.getElementById(
+    'programId'
+  ).value =
+    programId
+
+  document.getElementById(
+    'programName'
+  ).value =
+    programName
 
 }
 
@@ -233,9 +262,38 @@ async function saveProgram() {
 
   }
 
-  const {
-    error
-  } =
+  const programId =
+  document.getElementById(
+    'programId'
+  ).value
+
+let error
+
+if (programId) {
+
+  const result =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .update({
+
+        program_name:
+          programName
+
+      })
+      .eq(
+        'program_id',
+        programId
+      )
+
+  error =
+    result.error
+
+} else {
+
+  const result =
     await window
       .supabaseClient
       .from(
@@ -251,6 +309,15 @@ async function saveProgram() {
 
       })
 
+  error =
+    result.error
+
+}
+
+
+
+        
+
   if (error) {
 
     alert(
@@ -264,12 +331,63 @@ async function saveProgram() {
   document.getElementById(
     'programName'
   ).value = ''
+  
+  document.getElementById(
+  'programId'
+).value = ''
 
   await loadPrograms(
     eventId
   )
 
 }
+
+window.deleteProgram =
+async function(programId) {
+
+  if (
+    !confirm(
+      'Delete this program?'
+    )
+  ) {
+    return
+  }
+
+  const eventId =
+    document.getElementById(
+      'programEventId'
+    ).value
+
+  const {
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'event_programs'
+      )
+      .delete()
+      .eq(
+        'program_id',
+        programId
+      )
+
+  if (error) {
+
+    alert(
+      error.message
+    )
+
+    return
+
+  }
+
+  await loadPrograms(
+    eventId
+  )
+
+}
+
 
 function showError(message) {
 
@@ -498,13 +616,14 @@ async function loadEventStatuses() {
     await window
       .supabaseClient
       .from(
-        'status_master'
-      )
-      .select('*')
-      .eq(
-        'entity_type',
-        'EVENT'
-      )
+  'event_master_status_master'
+)
+.select(`
+  event_master_status_id,
+  status_name,
+  status_code
+`)
+      
 
   if (error) {
     throw error
@@ -514,30 +633,30 @@ async function loadEventStatuses() {
     status => {
 
       if (
-        status.status_code
-          ?.toUpperCase() ===
-        'ACTIVE'
-      ) {
+  status.status_code
+    ?.toUpperCase() ===
+  'ACTIVE'
+) {
 
-        activeStatusId =
-          status.status_id
+  activeStatusId =
+    status.event_master_status_id
 
-      }
+}
 
       if (
         status.status_code
           ?.toUpperCase() ===
-        'INACTIVE'
+        'DEACTIVATED'
       ) {
 
         inactiveStatusId =
-          status.status_id
+          status.event_master_status_id
 
       }
 
       select.innerHTML += `
         <option
-          value="${status.status_id}">
+          value="${status.event_master_status_id}">
           ${status.status_name}
         </option>
       `
@@ -562,7 +681,7 @@ async function loadEvents() {
         event_type_master(
           event_type_name
         ),
-        status_master(
+        event_master_status_master(
           status_name
         )
       `)
@@ -639,7 +758,7 @@ function renderEvents() {
           <td>
             ${
               event
-                .status_master
+                .event_master_status_master
                 ?.status_name || ''
             }
           </td>
@@ -906,7 +1025,7 @@ function(eventId) {
       'eventStatusId'
     )
     .value =
-      event.status_id
+      event.event_master_status_id
 
   document
     .getElementById(
@@ -1075,7 +1194,7 @@ async function saveEvent() {
 
     if (eventId) {
 
-      payload.status_id =
+      payload.event_master_status_id =
         document
           .getElementById(
             'eventStatusId'
@@ -1102,7 +1221,7 @@ async function saveEvent() {
 
     } else {
 
-      payload.status_id =
+      payload.event_master_status_id =
         activeStatusId
 
       const {

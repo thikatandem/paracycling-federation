@@ -1,4 +1,4 @@
-/* global coreui */
+﻿/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
@@ -17,7 +17,9 @@ let events = []
 let programs = []
 let occurrences = []
 let participants = []
-let participantStatuses = []
+let attendanceStatuses = []
+
+let outcomeStatuses = []
 let towns = []
 let counties = []
 
@@ -64,7 +66,7 @@ function hideLoading() {
 
 }
 
-async function loadParticipantStatuses() {
+async function loadAttendanceStatuses() {
 
   const {
     data,
@@ -72,62 +74,109 @@ async function loadParticipantStatuses() {
   } =
     await db
       .from(
-        'status_master'
+        'attendance_status_master'
       )
       .select(`
-        status_id,
+        attendance_status_id,
         status_name,
         status_code
       `)
-      .eq(
-        'entity_type',
-        'PARTICIPANT'
-      )
       .order(
         'status_name'
       )
 
-  if (
-    error
-  ) {
+  if (error) {
     throw error
   }
 
-  participantStatuses =
+  attendanceStatuses =
     data || []
 
   const select =
     document.getElementById(
-      'participantStatusId'
+      'attendanceStatusId'
     )
 
-  if (
-    !select
-  ) {
+  if (!select) {
     return
   }
 
   select.innerHTML =
     `
       <option value="">
-        Select Status
+        Select Attendance
       </option>
     `
 
-  participantStatuses.forEach(
+  attendanceStatuses.forEach(
     status => {
 
       select.innerHTML += `
-        <option value="${status.status_id}">
+        <option
+          value="${status.attendance_status_id}"
+        >
           ${status.status_name}
         </option>
       `
-
     }
   )
-
 }
 
+async function loadOutcomeStatuses() {
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from(
+        'outcome_status_master'
+      )
+      .select(`
+        outcome_status_id,
+        status_name,
+        status_code
+      `)
+      .order(
+        'status_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  outcomeStatuses =
+    data || []
+
+  const select =
+    document.getElementById(
+      'outcomeStatusId'
+    )
+
+  if (!select) {
+    return
+  }
+
+  select.innerHTML =
+    `
+      <option value="">
+        Select Outcome
+      </option>
+    `
+
+  outcomeStatuses.forEach(
+    status => {
+
+      select.innerHTML += `
+        <option
+          value="${status.outcome_status_id}"
+        >
+          ${status.status_name}
+        </option>
+      `
+    }
+  )
+}
 
 function showError(message) {
 
@@ -363,31 +412,7 @@ const {
         'event_name'
       )
 
-  const {
-  count
-} =
-  await db
-    .from(
-      'performance'
-    )
-    .select(
-      '*',
-      { count: 'exact', head: true }
-    )
-    .eq(
-      'training_id',
-      trainingId
-    )
-
-if (count > 0) {
-
-  showError(
-    'This training session has already been enhanced with performance data and cannot be deleted. Delete the associated performance record first.'
-  )
-
-  return
-
-}
+ 
 
   events =
     data || []
@@ -696,33 +721,39 @@ programId
     </option>
   `
 }
-applyParticipantStatusRules()
+applyAttendanceStatusRules()
 }
 
 
 
-function applyParticipantStatusRules() {
+function applyAttendanceStatusRules() {
 
   const statusId =
-    getValue(
-      'participantStatusId'
-    )
+  getValue(
+    'attendanceStatusId'
+  )
 
   const status =
-    participantStatuses.find(
-      row =>
-        row.status_id ===
-        statusId
-    )
+attendanceStatuses.find(
+  row =>
+    row.attendance_status_id ===
+    statusId
+)
 
-  selectedParticipantStatus =
+  const attendanceCode =
     status
       ?.status_code
       ?.toUpperCase() || ''
 
   const metricsAllowed =
-    selectedParticipantStatus ===
-    'PARTICIPATED'
+
+  attendanceCode !==
+  'ABSENT_WITH_APOLOGY'
+
+  &&
+
+  attendanceCode !==
+  'ABSENT_WITHOUT_APOLOGY'
 
   const distanceField =
     document.getElementById(
@@ -736,21 +767,60 @@ function applyParticipantStatusRules() {
     distanceField.disabled =
       !metricsAllowed
 
+document.getElementById(
+  'durationMinutes'
+).disabled =
+  !metricsAllowed
+
+document.getElementById(
+  'startTime'
+).disabled =
+  !metricsAllowed
+
+document.getElementById(
+  'endTime'
+).disabled =
+  !metricsAllowed
+
+document.getElementById(
+  'outcomeStatusId'
+).disabled =
+  !metricsAllowed
+
+
     if (
       !metricsAllowed
     ) {
 
-      distanceField.value = ''
-
       setValue(
-        'avgSpeedKmh',
-        ''
-      )
+  'distanceKm',
+  ''
+)
 
-      setValue(
-        'durationMinutes',
-        ''
-      )
+setValue(
+  'durationMinutes',
+  ''
+)
+
+setValue(
+  'avgSpeedKmh',
+  ''
+)
+
+setValue(
+  'startTime',
+  ''
+)
+
+setValue(
+  'endTime',
+  ''
+)
+
+setValue(
+  'outcomeStatusId',
+  ''
+)
 
     }
 
@@ -1035,7 +1105,17 @@ async function loadTrainingLogs() {
 
   
 
- participant_instances(
+ attendance_status_master(
+  status_code,
+  status_name
+),
+
+outcome_status_master(
+  status_code,
+  status_name
+),
+
+participant_instances(
 
   participant_instance_id,
 
@@ -1064,10 +1144,6 @@ async function loadTrainingLogs() {
     events(
       event_name
     )
-  ),
-
-  status_master(
-    status_code
   )
 )
 `)
@@ -1188,11 +1264,30 @@ function renderTrainingLogs() {
         ?.event_programs
         ?.program_name || ''
 
-    const status =
-      training
-        .participant_instances
-        ?.status_master
-        ?.status_code || ''
+    const attendanceStatus =
+  training
+    .attendance_status_master
+    ?.status_code || ''
+
+const attendanceIndicator =
+
+  attendanceStatus ===
+  'ABSENT_WITH_APOLOGY'
+
+  ||
+
+  attendanceStatus ===
+  'ABSENT_WITHOUT_APOLOGY'
+
+    ? '✗'
+
+    : '✓'
+
+
+const outcomeStatus =
+  training
+    .outcome_status_master
+    ?.status_code || ''
 
     const session =
       training.session_type || ''
@@ -1226,9 +1321,25 @@ function renderTrainingLogs() {
           ${program}
         </td>
 
-        <td>
-          ${status}
-        </td>
+       <td class="text-center">
+
+  ${
+    attendanceIndicator === '✓'
+
+      ?
+
+      '<span class="text-success fw-bold">✓</span>'
+
+      :
+
+      '<span class="text-danger fw-bold">✗</span>'
+  }
+
+</td>
+
+<td>
+  ${outcomeStatus}
+</td>
 
         <td>
           ${session}
@@ -1500,6 +1611,51 @@ function openNewTrainingModal() {
 
   clearTrainingForm()
 
+document.getElementById(
+  'eventId'
+).disabled = false
+
+document.getElementById(
+  'eventInstanceId'
+).disabled = false
+
+document.getElementById(
+  'programId'
+).disabled = false
+
+document.getElementById(
+  'participantId'
+).disabled = false
+
+document.getElementById(
+  'countyId'
+).disabled = false
+
+document.getElementById(
+  'subcountyId'
+).disabled = false
+
+document.getElementById(
+  'townName'
+).readOnly = false
+
+document.getElementById(
+  'trainingTypeIndividual'
+).disabled = false
+
+document.getElementById(
+  'trainingTypeTeam'
+).disabled = false
+
+document.getElementById(
+  'participantId'
+).classList.remove(
+  'd-none'
+)
+
+
+
+
   const modal =
     new coreui.Modal(
       document.getElementById(
@@ -1554,21 +1710,29 @@ function validateTraining() {
   }
 
 
-  if (
-    getValue(
-      'attendance'
-    ) === ''
-  ) {
+  
+const attendanceStatus =
+  attendanceStatuses.find(
+    row =>
+      row.attendance_status_id ===
+      getValue(
+        'attendanceStatusId'
+      )
+  )
 
-    showError(
-      'Attendance is required'
-    )
+const attendanceCode =
+  attendanceStatus
+    ?.status_code
+    ?.toUpperCase() || ''
 
-    return false
-  }
 if (
-  selectedParticipantStatus ===
-  'PARTICIPATED'
+  attendanceCode !==
+  'ABSENT_WITH_APOLOGY'
+
+  &&
+
+  attendanceCode !==
+  'ABSENT_WITHOUT_APOLOGY'
 ) {
 
   if (
@@ -1634,29 +1798,40 @@ async function saveTraining() {
 
     }
 
-    const selectedStatus =
-      participantStatuses.find(
-        row =>
-          row.status_id ===
-          getValue(
-            'participantStatusId'
-          )
+    const attendanceStatus =
+  attendanceStatuses.find(
+    row =>
+      row.attendance_status_id ===
+      getValue(
+        'attendanceStatusId'
       )
+  )
 
-    const statusCode =
-      selectedStatus
-        ?.status_code
-        ?.toUpperCase() || ''
+const outcomeStatus =
+  outcomeStatuses.find(
+    row =>
+      row.outcome_status_id ===
+      getValue(
+        'outcomeStatusId'
+      )
+  )
 
-    const metricsAllowed = [
+const attendanceCode =
+  attendanceStatus
+    ?.status_code
+    ?.toUpperCase() || ''
 
-      'PARTICIPATED',
-      'DISQUALIFIED',
-      'DID_NOT_COMPLETE'
 
-    ].includes(
-      statusCode
-    )
+
+const metricsAllowed =
+
+  attendanceCode !==
+  'ABSENT_WITH_APOLOGY'
+
+  &&
+
+  attendanceCode !==
+  'ABSENT_WITHOUT_APOLOGY'
 
     const trainingType =
       document.querySelector(
@@ -1690,41 +1865,7 @@ async function saveTraining() {
 
     }
 
-    const selectedStatusId =
-      getValue(
-        'participantStatusId'
-      )
-
-    if (
-      participant?.participant_instance_id &&
-      selectedStatusId
-    ) {
-
-      const {
-        error: statusError
-      } =
-        await db
-          .from(
-            'participant_instances'
-          )
-          .update({
-
-            participant_status_id:
-              selectedStatusId
-
-          })
-          .eq(
-            'participant_instance_id',
-            participant.participant_instance_id
-          )
-
-      if (
-        statusError
-      ) {
-        throw statusError
-      }
-
-    }
+    
 
     const payload = {
 
@@ -1748,14 +1889,32 @@ async function saveTraining() {
         ),
 
       start_time:
-        getValue(
-          'startTime'
-        ),
 
-      end_time:
-        getValue(
-          'endTime'
-        ),
+  metricsAllowed
+
+    ?
+
+    getValue(
+      'startTime'
+    )
+
+    :
+
+    null,
+
+end_time:
+
+  metricsAllowed
+
+    ?
+
+    getValue(
+      'endTime'
+    )
+
+    :
+
+    null,
 
       avg_speed_kmh:
 
@@ -1867,15 +2026,30 @@ program_id:
 
           null,
 
-      attendance:
-        getValue(
-          'attendance'
-        ) === 'true',
+      attendance: true,
 
-      notes:
-        getValue(
-          'notes'
-        )
+      attendance_status_id:
+  getValue(
+    'attendanceStatusId'
+  ) || null,
+
+outcome_status_id:
+
+  metricsAllowed
+
+    ?
+
+    getValue(
+      'outcomeStatusId'
+    ) || null
+
+    :
+
+    null,
+notes:
+  getValue(
+    'notes'
+  )
 
     }
 
@@ -1988,10 +2162,22 @@ async function (
     training.training_id
   )
 
-  setValue(
-    'trainingDate',
-    training.training_date
-  )
+ setValue(
+  'trainingDate',
+  training.training_date
+)
+
+setValue(
+  'trainingWeek',
+  training.training_week || ''
+)
+
+setValue(
+  'trainingDay',
+  training.training_day || ''
+)
+
+  
 setValue(
   'eventId',
   training
@@ -2000,12 +2186,16 @@ setValue(
 await loadOccurrences(
   training.event_id
 )
+const occurrence =
+  occurrences.find(
+    row =>
+      row.event_instance_id ===
+      training.event_instance_id
+  )
 
 setValue(
   'eventInstanceId',
-  training
-    .participant_instances
-    ?.event_instance_id || ''
+  training.event_instance_id || ''
 )
 
 await loadPrograms(
@@ -2014,19 +2204,10 @@ await loadPrograms(
 
 setValue(
   'programId',
-  training
-    .participant_instances
-    ?.program_id || ''
+  training.program_id || ''
 )
 
-await loadParticipants(
-  training
-    .participant_instances
-    ?.event_instance_id,
-  training
-    .participant_instances
-    ?.program_id
-)
+
 const participantType =
 
   training
@@ -2050,19 +2231,66 @@ if (
   ).checked = true
 
 }
+
+
+await loadParticipants(
+  training.event_instance_id,
+  training.program_id
+)
+
+
+
+
+
+
+if (occurrence) {
+
+  setValue(
+    'countyId',
+    occurrence.county_id
+  )
+
+  await loadSubcounties(
+    occurrence.county_id
+  )
+
+  setValue(
+    'subcountyId',
+    occurrence.subcounty_id
+  )
+
+  await loadTowns(
+    occurrence.subcounty_id
+  )
+
+  setValue(
+    'townName',
+    occurrence
+      .town_master
+      ?.town_name || ''
+  )
+
+}
+
+
+
 setValue(
   'participantId',
   training.participant_id
 )
 
+
 setValue(
-  'participantStatusId',
+  'attendanceStatusId',
   training
-    .participant_instances
-    ?.participant_status_id || ''
+    .attendance_status_id || ''
 )
 
-applyParticipantStatusRules()
+setValue(
+  'outcomeStatusId',
+  training
+    .outcome_status_id || ''
+)
 
 
    
@@ -2103,6 +2331,10 @@ setValue(
     training.duration_minutes
   )
 
+
+applyAttendanceStatusRules()
+
+
   setValue(
     'attendance',
     training.attendance
@@ -2114,6 +2346,42 @@ setValue(
     'notes',
     training.notes
   )
+
+document.getElementById(
+  'eventId'
+).disabled = true
+
+document.getElementById(
+  'eventInstanceId'
+).disabled = true
+
+document.getElementById(
+  'programId'
+).disabled = true
+
+document.getElementById(
+  'participantId'
+).disabled = true
+
+document.getElementById(
+  'countyId'
+).disabled = true
+
+document.getElementById(
+  'subcountyId'
+).disabled = true
+
+document.getElementById(
+  'townName'
+).readOnly = true
+
+document.getElementById(
+  'trainingTypeIndividual'
+).disabled = true
+
+document.getElementById(
+  'trainingTypeTeam'
+).disabled = true
 
 
 
@@ -2155,6 +2423,34 @@ async function deleteTraining() {
       getValue(
         'deleteTrainingId'
       )
+const {
+  count
+} =
+  await db
+    .from(
+      'performance'
+    )
+    .select(
+      '*',
+      {
+        count: 'exact',
+        head: true
+      }
+    )
+    .eq(
+      'training_id',
+      trainingId
+    )
+
+if (count > 0) {
+
+  showError(
+    'Delete the performance record first.'
+  )
+
+  return
+
+}
 
     const {
       error
@@ -2208,11 +2504,11 @@ function wireEvents() {
 
   document
   .getElementById(
-    'participantStatusId'
+    'attendanceStatusId'
   )
   ?.addEventListener(
     'change',
-    applyParticipantStatusRules
+    applyAttendanceStatusRules
   )
 
 document
@@ -2709,12 +3005,13 @@ await loadSessionTypes()
 
 await loadCounties()
 
+await loadAttendanceStatuses()
+
+await loadOutcomeStatuses()
+
 await loadTrainingLogs()
 
-await loadParticipantStatuses()
-    
-
-    wireEvents()
+wireEvents()
 
   } catch (
     error
@@ -2773,13 +3070,8 @@ document
             )
         )
 
-      setValue(
-        'participantStatusId',
-        participant
-          ?.participant_status_id || ''
-      )
 
-      applyParticipantStatusRules()
+      applyAttendanceStatusRules()
 
     }
   )

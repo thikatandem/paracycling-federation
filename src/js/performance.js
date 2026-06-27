@@ -25,7 +25,7 @@ let selectedTeamId = null
 let trainingCategoryId = null
 let competitionCategoryId = null
 let selectedParticipantId = null
-let cancelledStatusId = null
+
 let selectedParticipantInstanceId = null
 let selectedAthleteId = null
 const performanceLoading =
@@ -62,28 +62,7 @@ function showLoading() {
 }
 
 
-async function loadStatusIds() {
 
-  const { data, error } =
-    await db
-      .from('status_master')
-      .select(`
-        status_id,
-        status_name
-      `)
-
-  if (error) {
-    throw error
-  }
-
-  cancelledStatusId =
-    data.find(
-      status =>
-        status.status_name ===
-        'Cancelled'
-    )?.status_id
-
-}
 
 
 async function loadEvents() {
@@ -775,14 +754,35 @@ async function loadPerformance() {
     } =
       await db
         .from(
-          'performance'
-        )
-        .select(`
-          *,
-          teams(
-            team_name
-          )
-        `)
+  'performance'
+)
+.select(`
+  *,
+
+  teams(
+    team_name
+  ),
+
+  training_log(
+    training_date,
+
+    participant_instances(
+      event_instances(
+        event_area
+      )
+    )
+  ),
+
+  race_results(
+    competition_date,
+
+    participant_instances(
+      event_instances(
+        event_area
+      )
+    )
+  )
+`)
         .order(
           'performance_date',
           {
@@ -857,7 +857,7 @@ function renderPerformance() {
       <tr>
 
         <td
-          colspan="11"
+          colspan="12"
           class="text-center"
         >
           No Performance Records Found
@@ -893,6 +893,44 @@ function renderPerformance() {
               ?.team_name || ''
           }
         </td>
+        
+        <td>
+
+${
+  performance.source_type ===
+  'TRAINING'
+
+    ?
+
+    `${
+      performance
+        .training_log
+        ?.participant_instances
+        ?.event_instances
+        ?.event_area || ''
+    } - ${
+      performance
+        .training_log
+        ?.training_date || ''
+    }`
+
+    :
+
+    `${
+      performance
+        .race_results
+        ?.participant_instances
+        ?.event_instances
+        ?.event_area || ''
+    } - ${
+      performance
+        .race_results
+        ?.competition_date || ''
+    }`
+}
+
+</td>
+
 
         <td>
           ${
@@ -1213,6 +1251,18 @@ setValue(
 function openNewPerformanceModal() {
 
   clearPerformanceForm()
+
+document.getElementById(
+  'sourceType'
+).disabled = false
+
+document.getElementById(
+  'eventId'
+).disabled = false
+
+document.getElementById(
+  'sourceRecordId'
+).disabled = false
 
   document.getElementById(
     'performanceModalTitle'
@@ -1773,6 +1823,39 @@ function (
     performance.elevation_gain
   )
 
+
+document.getElementById(
+  'sourceType'
+).disabled = true
+
+document.getElementById(
+  'eventId'
+).disabled = true
+
+document.getElementById(
+  'sourceRecordId'
+).disabled = true
+
+document.getElementById(
+  'distanceKm'
+).readOnly = true
+
+document.getElementById(
+  'durationMinutes'
+).readOnly = true
+
+document.getElementById(
+  'avgSpeedKmh'
+).readOnly = true
+
+document.getElementById(
+  'maxSpeedKmh'
+).readOnly = true
+
+document.getElementById(
+  'performanceDate'
+).readOnly = true
+
   const modal =
     new coreui.Modal(
       document.getElementById(
@@ -2070,7 +2153,7 @@ async function initializePerformance() {
 
     }
 
-   await loadStatusIds()
+   
 
 await loadEvents()
 

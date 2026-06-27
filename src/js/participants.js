@@ -193,11 +193,13 @@ function showDeleteConfirmation(
       : participantInstanceIds
 
   document.getElementById(
-    'deleteRegistrationMessage'
-  ).textContent =
-    pendingDeleteIds.length === 1
-      ? 'Remove this participant from the selected event?'
-      : `Remove ${pendingDeleteIds.length} selected participants from this event?`
+  'deleteRegistrationMessage'
+).textContent =
+  pendingDeleteIds.length === 1
+
+    ? 'Remove this participant from the selected event?'
+
+    : `WARNING: You are about to remove ${pendingDeleteIds.length} participants. This action cannot be undone.`
 
   coreui.Modal
     .getOrCreateInstance(
@@ -273,6 +275,19 @@ async function initializeParticipants() {
   }
 }
 
+
+function selectAllParticipants() {
+
+  selectedParticipants =
+    participants.map(
+      participant =>
+        participant.participant_ref_id
+    )
+
+  renderParticipants()
+
+}
+
 function bindEvents() {
 
   eventId
@@ -293,6 +308,14 @@ document
   ?.addEventListener(
     'click',
     newRegistration
+  )
+document
+  .getElementById(
+    'btnSelectAllParticipants'
+  )
+  ?.addEventListener(
+    'click',
+    selectAllParticipants
   )
 
  document
@@ -771,11 +794,19 @@ function renderParticipants() {
 
           <td>
 
-            <input
-              type="checkbox"
-              class="participant-check"
-              value="${participant.participant_ref_id}"
-            >
+           <input
+  type="checkbox"
+  class="participant-check"
+  value="${participant.participant_ref_id}"
+  ${
+    selectedParticipants.includes(
+      participant.participant_ref_id
+    )
+      ? 'checked'
+      : ''
+  }
+  onchange="toggleParticipantSelection(this)"
+>
 
           </td>
 
@@ -797,6 +828,43 @@ function renderParticipants() {
   )
 }
 
+window.toggleParticipantSelection =
+  function (
+    checkbox
+  ) {
+
+    const participantId =
+      checkbox.value
+
+    if (
+      checkbox.checked
+    ) {
+
+      if (
+        !selectedParticipants.includes(
+          participantId
+        )
+      ) {
+
+        selectedParticipants.push(
+          participantId
+        )
+      }
+
+    } else {
+
+      selectedParticipants =
+        selectedParticipants.filter(
+          id =>
+            id !== participantId
+        )
+
+    }
+
+  }
+
+
+
 async function loadParticipantStatuses() {
 
   const {
@@ -806,19 +874,16 @@ async function loadParticipantStatuses() {
     await window
       .supabaseClient
       .from(
-        'status_master'
-      )
-      .select(`
-        status_id,
-        status_name
-      `)
-      .eq(
-        'entity_type',
-        'PARTICIPANT'
-      )
-      .order(
-        'status_name'
-      )
+  'registration_status_master'
+)
+.select(`
+  registration_status_id,
+  status_name,
+  status_code
+`)
+.order(
+  'status_name'
+)
 
   if (
     error
@@ -842,7 +907,7 @@ async function loadParticipantStatuses() {
 
       participantStatusId.innerHTML += `
         <option
-          value="${status.status_id}">
+          value="${status.registration_status_id}">
           ${status.status_name}
         </option>
       `
@@ -869,6 +934,19 @@ async function saveRegistration() {
         'participantStatusId'
       )
 
+const registeredStatus =
+  participantStatuses.find(
+    status =>
+      status.status_code ===
+      'REGISTERED'
+  )
+
+const participantInstanceId =
+  getValue(
+    'participantInstanceId'
+  )
+
+
     if (
       !occurrenceId
     ) {
@@ -892,22 +970,23 @@ async function saveRegistration() {
     }
 
     if (
-      !participantStatus
-    ) {
+  participantInstanceId &&
+  !participantStatus
+) {
 
-      showError(
-        'Participant Status is required'
-      )
+  showError(
+    'Participant Status is required'
+  )
 
-      return
-    }
+  return
+}
 
     const checkedParticipants =
-      [
-        ...document.querySelectorAll(
-          '.participant-check:checked'
-        )
-      ]
+  selectedParticipants.map(
+    participantId => ({
+      value: participantId
+    })
+  )
 
     if (
       checkedParticipants.length === 0
@@ -920,10 +999,7 @@ async function saveRegistration() {
       return
     }
    
-    const participantInstanceId =
-  getValue(
-    'participantInstanceId'
-  )
+ 
    if (
   participantInstanceId
 ) {
@@ -946,12 +1022,11 @@ async function saveRegistration() {
 
         participant_ref_id:
           selectedParticipant.value,
-
-        participant_status_id:
-          participantStatus,
+registration_status_id:
+  participantStatus,
 
         program_id:
-          selectedProgramId
+          selectedProgramId,
 
       })
       .eq(
@@ -1038,8 +1113,9 @@ if (
             participant_ref_id:
               checkbox.value,
 
-            participant_status_id:
-              participantStatus,
+            registration_status_id:
+             registeredStatus
+             ?.registration_status_id,
 
             program_id:
               selectedProgramId
@@ -1118,7 +1194,7 @@ async function loadRegistrations() {
 
         program_id,
 
-        participant_status_id,
+        registration_status_id,
 
         event_instances(
           event_instance_id,
@@ -1153,7 +1229,7 @@ async function loadRegistrations() {
   )
 ),
 
-        status_master(
+        registration_status_master(
           status_name
         )
       `)
@@ -1260,6 +1336,59 @@ function loadFilterOptions() {
   )
 }
 
+async function loadRegisteredParticipants(
+  occurrenceId,
+  programIdValue
+) {
+
+  const registered =
+    participantRegistrations.filter(
+      row =>
+
+        row.event_instances
+          ?.event_instance_id ===
+        occurrenceId
+
+        &&
+
+        row.program_id ===
+        programIdValue
+    )
+
+  participants =
+    registered.map(
+      row =>
+        row.participant_registry
+    )
+
+  renderParticipants()
+
+}
+
+function formatDate(
+  value
+) {
+
+  if (
+    !value
+  ) {
+
+    return ''
+
+  }
+
+  return new Date(
+    value
+  ).toLocaleDateString(
+    'en-GB',
+    {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }
+  )
+
+}
 
 
 function renderRegistrations() {
@@ -1323,6 +1452,7 @@ pageData.forEach(
 
       groupedData[groupKey] = {
         eventName,
+        groupKey,
         occurrence,
         program,
         registrations: []
@@ -1344,26 +1474,68 @@ Object.values(
 
     tbody.innerHTML += `
 
-      <tr class="group-row">
+  <tr class="bundle-spacer">
+    <td colspan="13"></td>
+  </tr>
 
-        <td colspan="13">
+ <tr class="group-row">
 
-          <strong>
-            ${group.eventName}
-          </strong>
+  <td colspan="13">
 
-          |
+    <div
+      class="bundle-header"
+    >
 
-          ${group.occurrence}
+      <div class="bundle-title">
 
-          |
+        ${group.eventName}
 
-          ${group.program}
+        |
 
-        </td>
+        ${group.occurrence}
 
-      </tr>
-    `
+        |
+
+        ${group.program}
+
+      </div>
+
+      <div class="bundle-actions">
+
+        <button
+          class="btn btn-sm btn-outline-primary me-2"
+          onclick="selectBundle('${group.groupKey}')"
+        >
+          Select Participants
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-danger"
+          onclick="deleteBundle('${group.groupKey}')"
+        >
+          Remove Participants
+        </button>
+
+      </div>
+
+    </div>
+
+  </td>
+
+</tr>
+
+<tr class="bundle-column-header">
+
+  <th>Type</th>
+
+  <th>Participant</th>
+
+  <th>Status</th>
+
+  <th>Actions</th>
+
+</tr>
+`
 
     group.registrations.forEach(
       registration => {
@@ -1411,9 +1583,11 @@ Object.values(
 
             <td>
               ${
-                registration
-                  .event_instances
-                  ?.start_date || ''
+               formatDate(
+  registration
+    .event_instances
+    ?.start_date
+)
               }
             </td>
 
@@ -1427,9 +1601,11 @@ Object.values(
 
             <td>
               ${
-                registration
-                  .event_instances
-                  ?.end_date || ''
+                formatDate(
+  registration
+    .event_instances
+    ?.end_date
+)
               }
             </td>
 
@@ -1467,12 +1643,35 @@ Object.values(
             </td>
 
             <td>
-              ${
-                registration
-                  .status_master
-                  ?.status_name || ''
-              }
-            </td>
+
+${(() => {
+
+  const status =
+    registration
+      .registration_status_master
+      ?.status_name || ''
+
+  const cssClass =
+    `status-${
+      status
+        .toLowerCase()
+        .replaceAll(
+          ' ',
+          '-'
+        )
+    }`
+
+  return `
+    <span
+      class="badge ${cssClass}"
+    >
+      ${status}
+    </span>
+  `
+
+})()}
+
+</td>
 
             <td class="text-nowrap">
 
@@ -1567,20 +1766,36 @@ await loadPrograms()
 
     setValue(
       'participantStatusId',
-      registration.participant_status_id || ''
+      registration.registration_status_id || ''
     )
 
     await loadOccurrenceDetails(
   registration.event_instances
     ?.event_instance_id
 )
-renderParticipants()
+
+
+await loadRegisteredParticipants(
+  registration.event_instances
+    ?.event_instance_id,
+
+  registration.program_id
+)
 
 await restoreParticipant(
   registration
     .participant_registry
     ?.participant_ref_id
 )
+
+document
+  .getElementById(
+    'participantStatusCard'
+  )
+  ?.classList.remove(
+    'd-none'
+  )
+
 
 const modal =
   new coreui.Modal(
@@ -1595,35 +1810,28 @@ async function restoreParticipant(
   participantRefId
 ) {
 
-  document
-    .querySelectorAll(
-      '.participant-check'
-    )
-    .forEach(
-      checkbox =>
-        checkbox.checked =
-          false
-    )
+  selectedParticipants =
+    [participantRefId]
 
-  const checkbox =
-    document.querySelector(
-      `.participant-check[value="${participantRefId}"]`
-    )
+  renderParticipants()
 
-  if (
-    checkbox
-  ) {
-
-    checkbox.checked =
-      true
-  }
 }
+
+
 
 
 
 function newRegistration() {
 
   clearRegistrationForm()
+
+  document
+    .getElementById(
+      'participantStatusCard'
+    )
+    ?.classList.add(
+      'd-none'
+    )
 
   const modal =
     new coreui.Modal(
@@ -1633,6 +1841,7 @@ function newRegistration() {
     )
 
   modal.show()
+
 }
 
 function clearRegistrationForm() {
@@ -1641,6 +1850,8 @@ function clearRegistrationForm() {
     'participantInstanceId',
     ''
   )
+
+selectedParticipants = []
 
   setValue(
     'eventId',
@@ -1818,10 +2029,7 @@ function updateSummaryCards() {
       'totalAthletes'
     )
 
-  const participatedCount =
-    document.getElementById(
-      'participatedCount'
-    )
+  
 
   if (
     !totalRegistrations
@@ -1851,13 +2059,7 @@ function updateSummaryCards() {
       'ATHLETE'
   ).length
 
-  participatedCount.textContent =
-    participantRegistrations.filter(
-      row =>
-        row.status_master
-          ?.status_name ===
-        'Participated'
-    ).length
+ 
 
 const countyCounts = {}
 
@@ -1955,7 +2157,7 @@ if (
 const participated =
   participantRegistrations.filter(
     row =>
-      row.status_master
+      row.registration_status_master
         ?.status_name ===
       'Participated'
   ).length
@@ -2076,7 +2278,7 @@ function exportExcel() {
 
           status:
             registration
-              .status_master
+              .registration_status_master
               ?.status_name
         }
       }
@@ -2233,7 +2435,7 @@ if (
         'participant_instances'
       )
       .update({
-        participant_status_id:
+        registration_status_id:
           selectedStatus
       })
       .eq(
@@ -2325,6 +2527,114 @@ window.deleteRegistration =
     )
   }
 
+window.selectBundle =
+  function (
+    groupKey
+  ) {
+
+    const registrations =
+      participantRegistrations.filter(
+        registration => {
+
+          const eventName =
+            registration
+              .event_instances
+              ?.events
+              ?.event_name || ''
+
+          const occurrence =
+            registration
+              .event_instances
+              ?.event_area || ''
+
+          const program =
+            registration
+              .event_programs
+              ?.program_name || ''
+
+          return (
+            `${eventName}|${occurrence}|${program}` ===
+            groupKey
+          )
+
+        }
+      )
+
+    const bundleCheckboxes =
+      registrations
+        .map(
+          registration =>
+            document.querySelector(
+              `.registration-check[value="${registration.participant_instance_id}"]`
+            )
+        )
+        .filter(Boolean)
+
+    const allSelected =
+      bundleCheckboxes.every(
+        checkbox =>
+          checkbox.checked
+      )
+
+    bundleCheckboxes.forEach(
+      checkbox => {
+
+        checkbox.checked =
+          !allSelected
+
+      }
+    )
+
+    toggleBulkDeleteButton()
+
+  }
+
+window.deleteBundle =
+  function (
+    groupKey
+  ) {
+
+    const ids =
+      participantRegistrations
+        .filter(
+          registration => {
+
+            const eventName =
+              registration
+                .event_instances
+                ?.events
+                ?.event_name || ''
+
+            const occurrence =
+              registration
+                .event_instances
+                ?.event_area || ''
+
+            const program =
+              registration
+                .event_programs
+                ?.program_name || ''
+
+            return (
+              `${eventName}|${occurrence}|${program}` ===
+              groupKey
+            )
+          }
+        )
+        .map(
+          registration =>
+            registration
+              .participant_instance_id
+        )
+
+   
+
+showDeleteConfirmation(
+  null,
+  ids
+)
+
+  }
 
 window.toggleBulkDeleteButton =
   function () {

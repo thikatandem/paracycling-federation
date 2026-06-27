@@ -27,9 +27,7 @@ let counties = []
 let subcounties = []
 
 let towns = []
-let participants = []
 
-let selectedParticipants = []
 
 const eventInstanceId =
   document.getElementById(
@@ -89,10 +87,7 @@ const occurrenceStatusId =
     'occurrenceStatusId'
   )
 
-const participantStatusId =
-  document.getElementById(
-    'participantStatusId'
-  )
+
 
 const btnSaveOccurrence =
   document.getElementById(
@@ -129,25 +124,7 @@ const townSuggestions =
     'townSuggestions'
   )
 
-const participantSelectionContainer =
-  document.getElementById(
-    'participantSelectionContainer'
-  )
 
-const modeTeams =
-  document.getElementById(
-    'modeTeams'
-  )
-
-const modeAthletes =
-  document.getElementById(
-    'modeAthletes'
-  )
-
-const modeMixed =
-  document.getElementById(
-    'modeMixed'
-  )
 
 
 function getValue(id) {
@@ -488,13 +465,16 @@ async function loadStatuses() {
     await window
       .supabaseClient
       .from(
-        'status_master'
-      )
-      .select('*')
-      .eq(
-        'entity_type',
-        'EVENT_INSTANCE'
-      )
+  'event_status_master'
+)
+.select(`
+  event_status_id,
+  status_name,
+  status_code
+`)
+.order(
+  'status_name'
+)
       .order(
         'status_name'
       )
@@ -519,7 +499,7 @@ async function loadStatuses() {
       occurrenceStatusId
         .innerHTML += `
           <option
-  value="${status.status_id}"
+  value="${status.event_status_id}"
   data-code="${status.status_code}"
 >
             ${status.status_name}
@@ -529,97 +509,11 @@ async function loadStatuses() {
   )
 }
 
-async function loadParticipantStatuses() {
-
-if (
-  !participantStatusId
-) {
-
-  return
-}
-
-  const {
-    data,
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'status_master'
-      )
-      .select('*')
-      .in(
-        'entity_type',
-        [
-          'PARTICIPANT',
-          'PARTICIPANT_ATTENDANCE'
-        ]
-      )
-      .order(
-        'status_name'
-      )
-
-  if (error) {
-
-    console.error(error)
-
-    return
-  }
-
-  participantStatusId.innerHTML =
-    `
-      <option value="">
-        Select Participant Status
-      </option>
-    `
-
-  data.forEach(
-    status => {
-
-      participantStatusId
-        .innerHTML += `
-          <option
-            value="${status.status_id}"
-          >
-            ${status.status_name}
-          </option>
-        `
-    }
-  )
-}
 
 
 
-async function loadParticipants() {
 
-  const {
-    data,
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'participant_registry'
-      )
-      .select(`
-        participant_ref_id,
-        display_name,
-        participant_type_code
-      `)
-      .order(
-        'display_name'
-      )
 
-  if (error) {
-
-    console.error(error)
-
-    return
-  }
-
-  participants =
-    data || []
-}
 
 async function initializeEvents() {
 
@@ -648,11 +542,6 @@ async function initializeEvents() {
 
     await loadStatuses()
 
-await loadParticipantStatuses()
-   
-    await loadParticipants()
-
-renderParticipants()
 await loadOccurrences()
 
   } catch (
@@ -941,10 +830,10 @@ async function buildOccurrencePayload() {
         'endTime'
       ),
 
-    status_id:
-      getValue(
-        'occurrenceStatusId'
-      )
+    event_status_id:
+  getValue(
+    'occurrenceStatusId'
+  )
   }
 }
 
@@ -1206,9 +1095,7 @@ async function saveSame() {
       throw error
     }
 
-    await saveParticipantRegistrations(
-      eventInstanceId
-    )
+    
 
     await loadOccurrences()
 
@@ -1262,18 +1149,67 @@ async function saveNew() {
     const payload =
       await buildOccurrencePayload()
 
-    const plannedStatus =
-      document.querySelector(
-        '#occurrenceStatusId option[data-code="PLANNED"]'
-      )
+   const now =
+  new Date()
 
-    if (
-      plannedStatus
-    ) {
+const startDateTime =
+  new Date(
+    `${payload.start_date}T${payload.start_time || '00:00'}`
+  )
 
-      payload.status_id =
-        plannedStatus.value
-    }
+const endDateTime =
+  new Date(
+    `${payload.end_date}T${payload.end_time || '23:59'}`
+  )
+
+let statusCode =
+  'PLANNED'
+
+if (
+  now >= endDateTime
+) {
+
+  statusCode =
+    'COMPLETED'
+
+} else if (
+  now >= startDateTime
+) {
+
+  statusCode =
+    'ONGOING'
+
+} else {
+
+  const todayString =
+    now.toISOString()
+      .split('T')[0]
+
+  if (
+    payload.start_date ===
+    todayString
+  ) {
+
+    statusCode =
+      'OPEN'
+
+  }
+
+}
+
+const statusOption =
+  document.querySelector(
+    `#occurrenceStatusId option[data-code="${statusCode}"]`
+  )
+
+if (
+  statusOption
+) {
+
+  payload.event_status_id =
+    statusOption.value
+
+}
 
     const {
       data,
@@ -1295,10 +1231,7 @@ async function saveNew() {
       throw error
     }
 
-    await saveParticipantRegistrations(
-      data.event_instance_id,
-      false
-    )
+    
 
     await loadOccurrences()
 
@@ -1341,81 +1274,7 @@ modal?.hide()
   }
 }
 
-async function saveParticipantRegistrations(
-  eventInstanceId,
-  isUpdate = true
-) {
 
-  if (isUpdate) {
-
-  const {
-    error: deleteError
-  }
-  =
-  await window
-    .supabaseClient
-    .from(
-      'participant_instances'
-    )
-    .delete()
-    .eq(
-      'event_instance_id',
-      eventInstanceId
-    )
-
-  if (
-    deleteError
-  ) {
-
-    throw deleteError
-  }
-}
-
-
-  if (
-    !selectedParticipants.length
-  ) {
-
-    return
-  }
-
-  const participantStatus =
-    getValue(
-      'participantStatusId'
-    ) || null
-
-  const registrations =
-    selectedParticipants.map(
-      participant => ({
-
-        event_instance_id:
-          eventInstanceId,
-
-        participant_ref_id:
-          participant.participant_id,
-
-        participant_status_id:
-          participantStatus
-      })
-    )
-
-  const {
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'participant_instances'
-      )
-      .insert(
-        registrations
-      )
-
-  if (error) {
-
-    throw error
-  }
-}
 async function checkDependencies(
   occurrenceId
 ) {
@@ -1542,7 +1401,7 @@ async function loadOccurrences() {
         sponsor_master(
           sponsor_name
         ),
-        status_master(
+        event_status_master(
           status_name
         ),
         participant_instances(
@@ -1575,206 +1434,8 @@ async function loadOccurrences() {
 }
 
 
-function renderParticipants() {
 
-  selectedParticipants = []
 
-  if (
-    !participantSelectionContainer
-  ) {
-
-    return
-  }
-
-  participantSelectionContainer
-    .innerHTML = ''
-
-  if (
-    modeTeams?.checked
-  ) {
-
-    renderTeams()
-
-  } else if (
-    modeAthletes?.checked
-  ) {
-
-    renderAthletes()
-
-  } else {
-
-    renderMixed()
-  }
-
-  bindParticipantSelection()
-}
-
-function renderTeams() {
-
-  participantSelectionContainer
-    .innerHTML = ''
-
-  participants
-    .filter(
-      participant =>
-        participant
-          .participant_type_code ===
-        'TEAM'
-    )
-    .forEach(
-      participant => {
-
-        participantSelectionContainer
-          .innerHTML += `
-
-          <div class="form-check">
-
-            <input
-              class="form-check-input participant-check"
-              type="checkbox"
-              data-type="TEAM"
-              value="${participant.participant_ref_id}"
-            >
-
-            <label class="form-check-label">
-
-              ${participant.display_name}
-
-            </label>
-
-          </div>
-          `
-      }
-    )
-}
-function renderAthletes() {
-
-  participantSelectionContainer
-    .innerHTML = ''
-
-  participants
-    .filter(
-      participant =>
-        participant
-          .participant_type_code ===
-        'ATHLETE'
-    )
-    .forEach(
-      participant => {
-
-        participantSelectionContainer
-          .innerHTML += `
-
-          <div class="form-check">
-
-            <input
-              class="form-check-input participant-check"
-              type="checkbox"
-              data-type="ATHLETE"
-              value="${participant.participant_ref_id}"
-            >
-
-            <label class="form-check-label">
-
-              ${participant.display_name}
-
-            </label>
-
-          </div>
-          `
-      }
-    )
-}
-
-function renderMixed() {
-
-  participantSelectionContainer
-    .innerHTML = ''
-
-  participants.forEach(
-    participant => {
-
-      participantSelectionContainer
-        .innerHTML += `
-
-        <div class="form-check">
-
-          <input
-            class="form-check-input participant-check"
-            type="checkbox"
-            data-type="${participant.participant_type_code}"
-            value="${participant.participant_ref_id}"
-          >
-
-          <label class="form-check-label">
-
-            ${participant.display_name}
-            (${participant.participant_type_code})
-
-          </label>
-
-        </div>
-        `
-    }
-  )
-}
-
-function bindParticipantSelection() {
-
-  const checkboxes =
-    document.querySelectorAll(
-      '.participant-check'
-    )
-
-  checkboxes.forEach(
-    checkbox => {
-
-      checkbox.addEventListener(
-        'change',
-        handleParticipantSelection
-      )
-    }
-  )
-}
-
-function handleParticipantSelection(
-  event
-) {
-
-  const checkbox =
-    event.target
-
-  const participant = {
-
-    participant_type:
-      checkbox.dataset.type,
-
-    participant_id:
-      checkbox.value
-  }
-
-  if (
-    checkbox.checked
-  ) {
-
-    selectedParticipants.push(
-      participant
-    )
-
-    return
-  }
-
-  selectedParticipants =
-    selectedParticipants.filter(
-      item =>
-        !(
-          item.participant_type ===
-            participant.participant_type &&
-          item.participant_id ===
-            participant.participant_id
-        )
-    )
-}
 
 function renderOccurrences() {
 
@@ -1883,14 +1544,90 @@ const eventTypeName =
             ${participantCount}
           </td>
 
-          <td>
-            ${
-              occurrence.status_master
-                ?.status_name || ''
-            }
-          </td>
+         <td>
 
-          <td>
+  ${(() => {
+
+    const status =
+      occurrence
+        .event_status_master
+        ?.status_name
+        ?.toUpperCase() || ''
+
+    let badgeClass =
+      'bg-secondary'
+
+    if (
+      status.includes(
+        'CANCEL'
+      )
+    ) {
+
+      badgeClass =
+        'bg-danger'
+
+    } else if (
+      status.includes(
+        'OPEN'
+      )
+    ) {
+
+      badgeClass =
+        'bg-success'
+
+    } else if (
+      status.includes(
+        'ONGOING'
+      )
+    ) {
+
+      badgeClass =
+        'bg-success'
+
+    } else if (
+      status.includes(
+        'COMPLETED'
+      )
+    ) {
+
+      badgeClass =
+        'bg-warning text-dark'
+
+    } else if (
+      status.includes(
+        'PLANNED'
+      )
+    ) {
+
+      badgeClass =
+        'bg-primary'
+
+    } else if (
+      status.includes(
+        'RESCHEDULE'
+      )
+    ) {
+
+      badgeClass =
+        'bg-warning text-dark'
+
+    }
+
+    return `
+      <span
+        class="badge ${badgeClass}"
+      >
+        ${occurrence
+          .event_status_master
+          ?.status_name || ''}
+      </span>
+    `
+
+  })()}
+
+</td>
+
+          <td class="text-nowrap">
 
             <button
   class="btn btn-sm btn-primary me-1"
@@ -2176,11 +1913,9 @@ setValue(
 
   setValue(
     'occurrenceStatusId',
-    occurrence.status_id
+    occurrence.event_status_id
   )
-  await loadOccurrenceParticipants(
-  occurrenceId
-)
+ 
   const modal =
     new coreui.Modal(
       document.getElementById(
@@ -2193,87 +1928,6 @@ setValue(
 window.deleteOccurrence =
   deleteOccurrence
 
-async function loadOccurrenceParticipants(
-  occurrenceId
-) {
-
-  const {
-    data,
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'participant_instances'
-      )
-      .select(`
-  participant_ref_id,
-  participant_status_id
-`)
-      .eq(
-        'event_instance_id',
-        occurrenceId
-      )
-
-  if (error) {
-
-    console.error(
-      error
-    )
-
-    return
-  }
-
-  selectedParticipants =
-    []
-
-  const selectedIds =
-    (data || [])
-      .map(
-        item =>
-          item.participant_ref_id
-      )
-if (
-  data &&
-  data.length
-) {
-
-  setValue(
-    'participantStatusId',
-    data[0]
-      .participant_status_id || ''
-  )
-}
-
-
-  document
-    .querySelectorAll(
-      '.participant-check'
-    )
-    .forEach(
-      checkbox => {
-
-        checkbox.checked =
-          selectedIds.includes(
-            checkbox.value
-          )
-
-        if (
-          checkbox.checked
-        ) {
-
-          selectedParticipants.push({
-
-            participant_id:
-              checkbox.value,
-
-            participant_type:
-              checkbox.dataset.type
-          })
-        }
-      }
-    )
-}
 
 function clearOccurrenceForm() {
 
@@ -2357,14 +2011,7 @@ function clearOccurrenceForm() {
     ''
   )
 
-  setValue(
-    'participantStatusId',
-    ''
-  )
-
-  selectedParticipants = []
-
-  renderParticipants()
+  
 
   clearError()
 }
@@ -2486,29 +2133,9 @@ if (townName) {
   )
 }
 
-if (modeTeams) {
 
-  modeTeams.addEventListener(
-    'change',
-    renderParticipants
-  )
-}
 
-if (modeAthletes) {
 
-  modeAthletes.addEventListener(
-    'change',
-    renderParticipants
-  )
-}
-
-if (modeMixed) {
-
-  modeMixed.addEventListener(
-    'change',
-    renderParticipants
-  )
-}
 if (
   btnSaveOccurrence
 ) {

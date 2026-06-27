@@ -224,12 +224,13 @@ async function loadStatuses() {
   } =
     await window.supabaseClient
       .from(
-        'status_master'
-      )
-      .select(`
-        status_id,
-        status_name
-      `)
+  'event_status_master'
+)
+.select(`
+  event_status_id,
+  status_name,
+  status_code
+`)
       .order(
         'status_name'
       )
@@ -257,7 +258,7 @@ async function loadStatuses() {
         )
 
       option.value =
-        status.status_id
+        status.event_status_id
 
       option.textContent =
         status.status_name
@@ -455,9 +456,10 @@ async function loadEventReportData() {
     town_master(
       town_name
     ),
-    status_master(
-      status_name
-    ),
+    event_status_master(
+  status_name,
+  status_code
+),
     event_sponsors(
       *,
       sponsor_master(
@@ -523,7 +525,7 @@ function updateSummaryCards() {
   const upcoming =
     eventReportData.filter(
       event =>
-        event.status_master
+        event.event_status_master
           ?.status_name
           ?.toLowerCase()
           .includes(
@@ -534,7 +536,7 @@ function updateSummaryCards() {
   const ongoing =
     eventReportData.filter(
       event =>
-        event.status_master
+        event.event_status_master
           ?.status_name
           ?.toLowerCase()
           .includes(
@@ -545,7 +547,7 @@ function updateSummaryCards() {
   const completed =
     eventReportData.filter(
       event =>
-        event.status_master
+        event.event_status_master
           ?.status_name
           ?.toLowerCase()
           .includes(
@@ -556,7 +558,7 @@ function updateSummaryCards() {
   const cancelled =
     eventReportData.filter(
       event =>
-        event.status_master
+        event.event_status_master
           ?.status_name
           ?.toLowerCase()
           .includes(
@@ -641,7 +643,7 @@ function buildStatusAnalysis() {
     event => {
 
       const status =
-        event.status_master
+        event.event_status_master
           ?.status_name ||
         'Unknown'
 
@@ -897,7 +899,7 @@ function applyFilters() {
             event.town_master
               ?.town_name || '',
 
-            event.status_master
+            event.event_status_master
               ?.status_name || '',
 
             event.events?.event_category_master
@@ -1323,7 +1325,7 @@ function renderTable() {
 
             <td>
               ${getStatusBadge(
-                event.status_master
+                event.event_status_master
                   ?.status_name
               )}
             </td>

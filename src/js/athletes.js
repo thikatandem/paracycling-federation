@@ -145,7 +145,6 @@ async function loadClassifications() {
     '<option value="">Select Classification</option>'
 
   for (const classification of classifications) {
-
   select.innerHTML += `
     <option
       value="${classification.classification_id}"
@@ -182,6 +181,9 @@ async function loadAthletes() {
   ),
   classification_master(
     classification_code
+  ),
+  membership_status_master(
+    status_name
   )
 `)
         .order(
@@ -371,8 +373,10 @@ function renderAthletes() {
 </td>
 
         <td>
-          ${getStatusBadge(athlete.status)}
-        </td>
+  ${getStatusBadge(
+    athlete.membership_status_master?.status_name || ''
+  )}
+</td>
 
         <td>
 
@@ -693,9 +697,9 @@ setValue(
   )
 
   setValue(
-    'status',
-    athlete.status
-  )
+  'status',
+  athlete.membership_status_master?.status_name || ''
+)
 
   const modal =
     new coreui.Modal(

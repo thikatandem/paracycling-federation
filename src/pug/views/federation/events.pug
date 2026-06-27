@@ -262,99 +262,15 @@ block view
                     id='endTime'
                   )
 
-          .card.mb-4
-
-            .card-header
-
-              strong Participant Mode
-
-            .card-body
-
-              .row.mb-3
-
-                .col-md-12
-
-                  .form-check.form-check-inline
-
-                    input.form-check-input(
-                      type='radio'
-                      name='participantMode'
-                      id='modeTeams'
-                      value='TEAM'
-                      checked
-                    )
-
-                    label.form-check-label(
-                      for='modeTeams'
-                    )
-                      | Teams
-
-                  .form-check.form-check-inline
-
-                    input.form-check-input(
-                      type='radio'
-                      name='participantMode'
-                      id='modeAthletes'
-                      value='ATHLETE'
-                    )
-
-                    label.form-check-label(
-                      for='modeAthletes'
-                    )
-                      | Athletes
-
-                  .form-check.form-check-inline
-
-                    input.form-check-input(
-                      type='radio'
-                      name='participantMode'
-                      id='modeMixed'
-                      value='MIXED'
-                    )
-
-                    label.form-check-label(
-                      for='modeMixed'
-                    )
-                      | Mixed
-
-              .row
-
-                .col-md-12
-
-                  label.form-label Available Participants
-
-                  .border.rounded.p-3(
-                    style='max-height:350px;overflow-y:auto'
-                  )
-
-                    #participantSelectionContainer
-          .card.mb-4
-
-            .card-header
-
-              strong Participant Status
-
-            .card-body
-
-              .row
-
-                .col-md-4.mb-3
-
-                  label.form-label Participant Status
-
-                  select.form-select(
-                    id='participantStatusId'
-                  )
-
-                      option(value='')
-                        | Select Participant Status
+          
+          
           .card.mb-4(
             id='occurrenceStatusCard'
           )
 
             .card-header
 
-              strong Event Occurrence Status
+              strong Event Status
 
             .card-body
 
@@ -362,7 +278,7 @@ block view
 
                 .col-md-4.mb-3
 
-                  label.form-label Status
+                  label.form-label Event Status
 
                   select.form-select(
                     id='occurrenceStatusId'

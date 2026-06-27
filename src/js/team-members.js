@@ -472,7 +472,7 @@ function updateSummaryCards() {
   const activeAssignments =
     teamMembers.filter(
       member =>
-        member.is_active
+        member.membership_status_master
     ).length
 
   const pilotAssignments =
@@ -494,7 +494,7 @@ function updateSummaryCards() {
   const historicalChanges =
     teamMembers.filter(
       member =>
-        !member.is_active
+        !member.membership_status_master
     ).length
 
   setText(
@@ -582,7 +582,7 @@ function applyFilters() {
 
             member.change_reason || '',
 
-            member.is_active
+            member.membership_status_master
               ? 'active'
               : 'inactive'
           ]
@@ -617,7 +617,7 @@ function applyFilters() {
         if (
           status ===
           'active' &&
-          !member.is_active
+          !member.membership_status_master
         ) {
           return false
         }
@@ -625,14 +625,14 @@ function applyFilters() {
         if (
           status ===
           'inactive' &&
-          member.is_active
+          member.membership_status_master
         ) {
           return false
         }
 
         if (
           activeOnly &&
-          !member.is_active
+          !member.membership_status_master
         ) {
           return false
         }
@@ -940,7 +940,7 @@ function renderTable() {
 
             <td>
               ${getActiveBadge(
-                member.is_active
+                member.membership_status_master
               )}
             </td>
 
@@ -970,7 +970,7 @@ function renderTable() {
               </button>
 
               ${
-                member.is_active
+                member.membership_status_master
                   ? `
                     <button
                       class="
@@ -1135,7 +1135,7 @@ async function (
           x.role_master
             ?.role_code ===
           'PILOT' &&
-          x.is_active
+          x.membership_status_master
       )
 
     const stoker =
@@ -1144,7 +1144,7 @@ async function (
           x.role_master
             ?.role_code ===
           'STOKER' &&
-          x.is_active
+          x.membership_status_master
       )
 
     setText(
@@ -1164,7 +1164,7 @@ async function (
     const activeRecord =
   data.find(
     record =>
-      record.is_active
+      record.membership_status_master
   )
 
 setText(
@@ -1205,7 +1205,7 @@ setText(
 
             <td>
               ${
-                row.is_active
+                row.membership_status_master
                   ? 'Assigned'
                   : 'Closed'
               }
@@ -1297,7 +1297,7 @@ async function closeAssignment() {
           'team_members'
         )
         .update({
-          is_active:false,
+          membership_status_master:false,
           end_date:endDate,
           change_reason:
             `${reason} - ${remarks}`
@@ -1365,7 +1365,7 @@ function exportCsv() {
           row.end_date,
 
         Active:
-          row.is_active
+          row.membership_status_master
       })
     )
 

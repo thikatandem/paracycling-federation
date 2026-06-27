@@ -365,7 +365,7 @@
                             <th>Event</th>
                             <th>Occurrence</th>
                             <th>Program</th>
-                            <th>Status</th>
+                            <th>Outcome</th>
                             <th>Session</th>
                             <th>Distance</th>
                             <th>Duration</th>
@@ -435,11 +435,18 @@
                       <select class="form-select" id="participantId">
                         <option value="">Select Participant</option>
                       </select>
+                      <input class="form-control mt-2 d-none" id="participantDisplay" readonly>
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Participant Status</label>
-                      <select class="form-select" id="participantStatusId">
-                        <option value="">Select Status</option>
+                      <label class="form-label">Attendance Status</label>
+                      <select class="form-select" id="attendanceStatusId">
+                        <option value="">Select Attendance Status</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Outcome Status</label>
+                      <select class="form-select" id="outcomeStatusId">
+                        <option value="">Select Outcome Status</option>
                       </select>
                     </div>
                     <div class="col-md-3">

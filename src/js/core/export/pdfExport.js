@@ -21,6 +21,13 @@ import {
 }
 from './exportConstants.js'
 
+const tandemLogo =
+  '/assets/logo/tandem-logo.png'
+
+const tandemBackground =
+  '/assets/shared/tandem-pdf.png'
+
+
 import {
 
   createAttendanceChart,
@@ -66,7 +73,69 @@ export const PDF_COLORS = {
 
 }
 
+function imageToBase64(
+  imageUrl
+) {
 
+  return new Promise(
+
+    (
+      resolve,
+      reject
+    ) => {
+
+      const image =
+        new Image()
+
+      image.crossOrigin =
+        'anonymous'
+
+      image.onload =
+        () => {
+
+          const canvas =
+            document.createElement(
+              'canvas'
+            )
+
+          canvas.width =
+            image.width
+
+          canvas.height =
+            image.height
+
+          const context =
+            canvas.getContext(
+              '2d'
+            )
+
+          context.drawImage(
+            image,
+            0,
+            0
+          )
+
+          resolve(
+
+            canvas.toDataURL(
+              'image/png'
+            )
+
+          )
+
+        }
+
+      image.onerror =
+        reject
+
+      image.src =
+        imageUrl
+
+    }
+
+  )
+
+}
 
 // =====================================================
 // DOCUMENT
@@ -180,6 +249,22 @@ export function addKpiPage({
 
   pdf.addPage()
 
+if (
+  window.pdfBackgroundImage
+) {
+
+  addBackgroundWatermark({
+
+    pdf,
+
+    imageBase64:
+      window.pdfBackgroundImage
+
+  })
+
+}
+
+
   pdf.setFontSize(
     18
   )
@@ -270,6 +355,63 @@ export function addKpiPage({
   
 }
 
+
+export function addBackgroundWatermark({
+
+  pdf,
+
+  imageBase64
+
+}) {
+
+  if (
+    !imageBase64
+  ) {
+
+    return
+  }
+
+  const pageWidth =
+
+    pdf.internal
+      .pageSize
+      .getWidth()
+
+  const pageHeight =
+
+    pdf.internal
+      .pageSize
+      .getHeight()
+
+  pdf.saveGraphicsState()
+
+  pdf.setGState(
+    new pdf.GState({
+      opacity: 0.08
+    })
+  )
+
+  pdf.addImage(
+
+    imageBase64,
+
+    'PNG',
+
+    20,
+
+    15,
+
+    pageWidth - 40,
+
+    pageHeight - 30
+
+  )
+
+  pdf.restoreGraphicsState()
+
+}
+
+
 export function addCoverPage({
 
   pdf,
@@ -296,22 +438,43 @@ export function addCoverPage({
     'F'
   )
 
-  if (
-    logoBase64
-  ) {
+ if (
+  window.pdfBackgroundImage
+) {
 
+  addBackgroundWatermark({
 
-    addFederationLogo({
-  pdf,
-  logoBase64,
-  x: 131,
-  y: 20,
-  width: 35,
-  height: 35
-})
+    pdf,
 
+    imageBase64:
+      window.pdfBackgroundImage
 
-  }
+  })
+
+}
+
+if (
+  logoBase64
+) {
+
+  addFederationLogo({
+
+    pdf,
+
+    logoBase64,
+
+    x: 245,
+
+    y: 10,
+
+    width: 40,
+
+    height: 40
+
+  })
+
+}
+  
 
   pdf.setTextColor(
     255,
@@ -426,6 +589,22 @@ export function addReportContext({
 }) {
 
   pdf.addPage()
+if (
+  window.pdfBackgroundImage
+) {
+
+  addBackgroundWatermark({
+
+    pdf,
+
+    imageBase64:
+      window.pdfBackgroundImage
+
+  })
+
+}
+
+
 
   pdf.setFontSize(20)
 
@@ -448,10 +627,10 @@ export function addReportContext({
     ([key, value], index) => {
 
       pdf.setFillColor(
-        248,
-        249,
-        250
-      )
+  25,
+  135,
+  84
+)
 
       pdf.roundedRect(
         x,
@@ -470,7 +649,11 @@ export function addReportContext({
         x + 4,
         y + 8
       )
-
+  pdf.setTextColor(
+  255,
+  255,
+  255
+)
       pdf.setFontSize(14)
 
       pdf.text(
@@ -480,7 +663,11 @@ export function addReportContext({
         x + 4,
         y + 20
       )
-
+pdf.setTextColor(
+  0,
+  0,
+  0
+)
       x += 70
 
       if (
@@ -514,6 +701,22 @@ export function addDashboardPage({
 }) {
 
   pdf.addPage()
+
+if (
+  window.pdfBackgroundImage
+) {
+
+  addBackgroundWatermark({
+
+    pdf,
+
+    imageBase64:
+      window.pdfBackgroundImage
+
+  })
+
+}
+
 
   pdf.setFontSize(
     20
@@ -1392,6 +1595,9 @@ export function downloadSummaryPdf({
 
 export async function downloadTrainingReportPdf({
 
+
+
+
   reportPeriod,
 
   filters = {},
@@ -1438,6 +1644,21 @@ export async function downloadTrainingReportPdf({
 }) {
 
   try {
+
+const logoBase64Loaded =
+
+  await imageToBase64(
+    tandemLogo
+  )
+
+const backgroundBase64 =
+
+  await imageToBase64(
+    tandemBackground
+  )
+
+window.pdfBackgroundImage =
+  backgroundBase64
 
     const attendanceChart =
       await createAttendanceChart({
@@ -1554,15 +1775,19 @@ const reportTitle =
 
     const pdf =
   buildFederationReport({
+  
 
     reportTitle,
 
     reportPeriod:
       actualReportPeriod,
+
+       logoBase64:
+  logoBase64Loaded,
          
         filters,
 
-        logoBase64,
+        
 
         insights,
 
@@ -1685,20 +1910,20 @@ const reportTitle =
           },
 
           {
-            image:
-              scopeChart,
+  image:
+    scopeChart,
 
-            title:
-              'Team vs Individual',
+  title:
+    'Team vs Individual',
 
-            x: 10,
+  x: 10,
 
-            y: 205,
+  y: 170,
 
-            width: 100,
+  width: 100,
 
-            height: 60
-          }
+  height: 45
+}
 
         ]
 
@@ -2320,6 +2545,21 @@ export function addParticipantSummary({
 
   pdf.addPage()
 
+if (
+  window.pdfBackgroundImage
+) {
+
+  addBackgroundWatermark({
+
+    pdf,
+
+    imageBase64:
+      window.pdfBackgroundImage
+
+  })
+
+}
+
   pdf.setFontSize(
     18
   )
@@ -2441,6 +2681,10 @@ export function buildFederationReport({
 
   })
 
+  // ==========================================
+  // ANALYTICS DASHBOARD
+  // ==========================================
+
   addDashboardPage({
 
     pdf,
@@ -2451,100 +2695,119 @@ export function buildFederationReport({
   })
 
   charts.forEach(
-  chart => {
+    chart => {
 
-    addChartImage({
+      addChartImage({
+
+        pdf,
+
+        imageData:
+          chart.image,
+
+        x:
+          chart.x,
+
+        y:
+          chart.y,
+
+        width:
+          chart.width,
+
+        height:
+          chart.height,
+
+        title:
+          chart.title
+
+      })
+
+    }
+  )
+
+  // ==========================================
+  // TRAINING INTELLIGENCE PAGE
+  // ==========================================
+
+  pdf.addPage()
+
+  pdf.setFontSize(
+    18
+  )
+
+  pdf.text(
+    'Training Intelligence Summary',
+    14,
+    20
+  )
+
+  pdf.setFontSize(
+    11
+  )
+
+  pdf.text(
+    'Attendance trend indicates participant engagement.',
+    14,
+    40
+  )
+
+  pdf.text(
+    'County activity highlights training concentration.',
+    14,
+    50
+  )
+
+  pdf.text(
+    'Status distribution reflects participation levels.',
+    14,
+    60
+  )
+
+  pdf.text(
+    'Training load shows volume progression.',
+    14,
+    70
+  )
+
+  pdf.text(
+    'Team vs Individual reflects session composition.',
+    14,
+    80
+  )
+
+  if (
+    insights.length
+  ) {
+
+    addInsightsSection({
 
       pdf,
 
-      imageData:
-        chart.image,
+      insights,
 
-      x:
-        chart.x,
-
-      y:
-        chart.y,
-
-      width:
-        chart.width,
-
-      height:
-        chart.height,
-
-      title:
-        chart.title
+      startY: 100
 
     })
 
   }
-)
 
-pdf.setFontSize(
-  14
-)
+  if (
+    participantSummary.length
+  ) {
 
-pdf.text(
-  'Training Intelligence Summary',
-  120,
-  205
-)
+    addParticipantSummary({
 
-pdf.setFontSize(
-  9
-)
+      pdf,
 
-pdf.text(
-  'Attendance trend indicates participant engagement.',
-  120,
-  215
-)
+      participants:
+        participantSummary
 
-pdf.text(
-  'County activity highlights training concentration.',
-  120,
-  222
-)
+    })
 
-pdf.text(
-  'Status distribution reflects participation levels.',
-  120,
-  229
-)
+  }
 
-pdf.text(
-  'Training load shows volume progression.',
-  120,
-  236
-)
-
-pdf.text(
-  'Team vs Individual reflects session composition.',
-  120,
-  243
-)
-
-if (
-  insights.length
-) {
-
-  addInsightsSection({
-
-    pdf,
-
-    insights
-
-  })
-
-}
-  addParticipantSummary({
-
-    pdf,
-
-    participants:
-      participantSummary
-
-  })
+  // ==========================================
+  // DETAILED TRAINING LOG
+  // ==========================================
 
   pdf.addPage()
 
@@ -2554,42 +2817,43 @@ if (
 
   const uniqueOccurrences =
 
-  new Set(
+    new Set(
 
-    data.map(
-      row =>
-        row.occurrence
+      data
+        .map(
+          row =>
+            row.occurrence
+        )
+        .filter(Boolean)
+
     )
 
+  const detailTitle =
+
+    uniqueOccurrences.size === 1
+
+      ?
+
+      [...uniqueOccurrences][0]
+
+      :
+
+      'Detailed Training Log'
+
+  pdf.text(
+
+    detailTitle,
+
+    148.5,
+
+    15,
+
+    {
+      align:
+        'center'
+    }
+
   )
-
-const detailTitle =
-
-  uniqueOccurrences.size === 1
-
-    ?
-
-    [...uniqueOccurrences][0]
-
-    :
-
-    'Detailed Training Log'
-
-pdf.text(
-
-  detailTitle,
-
-  148.5,
-
-  15,
-
-  {
-    align:
-      'center'
-  }
-
-)
-
 
   addTable({
 

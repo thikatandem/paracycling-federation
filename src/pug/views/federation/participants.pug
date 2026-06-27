@@ -10,15 +10,23 @@ block view
         .card.mb-4
 
           .card-header.d-flex.justify-content-between.align-items-center
+            div
+              strong Participant Registrations
+            
+            div
+              button.btn.btn-danger.ms-3(
+                type='button'
+                id='btnDeleteAllBundles'
+              )
+                i.fa.fa-trash.me-2
+                | DELETE ALL BUNDLES
 
-            strong Participant Registrations
-
-            button.btn.btn-primary(
-              type='button'
-              id='btnNewParticipantRegistration'
-            )
-              i.fa.fa-plus.me-2
-              | New Registration
+              button.btn.btn-primary(
+                type='button'
+                id='btnNewParticipantRegistration'
+              )
+                i.fa.fa-plus.me-2
+                | New Registration
 
           .card-body
 
@@ -272,9 +280,17 @@ block view
                   )
 
           .card.mb-4
+           
+            .card-header.d-flex.justify-content-between.align-items-center
 
-            .card-header
               strong Available Participants
+
+              button.btn.btn-success.btn-sm(
+                type='button'
+                id='btnSelectAllParticipants'
+              )
+                i.fa.fa-check-square.me-2
+                | Select All
 
             .card-body
 
@@ -314,7 +330,9 @@ block view
 
                   tbody#availableParticipantsBody
 
-          .card.mb-4
+          .card.mb-4(
+            id='participantStatusCard'
+          )
 
             .card-header
               strong Participant Status
@@ -322,7 +340,6 @@ block view
             .card-body
 
               .row
-
                 .col-md-4.mb-3
 
                   label.form-label Status

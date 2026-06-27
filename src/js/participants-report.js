@@ -369,13 +369,14 @@ async function loadParticipationData() {
   participant_instance_id,
   participant_ref_id,
   registration_date,
-  participant_status_id,
+  registration_status_id,
   program_id,
 
-  status_master(
-    status_id,
-    status_name
-  ),
+  registration_status_master(
+  registration_status_id,
+  status_name,
+  status_code
+),
 
   event_programs(
     program_id,
@@ -1050,7 +1051,7 @@ function applyParticipationSearch() {
             ?.participant_type_code || ''
 
         const statusName =
-          record.status_master
+          record.registration_status_master
             ?.status_name || ''
 
         const searchableText =
@@ -1411,7 +1412,7 @@ function renderParticipationTable() {
 
         <td>
           ${
-            record.status_master
+            record.registration_status_master
               ?.status_name ||
             '-'
           }
@@ -1563,7 +1564,7 @@ async function viewParticipationRecord(
 
     setText(
       'reportStatus',
-      record.status_master
+      record.registration_status_master
         ?.status_name || '-'
     )
 
@@ -1799,7 +1800,7 @@ function exportParticipationCsv() {
 
         record.registration_date || '',
 
-        record.status_master
+        record.registration_status_master
           ?.status_name || ''
       ])
     }
