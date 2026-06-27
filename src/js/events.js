@@ -28,6 +28,8 @@ let subcounties = []
 
 let towns = []
 
+let pendingOccurrenceDeleteId =
+  null
 
 const eventInstanceId =
   document.getElementById(
@@ -830,10 +832,7 @@ async function buildOccurrencePayload() {
         'endTime'
       ),
 
-    event_status_id:
-  getValue(
-    'occurrenceStatusId'
-  )
+    
   }
 }
 
@@ -1055,6 +1054,39 @@ async function saveSame() {
     const payload =
       await buildOccurrencePayload()
 
+  const currentStatusCode =
+  document
+    .querySelector(
+      '#occurrenceStatusId option:checked'
+    )
+    ?.dataset
+    ?.code
+
+if (
+  currentStatusCode !==
+    'CANCELLED' &&
+  currentStatusCode !==
+    'RESCHEDULED'
+) {
+
+  payload.event_status_id =
+    getCalculatedStatusId(
+      payload
+    )
+
+if (
+  !payload.event_status_id
+) {
+
+  throw new Error(
+    'Unable to determine event status.'
+  )
+
+}
+
+}
+
+
     const eventInstanceId =
       getValue(
         'eventInstanceId'
@@ -1122,6 +1154,65 @@ async function saveSame() {
   }
 }
 
+function getCalculatedStatusId(
+  payload
+) {
+
+  const now =
+    new Date()
+
+  const startDateTime =
+    new Date(
+      `${payload.start_date}T${payload.start_time || '00:00'}`
+    )
+
+  const endDateTime =
+    new Date(
+      `${payload.end_date}T${payload.end_time || '23:59'}`
+    )
+
+  let statusCode =
+    'PLANNED'
+
+  if (
+    now >= endDateTime
+  ) {
+
+    statusCode =
+      'COMPLETED'
+
+  } else if (
+    now >= startDateTime
+  ) {
+
+    statusCode =
+      'ONGOING'
+
+  } else {
+
+    const today =
+      now
+        .toISOString()
+        .split('T')[0]
+
+    if (
+      payload.start_date ===
+      today
+    ) {
+
+      statusCode =
+        'OPEN'
+
+    }
+
+  }
+
+  return document.querySelector(
+    `#occurrenceStatusId option[data-code="${statusCode}"]`
+  )?.value || null
+
+}
+
 async function saveNew() {
 
   if (
@@ -1129,6 +1220,7 @@ async function saveNew() {
   ) {
 
     return
+
   }
 
   btnSaveOccurrenceAsNew.disabled =
@@ -1144,94 +1236,82 @@ async function saveNew() {
         false
 
       return
+
     }
 
     const payload =
       await buildOccurrencePayload()
 
-   const now =
-  new Date()
-
-const startDateTime =
-  new Date(
-    `${payload.start_date}T${payload.start_time || '00:00'}`
+    payload.event_status_id =
+  getCalculatedStatusId(
+    payload
   )
-
-const endDateTime =
-  new Date(
-    `${payload.end_date}T${payload.end_time || '23:59'}`
-  )
-
-let statusCode =
-  'PLANNED'
-
-if (
-  now >= endDateTime
-) {
-
-  statusCode =
-    'COMPLETED'
-
-} else if (
-  now >= startDateTime
-) {
-
-  statusCode =
-    'ONGOING'
-
-} else {
-
-  const todayString =
-    now.toISOString()
-      .split('T')[0]
-
-  if (
-    payload.start_date ===
-    todayString
-  ) {
-
-    statusCode =
-      'OPEN'
-
-  }
-
-}
-
-const statusOption =
-  document.querySelector(
-    `#occurrenceStatusId option[data-code="${statusCode}"]`
-  )
-
-if (
-  statusOption
-) {
-
-  payload.event_status_id =
-    statusOption.value
-
-}
-
-    const {
-      data,
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_instances'
-        )
-        .insert(
-          payload
-        )
-        .select()
-        .single()
-
-    if (error) {
-
-      throw error
-    }
 
     
+
+    const existing =
+  await window
+    .supabaseClient
+    .from(
+      'event_instances'
+    )
+    .select(
+      'event_instance_id'
+    )
+    .eq(
+      'event_id',
+      payload.event_id
+    )
+    .eq(
+      'event_area',
+      payload.event_area
+    )
+    .eq(
+      'start_date',
+      payload.start_date
+    )
+    .eq(
+      'start_time',
+      payload.start_time
+    )
+    .maybeSingle()
+
+if (
+  existing.data
+) {
+
+  showError(
+    'An occurrence already exists for the same Event, Area, Date and Start Time.'
+  )
+
+  btnSaveOccurrenceAsNew.disabled =
+    false
+
+  return
+
+}
+
+const {
+  data,
+  error
+} =
+  await window
+    .supabaseClient
+    .from(
+      'event_instances'
+    )
+    .insert(
+      payload
+    )
+    .select()
+    .single()
+    if (
+      error
+    ) {
+
+      throw error
+
+    }
 
     await loadOccurrences()
 
@@ -1244,16 +1324,16 @@ if (
       'Event Occurrence Created'
     )
 
-clearOccurrenceForm()
+    clearOccurrenceForm()
 
-const modal =
-  coreui.Modal.getInstance(
-    document.getElementById(
-      'occurrenceModal'
-    )
-  )
+    const modal =
+      coreui.Modal.getInstance(
+        document.getElementById(
+          'occurrenceModal'
+        )
+      )
 
-modal?.hide()
+    modal?.hide()
 
   } catch (
     error
@@ -1271,7 +1351,9 @@ modal?.hide()
 
     btnSaveOccurrenceAsNew.disabled =
       false
+
   }
+
 }
 
 
@@ -1321,14 +1403,21 @@ async function deleteOccurrence(
     )
 
   const confirmed =
-    confirm(
-      `Delete Event Occurrence?\n\nParticipants: ${dependencyInfo.participantCount}`
-    )
+    pendingOccurrenceDeleteId =
+  occurrenceId
 
-  if (!confirmed) {
+document.getElementById(
+  'deleteOccurrenceMessage'
+).textContent =
+  `This occurrence contains ${dependencyInfo.participantCount} participant registration(s).`
 
-    return
-  }
+new coreui.Modal(
+  document.getElementById(
+    'deleteOccurrenceModal'
+  )
+).show()
+
+return
 
   try {
 
@@ -2202,3 +2291,73 @@ btnSaveOccurrenceAsNew
       }
     )
 }
+
+document
+  .getElementById(
+    'btnConfirmDeleteOccurrence'
+  )
+  ?.addEventListener(
+    'click',
+    async () => {
+
+      if (
+        !pendingOccurrenceDeleteId
+      ) {
+
+        return
+
+      }
+
+      try {
+
+        const {
+          error
+        } =
+          await window
+            .supabaseClient
+            .from(
+              'event_instances'
+            )
+            .delete()
+            .eq(
+              'event_instance_id',
+              pendingOccurrenceDeleteId
+            )
+
+        if (
+          error
+        ) {
+
+          throw error
+
+        }
+
+        await loadOccurrences()
+
+        showSuccess(
+          'Event Occurrence Deleted'
+        )
+
+      } catch (
+        error
+      ) {
+
+        showError(
+          error.message
+        )
+
+      }
+
+      pendingOccurrenceDeleteId =
+        null
+
+      coreui.Modal
+        .getInstance(
+          document.getElementById(
+            'deleteOccurrenceModal'
+          )
+        )
+        ?.hide()
+
+    }
+  )

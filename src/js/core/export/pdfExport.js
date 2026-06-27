@@ -247,22 +247,11 @@ export function addKpiPage({
 
 }) {
 
-  pdf.addPage()
+  addPageWithBackground(
+  pdf
+)
 
-if (
-  window.pdfBackgroundImage
-) {
 
-  addBackgroundWatermark({
-
-    pdf,
-
-    imageBase64:
-      window.pdfBackgroundImage
-
-  })
-
-}
 
 
   pdf.setFontSize(
@@ -411,6 +400,28 @@ export function addBackgroundWatermark({
 
 }
 
+export function addPageWithBackground(
+  pdf
+) {
+
+  pdf.addPage()
+
+  if (
+    window.pdfBackgroundImage
+  ) {
+
+    addBackgroundWatermark({
+
+      pdf,
+
+      imageBase64:
+        window.pdfBackgroundImage
+
+    })
+
+  }
+
+}
 
 export function addCoverPage({
 
@@ -588,21 +599,10 @@ export function addReportContext({
 
 }) {
 
-  pdf.addPage()
-if (
-  window.pdfBackgroundImage
-) {
+  addPageWithBackground(
+  pdf
+)
 
-  addBackgroundWatermark({
-
-    pdf,
-
-    imageBase64:
-      window.pdfBackgroundImage
-
-  })
-
-}
 
 
 
@@ -700,22 +700,10 @@ export function addDashboardPage({
 
 }) {
 
-  pdf.addPage()
+  addPageWithBackground(
+  pdf
+)
 
-if (
-  window.pdfBackgroundImage
-) {
-
-  addBackgroundWatermark({
-
-    pdf,
-
-    imageBase64:
-      window.pdfBackgroundImage
-
-  })
-
-}
 
 
   pdf.setFontSize(
@@ -2543,22 +2531,11 @@ export function addParticipantSummary({
 
   }
 
-  pdf.addPage()
+  addPageWithBackground(
+  pdf
+)
 
-if (
-  window.pdfBackgroundImage
-) {
 
-  addBackgroundWatermark({
-
-    pdf,
-
-    imageBase64:
-      window.pdfBackgroundImage
-
-  })
-
-}
 
   pdf.setFontSize(
     18
@@ -2728,7 +2705,9 @@ export function buildFederationReport({
   // TRAINING INTELLIGENCE PAGE
   // ==========================================
 
-  pdf.addPage()
+  addPageWithBackground(
+  pdf
+)
 
   pdf.setFontSize(
     18
@@ -2809,7 +2788,9 @@ export function buildFederationReport({
   // DETAILED TRAINING LOG
   // ==========================================
 
-  pdf.addPage()
+  addPageWithBackground(
+  pdf
+)
 
   pdf.setFontSize(
     18
