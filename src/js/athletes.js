@@ -6,21 +6,73 @@
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
-const PAGE_SIZE = 10
 
-let athletes = []
-let filteredAthletes = []
-let currentPage = 1
 
-let counties = []
-let classifications = []
-let subcounties = []
-let towns = []
-const athleteLoading =
-  document.getElementById('athleteLoading')
+import {
+  getValue,
+  setValue,
+  populateSelect,
+  resetForm
+} from './core/domService.js'
 
-const athleteFormError =
-  document.getElementById('athleteFormError')
+import { showLoading, hideLoading } from './core/uiService.js'
+
+import {
+  renderEntityTable,
+  buildActionButtons,
+  buildActionCell,
+  buildTextCell,
+  buildStatusCell
+} from './core/tableRendererService.js'
+
+import {
+  clearMessage,
+  showSuccess,
+  showError,
+  getFederationFriendlyError
+} from './core/errorService.js'
+
+import { showModal, hideModal, openEntityModal } from './core/modalService.js'
+
+import { getStatusBadge } from './core/badgeService.js'
+
+import {
+
+  loadAllSubcounties,
+  loadCountySelect,
+  loadSubcountySelect,
+  loadTownDatalist,
+  findOrCreateTown
+
+} from './core/locationLookupService.js'
+
+import { searchCollection } from './core/searchService.js'
+
+import { validateRequiredFields } from './core/validationService.js'
+
+import {
+  createPaginator,
+  updatePaginationUi,
+  resetPagination,
+  bindPagination
+} from './core/paginationService.js'
+
+import { loadClassificationLookup,getMembershipStatusId } from './core/lookupService.js'
+
+import {
+  populateAthleteForm,
+  buildAthletePayload
+} from './core/athleteFormService.js'
+
+import { createPageState, setRows } from './core/pageStateService.js'
+
+
+
+const paginator =
+  createPaginator()
+
+const state =
+  createPageState()
 
 const athletesTableBody =
   document.getElementById('athletesTableBody')
@@ -31,131 +83,9 @@ const searchAthlete =
 const paginationInfo =
   document.getElementById('paginationInfo')
 
-function showLoading() {
-  athleteLoading?.classList.remove('d-none')
-}
 
-function hideLoading() {
-  athleteLoading?.classList.add('d-none')
-}
 
-function showError(message) {
-  if (athleteFormError) {
-    athleteFormError.textContent = message
-  }
-}
 
-function clearError() {
-  if (athleteFormError) {
-    athleteFormError.textContent = ''
-  }
-}
-
-function getValue(id) {
-  return document.getElementById(id)?.value || ''
-}
-
-function setValue(id, value) {
-  const element = document.getElementById(id)
-
-  if (element) {
-    element.value = value || ''
-  }
-}
-
-function getStatusBadge(status) {
-  switch (status) {
-    case 'Active': {
-      return '<span class="badge bg-success">Active</span>'
-    }
-
-    case 'Inactive': {
-      return '<span class="badge bg-warning">Inactive</span>'
-    }
-
-    case 'Disabled': {
-      return '<span class="badge bg-danger">Disabled</span>'
-    }
-
-    default: {
-      return status || ''
-    }
-  }
-}
-
-// =====================================================
-// LOOKUPS
-// =====================================================
-
-async function loadCounties() {
-  const { data, error } =
-    await window.supabaseClient
-      .from('county_master')
-      .select('*')
-      .order('county_name')
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  counties = data || []
-
-  const select =
-    document.getElementById('countyId')
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    '<option value="">Select County</option>'
-
-  for (const county of counties) {
-    select.innerHTML += `
-      <option value="${county.county_id}">
-        ${county.county_name}
-      </option>
-    `
-  }
-}
-
-async function loadClassifications() {
-  const { data, error } =
-    await window.supabaseClient
-      .from('classification_master')
-      .select('*')
-      .order('classification_code')
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  classifications = data || []
-
-  const select =
-    document.getElementById('classificationId')
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    '<option value="">Select Classification</option>'
-
-  for (const classification of classifications) {
-  select.innerHTML += `
-    <option
-      value="${classification.classification_id}"
-    >
-      ${classification.classification_code}
-      -
-      ${classification.description}
-    </option>
-  `
-}
-}
 
 // =====================================================
 // LOAD ATHLETES
@@ -183,8 +113,9 @@ async function loadAthletes() {
     classification_code
   ),
   membership_status_master(
-    status_name
-  )
+  status_code,
+  status_name
+)
 `)
         .order(
           'created_at',
@@ -195,110 +126,111 @@ async function loadAthletes() {
       throw error
     }
 
-    athletes = data || []
+    setRows({
 
-    filteredAthletes = [...athletes]
+  state,
+
+  rows:
+    data || []
+
+})
 
     renderAthletes()
   } catch (error) {
     console.error(error)
 
-    alert(
-      'Failed to load athletes'
-    )
+   showError(
+
+  'athleteFormError',
+
+  getFederationFriendlyError(
+    error
+  )
+
+)
   } finally {
     hideLoading()
   }
 }
 
-async function loadSubcounties(
-  countyId
+
+function renderAthleteRow(
+  athlete
 ) {
 
-  const select =
-    document.getElementById(
-      'subcountyId'
-    )
+  const actionButtons =
 
-  if (!select) {
-    return
+    buildActionButtons({
+
+     buttons: [
+
+  {
+    type: 'edit',
+    onClick:
+      `editAthlete('${athlete.athlete_id}')`
+  },
+
+  {
+    type: 'delete',
+    onClick:
+      `confirmDeleteAthlete('${athlete.athlete_id}')`
   }
 
-  select.innerHTML =
-    '<option value="">Select Sub County</option>'
+]
 
-  const countySubcounties =
-    subcounties.filter(
-      s =>
-        s.county_id ===
-        countyId
-    )
+    })
 
-  for (
-    const subcounty
-    of countySubcounties
-  ) {
+  return `
 
-    select.innerHTML += `
-      <option
-        value="${subcounty.subcounty_id}"
-      >
-        ${subcounty.subcounty_name}
-      </option>
-    `
-  }
-}
+    <tr>
 
-async function loadTowns(
-  subcountyId
-) {
+      ${buildTextCell(
+        athlete.first_name
+      )}
 
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'town_master'
-      )
-      .select('*')
-      .eq(
-        'subcounty_id',
-        subcountyId
-      )
-      .order(
-        'town_name'
-      )
+      ${buildTextCell(
+        athlete.last_name
+      )}
 
-  if (error) {
-    console.error(error)
-    return
-  }
+      ${buildTextCell(
+        athlete.gender
+      )}
 
-  towns = data || []
+      ${buildTextCell(
+        athlete.role
+      )}
 
-  const datalist =
-    document.getElementById(
-      'townList'
-    )
+      ${buildTextCell(
+        athlete.county_master?.county_name
+      )}
 
-  if (!datalist) {
-    return
-  }
+      ${buildTextCell(
+        athlete.subcounty_master?.subcounty_name
+      )}
 
-  datalist.innerHTML = ''
+      ${buildTextCell(
+        athlete.town_master?.town_name
+      )}
 
-  for (
-    const town
-    of towns
-  ) {
+      ${buildTextCell(
+        athlete.phone
+      )}
 
-    datalist.innerHTML += `
-      <option
-        value="${town.town_name}"
-      >
-    `
-  }
+     ${buildStatusCell(
+  getStatusBadge(
+    athlete.membership_status_master?.status_name,
+    athlete.membership_status_master?.status_code
+  )
+)}
+
+      ${buildActionCell(
+        actionButtons
+      )}
+
+    </tr>
+
+  `
+
 }
 
 
@@ -307,142 +239,63 @@ async function loadTowns(
 // =====================================================
 
 function renderAthletes() {
-  if (!athletesTableBody) {
-    return
-  }
 
-  const start =
-    (currentPage - 1) * PAGE_SIZE
-
-  const end =
-    start + PAGE_SIZE
-
-  const pageRows =
-    filteredAthletes.slice(start, end)
-
-  athletesTableBody.innerHTML = ''
-
-  if (pageRows.length === 0) {
-    athletesTableBody.innerHTML = `
-      <tr>
-        <td colspan="10" class="text-center">
-          No athletes found
-        </td>
-      </tr>
-    `
-
-    updatePagination()
+  if (
+    !athletesTableBody
+  ) {
 
     return
+
   }
 
-  for (const athlete of pageRows) {
-    athletesTableBody.innerHTML += `
-      <tr>
+  renderEntityTable({
 
-      
+    tableBody:
+      athletesTableBody,
 
-        <td>${athlete.first_name || ''}</td>
+    data:
+     state.filteredRows,
+    paginator,
 
-        <td>${athlete.last_name || ''}</td>
+    colspan: 10,
 
-        <td>${athlete.gender || ''}</td>
+    emptyMessage:
+      'No athletes found',
 
-        <td>${athlete.role || ''}</td>
+    rowRenderer:
+      renderAthleteRow
 
-        <td>
-  ${athlete.county_master?.county_name || ''}
-</td>
-
-<td>
-  ${
-    athlete.subcounty_master
-      ?.subcounty_name || ''
-  }
-</td>
-
-<td>
-  ${
-    athlete.town_master
-      ?.town_name || ''
-  }
-</td>
-
-<td>
-  ${athlete.phone || ''}
-</td>
-
-        <td>
-  ${getStatusBadge(
-    athlete.membership_status_master?.status_name || ''
-  )}
-</td>
-
-        <td>
-
-          <button
-            class="btn btn-sm btn-warning me-1"
-            onclick="editAthlete('${athlete.athlete_id}')"
-          >
-            Edit
-          </button>
-
-          <button
-            class="btn btn-sm btn-danger"
-            onclick="confirmDeleteAthlete('${athlete.athlete_id}')"
-          >
-            Delete
-          </button>
-
-        </td>
-
-      </tr>
-    `
-  }
+  })
 
   updatePagination()
-}
 
+}
 // =====================================================
 // PAGINATION
 // =====================================================
 
 function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredAthletes.length /
-        PAGE_SIZE
+
+  updatePaginationUi({
+
+    paginator,
+
+    infoElement:
+      paginationInfo,
+
+    previousButton:
+      document.getElementById(
+        'btnPreviousPage'
+      ),
+
+    nextButton:
+      document.getElementById(
+        'btnNextPage'
       )
-    )
 
-  if (paginationInfo) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
+  })
 
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (previousButton) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (nextButton) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
 }
-
 // =====================================================
 // SEARCH
 // =====================================================
@@ -455,34 +308,36 @@ function searchAthletes() {
       .trim()
       .toLowerCase()
 
-  filteredAthletes = search ?
-    athletes.filter(a => {
-      return (
+  
+state.filteredRows =
+  searchCollection({
 
-        (a.first_name || '')
-            .toLowerCase()
-            .includes(search) ||
+    data:
+      state.rows,
 
-          (a.last_name || '')
-            .toLowerCase()
-            .includes(search) ||
+    searchTerm:
+      search,
 
-          (a.athlete_code || '')
-            .toLowerCase()
-            .includes(search) ||
+    fields: [
 
-          (a.phone || '')
-            .toLowerCase()
-            .includes(search) ||
+      'first_name',
 
-          (a.email || '')
-            .toLowerCase()
-            .includes(search)
-      )
-    }) :
-    [...athletes]
+      'last_name',
 
-  currentPage = 1
+      'athlete_code',
+
+      'phone',
+
+      'email'
+
+    ]
+
+  })
+
+
+resetPagination(
+  paginator
+)
 
   renderAthletes()
 }
@@ -492,86 +347,63 @@ function searchAthletes() {
 // =====================================================
 
 function clearAthleteForm() {
-  clearError()
+  clearMessage(
+  'athleteFormError'
+)
 
-  setValue('athleteId', '')
-  setValue('athleteCode', '')
+ resetForm({
 
-  setValue('firstName', '')
-  setValue('lastName', '')
-  setValue('dob', '')
+  fields: [
 
-  setValue('gender', '')
-  setValue('role', '')
-
-  setValue('classificationId', '')
-setValue('countyId', '')
-setValue('subcountyId', '')
-setValue('townName', '')
-const subcountySelect =
-  document.getElementById(
-    'subcountyId'
-  )
-
-if (subcountySelect) {
-
-  subcountySelect.innerHTML =
-    '<option value="">Select Sub County</option>'
-}
-
-const townList =
-  document.getElementById(
-    'townList'
-  )
-
-if (townList) {
-
-  townList.innerHTML = ''
-}
-
-  setValue('passportNo', '')
-  setValue('nationalId', '')
-
-  setValue('phone', '')
-  setValue('email', '')
-
-  setValue(
+    'athleteId',
+    'athleteCode',
+    'firstName',
+    'lastName',
+    'dob',
+    'gender',
+    'role',
+    'classificationId',
+    'countyId',
+    'subcountyId',
+    'townName',
+    'passportNo',
+    'nationalId',
+    'phone',
+    'email',
     'emergencyContactName',
-    ''
-  )
-
-  setValue(
     'emergencyContactPhone',
-    ''
-  )
-
-  setValue(
     'registrationDate',
-    ''
-  )
+    'status'
 
-  setValue(
-    'status',
-    'Active'
-  )
+  ],
+
+  defaults: {
+
+    status: 'Active'
+
+  }
+
+})
 }
 
 function openNewAthleteModal() {
-  clearAthleteForm()
 
-  document.getElementById(
-    'athleteModalTitle'
-  ).textContent =
-    'Add Athlete'
+  openEntityModal({
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'athleteModal'
-      )
-    )
+    modalId:
+      'athleteModal',
 
-  modal.show()
+    titleId:
+      'athleteModalTitle',
+
+    title:
+      'Add Athlete',
+
+    beforeOpen:
+      clearAthleteForm
+
+  })
+
 }
 
 // =====================================================
@@ -583,191 +415,95 @@ async function (
   athleteId
 ) {
   const athlete =
-    athletes.find(
-      a =>
-        a.athlete_id === athleteId
-    )
+  state.rows.find(
+    a =>
+      a.athlete_id === athleteId
+  )
 
   if (!athlete) {
     return
   }
 
-  clearError()
+  clearMessage(
+  'athleteFormError'
+)
 
   document.getElementById(
     'athleteModalTitle'
   ).textContent =
     'Edit Athlete'
 
-  setValue(
-    'athleteId',
-    athlete.athlete_id
-  )
-
-  setValue(
-    'athleteCode',
-    athlete.athlete_code
-  )
-
-  setValue(
-    'firstName',
-    athlete.first_name
-  )
-
-  setValue(
-    'lastName',
-    athlete.last_name
-  )
-
-  setValue(
-    'dob',
-    athlete.dob
-  )
-
-  setValue(
-    'gender',
-    athlete.gender
-  )
-
-  setValue(
-    'role',
-    athlete.role
-  )
-
-  setValue(
-    'classificationId',
-    athlete.classification_id
-  )
-
-  setValue(
-    'countyId',
-    athlete.county_id
-  )
-  await loadSubcounties(
-  athlete.county_id
+ populateAthleteForm(
+  athlete
 )
-
-setValue(
-  'subcountyId',
-  athlete.subcounty_id
-)
-
-await loadTowns(
-  athlete.subcounty_id
-)
-
-setValue(
-  'townName',
-  athlete.town_master
-    ?.town_name || ''
-)
-  setValue(
-    'passportNo',
-    athlete.passport_no
-  )
-
-  setValue(
-    'nationalId',
-    athlete.national_id
-  )
-
-  setValue(
-    'phone',
-    athlete.phone
-  )
-
-  setValue(
-    'email',
-    athlete.email
-  )
-
-  setValue(
-    'emergencyContactName',
-    athlete.emergency_contact_name
-  )
-
-  setValue(
-    'emergencyContactPhone',
-    athlete.emergency_contact_phone
-  )
-
-  setValue(
-    'registrationDate',
-    athlete.registration_date
-  )
 
   setValue(
   'status',
   athlete.membership_status_master?.status_name || ''
 )
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'athleteModal'
-      )
-    )
-
-  modal.show()
+  showModal(
+  'athleteModal'
+)
 }
 // =====================================================
 // VALIDATION
 // =====================================================
 
 function validateAthlete() {
-  clearError()
 
-  if (!getValue('firstName').trim()) {
-    showError('First Name is required')
-    return false
-  }
+  clearMessage(
+    'athleteFormError'
+  )
 
-  if (!getValue('lastName').trim()) {
-    showError('Last Name is required')
-    return false
-  }
+  return validateRequiredFields({
 
-  if (!getValue('dob')) {
-    showError('Date Of Birth is required')
-    return false
-  }
+    fields: [
 
-  if (!getValue('gender')) {
-    showError('Gender is required')
-    return false
-  }
+      {
+        id: 'firstName',
+        label: 'First Name'
+      },
 
-  if (!getValue('role')) {
-    showError('Role is required')
-    return false
-  }
+      {
+        id: 'lastName',
+        label: 'Last Name'
+      },
 
-  return true
+      {
+        id: 'dob',
+        label: 'Date Of Birth'
+      },
+
+      {
+        id: 'gender',
+        label: 'Gender'
+      },
+
+      {
+        id: 'role',
+        label: 'Role'
+      }
+
+    ],
+
+    errorElementId:
+      'athleteFormError',
+
+    showError:
+  (elementId, message) =>
+
+    showError(
+      elementId,
+      message
+    )
+
+  })
+
 }
 
 
-async function loadAllSubcounties() {
 
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'subcounty_master'
-      )
-      .select('*')
-      .order(
-        'subcounty_name'
-      )
-
-  if (error) {
-    throw error
-  }
-
-  subcounties =
-    data || []
-}
 
 
 // =====================================================
@@ -792,133 +528,30 @@ async function saveAthlete() {
   )
     .trim()
 
-let townId = null
+let townId = await findOrCreateTown({
 
-if (
-  townName &&
-  getValue(
-    'subcountyId'
+  subcountyId:
+    getValue(
+      'subcountyId'
+    ),
+
+  townName
+
+})
+    
+
+
+
+   const payload =
+  buildAthletePayload({
+    townId
+  })
+const membershipStatusId =
+  await getMembershipStatusId(
+    getValue('status')
   )
-) {
-
-  const {
-    data: existingTown
-  } =
-    await window.supabaseClient
-      .from(
-        'town_master'
-      )
-      .select(
-        'town_id'
-      )
-      .eq(
-        'subcounty_id',
-        getValue(
-          'subcountyId'
-        )
-      )
-      .ilike(
-        'town_name',
-        townName
-      )
-      .maybeSingle()
-
-  if (
-    existingTown
-  ) {
-
-    townId =
-      existingTown.town_id
-
-  } else {
-
-    const {
-      data: newTown,
-      error: townError
-    } =
-      await window.supabaseClient
-        .from(
-          'town_master'
-        )
-        .insert({
-
-          subcounty_id:
-            getValue(
-              'subcountyId'
-            ),
-
-          town_name:
-            townName
-
-        })
-        .select()
-        .single()
-
-    if (townError) {
-      throw townError
-    }
-
-    townId =
-      newTown.town_id
-  }
-}
-
-
-    const payload = {
-
-      first_name:
-        getValue('firstName'),
-
-      last_name:
-        getValue('lastName'),
-
-      dob:
-        getValue('dob'),
-
-      gender:
-        getValue('gender'),
-
-      role:
-        getValue('role'),
-
-      classification_id:
-        getValue('classificationId') || null,
-
-      county_id:
-  getValue(
-    'countyId'
-  ) || null,
-
-subcounty_id:
-  getValue(
-    'subcountyId'
-  ) || null,
-
-town_id:
-  townId,
-
-      passport_no:
-        getValue('passportNo') || null,
-
-      national_id:
-        getValue('nationalId') || null,
-
-      phone:
-        getValue('phone') || null,
-
-      email:
-        getValue('email') || null,
-
-      emergency_contact_name:
-        getValue('emergencyContactName') || null,
-
-      emergency_contact_phone:
-        getValue('emergencyContactPhone') || null,
-
-      status:
-        getValue('status')
-    }
-
+payload.membership_status_id =
+  membershipStatusId
     let error
 
     if (athleteId) {
@@ -945,28 +578,23 @@ town_id:
       throw error
     }
 
-    const modalElement =
-      document.getElementById(
-        'athleteModal'
-      )
-
-    const modal =
-      coreui.Modal.getInstance(
-        modalElement
-      )
-
-    if (modal) {
-      modal.hide()
-    }
+    hideModal(
+  'athleteModal'
+)
 
     await loadAthletes()
   } catch (error) {
     console.error(error)
 
     showError(
-      error.message ||
-      'Failed to save athlete'
-    )
+
+  'athleteFormError',
+
+  getFederationFriendlyError(
+    error
+  )
+
+)
   } finally {
     hideLoading()
   }
@@ -983,14 +611,9 @@ function (athleteId) {
     athleteId
   )
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deleteAthleteModal'
-      )
-    )
-
-  modal.show()
+ showModal(
+  'deleteAthleteModal'
+)
 }
 
 async function deleteAthlete() {
@@ -1017,28 +640,22 @@ async function deleteAthlete() {
       throw error
     }
 
-    const modalElement =
-      document.getElementById(
-        'deleteAthleteModal'
-      )
-
-    const modal =
-      coreui.Modal.getInstance(
-        modalElement
-      )
-
-    if (modal) {
-      modal.hide()
-    }
-
+   hideModal(
+  'deleteAthleteModal'
+)
     await loadAthletes()
   } catch (error) {
     console.error(error)
 
-    alert(
-      error.message ||
-      'Delete failed'
-    )
+    showError(
+
+  'athleteFormError',
+
+  getFederationFriendlyError(
+    error
+  )
+
+)
   } finally {
     hideLoading()
   }
@@ -1084,44 +701,9 @@ document
     deleteAthlete
   )
 
-document
-  .getElementById(
-    'btnPreviousPage'
-  )
-  ?.addEventListener(
-    'click',
-    () => {
-      if (currentPage > 1) {
-        currentPage--
 
-        renderAthletes()
-      }
-    }
-  )
 
-document
-  .getElementById(
-    'btnNextPage'
-  )
-  ?.addEventListener(
-    'click',
-    () => {
-      const totalPages =
-        Math.ceil(
-          filteredAthletes.length /
-          PAGE_SIZE
-        )
 
-      if (
-        currentPage <
-        totalPages
-      ) {
-        currentPage++
-
-        renderAthletes()
-      }
-    }
-  )
 
 searchAthlete
   ?.addEventListener(
@@ -1141,9 +723,14 @@ document
       const countyId =
         event.target.value
 
-      await loadSubcounties(
-        countyId
-      )
+      await loadSubcountySelect({
+
+  countyId,
+
+  selectId:
+    'subcountyId'
+
+})
 
       setValue(
         'subcountyId',
@@ -1155,14 +742,15 @@ document
         ''
       )
 
-      const townList =
-        document.getElementById(
-          'townList'
-        )
+     await loadTownDatalist({
 
-      if (townList) {
-        townList.innerHTML = ''
-      }
+  subcountyId:
+    null,
+
+  datalistId:
+    'townList'
+
+})
     }
   )
 
@@ -1174,9 +762,16 @@ document
     'change',
     async event => {
 
-      await loadTowns(
-        event.target.value
-      )
+      await loadTownDatalist({
+
+        subcountyId:
+          event.target.value,
+
+        datalistId:
+          'townList'
+
+      })
+
     }
   )
 
@@ -1198,13 +793,61 @@ async function initializeAthletes() {
       return
     }
 
-await loadCounties()
+await loadCountySelect({
+
+  selectId:
+    'countyId',
+
+  placeholder:
+    'Select County'
+
+})
 
 await loadAllSubcounties()
 
-await loadClassifications()
+const classifications =
+  await loadClassificationLookup()
+
+populateSelect({
+
+  selectId:
+    'classificationId',
+
+  items:
+    classifications,
+
+  valueField:
+    'classification_id',
+
+  textFormatter:
+    classification =>
+      `${classification.classification_code} - ${classification.description}`,
+
+  placeholder:
+    'Select Classification'
+
+})
 
 await loadAthletes()
+
+bindPagination({
+
+  paginator,
+
+  previousButtonId:
+    'btnPreviousPage',
+
+  nextButtonId:
+    'btnNextPage',
+
+  infoElementId:
+    'paginationInfo',
+
+  onChange:
+    renderAthletes
+
+})
+
   } catch (error) {
     console.error(error)
   }

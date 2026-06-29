@@ -609,3 +609,21 @@ export function clearFormFields(
 
 }
 
+
+export function resetEntityForm({
+
+  fields = [],
+
+  defaults = {}
+
+}) {
+
+  return resetForm({
+
+    fields,
+
+    defaults
+
+  })
+
+}

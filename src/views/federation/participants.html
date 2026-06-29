@@ -342,10 +342,6 @@
                   <div class="card-header d-flex justify-content-between align-items-center">
                     <div><strong>Participant Registrations</strong></div>
                     <div>
-                      <button class="btn btn-danger ms-3" type="button" id="btnDeleteAllBundles">
-                        <i class="fa fa-trash me-2"></i>
-                        DELETE ALL BUNDLES
-                      </button>
                       <button class="btn btn-primary" type="button" id="btnNewParticipantRegistration">
                         <i class="fa fa-plus me-2"></i>
                         New Registration
@@ -462,13 +458,13 @@
                             <th>Event Name</th>
                             <th>Subcounty</th>
                             <th>Event Area</th>
-                            <th>Start Date</th>
-                            <th>Start Time</th>
-                            <th>End Date</th>
-                            <th>End Time</th>
+                            <th>Start</th>
+                            <th>Time</th>
+                            <th>End</th>
+                            <th>Time</th>
                             <th>Program</th>
-                            <th>Participant Type</th>
-                            <th>Participant Name</th>
+                            <th>Participant</th>
+                            <th>Name</th>
                             <th>Status</th>
                             <th>Actions</th>
                           </tr>
@@ -574,16 +570,50 @@
                         <div class="col-md-3">
                           <select class="form-select" id="participantTypeFilter">
                             <option value="">All Types</option>
-                            <option value="ATHLETE">Athletes</option>
+                            <option value="ATHLETE">Individuals</option>
                             <option value="TEAM">Teams</option>
+                            <option value="COMPOSITION">Compositions</option>
                           </select>
                         </div>
                       </div>
+                      <div class="table-responsive"></div>
+                      <div class="alert alert-info">
+                        <strong>Current Bundle</strong>
+                        <ul class="mb-0" id="selectedParticipantsList"></ul>
+                      </div>
+                      <div class="d-none" id="compositionBuilder">
+                        <hr>
+                        <h6 class="mb-3">Create Composition</h6>
+                        <div class="row">
+                          <div class="col-md-4 mb-3">
+                            <label class="form-label">Pilot</label>
+                            <select class="form-select" id="compositionPilotId">
+                              <option value="">Select Pilot</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4 mb-3">
+                            <label class="form-label">Stoker</label>
+                            <select class="form-select" id="compositionStokerId">
+                              <option value="">Select Stoker</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4 mb-3">
+                            <label class="form-label">Composition Team</label>
+                            <input class="form-control" id="compositionTeamName" placeholder="Enter Composition Team Name">
+                          </div>
+                        </div>
+                        <div class="text-end mb-3">
+                          <button class="btn btn-success" type="button" id="btnCreateComposition">
+                            <i class="fa fa-plus me-2"></i>
+                            Create Composition
+                          </button>
+                        </div>
+                      </div>
                       <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered table-sm">
                           <thead>
                             <tr>
-                              <th style="width: 60px"></th>
+                              <th>Select</th>
                               <th>Type</th>
                               <th>Participant Name</th>
                             </tr>

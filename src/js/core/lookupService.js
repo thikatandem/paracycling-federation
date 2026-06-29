@@ -5,10 +5,14 @@
 
 
 import {
+
   get,
   clearSelect,
   replaceOptions,
-  appendOption
+  appendOption,
+  populateSelect,
+  populateDataList
+
 }
 from './domService.js'
 
@@ -121,9 +125,9 @@ export async function loadLookup({
 }) {
 
   let query =
-    supabase
-      .from(table)
-      .select('*')
+  window.supabaseClient
+    .from(table)
+    .select('*')
 
   filters.forEach(
   filter => {
@@ -265,67 +269,35 @@ export function refreshLookup(
 
 }
 
-//  =====================================================
-//  SELECT POPULATION
-//  =====================================================
 
-export function populateSelect({
+export async function getMembershipStatusId(
+  statusName
+) {
 
-  selectId,
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'membership_status_master'
+      )
+      .select(
+        'membership_status_id'
+      )
+      .eq(
+        'status_name',
+        statusName
+      )
+      .single()
 
-  data = [],
-
-  valueField,
-
-  textField,
-
-  selectedValue = '',
-
-  placeholder =
-    'Select Option'
-
-}) {
-
-  clearSelect(
-    selectId
-  )
-
-  appendOption(
-    selectId,
-    '',
-    placeholder
-  )
-
-  data.forEach(
-  row => {
-
-    appendOption(
-      selectId,
-
-      row[
-        valueField
-      ],
-
-      row[
-        textField
-      ]
-    )
-
+  if (error) {
+    throw error
   }
-)
 
-  const select =
-    get(selectId)
-
-  if (
-    select &&
-    selectedValue
-  ) {
-
-    select.value =
-      selectedValue
-
-  }
+  return data
+    ?.membership_status_id
+    || null
 
 }
 
@@ -392,53 +364,6 @@ export function populateMultiSelect({
 
 }
 
-//  =====================================================
-//  DATALIST
-//  =====================================================
-
-export function populateDataList({
-
-  datalistId,
-
-  data,
-
-  textField
-
-}) {
-
-  const datalist =
-    get(
-      datalistId
-    )
-
-  if (!datalist) {
-    return
-  }
-
-  datalist.innerHTML =
-    ''
-
-  data.forEach(
-  row => {
-
-    const option =
-      document.createElement(
-        'option'
-      )
-
-    option.value =
-      row[
-        textField
-      ]
-
-    datalist.appendChild(
-      option
-    )
-
-  }
-)
-
-}
 
 //  =====================================================
 //  LOOKUP HELPERS
@@ -574,148 +499,9 @@ export function filterLookup({
 
 }
 
-//  =====================================================
-//  CASCADING SELECTS
-// =====================================================
 
-export function wireCascade({
 
-  parentId,
 
-  childId,
-
-  loadChildren,
-
-  valueField,
-
-  textField,
-
-  placeholder =
-    'Select Option'
-
-}) {
-
-  const parent =
-    get(parentId)
-
-  if (!parent) {
-    return
-  }
-
- parent.addEventListener(
-  'change',
-
-  async () => {
-
-    const parentValue =
-      parent.value
-
-    if (
-      !parentValue
-    ) {
-
-      populateSelect({
-
-        selectId:
-          childId,
-
-        data: [],
-
-        valueField,
-
-        textField,
-
-        placeholder
-
-      })
-
-      return
-
-    }
-
-    const rows =
-      await loadChildren(
-        parentValue
-      )
-
-    populateSelect({
-
-      selectId:
-        childId,
-
-      data:
-        rows,
-
-      valueField,
-
-      textField,
-
-      placeholder
-
-    })
-
-  }
-)
-
-}
-
-//  =====================================================
-//  LOCATION CHAIN
-//  =====================================================
-
-export function populateLocationChain({
-
-  countyId,
-
-  subcountyId,
-
-  townId,
-
-  loadSubcounties,
-
-  loadTowns
-
-}) {
-
-  wireCascade({
-
-    parentId:
-      countyId,
-
-    childId:
-      subcountyId,
-
-    loadChildren:
-      loadSubcounties,
-
-    valueField:
-      'subcounty_id',
-
-    textField:
-      'subcounty_name'
-
-  })
-
-  wireCascade({
-
-    parentId:
-      subcountyId,
-
-    childId:
-      townId,
-
-    loadChildren:
-      loadTowns,
-
-    valueField:
-      'town_id',
-
-    textField:
-      'town_name'
-
-  })
-
-}
 
 export function loadLookupById({
 
@@ -773,7 +559,7 @@ export async function populateSelectFromLookup({
 
     selectId,
 
-    data: rows,
+    items: rows,
 
     valueField,
 
@@ -816,9 +602,9 @@ export async function populateDataListFromLookup({
 
     datalistId,
 
-    data: rows,
+    items: rows,
 
-    textField
+    valueField: textField
 
   })
 

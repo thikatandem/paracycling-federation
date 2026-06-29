@@ -249,3 +249,42 @@ export function confirmModal({
 
 }
 
+
+export function openEntityModal({
+
+  modalId,
+
+  titleId,
+
+  title,
+
+  beforeOpen = null
+
+}) {
+
+  if (
+    typeof beforeOpen ===
+      'function'
+  ) {
+
+    beforeOpen()
+
+  }
+
+  const titleElement =
+    document.getElementById(
+      titleId
+    )
+
+  if (titleElement) {
+
+    titleElement.textContent =
+      title
+
+  }
+
+  return showModal(
+    modalId
+  )
+
+}

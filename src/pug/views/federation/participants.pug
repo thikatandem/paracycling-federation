@@ -14,13 +14,7 @@ block view
               strong Participant Registrations
             
             div
-              button.btn.btn-danger.ms-3(
-                type='button'
-                id='btnDeleteAllBundles'
-              )
-                i.fa.fa-trash.me-2
-                | DELETE ALL BUNDLES
-
+              
               button.btn.btn-primary(
                 type='button'
                 id='btnNewParticipantRegistration'
@@ -142,13 +136,13 @@ block view
                     th Event Name
                     th Subcounty
                     th Event Area
-                    th Start Date
-                    th Start Time
-                    th End Date
-                    th End Time
+                    th Start
+                    th Time
+                    th End
+                    th Time
                     th Program
-                    th Participant Type
-                    th Participant Name
+                    th Participant
+                    th Name
                     th Status
                     th Actions
 
@@ -312,24 +306,87 @@ block view
                       | All Types
 
                     option(value='ATHLETE')
-                      | Athletes
+                      | Individuals
 
                     option(value='TEAM')
                       | Teams
 
+                    option(value='COMPOSITION')
+                      | Compositions
+
               .table-responsive
 
-                table.table.table-bordered
+              .alert.alert-info
+
+                strong Current Bundle
+
+                ul.mb-0(
+                  id='selectedParticipantsList'
+                )
+              #compositionBuilder.d-none
+
+                hr
+
+                h6.mb-3
+                  | Create Composition
+
+                .row
+
+                  .col-md-4.mb-3
+
+                    label.form-label Pilot
+
+                    select.form-select(
+                      id='compositionPilotId'
+                    )
+
+                      option(value='')
+                        | Select Pilot
+
+                  .col-md-4.mb-3
+
+                    label.form-label Stoker
+
+                    select.form-select(
+                      id='compositionStokerId'
+                    )
+
+                      option(value='')
+                        | Select Stoker
+
+                  .col-md-4.mb-3
+
+                    label.form-label Composition Team
+
+                    input.form-control(
+                      id='compositionTeamName'
+                      placeholder='Enter Composition Team Name'
+                    )
+
+                .text-end.mb-3
+
+                  button.btn.btn-success(
+                    type='button'
+                    id='btnCreateComposition'
+                  )
+
+                    i.fa.fa-plus.me-2
+
+                    | Create Composition
+
+              .table-responsive
+
+                table.table.table-bordered.table-sm
 
                   thead
 
                     tr
-                      th(style='width:60px')
+                      th Select
                       th Type
                       th Participant Name
 
-                  tbody#availableParticipantsBody
-
+                  tbody#availableParticipantsBody               
+                
           .card.mb-4(
             id='participantStatusCard'
           )

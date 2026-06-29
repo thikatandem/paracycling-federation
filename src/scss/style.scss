@@ -257,3 +257,23 @@ body {
   text-align: center;
 }
 
+.federation-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.federation-table thead th {
+  background: #005f7f;
+  color: white;
+  font-weight: 600;
+}
+
+.federation-table tbody tr:hover {
+  background: #f5f9fb;
+}
+
+.federation-table td,
+.federation-table th {
+  padding: .75rem;
+  border-bottom: 1px solid #dee2e6;
+}

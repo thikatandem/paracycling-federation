@@ -67,92 +67,7 @@ export function hidePageLoader() {
 
 }
 
-// =====================================================
-// ALERTS
-// =====================================================
 
-export function showSuccess(
-  containerId,
-  message,
-  timeout = 4000
-) {
-
-  showMessage({
-    containerId,
-    message,
-    alertClass:
-      'alert-success',
-    timeout
-  })
-
-}
-
-export function showError(
-  containerId,
-  message,
-  timeout = 0
-) {
-
-  showMessage({
-    containerId,
-    message,
-    alertClass:
-      'alert-danger',
-    timeout
-  })
-
-}
-
-export function showWarning(
-  containerId,
-  message,
-  timeout = 5000
-) {
-
-  showMessage({
-    containerId,
-    message,
-    alertClass:
-      'alert-warning',
-    timeout
-  })
-
-}
-
-export function showInfo(
-  containerId,
-  message,
-  timeout = 4000
-) {
-
-  showMessage({
-    containerId,
-    message,
-    alertClass:
-      'alert-info',
-    timeout
-  })
-
-}
-
-export function clearMessage(
-  containerId
-) {
-
-  const container =
-    get(containerId)
-
-  if (!container) {
-    return
-  }
-
-  container.classList.add(
-    'd-none'
-  )
-
-  container.textContent = ''
-
-}
 
 // =====================================================
 // INTERNAL MESSAGE ENGINE
@@ -415,3 +330,7 @@ export async function confirmAction({
   return confirm(message)
 
 }
+
+
+
+

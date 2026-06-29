@@ -186,6 +186,24 @@ export function toggle(id) {
   return true
 }
 
+
+export function hideAfter(
+
+  id,
+
+  duration = 3000
+
+) {
+
+  setTimeout(
+    () => hide(id),
+    duration
+  )
+
+  return true
+
+}
+
 // =====================================================
 // ENABLE / DISABLE
 // =====================================================
@@ -212,6 +230,29 @@ export function disable(id) {
   element.disabled = true
 
   return true
+}
+
+
+export function setDisabled(
+
+  id,
+
+  disabled = true
+
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.disabled =
+    disabled
+
+  return true
+
 }
 
 // =====================================================
@@ -316,10 +357,17 @@ export function toggleClass(
 // =====================================================
 
 export function createOption(
+
   value,
+
   text,
-  selected = false
+
+  selected = false,
+
+  dataset = {}
+
 ) {
+
   const option =
     document.createElement(
       'option'
@@ -334,7 +382,19 @@ export function createOption(
   option.selected =
     selected
 
+  Object.entries(
+    dataset
+  ).forEach(
+    ([key, value]) => {
+
+      option.dataset[key] =
+        value ?? ''
+
+    }
+  )
+
   return option
+
 }
 
 export function appendOption(
@@ -579,16 +639,6 @@ export function replaceOptions({
 
 }
 
-export function clearTableBody(
-  tableBodyId
-) {
-
-  return setHtml(
-    tableBodyId,
-    ''
-  )
-
-}
 
 
 
@@ -607,80 +657,20 @@ export function clearDataList(
 
 
 
-export function replaceTableBody(
 
-  tableBodyId,
 
-  html
 
+
+// =====================================================
+// BULK VALUES
+// =====================================================
+
+export function setValues(
+  values = {}
 ) {
-
-  return setHtml(
-
-    tableBodyId,
-
-    html
-
-  )
-
-}
-
-
-
-export function showElement(
-  id
-) {
-
-  return show(id)
-
-}
-
-export function hideElement(
-  id
-) {
-
-  return hide(id)
-
-}
-
-export function showTextError({
-
-  elementId,
-
-  message
-
-}) {
-
-  setText(
-    elementId,
-    message || ''
-  )
-
-}
-
-export function clearTextError(
-  elementId
-) {
-
-  setText(
-    elementId,
-    ''
-  )
-
-}
-
-export function resetFormFields({
-
-  fields = [],
-
-  defaults = {}
-
-}) {
-
-  clearForm(fields)
 
   Object.entries(
-    defaults
+    values
   ).forEach(
     ([id, value]) =>
       setValue(
@@ -689,6 +679,609 @@ export function resetFormFields({
       )
   )
 
+  return true
+
+}
+
+export function getValues(
+  fieldIds = []
+) {
+
+  const values = {}
+
+  fieldIds.forEach(
+    id => {
+
+      values[id] =
+        getValue(id)
+
+    }
+  )
+
+  return values
+
 }
 
 
+
+// =====================================================
+// DATALIST POPULATION
+// =====================================================
+
+export function populateDataList({
+
+  datalistId,
+
+  items = [],
+
+  valueField
+
+}) {
+
+  const datalist =
+    get(datalistId)
+
+  if (!datalist) {
+    return false
+  }
+
+  clearDataList(
+    datalistId
+  )
+
+  items.forEach(
+    item => {
+
+      datalist.insertAdjacentHTML(
+        'beforeend',
+        `
+        <option
+          value="${item[valueField] ?? ''}">
+        </option>
+        `
+      )
+
+    }
+  )
+
+  return true
+
+}
+
+// =====================================================
+// MESSAGES
+// =====================================================
+
+export function showMessage({
+
+  elementId,
+
+  message = '',
+
+  type = 'danger'
+
+}) {
+
+  const element =
+    get(elementId)
+
+  if (!element) {
+    return false
+  }
+
+  element.textContent =
+    message
+
+  element.classList.remove(
+    'd-none'
+  )
+
+  element.classList.remove(
+    'alert-success',
+    'alert-danger',
+    'alert-warning',
+    'alert-info'
+  )
+
+  element.classList.add(
+    `alert-${type}`
+  )
+
+  return true
+
+}
+
+export function clearMessage(
+  elementId
+) {
+
+  const element =
+    get(elementId)
+
+  if (!element) {
+    return false
+  }
+
+  element.textContent = ''
+
+  element.classList.add(
+    'd-none'
+  )
+
+  return true
+
+}
+
+
+
+// =====================================================
+// READONLY
+// =====================================================
+
+export function setReadonly(
+
+  id,
+
+  readonly = true
+
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.readOnly =
+    readonly
+
+  return true
+
+}
+
+// =====================================================
+// ATTRIBUTES
+// =====================================================
+
+export function setAttribute(
+
+  id,
+
+  name,
+
+  value
+
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.setAttribute(
+    name,
+    value
+  )
+
+  return true
+
+}
+
+export function getAttribute(
+
+  id,
+
+  name
+
+) {
+
+  return (
+    get(id)
+      ?.getAttribute(
+        name
+      ) || null
+  )
+
+}
+
+export function removeAttribute(
+
+  id,
+
+  name
+
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.removeAttribute(
+    name
+  )
+
+  return true
+
+}
+
+// =====================================================
+// DATASET
+// =====================================================
+
+export function getDataset(
+
+  id,
+
+  key
+
+) {
+
+  return (
+    get(id)
+      ?.dataset?.[key]
+      ?? null
+  )
+
+}
+
+export function setDataset(
+
+  id,
+
+  key,
+
+  value
+
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.dataset[key] =
+    value
+
+  return true
+
+}
+
+export function selectedDataset(
+
+  selectId,
+
+  key
+
+) {
+
+  const select =
+    get(selectId)
+
+  if (
+    !select ||
+    select.selectedIndex < 0
+  ) {
+    return null
+  }
+
+  return (
+    select.options[
+      select.selectedIndex
+    ]
+      ?.dataset?.[key]
+      ?? null
+  )
+
+}
+
+
+
+
+// =====================================================
+// ADVANCED SELECT HELPERS
+// =====================================================
+
+export function resetSelect(
+
+  selectId,
+
+  placeholder = 'Select Option'
+
+) {
+
+  const select =
+    get(selectId)
+
+  if (!select) {
+    return false
+  }
+
+  select.innerHTML = `
+    <option value="">
+      ${placeholder}
+    </option>
+  `
+
+  return true
+
+}
+
+export function populateSelect({
+
+  selectId,
+
+  items = [],
+
+  valueField,
+
+  textField,
+
+  textFormatter = null,
+
+  datasetFields = {},
+
+  placeholder = null,
+
+  selectedValue = null
+
+}) {
+
+  const select =
+    get(selectId)
+
+  if (!select) {
+    return false
+  }
+
+  clearSelect(
+    selectId
+  )
+
+  if (
+    placeholder !== null
+  ) {
+
+    appendOption(
+      selectId,
+      '',
+      placeholder
+    )
+
+  }
+
+  items.forEach(
+    item => {
+
+      const option =
+        document.createElement(
+          'option'
+        )
+
+      option.value =
+        item[valueField] ?? ''
+
+      option.textContent =
+        typeof textFormatter ===
+        'function'
+
+          ? textFormatter(item)
+
+          : item[textField] ?? ''
+
+      Object.entries(
+        datasetFields
+      ).forEach(
+        ([datasetKey, field]) => {
+
+          option.dataset[
+            datasetKey
+          ] =
+            item[field] ?? ''
+
+        }
+      )
+
+      option.selected =
+        item[valueField] ===
+        selectedValue
+
+      select.appendChild(
+        option
+      )
+
+    }
+  )
+
+  return true
+
+}
+
+export function selectedOption(
+  selectId
+) {
+
+  const select =
+    get(selectId)
+
+  if (
+    !select ||
+    select.selectedIndex < 0
+  ) {
+    return null
+  }
+
+  return select.options[
+    select.selectedIndex
+  ]
+
+}
+
+// =====================================================
+// TIMED MESSAGES
+// =====================================================
+
+export function showTimedMessage({
+
+  elementId,
+
+  message = '',
+
+  type = 'success',
+
+  duration = 3000
+
+}) {
+
+  const element =
+    get(elementId)
+
+  if (!element) {
+    return false
+  }
+
+  element.textContent =
+    message
+
+  element.classList.remove(
+    'd-none'
+  )
+
+  element.classList.remove(
+    'alert-success',
+    'alert-danger',
+    'alert-warning',
+    'alert-info'
+  )
+
+  element.classList.add(
+    `alert-${type}`
+  )
+
+  setTimeout(
+    () => {
+
+      element.classList.add(
+        'd-none'
+      )
+
+    },
+    duration
+  )
+
+  return true
+
+}
+
+
+// =====================================================
+// FORM HELPERS
+// =====================================================
+
+export function resetForm({
+
+  fields = [],
+
+  defaults = {}
+
+}) {
+
+  fields.forEach(
+    fieldId => {
+
+      if (
+        Object.prototype.hasOwnProperty.call(
+          defaults,
+          fieldId
+        )
+      ) {
+
+        setValue(
+          fieldId,
+          defaults[fieldId]
+        )
+
+      } else {
+
+        setValue(
+          fieldId,
+          ''
+        )
+
+      }
+
+    }
+  )
+
+  return true
+
+}
+
+// =====================================================
+// RADIO HELPERS
+// =====================================================
+
+export function getCheckedRadio(
+  name
+) {
+
+  return (
+    document.querySelector(
+      `input[name="${name}"]:checked`
+    )?.value || ''
+  )
+
+}
+
+export function setCheckedRadio(
+
+  name,
+
+  value
+
+) {
+
+  const radio =
+    document.querySelector(
+      `input[name="${name}"][value="${value}"]`
+    )
+
+  if (!radio) {
+    return false
+  }
+
+  radio.checked = true
+
+  return true
+
+}
+
+// =====================================================
+// SAFE ELEMENT HELPERS
+// =====================================================
+
+export function requireElement(
+  id
+) {
+
+  const element =
+    get(id)
+
+  if (!element) {
+
+    throw new Error(
+      `${id} not found`
+    )
+
+  }
+
+  return element
+
+}

@@ -15,7 +15,6 @@ let eventOccurrences = []
 let eventPrograms = []
 
 let participants = []
-
 let participantStatuses = []
 
 let registrations = []
@@ -261,9 +260,9 @@ async function initializeParticipants() {
 
     await loadParticipantStatuses()
 
-    await loadParticipantRegistry()
+await loadParticipantRegistry()
 
-    await loadRegistrations()
+await loadRegistrations()
 
   } catch (
     error
@@ -340,7 +339,12 @@ participantSearch
 participantTypeFilter
   ?.addEventListener(
     'change',
-    renderParticipants
+    () => {
+
+      toggleCompositionBuilder()
+
+      renderParticipants()
+    }
   )
 programFilter
   ?.addEventListener(
@@ -357,6 +361,14 @@ btnExportPdf
   ?.addEventListener(
     'click',
     exportPdf
+  )
+document
+  .getElementById(
+    'btnCreateComposition'
+  )
+  ?.addEventListener(
+    'click',
+    createComposition
   )
 
 document
@@ -465,6 +477,625 @@ async function handleEventChange() {
     `
 
   clearOccurrenceDetails()
+}
+
+
+function toggleCompositionBuilder() {
+
+  const builder =
+    document.getElementById(
+      'compositionBuilder'
+    )
+
+  const table =
+    document.querySelector(
+      '#availableParticipantsBody'
+    )
+
+  if (
+    participantTypeFilter.value ===
+    'COMPOSITION'
+  ) {
+
+    builder?.classList.remove(
+  'd-none'
+)
+
+populateCompositionSelectors()
+
+    
+
+    return
+  }
+
+  builder?.classList.add(
+    'd-none'
+  )
+
+  
+
+  renderParticipants()
+}
+
+
+function renderSelectedBundle() {
+
+  const container =
+    document.getElementById(
+      'selectedParticipantsList'
+    )
+
+  if (
+    !container
+  ) {
+
+    return
+  }
+
+  container.innerHTML = ''
+
+  selectedParticipants.forEach(
+    participantId => {
+
+      const participant =
+        participants.find(
+          row =>
+            row.participant_ref_id ===
+            participantId
+        )
+
+      if (
+        participant
+      ) {
+
+        container.innerHTML += `
+          <li>
+            ${participant.display_name}
+          </li>
+        `
+      }
+    }
+  )
+}
+
+
+async function populateCompositionSelectors() {
+
+  const pilot =
+    document.getElementById(
+      'compositionPilotId'
+    )
+
+  const stoker =
+    document.getElementById(
+      'compositionStokerId'
+    )
+
+  if (
+    !pilot ||
+    !stoker
+  ) {
+
+    return
+  }
+
+  pilot.innerHTML =
+    `
+      <option value="">
+        Select Pilot
+      </option>
+    `
+
+  stoker.innerHTML =
+    `
+      <option value="">
+        Select Stoker
+      </option>
+    `
+
+  const {
+    data,
+    error
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'athletes'
+      )
+      .select(`
+        athlete_id,
+        first_name,
+        last_name,
+        role
+      `)
+
+  if (
+    error
+  ) {
+
+    throw error
+  }
+
+  data.forEach(
+    athlete => {
+
+      const fullName =
+        `${athlete.first_name || ''} ${athlete.last_name || ''}`
+
+      if (
+        athlete.role?.toUpperCase() ===
+        'PILOT'
+      ) {
+
+        pilot.innerHTML += `
+          <option value="${athlete.athlete_id}">
+            [PILOT] ${fullName}
+          </option>
+        `
+      }
+
+      if (
+        athlete.role?.toUpperCase() ===
+        'STOKER'
+      ) {
+
+        stoker.innerHTML += `
+          <option value="${athlete.athlete_id}">
+            [STOKER] ${fullName}
+          </option>
+        `
+      }
+    }
+  )
+}
+
+
+async function createComposition() {
+
+  try {
+
+    const pilotId =
+      getValue(
+        'compositionPilotId'
+      )
+
+    const stokerId =
+      getValue(
+        'compositionStokerId'
+      )
+
+    const {
+  data: athletes,
+  error: athleteError
+} =
+  await window
+    .supabaseClient
+    .from(
+      'athletes'
+    )
+    .select(`
+      athlete_id,
+      first_name
+    `)
+    .in(
+      'athlete_id',
+      [
+        pilotId,
+        stokerId
+      ].filter(
+        Boolean
+      )
+    )
+
+if (
+  athleteError
+) {
+
+  throw athleteError
+}
+
+const sortedAthletes =
+  [...athletes]
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        a.athlete_id.localeCompare(
+          b.athlete_id
+        )
+    )
+
+const compositionName =
+  sortedAthletes
+    .map(
+      athlete =>
+        athlete.first_name
+          .substring(
+            0,
+            3
+          )
+    )
+    .join(
+      ''
+    )
+const athleteAId =
+  sortedAthletes[0]
+    ?.athlete_id
+
+const athleteBId =
+  sortedAthletes[1]
+    ?.athlete_id
+
+const {
+  data: existingComposition
+} =
+  await window
+    .supabaseClient
+    .from(
+      'team_compositions'
+    )
+    .select(`
+      composition_id,
+      composition_team_id
+    `)
+    .eq(
+      'athlete_a_id',
+      athleteAId
+    )
+    .eq(
+      'athlete_b_id',
+      athleteBId
+    )
+    .is(
+      'effective_to',
+      null
+    )
+    .maybeSingle()
+
+
+    if (
+      !pilotId &&
+      !stokerId
+    ) {
+
+      showError(
+        'Select Pilot or Stoker'
+      )
+
+      return
+    }
+let compositionTeamId
+
+if (
+  existingComposition
+) {
+
+  compositionTeamId =
+    existingComposition
+      .composition_team_id
+
+} else {
+
+  const {
+    data: existingTeam
+  } =
+    await window
+      .supabaseClient
+      .from(
+        'team_composition_master'
+      )
+      .select(`
+        composition_team_id
+      `)
+      .eq(
+        'composition_name',
+        compositionName
+      )
+      .maybeSingle()
+
+  if (
+    existingTeam
+  ) {
+
+    compositionTeamId =
+      existingTeam
+        .composition_team_id
+
+  } else {
+
+    const {
+      data: newTeam,
+      error: teamError
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'team_composition_master'
+        )
+        .insert({
+          composition_name:
+            compositionName
+        })
+        .select()
+        .single()
+
+    if (
+      teamError
+    ) {
+
+      throw teamError
+    }
+
+    compositionTeamId =
+      newTeam
+        .composition_team_id
+  }
+}
+    
+console.log(
+  'LOOKUP ACTIVE STATUS'
+)
+    const {
+      data: activeStatus,
+      error: activeStatusError
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'team_composition_status_master'
+        )
+        .select(
+          'team_composition_status_id'
+        )
+        .eq(
+          'status_code',
+          'ACTIVE'
+        )
+        .maybeSingle()
+
+    if (
+      activeStatusError
+    ) {
+
+      throw activeStatusError
+    }console.log(
+  'LOOKUP TEAM TYPE'
+)
+const {
+  data: teamType,
+  error: teamTypeError
+} =
+  await window
+    .supabaseClient
+    .from(
+      'team_type_master'
+    )
+    .select(`
+      team_type_id,
+      type_code
+    `)
+    .eq(
+      'type_code',
+      'TEMPORARY'
+    )
+
+console.log(
+  'TEAM TYPE LOOKUP',
+  teamType,
+  teamTypeError
+)
+
+if (
+  teamTypeError
+) {
+
+  throw teamTypeError
+}
+    const {
+      error
+    } =
+      await window
+        .supabaseClient
+        .from(
+          'team_compositions'
+        )
+        .insert({
+
+  composition_team_id:
+    compositionTeamId,
+
+  athlete_a_id:
+    athleteAId,
+
+  athlete_b_id:
+    athleteBId,
+
+  pilot_id:
+    pilotId || null,
+
+  stoker_id:
+    stokerId || null,
+
+  team_type_id:
+  teamType?.[0]
+    ?.team_type_id,
+
+          team_composition_status_id:
+            activeStatus
+              ?.team_composition_status_id || null,
+
+          effective_from:
+            new Date()
+              .toISOString()
+              .split(
+                'T'
+              )[0],
+
+          effective_to:
+            null
+
+        })
+
+   if (
+  error
+) {
+
+  throw error
+}
+
+const {
+  data: compositionParticipantType,
+  error: participantTypeError
+} =
+  await window
+    .supabaseClient
+    .from(
+      'participant_type_master'
+    )
+    .select(`
+      participant_type_id,
+      participant_type_code
+    `)
+    .eq(
+      'participant_type_code',
+      'COMPOSITION'
+    )
+
+console.log(
+  'PARTICIPANT TYPE LOOKUP',
+  compositionParticipantType,
+  participantTypeError
+)
+
+const compositionParticipantTypeId =
+  compositionParticipantType?.[0]
+    ?.participant_type_id
+
+if (
+  !compositionParticipantTypeId
+) {
+
+  throw new Error(
+    'COMPOSITION participant type not found'
+  )
+}
+if (
+  participantTypeError
+) {
+
+  throw participantTypeError
+}
+
+const {
+  error: registryError
+} =
+  await window
+    .supabaseClient
+    .from(
+      'participant_registry'
+    )
+    .insert({
+
+      participant_type_id:
+  compositionParticipantTypeId,
+
+      source_id:
+        compositionTeamId,
+
+      display_name:
+        compositionName,
+
+      is_active:
+        true
+
+    })
+
+if (
+  registryError
+) {
+
+  throw registryError
+}
+
+await loadParticipantRegistry()
+
+const newComposition =
+  participants.find(
+    participant =>
+
+      participant.source_id ===
+      compositionTeamId
+
+      &&
+
+      participant
+        .participant_type_master
+        ?.participant_type_code ===
+      'COMPOSITION'
+  )
+console.log(
+  'FOUND COMPOSITION',
+  newComposition
+)
+if (
+  newComposition
+) {
+
+  selectedParticipants.push(
+    newComposition
+      .participant_ref_id
+  )
+renderParticipants()
+  renderSelectedBundle()
+
+  setValue(
+    'compositionPilotId',
+    ''
+  )
+
+  setValue(
+    'compositionStokerId',
+    ''
+  )
+
+  setValue(
+    'compositionTeamName',
+    ''
+  )
+}
+
+showSuccess(
+  'Composition Created'
+)
+
+renderParticipants()
+
+  } catch (
+  error
+) {
+
+  console.error(
+    'FULL ERROR',
+    error
+  )
+
+  alert(
+    JSON.stringify(
+      error,
+      null,
+      2
+    )
+  )
+
+  showError(
+    JSON.stringify(
+      error,
+      null,
+      2
+    )
+  )
+}
 }
 
 async function loadOccurrences(
@@ -717,15 +1348,16 @@ async function loadParticipantRegistry() {
       .from(
         'participant_registry'
       )
-      .select(`
-        participant_ref_id,
-display_name,
-participant_type_id,
-participant_type_master(
-  participant_type_code,
-  participant_type_name
-)
-      `)
+            .select(`
+  participant_ref_id,
+  display_name,
+  source_id,
+  participant_type_id,
+  participant_type_master(
+    participant_type_code,
+    participant_type_name
+  )
+`)
       .eq(
         'is_active',
         true
@@ -773,13 +1405,19 @@ function renderParticipants() {
             )
 
         const typeMatch =
-          !typeFilter
-          ||
-          participant
-            .participant_type_master
-            ?.participant_type_code ===
-          typeFilter
-
+  !typeFilter
+  ||
+  (
+    typeFilter === 'COMPOSITION'
+      ? participant
+          .participant_type_master
+          ?.participant_type_code ===
+        'ATHLETE'
+      : participant
+          .participant_type_master
+          ?.participant_type_code ===
+        typeFilter
+  )
         return (
           nameMatch &&
           typeMatch
@@ -849,6 +1487,8 @@ window.toggleParticipantSelection =
         selectedParticipants.push(
           participantId
         )
+
+    renderSelectedBundle()
       }
 
     } else {
@@ -858,7 +1498,7 @@ window.toggleParticipantSelection =
           id =>
             id !== participantId
         )
-
+renderSelectedBundle()
     }
 
   }
@@ -1523,21 +2163,9 @@ Object.values(
   </td>
 
 </tr>
-
-<tr class="bundle-column-header">
-
-  <th>Type</th>
-
-  <th>Participant</th>
-
-  <th>Status</th>
-
-  <th>Actions</th>
-
-</tr>
 `
 
-    group.registrations.forEach(
+group.registrations.forEach(
       registration => {
 
         tbody.innerHTML += `
@@ -1852,6 +2480,10 @@ function clearRegistrationForm() {
   )
 
 selectedParticipants = []
+
+renderSelectedBundle()
+
+renderParticipants()
 
   setValue(
     'eventId',

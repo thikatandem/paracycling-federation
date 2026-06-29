@@ -1,6 +1,16 @@
 ﻿// =====================================================
 // LOCATION LOOKUP SERVICE
 // =====================================================
+import {
+
+  get,
+
+  populateSelect,
+
+  populateDataList
+
+} from './domService.js'
+
 
 export async function loadCounties() {
 
@@ -357,14 +367,12 @@ export async function populateLocationHierarchy({
   const counties =
     await loadCounties()
 
-  populateCountySelect({
+  await loadCountySelect({
 
-    select:
-      countySelect,
+  selectId:
+    countySelect.id
 
-    counties
-
-  })
+})
 
   if (!countyId) {
 
@@ -385,14 +393,14 @@ export async function populateLocationHierarchy({
       countyId
     )
 
-  populateSubcountySelect({
+  await loadSubcountySelect({
 
-    select:
-      subcountySelect,
+  countyId,
 
-    subcounties
+  selectId:
+    subcountySelect.id
 
-  })
+})
 
   if (!subcountyId) {
 
@@ -413,14 +421,14 @@ export async function populateLocationHierarchy({
       subcountyId
     )
 
-  populateTownDatalist({
+  await loadTownDatalist({
 
-    datalist:
-      townDatalist,
+  subcountyId,
 
-    towns
+  datalistId:
+    townDatalist.id
 
-  })
+})
 
   return {
 
@@ -490,3 +498,258 @@ export async function resolveLocation({
 
 }
 
+
+export async function loadCountySelect({
+
+  selectId,
+
+  placeholder = 'Select County'
+
+}) {
+
+  const counties =
+    await loadCounties()
+
+  populateSelect({
+
+    selectId,
+
+    items: counties,
+
+    valueField:
+      'county_id',
+
+    textField:
+      'county_name',
+
+    placeholder
+
+  })
+
+  return counties
+
+}
+
+export async function loadSubcountySelect({
+
+  countyId,
+
+  selectId,
+
+  placeholder =
+    'Select Sub County'
+
+}) {
+
+  const subcounties =
+    await loadSubcounties(
+      countyId
+    )
+
+ populateSelect({
+
+  selectId,
+
+  items:
+    subcounties,
+
+  valueField:
+    'subcounty_id',
+
+  textField:
+    'subcounty_name',
+
+  placeholder
+
+})
+
+  return subcounties
+
+}
+export async function loadTownDatalist({
+
+  subcountyId,
+
+  datalistId
+
+}) {
+
+  if (!subcountyId) {
+
+    populateDataList({
+
+      datalistId,
+
+      items: [],
+
+      valueField:
+        'town_name'
+
+    })
+
+    return []
+
+  }
+
+  const towns =
+    await loadTowns(
+      subcountyId
+    )
+
+  populateDataList({
+
+    datalistId,
+
+    items:
+      towns,
+
+    valueField:
+      'town_name'
+
+  })
+
+  return towns
+
+}
+// =====================================================
+//  LOCATION CHAIN
+//  =====================================================
+
+export function populateLocationChain({
+
+  countyId,
+
+  subcountyId,
+
+  townId,
+
+  loadSubcounties,
+
+  loadTowns
+
+}) {
+
+  wireCascade({
+
+    parentId:
+      countyId,
+
+    childId:
+      subcountyId,
+
+    loadChildren:
+      loadSubcounties,
+
+    valueField:
+      'subcounty_id',
+
+    textField:
+      'subcounty_name'
+
+  })
+
+  wireCascade({
+
+    parentId:
+      subcountyId,
+
+    childId:
+      townId,
+
+    loadChildren:
+      loadTowns,
+
+    valueField:
+      'town_id',
+
+    textField:
+      'town_name'
+
+  })
+
+}
+
+//  =====================================================
+//  CASCADING SELECTS
+// =====================================================
+
+export function wireCascade({
+
+  parentId,
+
+  childId,
+
+  loadChildren,
+
+  valueField,
+
+  textField,
+
+  placeholder =
+    'Select Option'
+
+}) {
+
+  const parent =
+    get(parentId)
+
+  if (!parent) {
+    return
+  }
+
+ parent.addEventListener(
+  'change',
+
+  async () => {
+
+    const parentValue =
+      parent.value
+
+    if (
+      !parentValue
+    ) {
+
+      populateSelect({
+
+        selectId:
+          childId,
+
+        items: [],
+
+        valueField,
+
+        textField,
+
+        placeholder
+
+      })
+
+      return
+
+    }
+
+    const rows =
+      await loadChildren(
+        parentValue
+      )
+
+    populateSelect({
+
+      selectId:
+        childId,
+
+      items:
+        rows,
+
+      valueField,
+
+      textField,
+
+      placeholder
+
+    })
+
+  }
+)
+
+}

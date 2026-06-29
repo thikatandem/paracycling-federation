@@ -3,20 +3,20 @@
 // =====================================================
 
 export function clearTable(
-  tbody
+  tableBody
 ) {
 
-  if (!tbody) {
+  if (!tableBody) {
     return
   }
 
-  tbody.innerHTML = ''
+  tableBody.innerHTML = ''
 
 }
 
 export function renderEmptyRow({
 
-  tbody,
+  tableBody,
 
   colspan = 1,
 
@@ -25,11 +25,11 @@ export function renderEmptyRow({
 
 }) {
 
-  if (!tbody) {
+  if (!tableBody) {
     return
   }
 
-  tbody.innerHTML = `
+  tableBody.innerHTML = `
     <tr>
       <td
         colspan="${colspan}"
@@ -42,26 +42,28 @@ export function renderEmptyRow({
 
 }
 
-export function appendRows({
+export function appendRow({
 
-  tbody,
+  tableBody,
 
-  rows = []
+  html = ''
 
 }) {
 
-  if (!tbody) {
+  if (!tableBody) {
     return
   }
 
-  tbody.innerHTML +=
-    rows.join('')
+  tableBody.innerHTML +=
+    html
 
 }
 
+
+
 export function renderTable({
 
-  tbody,
+  tableBody,
 
   rows = [],
 
@@ -73,7 +75,7 @@ export function renderTable({
 }) {
 
   clearTable(
-    tbody
+    tableBody
   )
 
   if (
@@ -82,7 +84,7 @@ export function renderTable({
 
     renderEmptyRow({
 
-      tbody,
+      tableBody,
 
       colspan,
 
@@ -94,43 +96,28 @@ export function renderTable({
     return
   }
 
-  appendRows({
+  rows.forEach(
 
-    tbody,
+  row =>
 
-    rows
+    appendRow({
 
-  })
+      tableBody,
 
-}
+      html: row
 
+    })
 
-
-export function renderNoDataRow({
-
-  tbody,
-
-  colspan = 1,
-
-  message =
-    'No records found'
-
-}) {
-
-  renderEmptyRow({
-
-    tbody,
-
-    colspan,
-
-    message
-
-  })
+)
 
 }
 
 
-export function buildRows({
+
+
+
+
+export function buildTableRows({
 
   data = [],
 
@@ -155,7 +142,7 @@ export function buildRows({
 
 export function renderPagedTable({
 
-  tbody,
+  tableBody,
 
   data = [],
 
@@ -177,7 +164,7 @@ export function renderPagedTable({
     pageSize
 
   const rows =
-    buildRows({
+    buildTableRows({
 
       data:
         data.slice(
@@ -191,7 +178,7 @@ export function renderPagedTable({
 
   renderTable({
 
-    tbody,
+    tableBody,
 
     rows,
 
@@ -205,17 +192,230 @@ export function renderPagedTable({
 
 export function replaceTableBody({
 
-  tbody,
+  tableBody,
 
   html
 
 }) {
 
-  if (!tbody) {
+  if (!tableBody) {
     return
   }
 
-  tbody.innerHTML =
+  tableBody.innerHTML =
     html || ''
+
+}
+
+// =====================================================
+// FEDERATION TABLE RENDERER
+// =====================================================
+
+export function renderEntityTable({
+
+  tableBody,
+
+  data = [],
+
+  rowRenderer,
+
+  paginator = null,
+
+  colspan = 1,
+
+  emptyMessage =
+    'No records found'
+
+}) {
+
+  let renderData =
+    data
+
+  if (
+
+    paginator &&
+
+    typeof paginator.getPage ===
+      'function'
+
+  ) {
+
+    paginator.setData(
+      data
+    )
+
+    renderData =
+      paginator.getPage()
+
+  }
+
+  const rows =
+
+    buildTableRows({
+
+      data:
+        renderData,
+
+      renderRow:
+        rowRenderer
+
+    })
+
+  return renderTable({
+
+    tableBody,
+
+    rows,
+
+    colspan,
+
+    emptyMessage
+
+  })
+
+}
+
+// =====================================================
+// ACTION BUTTONS
+// =====================================================
+
+export function buildActionButtons({
+
+  buttons = []
+
+}) {
+
+  if (
+    !Array.isArray(buttons)
+  ) {
+
+    return ''
+
+  }
+
+  return buttons
+    .map(button => {
+
+      const config =
+        TABLE_BUTTONS[
+          button.type
+        ] || {}
+
+      return `
+        <button
+          type="button"
+          class="${config.className || ''}"
+          onclick="${button.onClick || ''}"
+        >
+          ${config.label || ''}
+        </button>
+      `
+
+    })
+    .join('')
+
+}
+
+// =====================================================
+// CELL BUILDERS
+// =====================================================
+
+export function buildTextCell(
+  value
+) {
+
+  return `
+    <td>
+      ${value ?? ''}
+    </td>
+  `
+
+}
+
+export function buildNumberCell(
+  value
+) {
+
+  return `
+    <td
+      class="text-end"
+    >
+      ${value ?? ''}
+    </td>
+  `
+
+}
+
+export function buildStatusCell(
+  html
+) {
+
+  return `
+    <td>
+      ${html ?? ''}
+    </td>
+  `
+
+}
+
+export function buildActionCell(
+  buttons
+) {
+
+  return `
+  <td
+
+    class="
+      text-nowrap
+      text-center
+    "
+
+    style="
+      width: 140px;
+    "
+
+  >
+    ${buttons ?? ''}
+  </td>
+`
+
+}
+
+
+// =====================================================
+// BUTTONS
+// =====================================================
+
+export const TABLE_BUTTONS = {
+
+  edit: {
+    label: 'Edit',
+    className:
+      'btn btn-sm btn-warning me-1'
+  },
+
+  delete: {
+    label: 'Delete',
+    className:
+      'btn btn-sm btn-danger'
+  },
+
+  view: {
+    label: 'View',
+    className:
+      'btn btn-sm btn-info me-1'
+  },
+
+  activate: {
+    label: 'Activate',
+    className:
+      'btn btn-sm btn-success me-1'
+  },
+
+  deactivate: {
+    label: 'Deactivate',
+    className:
+      'btn btn-sm btn-secondary'
+  }
 
 }
