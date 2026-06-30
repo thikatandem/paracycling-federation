@@ -741,3 +741,31 @@ export function validateDateRange({
 
 }
 
+
+export function validateDifferentValues({
+
+  firstValue,
+
+  secondValue,
+
+  message
+
+}) {
+
+  if (
+    firstValue === secondValue
+  ) {
+
+    return {
+      valid: false,
+      message
+    }
+
+  }
+
+  return {
+    valid: true,
+    message: ''
+  }
+
+}

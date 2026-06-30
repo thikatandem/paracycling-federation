@@ -92,6 +92,12 @@
                 Teams
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="federation/composition-teams.html">
+                <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                Composition Teams
+              </a>
+            </li>
           </ul>
         </li>
         <li class="nav-group">
@@ -438,15 +444,9 @@
                       <input class="form-control mt-2 d-none" id="participantDisplay" readonly>
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label">Attendance Status</label>
-                      <select class="form-select" id="attendanceStatusId">
-                        <option value="">Select Attendance Status</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Outcome Status</label>
-                      <select class="form-select" id="outcomeStatusId">
-                        <option value="">Select Outcome Status</option>
+                      <label class="form-label">Training Result</label>
+                      <select class="form-select" id="trainingResultId">
+                        <option value="">Select Training Result</option>
                       </select>
                     </div>
                     <div class="col-md-3">
@@ -508,13 +508,7 @@
                         <option value="true">Yes</option>
                       </select>
                     </div>
-                    <div class="col-md-4">
-                      <label class="form-label">Attendance</label>
-                      <select class="form-select" id="attendance">
-                        <option value="true">Present</option>
-                        <option value="false">Absent</option>
-                      </select>
-                    </div>
+                    <div class="col-md-4"></div>
                     <div class="col-md-12">
                       <label class="form-label">Notes</label>
                       <textarea class="form-control" rows="3" id="notes"></textarea>

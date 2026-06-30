@@ -11,14 +11,14 @@ block view
 
           .card-header.d-flex.justify-content-between.align-items-center
 
-            strong Teams
+            strong Composition Teams
 
             button.btn.btn-primary(
               type='button'
               id='btnAddTeam'
             )
               i.fa.fa-plus.me-2
-              | Add Team
+              | Add Composition Team
 
           .card-body
 
@@ -29,11 +29,12 @@ block view
 
             .row.mb-3
 
-              .col-md-4
+              .col-md-6
+
                 input.form-control(
                   type='text'
                   id='searchTeam'
-                  placeholder='Search Team Name, Code, Pilot or Stoker'
+                  placeholder='Search Composition, Pilot, Stoker or Status'
                 )
 
             .table-responsive
@@ -43,11 +44,10 @@ block view
                 thead
 
                   tr
-                    th Team Code
-                    th Team Name
-                    th Team Nickname
-                    th Current Pilot
-                    th Current Stoker
+                    th Composition Team
+                    th Pilot
+                    th Stoker
+                    th Team Type
                     th Effective Date
                     th Status
                     th Actions
@@ -81,22 +81,20 @@ block view
                 )
                   | Next
 
-  // TEAM CREATE / EDIT MODAL
-
   .modal.fade(
     id='teamModal'
     tabindex='-1'
     aria-hidden='true'
   )
 
-    .modal-dialog.modal-xl
+    .modal-dialog.modal-lg
 
       .modal-content
 
         .modal-header
 
           h5.modal-title#teamModalTitle
-            | Team
+            | Composition Team
 
           button.btn-close(
             type='button'
@@ -112,59 +110,42 @@ block view
 
           .row.g-3
 
-            .col-md-3
+            .col-md-12
 
-              label.form-label Team Code
+              label.form-label Composition Team
 
               input.form-control(
-                id='teamCode'
+                id='teamName'
+                readonly
+                placeholder='Generated Automatically'
+              )
+
+            .col-md-6
+
+              label.form-label Pilot
+
+              select.form-select(
+                id='pilotAthleteId'
+              )
+
+            .col-md-6
+
+              label.form-label Stoker
+
+              select.form-select(
+                id='stokerAthleteId'
+              )
+
+            .col-md-6
+
+              label.form-label Status
+
+              input.form-control(
+                id='teamStatus'
                 readonly
               )
 
-            .col-md-5
-
-              label.form-label Team Name
-
-              input.form-control(
-                type='text'
-                id='teamName'
-                placeholder='Official Team Name'
-              )
-
-            .col-md-4
-
-              label.form-label Team Nickname
-
-              input.form-control(
-                id='teamNickname'
-                placeholder='Optional Nickname'
-              )
-
-            .col-md-4
-
-              label.form-label Team Status
-
-              select.form-select(
-                id='teamStatus'
-              )
-                option(
-                  value='Active'
-                  selected
-                ) Active
-
-                option(
-                  value='Inactive'
-                ) Inactive
-
-                option(
-                  value='Suspended'
-                ) Suspended
-
-                option(
-                  value='Disbanded'
-                ) Disbanded
-
-            .col-md-4
+            .col-md-6
 
               label.form-label Effective Date
 
@@ -173,70 +154,15 @@ block view
                 id='effectiveDate'
               )
 
-            .col-md-4
+            .col-md-12
 
               label.form-label Change Reason
 
               input.form-control(
                 type='text'
                 id='changeReason'
-                placeholder='Initial Formation / Reassignment'
+                placeholder='Optional'
               )
-
-            .col-md-6
-
-              label.form-label Pilot Athlete
-
-              select.form-select(
-                id='pilotAthleteId'
-              )
-
-            .col-md-6
-
-              label.form-label Stoker Athlete
-
-              select.form-select(
-                id='stokerAthleteId'
-              )
-
-          .mt-4
-
-            h6.mb-3
-              | Current Pairing
-
-            .table-responsive
-
-              table.table.table-bordered
-
-                thead
-
-                  tr
-                    th Role
-                    th Athlete
-                    th Active Since
-
-                tbody#currentPairingBody
-
-          .mt-4
-
-            h6.mb-3
-              | Team Pairing History
-
-            .table-responsive
-
-              table.table.table-striped
-
-                thead
-
-                  tr
-                    th Role
-                    th Athlete
-                    th Start Date
-                    th End Date
-                    th Active
-                    th Change Reason
-
-                tbody#teamHistoryBody
 
           .mt-3.text-danger(
             id='teamFormError'
@@ -254,9 +180,7 @@ block view
             type='button'
             id='btnSaveTeam'
           )
-            | Save Team
-
-  // DELETE MODAL
+            | Save Composition Team
 
   .modal.fade(
     id='deleteTeamModal'
@@ -271,7 +195,7 @@ block view
         .modal-header
 
           h5.modal-title
-            | Delete Team
+            | Remove Composition Team
 
           button.btn-close(
             type='button'
@@ -281,7 +205,7 @@ block view
         .modal-body
 
           p
-            | Are you sure you want to delete this team?
+            | Are you sure you want to deactivate this composition team?
 
           input(
             type='hidden'
@@ -300,8 +224,8 @@ block view
             type='button'
             id='btnConfirmDeleteTeam'
           )
-            | Delete Team
+            | Remove
 
 append pageScripts
 
-  script(type='module' src='js/teams.js')
+  script(src='js/composition-teams.js')

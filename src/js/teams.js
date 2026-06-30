@@ -3,161 +3,155 @@
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
 
-const PAGE_SIZE = 10
+import {
+  get,
+  getValue,
+  setValue,
+  setText,
+  resetForm,
+  populateSelect
+}
+from './core/domService.js'
 
-let currentPage = 1
+import {
+  showPageLoader,
+  hidePageLoader
+}
+from './core/uiService.js'
 
-let teams = []
-let filteredTeams = []
+import {
+  clearMessage,
+  showError,
+  getFederationFriendlyError
+} from './core/errorService.js'
+
+import {
+  showModal,
+  hideModal,
+  openEntityModal
+} from './core/modalService.js'
+
+import {
+  searchNestedCollection
+} from './core/searchService.js'
+
+import {
+  createPaginator,
+  updatePaginationUi,
+  resetPagination,
+  bindPagination
+} from './core/paginationService.js'
+
+import {
+  renderEntityTable,
+  buildActionButtons,
+  buildActionCell,
+  buildTextCell,
+  buildStatusCell
+} from './core/tableRendererService.js'
+
+import {
+  getStatusBadge
+} from './core/badgeService.js'
+
+import {
+
+  createPageState,
+  setRows
+
+}
+from './core/pageStateService.js'
+
+import {
+  populateTeamForm,
+  buildTeamPayload,
+  renderCurrentPairingRow,
+  renderTeamHistoryRow,
+  detectPilotChange,
+  detectStokerChange
+}
+from './core/teamFormService.js'
+
+import {
+  loadAthletesByRole,
+  populateAthleteLookup
+}
+from './core/lookupService.js'
+
+
+const paginator =
+  createPaginator()
+
+const state =
+  createPageState()
 let roleMap = {}
 let pilots = []
 let stokers = []
 
-let teamModal = null
-let deleteTeamModal = null
-
-
-
-/* ==========================================
-   DOM
-========================================== */
-
-const $ = id =>
-  document.getElementById(id)
 
 /* ==========================================
    HELPERS
 ========================================== */
-
-function showLoading(
-  show = true
-) {
-  const el =
-    $('teamLoading')
-
-  if (!el) {
-    return
-  }
-
-  el.classList.toggle(
-    'd-none',
-    !show
-  )
-}
-
-function showError(
-  message = ''
-) {
-  const el =
-    $('teamFormError')
-
-  if (!el) {
-    return
-  }
-
-  el.textContent =
-    message
-}
-
 function clearForm() {
-  $('teamId').value = ''
 
-  $('teamCode').value = ''
+  clearMessage(
+    'teamFormError'
+  )
 
-  $('teamName').value = ''
+  resetForm({
 
-  $('teamNickname').value = ''
+    fields: [
 
-  $('pilotAthleteId').value = ''
+      'teamId',
+      'teamCode',
+      'teamName',
+      'teamNickname',
+      'pilotAthleteId',
+      'stokerAthleteId',
+      'effectiveDate',
+      'changeReason'
 
-  $('stokerAthleteId').value = ''
+    ],
 
-  $('teamStatus').value =
-    'Active'
+    defaults: {
 
-  $('effectiveDate').value = ''
+      teamStatus: 'Active'
 
-  $('changeReason').value = ''
+    }
 
-  showError('')
+  })
+
 }
-
 /* ==========================================
    PILOT LOOKUP
 ========================================== */
 
 async function loadPilotLookup() {
-  try {
-    const {
-      data,
-      error
-    } =
-      await window.supabaseClient
-        .from('athletes')
-        .select(`
-          athlete_id,
-          athlete_code,
-          first_name,
-          last_name
-        `)
-        .eq(
-          'role',
-          'Pilot'
-        )
-        .eq(
-          'status',
-          'Active'
-        )
-        .order(
-          'first_name'
-        )
 
-    if (error) {
-      throw error
-    }
-
-    pilots =
-      data || []
-
-    renderPilotLookup()
-  } catch (error) {
-    console.error(
-      error
+  pilots =
+    await loadAthletesByRole(
+      'Pilot'
     )
-  }
+
+  renderPilotLookup()
+
 }
 
 function renderPilotLookup() {
-  const select =
-    $('pilotAthleteId')
 
-  if (!select) {
-    return
-  }
+  populateAthleteLookup({
 
-  select.innerHTML =
-    `
-      <option value="">
-        Select Pilot
-      </option>
-    `
+    selectId:
+      'pilotAthleteId',
 
-  for (const pilot of pilots) {
-    const option =
-        document.createElement(
-          'option'
-        )
+    athletes:
+      pilots,
 
-    option.value =
-        pilot.athlete_id
+    placeholder:
+      'Select Pilot'
 
-    option.textContent =
-        `${pilot.athlete_code} - ${pilot.first_name} ${pilot.last_name}`
+  })
 
-    select.append(
-      option
-    )
-  }
 }
 
 /* ==========================================
@@ -165,79 +159,32 @@ function renderPilotLookup() {
 ========================================== */
 
 async function loadStokerLookup() {
-  try {
-    const {
-      data,
-      error
-    } =
-      await window.supabaseClient
-        .from('athletes')
-        .select(`
-          athlete_id,
-          athlete_code,
-          first_name,
-          last_name
-        `)
-        .eq(
-          'role',
-          'Stoker'
-        )
-        .eq(
-          'status',
-          'Active'
-        )
-        .order(
-          'first_name'
-        )
 
-    if (error) {
-      throw error
-    }
-
-    stokers =
-      data || []
-
-    renderStokerLookup()
-  } catch (error) {
-    console.error(
-      error
+  stokers =
+    await loadAthletesByRole(
+      'Stoker'
     )
-  }
+
+  renderStokerLookup()
+
 }
 
 function renderStokerLookup() {
-  const select =
-    $('stokerAthleteId')
 
-  if (!select) {
-    return
-  }
+  populateAthleteLookup({
 
-  select.innerHTML =
-    `
-      <option value="">
-        Select Stoker
-      </option>
-    `
+    selectId:
+      'stokerAthleteId',
 
-  for (const stoker of stokers) {
-    const option =
-        document.createElement(
-          'option'
-        )
+    athletes:
+      stokers,
 
-    option.value =
-        stoker.athlete_id
+    placeholder:
+      'Select Stoker'
 
-    option.textContent =
-        `${stoker.athlete_code} - ${stoker.first_name} ${stoker.last_name}`
+  })
 
-    select.append(
-      option
-    )
-  }
 }
-
 async function loadRoleMap() {
 
   const {
@@ -270,7 +217,7 @@ async function loadRoleMap() {
 
 async function loadTeams() {
   try {
-    showLoading(true)
+    showPageLoader()
 
     const {
       data,
@@ -301,9 +248,15 @@ async function loadTeams() {
       throw error
     }
 
-    teams =
-      data || []
-   for (const team of teams) {
+    setRows({
+
+  state,
+
+  rows:
+    data || []
+
+})
+   for (const team of state.rows) {
 
   const {
     data: activeMembers
@@ -334,20 +287,21 @@ async function loadTeams() {
       ?.start_date || ''
 }
 
-    filteredTeams =
-      [...teams]
+    
 
     renderTeamsTable()
 
   } catch (error) {
     console.error(error)
 
-    alert(
-      error.message ||
-      'Failed to load teams'
-    )
+    showError(
+  'teamFormError',
+  getFederationFriendlyError(
+    error
+  )
+)
   } finally {
-    showLoading(false)
+    hidePageLoader()
   }
 }
 
@@ -356,193 +310,105 @@ async function loadTeams() {
 ========================================== */
 
 function applySearch() {
+
   const term =
     (
-      $('searchTeam')
+      get('searchTeam')
         ?.value || ''
     )
       .trim()
-      .toLowerCase()
 
-  filteredTeams = term ?
-    teams.filter(
-      team => {
-        const text =
-          [
-  team.team_code || '',
+  state.filteredRows =
+    searchNestedCollection({
 
-  team.team_name || '',
+      data:
+        state.rows,
 
-  team.team_nickname || '',
+      searchTerm:
+        term,
 
-  team.status || '',
+      fields: [
 
-  team.pilot?.first_name || '',
+        'team_code',
 
-  team.pilot?.last_name || '',
+        'team_name',
 
-  team.stoker?.first_name || '',
+        'team_nickname',
 
-  team.stoker?.last_name || ''
-]
-            .join(' ')
-            .toLowerCase()
+        'status',
 
-        return text.includes(
-          term
-        )
-      }
-    ) :
-    [...teams]
+        'pilot.first_name',
 
-  currentPage = 1
+        'pilot.last_name',
+
+        'stoker.first_name',
+
+        'stoker.last_name'
+
+      ]
+
+    })
+
+  resetPagination(
+    paginator
+  )
 
   renderTeamsTable()
-}
 
+}
 /* ==========================================
    TABLE
 ========================================== */
 
 function renderTeamsTable() {
+
   const tbody =
-    $('teamsTableBody')
+    get('teamsTableBody')
 
   if (!tbody) {
     return
   }
 
-  tbody.innerHTML = ''
+  renderEntityTable({
 
-  const start =
-    (
-      currentPage - 1
-    ) * PAGE_SIZE
+    tableBody:
+      tbody,
 
-  const pageRows =
-    filteredTeams.slice(
-      start,
-      start +
-      PAGE_SIZE
-    )
+    data:
+  state.filteredRows,
+    paginator,
 
-  for (const team of pageRows) {
-    const row =
-      document.createElement(
-        'tr'
-      )
+    colspan: 8,
 
-    row.innerHTML = `
-  <td>${team.team_code || ''}</td>
+    emptyMessage:
+      'No teams found',
 
-  <td>${team.team_name || ''}</td>
+    rowRenderer:
+      renderTeamRow
 
-  <td>${team.team_nickname || ''}</td>
-
-  <td>
-    ${team.pilot?.first_name || ''}
-    ${team.pilot?.last_name || ''}
-  </td>
-
-  <td>
-    ${team.stoker?.first_name || ''}
-    ${team.stoker?.last_name || ''}
-  </td>
-
-  <td>
-  ${
-    team.current_effective_date ||
-    ''
-  }
-</td>
-
-  <td>
-    ${team.status || ''}
-  </td>
-
-  <td>
-
-    <button
-      class="btn btn-warning btn-sm me-1"
-      onclick="editTeam('${team.team_id}')">
-      Edit
-    </button>
-
-    <button
-      class="btn btn-danger btn-sm"
-      onclick="confirmDeleteTeam('${team.team_id}')">
-      Delete
-    </button>
-
-  </td>
-`
-
-    tbody.append(
-      row
-    )
-  }
+  })
 
   updatePagination()
+
 }
+
 function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredTeams.length /
-        PAGE_SIZE
-      )
-    )
 
-  const info =
-    $('teamPaginationInfo')
+  updatePaginationUi({
 
-  if (info) {
-    info.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
+    paginator,
 
-  const previousButton =
-    $('btnPreviousTeamPage')
+    infoElement:
+      get('teamPaginationInfo'),
 
-  if (previousButton) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
+    previousButton:
+      get('btnPreviousTeamPage'),
 
-  const nextButton =
-    $('btnNextTeamPage')
+    nextButton:
+      get('btnNextTeamPage')
 
-  if (nextButton) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
-function nextPage() {
-  const totalPages =
-    Math.ceil(
-      filteredTeams.length /
-      PAGE_SIZE
-    )
+  })
 
-  if (
-    currentPage <
-    totalPages
-  ) {
-    currentPage++
-
-    renderTeamsTable()
-  }
-}
-
-function previousPage() {
-  if (
-    currentPage > 1
-  ) {
-    currentPage--
-
-    renderTeamsTable()
-  }
 }
 
 /* ==========================================
@@ -566,27 +432,44 @@ async function refreshTeams() {
 ========================================== */
 
 function openAddTeamModal() {
-  clearForm()
 
-  $('teamModalTitle')
-    .textContent =
-    'Add Team'
+  openEntityModal({
 
-  teamModal.show()
+    modalId:
+      'teamModal',
+
+    titleId:
+      'teamModalTitle',
+
+    title:
+      'Add Team',
+
+    beforeOpen:
+      clearForm
+
+  })
+
 }
 /* ==========================================
    VALIDATION
 ========================================== */
 
 function validateTeam() {
+
   const pilotId =
-    $('pilotAthleteId').value
+    getValue(
+      'pilotAthleteId'
+    )
 
   const stokerId =
-    $('stokerAthleteId').value
+    getValue(
+      'stokerAthleteId'
+    )
 
   const effectiveDate =
-  $('effectiveDate').value
+    getValue(
+      'effectiveDate'
+    )
 
   if (!pilotId) {
     return 'Pilot is required'
@@ -601,10 +484,11 @@ function validateTeam() {
   }
 
   if (!effectiveDate) {
-  return 'Effective Date is required'
-}
+    return 'Effective Date is required'
+  }
 
   return null
+
 }
 
 /* ==========================================
@@ -613,33 +497,44 @@ function validateTeam() {
 
 async function saveTeam() {
   try {
-    showError('')
+    clearMessage(
+  'teamFormError'
+)
 
     const validationError =
       validateTeam()
 
     if (validationError) {
       showError(
-        validationError
-      )
+  'teamFormError',
+  validationError
+)
 
       return
     }
 
     const teamId =
-      $('teamId').value
+  getValue(
+    'teamId'
+  )
 
     await (teamId ? updateTeam() : createTeam())
 
-    teamModal.hide()
+    hideModal(
+  'teamModal'
+)
 
     await refreshTeams()
   } catch (error) {
     console.error(error)
 
     showError(
-      error.message
-    )
+  'teamFormError',
+  getFederationFriendlyError(
+    error
+  )
+)
+
   }
 }
 
@@ -649,7 +544,12 @@ async function saveTeam() {
 async function createTeam() {
 
   const effectiveDate =
-    $('effectiveDate').value
+    getValue(
+      'effectiveDate'
+    )
+
+  const payload =
+    buildTeamPayload()
 
   const {
     data: teamData,
@@ -657,22 +557,7 @@ async function createTeam() {
   } =
     await window.supabaseClient
       .from('teams')
-      .insert({
-        team_name:
-          $('teamName').value || null,
-
-        team_nickname:
-          $('teamNickname').value || null,
-
-        status:
-          $('teamStatus').value,
-
-        pilot_athlete_id:
-          $('pilotAthleteId').value,
-
-        stoker_athlete_id:
-          $('stokerAthleteId').value
-      })
+      .insert(payload)
       .select()
       .single()
 
@@ -682,17 +567,26 @@ async function createTeam() {
 
   await createPilotHistory(
     teamData.team_id,
-    $('pilotAthleteId').value,
+    getValue(
+      'pilotAthleteId'
+    ),
     effectiveDate,
-    $('changeReason').value
+    getValue(
+      'changeReason'
+    )
   )
 
   await createStokerHistory(
     teamData.team_id,
-    $('stokerAthleteId').value,
+    getValue(
+      'stokerAthleteId'
+    ),
     effectiveDate,
-    $('changeReason').value
+    getValue(
+      'changeReason'
+    )
   )
+
 }
 /* ==========================================
    UPDATE TEAM
@@ -700,23 +594,33 @@ async function createTeam() {
 
 async function updateTeam() {
 
-  const teamId =
-    $('teamId').value
+ const teamId =
+  getValue(
+    'teamId'
+  )
 
-  const selectedPilot =
-    $('pilotAthleteId').value
+const selectedPilot =
+  getValue(
+    'pilotAthleteId'
+  )
 
-  const selectedStoker =
-    $('stokerAthleteId').value
+const selectedStoker =
+  getValue(
+    'stokerAthleteId'
+  )
 
-  const effectiveDate =
-    $('effectiveDate').value
+const effectiveDate =
+  getValue(
+    'effectiveDate'
+  )
 
-  const reason =
-    $('changeReason').value
+const reason =
+  getValue(
+    'changeReason'
+  )
 
   const currentTeam =
-    teams.find(
+  state.rows.find(
       team =>
         team.team_id === teamId
     )
@@ -738,32 +642,19 @@ async function updateTeam() {
       currentTeam,
       selectedStoker
     )
+const payload =
+  buildTeamPayload()
 
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from('teams')
-      .update({
-        team_name:
-          $('teamName').value,
-
-        team_nickname:
-          $('teamNickname').value,
-
-        status:
-          $('teamStatus').value,
-
-        pilot_athlete_id:
-          selectedPilot,
-
-        stoker_athlete_id:
-          selectedStoker
-      })
-      .eq(
-        'team_id',
-        teamId
-      )
+const {
+  error
+} =
+  await window.supabaseClient
+  .from('teams')
+  .update(payload)
+  .eq(
+    'team_id',
+    teamId
+  )
 
   if (error) {
     throw error
@@ -850,7 +741,7 @@ function renderCurrentPairing(
 ) {
 
   const tbody =
-    $('currentPairingBody')
+    get('currentPairingBody')
 
   if (!tbody) {
     return
@@ -898,7 +789,7 @@ function renderTeamHistory(
 ) {
 
   const tbody =
-    $('teamHistoryBody')
+    get('teamHistoryBody')
 
   if (!tbody) {
     return
@@ -1060,25 +951,7 @@ async function closeActiveMember(
   }
 }
 
-function detectPilotChange(
-  team,
-  selectedPilot
-) {
-  return (
-    team.pilot_athlete_id !==
-    selectedPilot
-  )
-}
 
-function detectStokerChange(
-  team,
-  selectedStoker
-) {
-  return (
-    team.stoker_athlete_id !==
-    selectedStoker
-  )
-}
 
 
 /* ==========================================
@@ -1091,7 +964,7 @@ async function editTeam(
   try {
 
     const team =
-      teams.find(
+  state.rows.find(
         team =>
           team.team_id ===
           teamId
@@ -1132,52 +1005,43 @@ async function editTeam(
       throw activeMemberError
     }
 
-    $('teamId').value =
-      team.team_id || ''
+    populateTeamForm({
 
-    $('teamCode').value =
-      team.team_code || ''
+  team,
 
-    $('teamName').value =
-      team.team_name || ''
+  effectiveDate:
+    activeMembers?.[0]
+      ?.start_date || ''
 
-    $('teamNickname').value =
-      team.team_nickname || ''
+})
 
-    $('pilotAthleteId').value =
-      team.pilot_athlete_id || ''
-
-    $('stokerAthleteId').value =
-      team.stoker_athlete_id || ''
-
-    $('teamStatus').value =
-      team.status || 'Active'
-
-    $('effectiveDate').value =
-      activeMembers?.[0]
-        ?.start_date || ''
-
-    $('changeReason').value =
-      ''
-
-    $('teamModalTitle').textContent =
-      'Edit Team'
+    setText(
+  'teamModalTitle',
+  'Edit Team'
+)
 
     await loadTeamHistory(
       teamId
     )
 
-    teamModal.show()
+    showModal(
+  'teamModal'
+)
 
   } catch (error) {
     console.error(
       error
     )
 
-    alert(
-      error.message ||
-      'Failed to load team'
-    )
+    showError(
+
+  'teamFormError',
+
+  getFederationFriendlyError(
+    error
+  )
+
+)
   }
 }
 /* ==========================================
@@ -1187,11 +1051,89 @@ async function editTeam(
 function confirmDeleteTeam(
   teamId
 ) {
-  $('deleteTeamId').value =
-    teamId
 
-  deleteTeamModal.show()
+  setValue(
+  'deleteTeamId',
+  teamId
+)
+
+  showModal(
+    'deleteTeamModal'
+  )
+
 }
+
+function renderTeamRow(
+  team
+) {
+
+  const actionButtons =
+
+    buildActionButtons({
+
+      buttons: [
+
+        {
+          type: 'edit',
+          onClick:
+            `editTeam('${team.team_id}')`
+        },
+
+        {
+          type: 'delete',
+          onClick:
+            `confirmDeleteTeam('${team.team_id}')`
+        }
+
+      ]
+
+    })
+
+  return `
+
+<tr>
+
+${buildTextCell(
+  team.team_code
+)}
+
+${buildTextCell(
+  team.team_name
+)}
+
+${buildTextCell(
+  team.team_nickname
+)}
+
+${buildTextCell(
+  `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
+)}
+
+${buildTextCell(
+  `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
+)}
+
+${buildTextCell(
+  team.current_effective_date
+)}
+
+${buildStatusCell(
+  getStatusBadge(
+    team.status,
+    team.status
+  )
+)}
+
+${buildActionCell(
+  actionButtons
+)}
+
+</tr>
+
+`
+
+}
+
 
 /* ==========================================
    DELETE TEAM
@@ -1200,7 +1142,9 @@ function confirmDeleteTeam(
 async function deleteTeam() {
   try {
     const teamId =
-      $('deleteTeamId').value
+  getValue(
+    'deleteTeamId'
+  )
 
     if (!teamId) {
       return
@@ -1236,15 +1180,20 @@ if (teamError) {
   throw teamError
 }
 
-    deleteTeamModal.hide()
+    hideModal(
+  'deleteTeamModal'
+)
 
     await refreshTeams()
   } catch (error) {
     console.error(error)
 
-    alert(
-      error.message
-    )
+    showError(
+  'teamFormError',
+  getFederationFriendlyError(
+    error
+  )
+)
   }
 }
 /* ==========================================
@@ -1254,7 +1203,7 @@ if (teamError) {
 function wireEvents() {
 
 const refreshButton =
-  $('btnRefreshTeams')
+  get('btnRefreshTeams')
 
 if (refreshButton) {
   refreshButton.addEventListener(
@@ -1264,7 +1213,7 @@ if (refreshButton) {
 }
 
 const addButton =
-    $('btnAddTeam')
+    get('btnAddTeam')
 
   if (addButton) {
     addButton.addEventListener(
@@ -1274,7 +1223,7 @@ const addButton =
   }
 
   const saveButton =
-    $('btnSaveTeam')
+    get('btnSaveTeam')
 
   if (saveButton) {
     saveButton.addEventListener(
@@ -1284,7 +1233,7 @@ const addButton =
   }
 
   const deleteButton =
-    $('btnConfirmDeleteTeam')
+    get('btnConfirmDeleteTeam')
 
   if (deleteButton) {
     deleteButton.addEventListener(
@@ -1294,7 +1243,7 @@ const addButton =
   }
 
   const searchBox =
-    $('searchTeam')
+    get('searchTeam')
 
   if (searchBox) {
     searchBox.addEventListener(
@@ -1303,58 +1252,13 @@ const addButton =
     )
   }
 
-  const previousButton =
-    $('btnPreviousTeamPage')
-
-  if (previousButton) {
-    previousButton.addEventListener(
-      'click',
-      previousPage
-    )
-  }
-
-  const nextButton =
-    $('btnNextTeamPage')
-
-  if (nextButton) {
-    nextButton.addEventListener(
-      'click',
-      nextPage
-    )
-  }
+  
 }
 
 /* ==========================================
    MODALS
 ========================================== */
 
-function initializeModals() {
-  const teamModalElement =
-    $('teamModal')
-
-  if (
-    teamModalElement &&
-    window.coreui
-  ) {
-    teamModal =
-      new coreui.Modal(
-        teamModalElement
-      )
-  }
-
-  const deleteModalElement =
-    $('deleteTeamModal')
-
-  if (
-    deleteModalElement &&
-    window.coreui
-  ) {
-    deleteTeamModal =
-      new coreui.Modal(
-        deleteModalElement
-      )
-  }
-}
 
 /* ==========================================
    ERROR HANDLING
@@ -1393,11 +1297,6 @@ window.confirmDeleteTeam =
 window.openAddTeamModal =
   openAddTeamModal
 
-window.nextPage =
-  nextPage
-
-window.previousPage =
-  previousPage
 
 /* ==========================================
    INITIALIZATION
@@ -1415,7 +1314,23 @@ async function initializeTeams() {
       return
     }
 
-    initializeModals()
+   bindPagination({
+
+  paginator,
+
+  previousButtonId:
+    'btnPreviousTeamPage',
+
+  nextButtonId:
+    'btnNextTeamPage',
+
+  infoElementId:
+    'teamPaginationInfo',
+
+  onChange:
+    renderTeamsTable
+
+})
 
    wireEvents()
 

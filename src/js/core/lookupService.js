@@ -861,4 +861,69 @@ export async function loadRoleLookup() {
 
 
 
+export function populateAthleteLookup({
 
+  selectId,
+
+  athletes,
+
+  placeholder
+
+}) {
+
+  return populateSelect({
+
+    selectId,
+
+    items:
+      athletes,
+
+    valueField:
+      'athlete_id',
+
+    textFormatter:
+      athlete =>
+        `${athlete.athlete_code} - ${athlete.first_name} ${athlete.last_name}`,
+
+    placeholder
+
+  })
+
+}
+
+
+export async function loadAthletesByRole(
+  role
+) {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from('athletes')
+      .select(`
+        athlete_id,
+        athlete_code,
+        first_name,
+        last_name
+      `)
+      .eq(
+        'role',
+        role
+      )
+      .eq(
+        'status',
+        'Active'
+      )
+      .order(
+        'first_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}

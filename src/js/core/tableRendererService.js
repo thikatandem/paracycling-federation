@@ -59,7 +59,73 @@ export function appendRow({
 
 }
 
+function renderTeamRow(
+  team
+) {
 
+  const actionButtons =
+
+    buildActionButtons({
+
+      buttons: [
+
+        {
+          type: 'edit',
+          onClick:
+            `editTeam('${team.team_id}')`
+        },
+
+        {
+          type: 'delete',
+          onClick:
+            `confirmDeleteTeam('${team.team_id}')`
+        }
+
+      ]
+
+    })
+
+  return `
+
+<tr>
+
+${buildTextCell(
+  team.team_code
+)}
+
+${buildTextCell(
+  team.team_name
+)}
+
+${buildTextCell(
+  team.team_nickname
+)}
+
+${buildTextCell(
+  `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
+)}
+
+${buildTextCell(
+  `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
+)}
+
+${buildTextCell(
+  team.current_effective_date
+)}
+
+${buildTextCell(
+  team.status
+)}
+
+${buildActionCell(
+  actionButtons
+)}
+
+</tr>
+
+`
+
+}
 
 export function renderTable({
 
