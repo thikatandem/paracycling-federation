@@ -1,0 +1,227 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            strong Staff Qualifications
+
+            button.btn.btn-primary(
+              type='button'
+              id='btnAddQualification'
+            )
+              i.fa.fa-plus.me-2
+              | Add Qualification
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='qualificationLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-4
+
+                input.form-control(
+                  type='text'
+                  id='searchQualification'
+                  placeholder='Search Qualifications'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+
+                    th Staff
+
+                    th Qualification
+
+                    th Institution
+
+                    th Date Awarded
+
+                    th Expiry Date
+
+                    th Actions
+
+                tbody#qualificationsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshQualifications'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousQualificationPage'
+                )
+                  | Previous
+
+                span#qualificationPaginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextQualificationPage'
+                )
+                  | Next
+
+  .modal.fade(
+    id='qualificationModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-lg
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title#qualificationModalTitle
+            | Qualification
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='qualificationId'
+          )
+
+          .row.g-3
+
+            .col-md-12
+
+              label.form-label Staff
+
+              select.form-select(
+                id='qualificationStaffId'
+              )
+
+            .col-md-6
+
+              label.form-label Qualification Name
+
+              input.form-control(
+                id='qualificationName'
+              )
+
+            .col-md-6
+
+              label.form-label Institution
+
+              input.form-control(
+                id='qualificationInstitution'
+              )
+
+            .col-md-6
+
+              label.form-label Date Awarded
+
+              input.form-control(
+                type='date'
+                id='qualificationAwarded'
+              )
+
+            .col-md-6
+
+              label.form-label Expiry Date
+
+              input.form-control(
+                type='date'
+                id='qualificationExpiry'
+              )
+
+          .mt-3.text-danger(
+            id='qualificationFormError'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveQualification'
+          )
+            | Save Qualification
+
+  .modal.fade(
+    id='deleteQualificationModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Delete Qualification
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          p
+            | Are you sure you want to delete this qualification?
+
+          input(
+            type='hidden'
+            id='deleteQualificationId'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmDeleteQualification'
+          )
+            | Delete
+
+block append pageScripts
+
+  script(
+    type='module'
+    src='js/staff.js'
+  )

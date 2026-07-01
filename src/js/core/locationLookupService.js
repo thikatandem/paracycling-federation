@@ -12,6 +12,99 @@ import {
 } from './domService.js'
 
 
+
+export async function loadCountries() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'country_master'
+      )
+      .select('*')
+      .order(
+        'country_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}
+
+export async function loadCountiesByCountry(
+  countryId
+) {
+
+  if (!countryId) {
+    return []
+  }
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'county_master'
+      )
+      .select('*')
+      .eq(
+        'country_id',
+        countryId
+      )
+      .order(
+        'county_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}
+
+
+export async function loadCountrySelect({
+
+  selectId,
+
+  placeholder =
+    'Select Country'
+
+}) {
+
+  const countries =
+    await loadCountries()
+
+  populateSelect({
+
+    selectId,
+
+    items:
+      countries,
+
+    valueField:
+      'country_id',
+
+    textField:
+      'country_name',
+
+    placeholder
+
+  })
+
+  return countries
+
+}
+
+
+
 export async function loadCounties() {
 
   const {
@@ -176,6 +269,32 @@ export async function findOrCreateTown({
   return data.town_id
 
 }
+
+
+export async function resolveTownId({
+
+  townId,
+
+  subcountyId,
+
+  townName
+
+}) {
+
+  if (townId) {
+    return townId
+  }
+
+  return findOrCreateTown({
+
+    subcountyId,
+
+    townName
+
+  })
+
+}
+
 
 export async function loadAllSubcounties() {
 
@@ -617,17 +736,34 @@ export async function loadTownDatalist({
 
 export function populateLocationChain({
 
+  countryId,
+
   countyId,
 
   subcountyId,
 
-  townId,
-
-  loadSubcounties,
-
-  loadTowns
+  townId
 
 }) {
+
+  wireCascade({
+
+    parentId:
+      countryId,
+
+    childId:
+      countyId,
+
+    loadChildren:
+      loadCountiesByCountry,
+
+    valueField:
+      'county_id',
+
+    textField:
+      'county_name'
+
+  })
 
   wireCascade({
 
@@ -668,7 +804,6 @@ export function populateLocationChain({
   })
 
 }
-
 //  =====================================================
 //  CASCADING SELECTS
 // =====================================================

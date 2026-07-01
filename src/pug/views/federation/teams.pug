@@ -1,7 +1,6 @@
 ﻿extends ../../_layout/default
 
 block view
-
   .container-fluid
 
     .row
@@ -11,14 +10,14 @@ block view
 
           .card-header.d-flex.justify-content-between.align-items-center
 
-            strong Teams
+            strong Staff
 
             button.btn.btn-primary(
               type='button'
               id='btnAddTeam'
             )
               i.fa.fa-plus.me-2
-              | Add Team
+              | Add Staff
 
           .card-body
 
@@ -30,10 +29,11 @@ block view
             .row.mb-3
 
               .col-md-4
+
                 input.form-control(
                   type='text'
                   id='searchTeam'
-                  placeholder='Search Team Name, Code, Pilot or Stoker'
+                  placeholder='Search Staff'
                 )
 
             .table-responsive
@@ -43,12 +43,13 @@ block view
                 thead
 
                   tr
-                    th Team Code
-                    th Team Name
-                    th Team Nickname
-                    th Current Pilot
-                    th Current Stoker
-                    th Effective Date
+
+                    th Staff Code
+                    th Full Name
+                    th Role
+                    th Phone
+                    th Employment Status
+                    th Contract Type
                     th Status
                     th Actions
 
@@ -80,23 +81,20 @@ block view
                   id='btnNextTeamPage'
                 )
                   | Next
-
-  // TEAM CREATE / EDIT MODAL
-
   .modal.fade(
     id='teamModal'
     tabindex='-1'
     aria-hidden='true'
   )
 
-    .modal-dialog.modal-xl
+    .modal-dialog.modal-xl.modal-dialog-scrollable
 
       .modal-content
 
         .modal-header
 
           h5.modal-title#teamModalTitle
-            | Team
+            | Staff
 
           button.btn-close(
             type='button'
@@ -107,137 +105,351 @@ block view
 
           input(
             type='hidden'
-            id='teamId'
+            id='staffId'
+          )
+          ul.nav.nav-tabs(
+            role='tablist'
           )
 
-          .row.g-3
-
-            .col-md-3
-
-              label.form-label Team Code
-
-              input.form-control(
-                id='teamCode'
-                readonly
+            li.nav-item
+              button.nav-link.active(
+                type='button'
+                data-coreui-toggle='tab'
+                data-coreui-target='#staffProfileTab'
               )
+                | Profile
 
-            .col-md-5
-
-              label.form-label Team Name
-
-              input.form-control(
-                type='text'
-                id='teamName'
-                placeholder='Official Team Name'
+            li.nav-item
+              button.nav-link(
+                type='button'
+                data-coreui-toggle='tab'
+                data-coreui-target='#staffAssignmentsTab'
               )
+                | Assignments
 
-            .col-md-4
-
-              label.form-label Team Nickname
-
-              input.form-control(
-                id='teamNickname'
-                placeholder='Optional Nickname'
+            li.nav-item
+              button.nav-link(
+                type='button'
+                data-coreui-toggle='tab'
+                data-coreui-target='#staffQualificationsTab'
               )
+                | Qualifications
 
-            .col-md-4
-
-              label.form-label Team Status
-
-              select.form-select(
-                id='teamStatus'
+            li.nav-item
+              button.nav-link(
+                type='button'
+                data-coreui-toggle='tab'
+                data-coreui-target='#staffCertificationsTab'
               )
-                option(
-                  value='Active'
-                  selected
-                ) Active
+                | Certifications
 
-                option(
-                  value='Inactive'
-                ) Inactive
-
-                option(
-                  value='Suspended'
-                ) Suspended
-
-                option(
-                  value='Disbanded'
-                ) Disbanded
-
-            .col-md-4
-
-              label.form-label Effective Date
-
-              input.form-control(
-                type='date'
-                id='effectiveDate'
+            li.nav-item
+              button.nav-link(
+                type='button'
+                data-coreui-toggle='tab'
+                data-coreui-target='#staffReviewsTab'
               )
+                | Reviews
 
-            .col-md-4
+          .tab-content.mt-4
+            #staffProfileTab.tab-pane.fade.show.active
 
-              label.form-label Change Reason
+              .row.g-3
 
-              input.form-control(
-                type='text'
-                id='changeReason'
-                placeholder='Initial Formation / Reassignment'
-              )
+                .col-md-3
 
-            .col-md-6
+                  label.form-label Staff Code
 
-              label.form-label Pilot Athlete
+                  input.form-control(
+                    id='staffCode'
+                  )
 
-              select.form-select(
-                id='pilotAthleteId'
-              )
+                .col-md-4
 
-            .col-md-6
+                  label.form-label First Name
 
-              label.form-label Stoker Athlete
+                  input.form-control(
+                    id='firstName'
+                  )
 
-              select.form-select(
-                id='stokerAthleteId'
-              )
+                .col-md-5
 
-          .mt-4
+                  label.form-label Last Name
 
-            h6.mb-3
-              | Current Pairing
+                  input.form-control(
+                    id='lastName'
+                  )
 
-            .table-responsive
+                .col-md-3
 
-              table.table.table-bordered
+                  label.form-label Gender
 
-                thead
+                  select.form-select(
+                    id='gender'
+                  )
 
-                  tr
-                    th Role
-                    th Athlete
-                    th Active Since
+                    option(value='')
+                      Select Gender
 
-                tbody#currentPairingBody
+                    option(value='Male')
+                      Male
 
-          .mt-4
+                    option(value='Female')
+                      Female
 
-            h6.mb-3
-              | Team Pairing History
+                .col-md-3
 
-            .table-responsive
+                  label.form-label Date of Birth
 
-              table.table.table-striped
+                  input.form-control(
+                    type='date'
+                    id='dob'
+                  )
 
-                thead
+                .col-md-3
 
-                  tr
-                    th Role
-                    th Athlete
-                    th Start Date
-                    th End Date
-                    th Active
-                    th Change Reason
+                  label.form-label Active
 
-                tbody#teamHistoryBody
+                  select.form-select(
+                    id='isActive'
+                  )
 
+                    option(value='true')
+                      Active
+
+                    option(value='false')
+                      Inactive
+
+                .col-md-3
+
+                  label.form-label Role
+
+                  select.form-select(
+                    id='roleId'
+                  )
+
+                .col-md-4
+
+                  label.form-label Phone
+
+                  input.form-control(
+                    id='phone'
+                  )
+
+                .col-md-4
+
+                  label.form-label Email
+
+                  input.form-control(
+                    id='email'
+                  )
+
+                .col-md-4
+
+                  label.form-label County
+
+                  select.form-select(
+                    id='countyId'
+                  )
+
+                .col-md-4
+
+                  label.form-label Subcounty
+
+                  select.form-select(
+                    id='subcountyId'
+                  )
+
+                .col-md-4
+
+                  label.form-label Town
+
+                  select.form-select(
+                    id='townId'
+                  )
+                hr.mt-4.mb-3
+
+                .col-md-4
+
+                  label.form-label Employment Date
+
+                  input.form-control(
+                    type='date'
+                    id='employmentDate'
+                  )
+
+                .col-md-4
+
+                  label.form-label Contract Type
+
+                  input.form-control(
+                    id='contractType'
+                  )
+
+                .col-md-4
+
+                  label.form-label Employment Status
+
+                  input.form-control(
+                    id='employmentStatus'
+                  )
+
+                .col-md-4
+
+                  label.form-label Salary / Stipend
+
+                  input.form-control(
+                    type='number'
+                    id='salaryStipend'
+                  )
+
+                .col-md-4
+
+                  label.form-label License Expiry
+
+                  input.form-control(
+                    type='date'
+                    id='licenseExpiry'
+                  )
+
+                .col-md-4
+
+                  label.form-label Emergency Contact Name
+
+                  input.form-control(
+                    id='emergencyContactName'
+                  )
+
+                .col-md-4
+
+                  label.form-label Emergency Contact Phone
+
+                  input.form-control(
+                    id='emergencyContactPhone'
+                  )
+
+                .col-md-12
+
+                  label.form-label Notes
+
+                  textarea.form-control(
+                    rows='4'
+                    id='notes'
+                  )
+            #staffAssignmentsTab.tab-pane.fade
+
+              .d-flex.justify-content-between.mb-3
+
+                h6.mb-0
+                  | Assignment History
+
+                button.btn.btn-primary.btn-sm(
+                  type='button'
+                  id='btnAddAssignment'
+                )
+                  i.fa.fa-plus.me-2
+                  | Add Assignment
+
+              .table-responsive
+
+                table.table.table-striped
+
+                  thead
+
+                    tr
+
+                      th Role
+                      th Team
+                      th Start Date
+                      th End Date
+                      th Active
+                      th Reason
+
+                  tbody#assignmentsTableBody
+            #staffQualificationsTab.tab-pane.fade
+
+              .d-flex.justify-content-between.mb-3
+
+                h6.mb-0
+                  | Qualifications
+
+                button.btn.btn-primary.btn-sm(
+                  type='button'
+                  id='btnAddQualification'
+                )
+                  i.fa.fa-plus.me-2
+                  | Add Qualification
+
+              .table-responsive
+
+                table.table.table-striped
+
+                  thead
+
+                    tr
+
+                      th Qualification
+                      th Institution
+                      th Awarded
+                      th Expiry
+
+                  tbody#qualificationsTableBody
+            #staffCertificationsTab.tab-pane.fade
+
+              .d-flex.justify-content-between.mb-3
+
+                h6.mb-0
+                  | Certifications
+
+                button.btn.btn-primary.btn-sm(
+                  type='button'
+                  id='btnAddCertification'
+                )
+                  i.fa.fa-plus.me-2
+                  | Add Certification
+
+              .table-responsive
+
+                table.table.table-striped
+
+                  thead
+
+                    tr
+
+                      th Certification
+                      th Issuing Body
+                      th Issue Date
+                      th Expiry
+
+                  tbody#certificationsTableBody
+            #staffReviewsTab.tab-pane.fade
+
+              .d-flex.justify-content-between.mb-3
+
+                h6.mb-0
+                  | Reviews
+
+                button.btn.btn-primary.btn-sm(
+                  type='button'
+                  id='btnAddReview'
+                )
+                  i.fa.fa-plus.me-2
+                  | Add Review
+
+              .table-responsive
+
+                table.table.table-striped
+
+                  thead
+
+                    tr
+
+                      th Review Date
+                      th Reviewer
+                      th Score
+                      th Comments
+
+                  tbody#reviewsTableBody
           .mt-3.text-danger(
             id='teamFormError'
           )
@@ -254,10 +466,7 @@ block view
             type='button'
             id='btnSaveTeam'
           )
-            | Save Team
-
-  // DELETE MODAL
-
+            | Save Staff
   .modal.fade(
     id='deleteTeamModal'
     tabindex='-1'
@@ -271,7 +480,7 @@ block view
         .modal-header
 
           h5.modal-title
-            | Delete Team
+            | Delete Staff
 
           button.btn-close(
             type='button'
@@ -281,11 +490,11 @@ block view
         .modal-body
 
           p
-            | Are you sure you want to delete this team?
+            | Are you sure you want to delete this staff member?
 
           input(
             type='hidden'
-            id='deleteTeamId'
+            id='deletestaffId'
           )
 
         .modal-footer
@@ -300,8 +509,7 @@ block view
             type='button'
             id='btnConfirmDeleteTeam'
           )
-            | Delete Team
-
+            | Delete Staff
 append pageScripts
 
   script(type='module' src='js/teams.js')

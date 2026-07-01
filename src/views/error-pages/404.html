@@ -70,6 +70,9 @@
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>
     <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
+    <!-- Supabase Library-->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase.js"></script>
     <script>
       const header = document.querySelector("header.header");
 
@@ -78,6 +81,11 @@
           header.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
         }
       });
+    </script>
+    <script type="module">
+      import { initializeAuthentication } from "/js/core/auth/authInitializer.js";
+
+      initializeAuthentication();
     </script>
   </body>
 </html>

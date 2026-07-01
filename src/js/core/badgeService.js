@@ -94,6 +94,14 @@ export const STATUS_CONFIG = {
     color: 'warning'
   },
 
+ON_LEAVE: {
+  color: 'warning'
+},
+
+TERMINATED: {
+  color: 'danger'
+},
+
   DISBANDED: {
     color: 'danger'
   },

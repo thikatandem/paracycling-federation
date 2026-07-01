@@ -2,6 +2,12 @@
 script(src='node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js')
 script(src='node_modules/simplebar/dist/simplebar.min.js')
 
+// Supabase Library
+script(src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
+
+
+script(src='/js/supabase.js')
+
 script.
   const header = document.querySelector('header.header');
 
@@ -11,7 +17,14 @@ script.
     }
   });
 
+script(type='module').
+  import {
+    initializeAuthentication
+  }
+  from '/js/core/auth/authInitializer.js'
+
+  initializeAuthentication()
+
 block scripts
 
 block js
-

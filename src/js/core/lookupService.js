@@ -58,6 +58,117 @@ function isExpired(
 }
 
 
+export async function loadDepartmentLookup() {
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'department_master'
+      )
+      .select(`
+        department_id,
+        department_code,
+        department_name
+      `)
+      .eq(
+        'is_active',
+        true
+      )
+      .order(
+        'department_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}
+
+export async function loadPositionLookupByDepartment(
+  departmentId
+) {
+
+  if (!departmentId) {
+    return []
+  }
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'position_master'
+      )
+      .select(`
+        position_id,
+        position_code,
+        position_name
+      `)
+      .eq(
+        'department_id',
+        departmentId
+      )
+      .eq(
+        'is_active',
+        true
+      )
+      .order(
+        'position_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}
+
+export async function loadPositions(
+  departmentId
+) {
+
+  if (!departmentId) {
+    return []
+  }
+
+  const {
+    data,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'position_master'
+      )
+      .select(`
+        *
+      `)
+      .eq(
+        'department_id',
+        departmentId
+      )
+      .eq(
+        'is_active',
+        true
+      )
+      .order(
+        'position_name'
+      )
+
+  if (error) {
+    throw error
+  }
+
+  return data || []
+
+}
+
 export async function
 loadLookupOptions({
 
@@ -859,6 +970,62 @@ export async function loadRoleLookup() {
 
 }
 
+
+export async function loadGenderLookup() {
+
+  return loadLookupCached({
+
+    table:
+      'gender_master',
+
+    orderBy:
+      'gender_name'
+
+  })
+
+}
+
+export async function loadContractTypeLookup() {
+
+  return loadLookupCached({
+
+    table:
+      'contract_type_master',
+
+    orderBy:
+      'contract_name'
+
+  })
+
+}
+
+export async function loadEmploymentStatusLookup() {
+
+  return loadLookupCached({
+
+    table:
+      'employment_status_master',
+
+    orderBy:
+      'status_name'
+
+  })
+
+}
+
+export async function loadStaffStatusLookup() {
+
+  return loadLookupCached({
+
+    table:
+      'staff_status_master',
+
+    orderBy:
+      'status_name'
+
+  })
+
+}
 
 
 export function populateAthleteLookup({

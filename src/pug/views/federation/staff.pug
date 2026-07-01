@@ -1,0 +1,384 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center
+
+            strong Staff
+
+            button.btn.btn-primary(
+              type='button'
+              id='btnAddTeam'
+            )
+              i.fa.fa-plus.me-2
+              | Add Staff
+
+          .card-body
+
+            div.d-none.text-center.mb-3(
+              id='teamLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-4
+
+                input.form-control(
+                  type='text'
+                  id='searchTeam'
+                  placeholder='Search Staff'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+
+                    th Staff Number
+
+                    th Full Name
+
+                    th Role
+
+                    th Phone
+
+                    th Employment Status
+
+                    th Contract Type
+
+                    th Staff Status
+
+                    th Actions
+
+                tbody#teamsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshTeams'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousTeamPage'
+                )
+                  | Previous
+
+                span#teamPaginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextTeamPage'
+                )
+                  | Next
+
+  .modal.fade(
+    id='teamModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-xl.modal-dialog-scrollable
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title#teamModalTitle
+            | Staff
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          input(
+            type='hidden'
+            id='staffId'
+          )
+
+          .row.g-3
+
+            .col-md-3
+
+              label.form-label Staff Code
+
+              input.form-control(
+                id='staffCode'
+                readonly
+              )
+
+            .col-md-4
+
+              label.form-label First Name
+
+              input.form-control(
+                id='firstName'
+              )
+
+            .col-md-5
+
+              label.form-label Last Name
+
+              input.form-control(
+                id='lastName'
+              )
+
+            .col-md-3
+
+              label.form-label Gender
+
+              select.form-select(
+                id='gender'
+              )
+
+            .col-md-3
+
+              label.form-label Date of Birth
+
+              input.form-control(
+                type='date'
+                id='dob'
+              )
+
+            
+            .col-md-3
+
+              label.form-label Department
+
+              select.form-select(
+                id='departmentId'
+              )
+
+            .col-md-3
+
+              label.form-label Position
+
+              select.form-select(
+                id='positionId'
+              )
+
+            .col-md-6
+
+              label.form-label Federation Role
+
+              select.form-select(
+                id='roleId'
+              )
+
+            .col-md-4
+
+              label.form-label Phone
+
+              input.form-control(
+                id='phone'
+              )
+
+            .col-md-4
+
+              label.form-label Email
+
+              input.form-control(
+                id='email'
+              )
+
+            .col-md-3
+
+              label.form-label Country
+
+              select.form-select(
+                id='countryId'
+              )
+
+            .col-md-3
+
+              label.form-label County
+
+              select.form-select(
+                id='countyId'
+              )
+
+            .col-md-3
+
+              label.form-label Subcounty
+
+              select.form-select(
+                id='subcountyId'
+              )
+
+            .col-md-3
+
+              label.form-label Town
+
+              select.form-select(
+                id='townId'
+              )
+
+            .col-12
+
+              hr.mt-4.mb-3
+
+            .col-md-4
+
+              label.form-label Employment Date
+
+              input.form-control(
+                type='date'
+                id='employmentDate'
+              )
+
+            .col-md-4
+
+              label.form-label Contract Type
+
+              select.form-select(
+                id='contractType'
+              )
+
+            .col-md-4
+
+              label.form-label Employment Status
+
+              select.form-select(
+                id='employmentStatus'
+              )
+
+            .col-md-4
+
+              label.form-label Staff Status
+
+              select.form-select(
+                id='staffStatus'
+              )
+
+            .col-md-4
+
+              label.form-label Salary / Stipend
+
+              input.form-control(
+                type='number'
+                id='salaryStipend'
+              )
+
+            .col-md-4
+
+              label.form-label License Expiry
+
+              input.form-control(
+                type='date'
+                id='licenseExpiry'
+              )
+
+            .col-md-4
+
+              label.form-label Emergency Contact Name
+
+              input.form-control(
+                id='emergencyContactName'
+              )
+
+            .col-md-4
+
+              label.form-label Emergency Contact Phone
+
+              input.form-control(
+                id='emergencyContactPhone'
+              )
+
+            .col-md-12
+
+              label.form-label Notes
+
+              textarea.form-control(
+                rows='4'
+                id='notes'
+              )
+
+          .mt-3.text-danger(
+            id='teamFormError'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveTeam'
+          )
+            | Save Staff
+
+  .modal.fade(
+    id='deleteTeamModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+            | Delete Staff
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          p
+            | Are you sure you want to delete this staff member?
+
+          input(
+            type='hidden'
+            id='deletestaffId'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-danger(
+            type='button'
+            id='btnConfirmDeleteTeam'
+          )
+            | Delete Staff
+
+block append pageScripts
+
+  script(
+    type='module'
+    src='js/staff.js'
+  )
