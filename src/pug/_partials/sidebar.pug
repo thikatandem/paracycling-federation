@@ -1,4 +1,4 @@
-﻿.sidebar.sidebar-dark.sidebar-fixed.border-end#sidebar
+﻿.sidebar.sidebar-dark.sidebar-fixed.border-end.d-none#sidebar
 
   .sidebar-header.border-bottom.d-flex.align-items-center.justify-content-between.px-3
 
@@ -12,7 +12,9 @@
       onclick='coreui.Sidebar.getInstance(document.querySelector("#sidebar")).toggle()'
     )
 
-  include sidebar-nav
+  #roleSidebar
+
+    include sidebar-nav
 
   .sidebar-footer.border-top.d-none.d-md-flex
 

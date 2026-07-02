@@ -1,0 +1,149 @@
+﻿-
+  const nav = [
+
+    {
+      type: 'item',
+      href: 'index.html',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-speedometer.svg',
+      label: 'Dashboard'
+    },
+
+    {
+      type: 'title',
+      label: 'Athlete Portal'
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-bicycle.svg',
+      label: 'My Training',
+      items: [
+        {
+          href: 'federation/training.html',
+          label: 'Training Log'
+        },
+        {
+          href: 'federation/performance.html',
+          label: 'Performance'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-trophy.svg',
+      label: 'Competition',
+      items: [
+        {
+          href: 'federation/race-results.html',
+          label: 'Race Results'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-people.svg',
+      label: 'My Team',
+      items: [
+        {
+          href: 'federation/teams.html',
+          label: 'My Team'
+        },
+        {
+          href: 'federation/composition-teams.html',
+          label: 'Composition Teams'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-plane.svg',
+      label: 'Travel',
+      items: [
+        {
+          href: 'federation/travel-requests.html',
+          label: 'Travel Requests'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-folder.svg',
+      label: 'Documents',
+      items: [
+        {
+          href: 'federation/documents.html',
+          label: 'My Documents'
+        }
+      ]
+    }
+
+  ]
+
+mixin navItemIcon(item)
+  if item.icon
+    +inlineSvg(item.icon).nav-icon(class=item.iconClass)
+  else
+    span.nav-icon
+      span.nav-icon-bullet
+
+mixin navItem(item)
+  li.nav-item(class=item.itemClass)
+    a.nav-link(
+      href=item.href
+      class=item.linkClass
+      target=item.target
+    )
+      +navItemIcon(item)
+      | #{item.label}
+
+      if item.externalIcon
+        +inlineSvg('node_modules/@coreui/icons/svg/free/cil-external-link.svg').icon.icon-sm.ms-2
+
+      if item.badge
+        span.badge.badge-sm(class=`bg-${item.badge.color}`).ms-auto
+          = item.badge.text
+
+mixin navGroup(group)
+  li.nav-group
+    a.nav-link.nav-group-toggle(href='#')
+
+      if group.icon
+        +inlineSvg(group.icon).nav-icon
+      else
+        span.nav-icon
+          span.nav-icon-bullet
+
+      | #{group.label}
+
+    ul.nav-group-items.compact
+
+      each item in group.items
+
+        if item.type === 'group'
+          +navGroup(item)
+        else
+          +navItem(item)
+
+ul.sidebar-nav(
+  data-coreui='navigation'
+  data-simplebar
+)
+
+  each item in nav
+
+    if item.type === 'item'
+      +navItem(item)
+
+    else if item.type === 'title'
+      li.nav-title
+        = item.label
+
+    else if item.type === 'group'
+      +navGroup(item)
+
+    else if item.type === 'divider'
+      li.nav-divider

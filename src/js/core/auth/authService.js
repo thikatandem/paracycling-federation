@@ -193,31 +193,27 @@ export async function loadProfile(
     error
   } =
     await getDb()
-      .from(
-        'profiles'
-      )
-      .select(`
-        *,
-        user_role_master (
-          *
-        )
-      `)
+      .from('profiles')
+      .select('*')
       .eq(
         'auth_user_id',
         userId
       )
       .single()
 
+  console.log(
+    'PROFILE DATA',
+    data
+  )
+
+  console.log(
+    'PROFILE ERROR',
+    error
+  )
+
   if (error) {
 
-    console.error(
-      'PROFILE LOAD ERROR:',
-      error
-    )
-
-    throw new Error(
-      'No federation profile found for this account.'
-    )
+    throw error
 
   }
 
@@ -259,13 +255,34 @@ export async function initializeAuth() {
     session.user
 
   const profile =
-    await loadProfile(
-      user.id
-    )
+  await loadProfile(
+    user.id
+  )
 
-  const role =
-    profile
-      ?.user_role_master
+const {
+  data: roleCode,
+  error: roleError
+}
+=
+await getDb()
+  .rpc(
+    'current_role_code'
+  )
+
+if (
+  roleError
+) {
+
+  throw roleError
+
+}
+
+const role = {
+
+  role_code:
+    roleCode
+
+}
 
   setSession(
     session
