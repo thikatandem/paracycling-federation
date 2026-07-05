@@ -1,7 +1,6 @@
-﻿/* global coreui */
+/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
 
 import {
   get,
@@ -10,33 +9,33 @@ import {
   setText,
   resetForm,
   populateSelect
-} from './core/domService.js';
+} from './core/domService.js'
 
 import {
   showPageLoader,
   hidePageLoader
-} from './core/uiService.js';
+} from './core/uiService.js'
 
 import {
   clearMessage,
   showError,
   getFederationFriendlyError
-} from './core/errorService.js';
+} from './core/errorService.js'
 
 import {
   showModal,
   hideModal,
   openEntityModal
-} from './core/modalService.js';
+} from './core/modalService.js'
 
-import { searchNestedCollection } from './core/searchService.js';
+import { searchNestedCollection } from './core/searchService.js'
 
 import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
   bindPagination
-} from './core/paginationService.js';
+} from './core/paginationService.js'
 
 import {
   renderEntityTable,
@@ -44,14 +43,14 @@ import {
   buildActionCell,
   buildTextCell,
   buildStatusCell
-} from './core/tableRendererService.js';
+} from './core/tableRendererService.js'
 
-import { getStatusBadge } from './core/badgeService.js';
+import { getStatusBadge } from './core/badgeService.js'
 
 import {
   createPageState,
   setRows
-} from './core/pageStateService.js';
+} from './core/pageStateService.js'
 
 import {
   loadRoleLookup,
@@ -62,7 +61,7 @@ import {
   loadDepartmentLookup,
   loadPositionLookupByDepartment
 }
-from './core/lookupService.js';
+  from './core/lookupService.js'
 
 import {
   loadCountrySelect,
@@ -73,11 +72,10 @@ import {
   populateLocationChain,
   wireCascade,
   resolveTownId
-} from './core/locationLookupService.js';
+} from './core/locationLookupService.js'
 
-const paginator = createPaginator();
-const state = createPageState();
-
+const paginator = createPaginator()
+const state = createPageState()
 
 let assignments = []
 let qualifications = []
@@ -88,7 +86,6 @@ let reviews = []
    HELPERS
 ========================================== */
 function clearForm() {
-
   clearMessage(
     'teamFormError'
   )
@@ -97,48 +94,44 @@ function clearForm() {
 
     fields: [
 
-  'staffId',
-  'staffCode',
+      'staffId',
+      'staffCode',
 
-  'firstName',
-  'lastName',
+      'firstName',
+      'lastName',
 
-  'gender',
-  'dob',
+      'gender',
+      'dob',
 
-  'phone',
-  'email',
-'departmentId',
-'positionId',
-  'roleId',
+      'phone',
+      'email',
+      'departmentId',
+      'positionId',
+      'roleId',
 
-'countryId',
-'countyId',
-'subcountyId',
-'townId',
+      'countryId',
+      'countyId',
+      'subcountyId',
+      'townId',
 
-  'employmentDate',
-  'contractType',
-  'employmentStatus',
-  'staffStatus',
+      'employmentDate',
+      'contractType',
+      'employmentStatus',
+      'staffStatus',
 
-  'salaryStipend',
+      'salaryStipend',
 
-  'licenseExpiry',
+      'licenseExpiry',
 
-  'emergencyContactName',
-  'emergencyContactPhone',
+      'emergencyContactName',
+      'emergencyContactPhone',
 
-  'notes'
+      'notes'
 
-],
-
-    
+    ]
 
   })
-
 }
-
 
 /* ==========================================
    LOAD TEAMS
@@ -193,36 +186,31 @@ country_master(
 
     setRows({
 
-  state,
+      state,
 
-  rows:
+      rows:
     data || []
 
-})
-   
-    
+    })
 
     renderTeamsTable()
-
   } catch (error) {
     console.error(error)
 
     showError(
-  'teamFormError',
-  getFederationFriendlyError(
-    error
-  )
-)
+      'teamFormError',
+      getFederationFriendlyError(
+        error
+      )
+    )
   } finally {
     hidePageLoader()
   }
 }
 
-
 async function loadAssignments(
   staffId
 ) {
-
   const {
     data,
     error
@@ -251,14 +239,11 @@ async function loadAssignments(
 
   assignments =
     data || []
-
 }
-
 
 async function loadQualifications(
   staffId
 ) {
-
   const {
     data,
     error
@@ -281,42 +266,37 @@ async function loadQualifications(
 
   qualifications =
     data || []
-
 }
-
 
 function renderQualificationRow(
   qualification
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  qualification.qualification_name
-)}
+    qualification.qualification_name
+  )}
 
 ${buildTextCell(
-  qualification.institution
-)}
+    qualification.institution
+  )}
 
 ${buildTextCell(
-  qualification.date_awarded
-)}
+    qualification.date_awarded
+  )}
 
 ${buildTextCell(
-  qualification.expiry_date
-)}
+    qualification.expiry_date
+  )}
 
 </tr>
 
 `
-
 }
 
 function renderQualificationsTable() {
-
   const tbody =
     get(
       'qualificationsTableBody'
@@ -332,16 +312,13 @@ function renderQualificationsTable() {
         renderQualificationRow
       )
       .join('')
-
 }
-
 
 /* ==========================================
    SEARCH
 ========================================== */
 
 function applySearch() {
-
   const term =
     (
       get('searchTeam')
@@ -360,19 +337,19 @@ function applySearch() {
 
       fields: [
 
-  'staff_code',
+        'staff_code',
 
-  'first_name',
+        'first_name',
 
-  'last_name',
+        'last_name',
 
-  'phone',
+        'phone',
 
-  'email',
+        'email',
 
-  'role_master.role_name'
+        'role_master.role_name'
 
-]
+      ]
 
     })
 
@@ -381,14 +358,12 @@ function applySearch() {
   )
 
   renderTeamsTable()
-
 }
 /* ==========================================
    TABLE
 ========================================== */
 
 function renderTeamsTable() {
-
   const tbody =
     get('teamsTableBody')
 
@@ -416,11 +391,9 @@ function renderTeamsTable() {
   })
 
   updatePagination()
-
 }
 
 function updatePagination() {
-
   updatePaginationUi({
 
     paginator,
@@ -435,7 +408,6 @@ function updatePagination() {
       get('btnNextTeamPage')
 
   })
-
 }
 
 /* ==========================================
@@ -443,22 +415,17 @@ function updatePagination() {
 ========================================== */
 
 async function refreshTeams() {
-
   await loadTeams()
-
 }
 /* ==========================================
    MODAL OPEN
 ========================================== */
 
 function openAddTeamModal() {
-
   openEntityModal({
 
     modalId:
       'teamModal',
-
-
 
     titleId:
       'teamModalTitle',
@@ -469,14 +436,12 @@ function openAddTeamModal() {
       clearForm
 
   })
-
 }
 /* ==========================================
    VALIDATION
 ========================================== */
 
 function validateStaff() {
-
   if (
     !getValue(
       'firstName'
@@ -494,7 +459,6 @@ function validateStaff() {
   }
 
   return null
-
 }
 /* ==========================================
    SAVE TEAM
@@ -503,17 +467,17 @@ function validateStaff() {
 async function saveTeam() {
   try {
     clearMessage(
-  'teamFormError'
-)
+      'teamFormError'
+    )
 
     const validationError =
       validateStaff()
 
     if (validationError) {
       showError(
-  'teamFormError',
-  validationError
-)
+        'teamFormError',
+        validationError
+      )
 
       return
     }
@@ -524,25 +488,24 @@ async function saveTeam() {
   )
 
     await (
-  staffId
-    ? updateStaff()
-    : createStaff()
-)
+      staffId ?
+        updateStaff() :
+        createStaff()
+    )
     hideModal(
-  'teamModal'
-)
+      'teamModal'
+    )
 
     await refreshTeams()
   } catch (error) {
     console.error(error)
 
     showError(
-  'teamFormError',
-  getFederationFriendlyError(
-    error
-  )
-)
-
+      'teamFormError',
+      getFederationFriendlyError(
+        error
+      )
+    )
   }
 }
 
@@ -550,10 +513,7 @@ async function saveTeam() {
    CREATE TEAM
 ========================================== */
 async function createStaff() {
-
   const registryPayload = {
-
-    
 
     first_name:
       getValue(
@@ -584,12 +544,12 @@ async function createStaff() {
       getValue(
         'email'
       ) || null,
-department_id:
+    department_id:
   getValue(
     'departmentId'
   ) || null,
 
-position_id:
+    position_id:
   getValue(
     'positionId'
   ) || null,
@@ -599,32 +559,32 @@ position_id:
     'roleId'
   ) || null,
 
-country_id:
+    country_id:
   getValue(
     'countryId'
   ) || null,
 
-county_id:
+    county_id:
   getValue(
     'countyId'
   ) || null,
 
-subcounty_id:
+    subcounty_id:
   getValue(
     'subcountyId'
   ) || null,
 
-town_id:
+    town_id:
   getValue(
     'townId'
   ) || null,
 
     is_active: true,
-    
-created_by:
+
+    created_by:
   window.currentUser?.id || null,
 
-updated_by:
+    updated_by:
   window.currentUser?.id || null
 
   }
@@ -662,17 +622,17 @@ updated_by:
         'contractType'
       ) || null,
 
-employment_status:
+    employment_status:
   getValue(
     'employmentStatus'
   ) || null,
 
-staff_status:
+    staff_status:
   getValue(
     'staffStatus'
   ) || null,
 
-salary_stipend:
+    salary_stipend:
   getValue(
     'salaryStipend'
   ) || null,
@@ -697,10 +657,10 @@ salary_stipend:
     'notes'
   ) || null,
 
-created_by:
+    created_by:
   window.currentUser?.id || null,
 
-updated_by:
+    updated_by:
   window.currentUser?.id || null
   }
 
@@ -718,14 +678,12 @@ updated_by:
   if (profileError) {
     throw profileError
   }
-
 }
 /* ==========================================
    UPDATE TEAM
 ========================================== */
 
 async function updateStaff() {
-
   const staffId =
     getValue(
       'staffId'
@@ -768,44 +726,44 @@ async function updateStaff() {
         'email'
       ) || null,
 
-department_id:
+    department_id:
   getValue(
     'departmentId'
   ) || null,
 
-position_id:
+    position_id:
   getValue(
     'positionId'
   ) || null,
 
-   role_id:
+    role_id:
   getValue(
     'roleId'
   ) || null,
 
-country_id:
+    country_id:
   getValue(
     'countryId'
   ) || null,
 
-county_id:
+    county_id:
   getValue(
     'countyId'
   ) || null,
 
-subcounty_id:
+    subcounty_id:
   getValue(
     'subcountyId'
   ) || null,
 
-town_id:
+    town_id:
   getValue(
     'townId'
   ) || null,
 
     is_active: true,
 
-updated_by:
+    updated_by:
   window.currentUser?.id || null
   }
 
@@ -840,17 +798,17 @@ updated_by:
         'contractType'
       ) || null,
 
-   employment_status:
+    employment_status:
   getValue(
     'employmentStatus'
   ) || null,
 
-staff_status:
+    staff_status:
   getValue(
     'staffStatus'
   ) || null,
 
-salary_stipend:
+    salary_stipend:
   getValue(
     'salaryStipend'
   ) || null,
@@ -875,7 +833,7 @@ salary_stipend:
     'notes'
   ) || null,
 
-updated_by:
+    updated_by:
   window.currentUser?.id || null
 
   }
@@ -898,7 +856,6 @@ updated_by:
   if (profileError) {
     throw profileError
   }
-
 }
 
 /* ==========================================
@@ -907,7 +864,6 @@ updated_by:
 async function loadReviews(
   staffId
 ) {
-
   const {
     data,
     error
@@ -930,41 +886,37 @@ async function loadReviews(
 
   reviews =
     data || []
-
 }
 
 function renderReviewRow(
   review
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  review.review_date
-)}
+    review.review_date
+  )}
 
 ${buildTextCell(
-  review.reviewer
-)}
+    review.reviewer
+  )}
 
 ${buildTextCell(
-  review.score
-)}
+    review.score
+  )}
 
 ${buildTextCell(
-  review.comments
-)}
+    review.comments
+  )}
 
 </tr>
 
 `
-
 }
 
 function renderReviewsTable() {
-
   const tbody =
     get(
       'reviewsTableBody'
@@ -980,7 +932,6 @@ function renderReviewsTable() {
         renderReviewRow
       )
       .join('')
-
 }
 
 /* ==========================================
@@ -990,9 +941,7 @@ function renderReviewsTable() {
 async function editStaff(
   staffId
 ) {
-
   try {
-
     const staff =
       state.rows.find(
         row =>
@@ -1048,64 +997,61 @@ async function editStaff(
       'email',
       staff.email || ''
     )
-setValue(
-  'departmentId',
-  staff.department_id || ''
-)
+    setValue(
+      'departmentId',
+      staff.department_id || ''
+    )
 
-const positions =
+    const positions =
   await loadPositionLookupByDepartment(
     staff.department_id
   )
 
-populateSelect({
+    populateSelect({
 
-  selectId:
+      selectId:
     'positionId',
 
-  items:
+      items:
     positions,
 
-  valueField:
+      valueField:
     'position_id',
 
-  textField:
+      textField:
     'position_name'
 
-})
-
-setValue(
-  'positionId',
-  staff.position_id || ''
-)
+    })
 
     setValue(
-  'roleId',
-  staff.role_id || ''
-)
+      'positionId',
+      staff.position_id || ''
+    )
 
-setValue(
-  'countryId',
-  staff.country_id || ''
-)
+    setValue(
+      'roleId',
+      staff.role_id || ''
+    )
 
-setValue(
-  'countyId',
-  staff.county_id || ''
-)
+    setValue(
+      'countryId',
+      staff.country_id || ''
+    )
 
-setValue(
-  'subcountyId',
-  staff.subcounty_id || ''
-)
+    setValue(
+      'countyId',
+      staff.county_id || ''
+    )
 
-setValue(
-  'townId',
-  staff.town_id || ''
-)
+    setValue(
+      'subcountyId',
+      staff.subcounty_id || ''
+    )
 
-    
-    
+    setValue(
+      'townId',
+      staff.town_id || ''
+    )
 
     setValue(
       'employmentDate',
@@ -1121,10 +1067,10 @@ setValue(
       'employmentStatus',
       profile.employment_status || ''
     )
-setValue(
-  'staffStatus',
-  profile.staff_status || ''
-)
+    setValue(
+      'staffStatus',
+      profile.staff_status || ''
+    )
     setValue(
       'salaryStipend',
       profile.salary_stipend || ''
@@ -1159,33 +1105,30 @@ setValue(
       'teamModal'
     )
 
-await loadAssignments(
-  staffId
-)
+    await loadAssignments(
+      staffId
+    )
 
-renderAssignmentsTable()
+    renderAssignmentsTable()
 
+    await loadQualifications(
+      staffId
+    )
 
-await loadQualifications(
-  staffId
-)
+    renderQualificationsTable()
 
-renderQualificationsTable()
+    await loadCertifications(
+      staffId
+    )
 
-await loadCertifications(
-  staffId
-)
+    renderCertificationsTable()
 
-renderCertificationsTable()
+    await loadReviews(
+      staffId
+    )
 
-await loadReviews(
-  staffId
-)
-
-renderReviewsTable()
-
+    renderReviewsTable()
   } catch (error) {
-
     console.error(
       error
     )
@@ -1196,9 +1139,7 @@ renderReviewsTable()
         error
       )
     )
-
   }
-
 }
 /* ==========================================
    DELETE MODAL
@@ -1207,22 +1148,19 @@ renderReviewsTable()
 function confirmDeleteStaff(
   staffId
 ) {
-
   setValue(
-  'deletestaffId',
-  staffId
-)
+    'deletestaffId',
+    staffId
+  )
 
   showModal(
     'deleteTeamModal'
   )
-
 }
 
 function renderStaffRow(
   staff
 ) {
-
   const profile =
     staff.staff_profiles?.[0] || {}
 
@@ -1262,119 +1200,113 @@ function renderStaffRow(
 <tr>
 
 ${buildTextCell(
-  staff.staff_code
-)}
+    staff.staff_code
+  )}
 
 ${buildTextCell(
-  fullName
-)}
+    fullName
+  )}
 
 ${buildTextCell(
-  staff.role_master?.role_name || ''
-)}
+    staff.role_master?.role_name || ''
+  )}
 
 ${buildTextCell(
-  staff.phone
-)}
+    staff.phone
+  )}
 
 ${buildTextCell(
-  String(
-    profile.employment_status || ''
-  )
-    .replaceAll('_', ' ')
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter => letter.toUpperCase()
-    )
-)}
-
-${buildTextCell(
-  String(
-    profile.contract_type || ''
-  )
-    .replaceAll('_', ' ')
-    .toLowerCase()
-    .replace(
-      /\b\w/g,
-      letter => letter.toUpperCase()
-    )
-)}
-${buildStatusCell(
-  getStatusBadge(
     String(
-      profile.staff_status || ''
+      profile.employment_status || ''
     )
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(
+      /\b\w/g,
+      letter => letter.toUpperCase()
+    )
+  )}
+
+${buildTextCell(
+    String(
+      profile.contract_type || ''
+    )
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(
+      /\b\w/g,
+      letter => letter.toUpperCase()
+    )
+  )}
+${buildStatusCell(
+    getStatusBadge(
+      String(
+        profile.staff_status || ''
+      )
       .replaceAll(
         '_',
         ' '
       ),
-    profile.staff_status
-  )
-)}
+      profile.staff_status
+    )
+  )}
 
 
 ${buildActionCell(
-  actionButtons
-)}
+    actionButtons
+  )}
 
 </tr>
 
 `
-
 }
-
 
 function renderAssignmentRow(
   assignment
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  assignment.role_master
+    assignment.role_master
     ?.role_name || ''
-)}
+  )}
 
 ${buildTextCell(
-  assignment.teams
+    assignment.teams
     ?.team_name || ''
-)}
+  )}
 
 ${buildTextCell(
-  assignment.start_date || ''
-)}
+    assignment.start_date || ''
+  )}
 
 ${buildTextCell(
-  assignment.end_date || ''
-)}
+    assignment.end_date || ''
+  )}
 
 ${buildStatusCell(
-  getStatusBadge(
-    assignment.is_active
-      ? 'Active'
-      : 'Inactive',
-    assignment.is_active
-      ? 'Active'
-      : 'Inactive'
-  )
-)}
+    getStatusBadge(
+      assignment.is_active ?
+        'Active' :
+        'Inactive',
+      assignment.is_active ?
+        'Active' :
+        'Inactive'
+    )
+  )}
 
 ${buildTextCell(
-  assignment.assignment_reason || ''
-)}
+    assignment.assignment_reason || ''
+  )}
 
 </tr>
 
 `
-
 }
 
-
 function renderAssignmentsTable() {
-
   const tbody =
     get(
       'assignmentsTableBody'
@@ -1390,7 +1322,6 @@ function renderAssignmentsTable() {
         renderAssignmentRow
       )
       .join('')
-
 }
 
 /* ==========================================
@@ -1400,7 +1331,6 @@ function renderAssignmentsTable() {
 async function createAssignment(
   payload
 ) {
-
   const {
     error
   } =
@@ -1415,14 +1345,12 @@ async function createAssignment(
   if (error) {
     throw error
   }
-
 }
 
 async function updateAssignment(
   assignmentId,
   payload
 ) {
-
   const {
     error
   } =
@@ -1441,13 +1369,11 @@ async function updateAssignment(
   if (error) {
     throw error
   }
-
 }
 
 async function deleteAssignment(
   assignmentId
 ) {
-
   const {
     error
   } =
@@ -1464,7 +1390,6 @@ async function deleteAssignment(
   if (error) {
     throw error
   }
-
 }
 
 /* ==========================================
@@ -1474,7 +1399,6 @@ async function deleteAssignment(
 async function createQualification(
   payload
 ) {
-
   const {
     error
   } =
@@ -1489,14 +1413,12 @@ async function createQualification(
   if (error) {
     throw error
   }
-
 }
 
 async function updateQualification(
   qualificationId,
   payload
 ) {
-
   const {
     error
   } =
@@ -1515,13 +1437,11 @@ async function updateQualification(
   if (error) {
     throw error
   }
-
 }
 
 async function deleteQualification(
   qualificationId
 ) {
-
   const {
     error
   } =
@@ -1538,7 +1458,6 @@ async function deleteQualification(
   if (error) {
     throw error
   }
-
 }
 
 /* ==========================================
@@ -1548,7 +1467,6 @@ async function deleteQualification(
 async function createReview(
   payload
 ) {
-
   const {
     error
   } =
@@ -1563,14 +1481,12 @@ async function createReview(
   if (error) {
     throw error
   }
-
 }
 
 async function updateReview(
   reviewId,
   payload
 ) {
-
   const {
     error
   } =
@@ -1589,13 +1505,11 @@ async function updateReview(
   if (error) {
     throw error
   }
-
 }
 
 async function deleteReview(
   reviewId
 ) {
-
   const {
     error
   } =
@@ -1612,10 +1526,7 @@ async function deleteReview(
   if (error) {
     throw error
   }
-
 }
-
-
 
 /* ==========================================
    CERTIFICATION CRUD
@@ -1624,7 +1535,6 @@ async function deleteReview(
 async function createCertification(
   payload
 ) {
-
   const {
     error
   } =
@@ -1639,14 +1549,12 @@ async function createCertification(
   if (error) {
     throw error
   }
-
 }
 
 async function updateCertification(
   certificationId,
   payload
 ) {
-
   const {
     error
   } =
@@ -1665,13 +1573,11 @@ async function updateCertification(
   if (error) {
     throw error
   }
-
 }
 
 async function deleteCertification(
   certificationId
 ) {
-
   const {
     error
   } =
@@ -1688,19 +1594,14 @@ async function deleteCertification(
   if (error) {
     throw error
   }
-
 }
-
-
 
 /* ==========================================
    DELETE TEAM
 ========================================== */
 
 async function deleteStaff() {
-
   try {
-
     const staffId =
       getValue(
         'deletestaffId'
@@ -1732,9 +1633,7 @@ async function deleteStaff() {
     )
 
     await refreshTeams()
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -1745,16 +1644,13 @@ async function deleteStaff() {
         error
       )
     )
-
   }
-
 }
 /* ==========================================
    EVENT WIRING
 ========================================== */
 
 function wireEvents() {
-
   const refreshButton =
     get('btnRefreshTeams')
 
@@ -1804,7 +1700,6 @@ function wireEvents() {
       applySearch
     )
   }
-
 }
 
 /* ==========================================
@@ -1813,7 +1708,6 @@ function wireEvents() {
 async function loadCertifications(
   staffId
 ) {
-
   const {
     data,
     error
@@ -1836,42 +1730,37 @@ async function loadCertifications(
 
   certifications =
     data || []
-
 }
-
 
 function renderCertificationRow(
   certification
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  certification.certification_name
-)}
+    certification.certification_name
+  )}
 
 ${buildTextCell(
-  certification.issuing_body
-)}
+    certification.issuing_body
+  )}
 
 ${buildTextCell(
-  certification.issue_date
-)}
+    certification.issue_date
+  )}
 
 ${buildTextCell(
-  certification.expiry_date
-)}
+    certification.expiry_date
+  )}
 
 </tr>
 
 `
-
 }
 
 function renderCertificationsTable() {
-
   const tbody =
     get(
       'certificationsTableBody'
@@ -1887,11 +1776,9 @@ function renderCertificationsTable() {
         renderCertificationRow
       )
       .join('')
-
 }
 
 async function loadLookups() {
-
   const genders =
     await loadGenderLookup()
 
@@ -1980,62 +1867,59 @@ async function loadLookups() {
 
   })
 
-
-const departments =
+  const departments =
   await loadDepartmentLookup()
 
-populateSelect({
+  populateSelect({
 
-  selectId:
+    selectId:
     'departmentId',
 
-  items:
+    items:
     departments,
 
-  valueField:
+    valueField:
     'department_id',
 
-  textField:
+    textField:
     'department_name',
 
-  placeholder:
+    placeholder:
     'Select Department'
 
-})
+  })
 
-const departmentSelect =
+  const departmentSelect =
   get('departmentId')
 
-departmentSelect?.addEventListener(
-  'change',
-  async event => {
-
-    const positions =
+  departmentSelect?.addEventListener(
+    'change',
+    async event => {
+      const positions =
       await loadPositionLookupByDepartment(
         event.target.value
       )
 
-    populateSelect({
+      populateSelect({
 
-      selectId:
+        selectId:
         'positionId',
 
-      items:
+        items:
         positions,
 
-      valueField:
+        valueField:
         'position_id',
 
-      textField:
+        textField:
         'position_name',
 
-      placeholder:
+        placeholder:
         'Select Position'
 
-    })
-
-  }
-)
+      })
+    }
+  )
   const roles =
     await loadRoleLookup()
 
@@ -2058,28 +1942,28 @@ departmentSelect?.addEventListener(
 
   })
 
-await loadCountrySelect({
+  await loadCountrySelect({
 
-  selectId:
+    selectId:
     'countryId'
 
-})
+  })
 
-populateLocationChain({
+  populateLocationChain({
 
-  countryId:
+    countryId:
     'countryId',
 
-  countyId:
+    countyId:
     'countyId',
 
-  subcountyId:
+    subcountyId:
     'subcountyId',
 
-  townId:
+    townId:
     'townId'
 
-})
+  })
 }
 /* ==========================================
    ERROR HANDLING
@@ -2118,7 +2002,6 @@ window.confirmDeleteStaff =
 window.openAddTeamModal =
   openAddTeamModal
 
-
 /* ==========================================
    INITIALIZATION
 ========================================== */
@@ -2135,27 +2018,26 @@ async function initializeTeams() {
       return
     }
 
-   bindPagination({
+    bindPagination({
 
-  paginator,
+      paginator,
 
-  previousButtonId:
+      previousButtonId:
     'btnPreviousTeamPage',
 
-  nextButtonId:
+      nextButtonId:
     'btnNextTeamPage',
 
-  infoElementId:
+      infoElementId:
     'teamPaginationInfo',
 
-  onChange:
+      onChange:
     renderTeamsTable
 
-})
+    })
 
-   wireEvents()
+    wireEvents()
 
-    
     await loadLookups()
     await refreshTeams()
 

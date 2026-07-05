@@ -1,12 +1,12 @@
-﻿import {
-  setValue
+import {
+  setValue,
+  getValue
 }
-from './domService.js'
+  from './domService.js'
 
 export function populateAthleteForm(
   athlete
 ) {
-
   setValue(
     'athleteId',
     athlete.athlete_id
@@ -91,20 +91,13 @@ export function populateAthleteForm(
     'registrationDate',
     athlete.registration_date
   )
-
 }
-
-import {
-  getValue
-}
-from './domService.js'
 
 export function buildAthletePayload({
 
   townId
 
 }) {
-
   return {
 
     first_name:
@@ -160,5 +153,4 @@ export function buildAthletePayload({
       getValue('status')
 
   }
-
 }

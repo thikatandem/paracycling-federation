@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // CALCULATION SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -11,26 +11,22 @@ export function toNumber(
   value,
   defaultValue = 0
 ) {
-
   const number =
     Number(value)
 
-  return Number.isNaN(number)
-    ? defaultValue
-    : number
-
+  return Number.isNaN(number) ?
+    defaultValue :
+    number
 }
 
 export function round(
   value,
   decimals = 2
 ) {
-
   return Number(
     Number(value)
       .toFixed(decimals)
   )
-
 }
 
 // =====================================================
@@ -42,7 +38,6 @@ export function calculatePercentage(
   total,
   decimals = 2
 ) {
-
   value =
     toNumber(value)
 
@@ -50,16 +45,13 @@ export function calculatePercentage(
     toNumber(total)
 
   if (total <= 0) {
-
     return 0
-
   }
 
   return round(
     (value / total) * 100,
     decimals
   )
-
 }
 
 export function percentageText(
@@ -67,13 +59,11 @@ export function percentageText(
   total,
   decimals = 2
 ) {
-
   return `${calculatePercentage(
     value,
     total,
     decimals
   )}%`
-
 }
 
 // =====================================================
@@ -84,11 +74,8 @@ export function calculateAverage(
   values = [],
   decimals = 2
 ) {
-
   if (!values.length) {
-
     return 0
-
   }
 
   const total =
@@ -103,7 +90,6 @@ export function calculateAverage(
     total / values.length,
     decimals
   )
-
 }
 
 // =====================================================
@@ -113,14 +99,12 @@ export function calculateAverage(
 export function calculateTotal(
   values = []
 ) {
-
   return values.reduce(
     (sum, value) =>
       sum +
       toNumber(value),
     0
   )
-
 }
 
 // =====================================================
@@ -130,11 +114,8 @@ export function calculateTotal(
 export function calculateMin(
   values = []
 ) {
-
   if (!values.length) {
-
     return 0
-
   }
 
   return Math.min(
@@ -142,7 +123,6 @@ export function calculateMin(
       toNumber
     )
   )
-
 }
 
 // =====================================================
@@ -152,11 +132,8 @@ export function calculateMin(
 export function calculateMax(
   values = []
 ) {
-
   if (!values.length) {
-
     return 0
-
   }
 
   return Math.max(
@@ -164,7 +141,6 @@ export function calculateMax(
       toNumber
     )
   )
-
 }
 
 // =====================================================
@@ -174,11 +150,8 @@ export function calculateMax(
 export function calculateAge(
   dateOfBirth
 ) {
-
   if (!dateOfBirth) {
-
     return 0
-
   }
 
   const dob =
@@ -208,13 +181,10 @@ export function calculateAge(
     )
 
   ) {
-
     age--
-
   }
 
   return age
-
 }
 
 // =====================================================
@@ -225,7 +195,6 @@ export function daysBetween(
   startDate,
   endDate
 ) {
-
   const start =
     new Date(
       startDate
@@ -248,28 +217,24 @@ export function daysBetween(
       24
     )
   )
-
 }
 
 export function weeksBetween(
   startDate,
   endDate
 ) {
-
   return Math.floor(
     daysBetween(
       startDate,
       endDate
     ) / 7
   )
-
 }
 
 export function monthsBetween(
   startDate,
   endDate
 ) {
-
   const start =
     new Date(
       startDate
@@ -290,7 +255,6 @@ export function monthsBetween(
     end.getMonth() -
     start.getMonth()
   )
-
 }
 
 // =====================================================
@@ -301,14 +265,11 @@ export function durationMinutes(
   startTime,
   endTime
 ) {
-
   if (
     !startTime ||
     !endTime
   ) {
-
     return 0
-
   }
 
   const start =
@@ -328,7 +289,6 @@ export function durationMinutes(
       (1000 * 60)
     )
   )
-
 }
 
 export function durationHours(
@@ -336,7 +296,6 @@ export function durationHours(
   endTime,
   decimals = 2
 ) {
-
   return round(
 
     durationMinutes(
@@ -347,7 +306,6 @@ export function durationHours(
     decimals
 
   )
-
 }
 
 // =====================================================
@@ -363,7 +321,6 @@ export function averageSpeed(
   decimals = 2
 
 ) {
-
   distanceKm =
     toNumber(
       distanceKm
@@ -377,9 +334,7 @@ export function averageSpeed(
   if (
     durationMinutes <= 0
   ) {
-
     return 0
-
   }
 
   return round(
@@ -392,7 +347,6 @@ export function averageSpeed(
     decimals
 
   )
-
 }
 
 export function pacePerKm(
@@ -402,7 +356,6 @@ export function pacePerKm(
   durationMinutes
 
 ) {
-
   distanceKm =
     toNumber(
       distanceKm
@@ -416,9 +369,7 @@ export function pacePerKm(
   if (
     distanceKm <= 0
   ) {
-
     return 0
-
   }
 
   return round(
@@ -429,7 +380,6 @@ export function pacePerKm(
     2
 
   )
-
 }
 
 // =====================================================
@@ -445,7 +395,6 @@ export function improvementPercentage(
   decimals = 2
 
 ) {
-
   previousValue =
     toNumber(
       previousValue
@@ -459,9 +408,7 @@ export function improvementPercentage(
   if (
     previousValue <= 0
   ) {
-
     return 0
-
   }
 
   return round(
@@ -477,7 +424,6 @@ export function improvementPercentage(
     decimals
 
   )
-
 }
 
 // =====================================================
@@ -491,7 +437,6 @@ export function attendancePercentage(
   scheduled
 
 ) {
-
   return calculatePercentage(
 
     attended,
@@ -501,7 +446,6 @@ export function attendancePercentage(
     2
 
   )
-
 }
 
 // =====================================================
@@ -511,7 +455,6 @@ export function attendancePercentage(
 export function calculatePositionPoints(
   position
 ) {
-
   const pointsTable = {
 
     1: 100,
@@ -532,7 +475,6 @@ export function calculatePositionPoints(
       position
     ] || 0
   )
-
 }
 
 // =====================================================
@@ -542,11 +484,9 @@ export function calculatePositionPoints(
 export function rankingScore(
   results = []
 ) {
-
   return calculateTotal(
     results
   )
-
 }
 
 // =====================================================
@@ -562,7 +502,6 @@ export function growthRate(
   decimals = 2
 
 ) {
-
   oldValue =
     toNumber(
       oldValue
@@ -576,9 +515,7 @@ export function growthRate(
   if (
     oldValue <= 0
   ) {
-
     return 0
-
   }
 
   return round(
@@ -594,7 +531,6 @@ export function growthRate(
     decimals
 
   )
-
 }
 
 // =====================================================
@@ -612,7 +548,6 @@ export function dashboardSummary({
   trainings = []
 
 }) {
-
   return {
 
     totalAthletes:
@@ -628,10 +563,7 @@ export function dashboardSummary({
       trainings.length
 
   }
-
 }
-
-
 
 export function calculateDurationDays(
 
@@ -640,14 +572,11 @@ export function calculateDurationDays(
   endDate
 
 ) {
-
   if (
     !startDate ||
     !endDate
   ) {
-
     return 0
-
   }
 
   return daysBetween(
@@ -657,7 +586,6 @@ export function calculateDurationDays(
     endDate
 
   )
-
 }
 
 export function formatNumber(
@@ -667,15 +595,12 @@ export function formatNumber(
   decimals = 2
 
 ) {
-
   return Number(
     value || 0
   ).toFixed(
     decimals
   )
-
 }
-
 
 export function trainingMetrics({
 
@@ -686,7 +611,6 @@ export function trainingMetrics({
   endTime
 
 }) {
-
   const duration =
     durationMinutes(
       startTime,
@@ -717,9 +641,5 @@ export function trainingMetrics({
       )
 
   }
-
 }
-
-
-
 

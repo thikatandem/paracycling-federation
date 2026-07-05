@@ -1,24 +1,21 @@
-﻿import {
+import {
   getProfile
 }
-from '../../auth/authStateService.js'
+  from '../../auth/authStateService.js'
 
 import {
   supabase
 }
-from '../../supabase/supabaseClient.js'
+  from '../../supabase/supabaseClient.js'
 
 export async function getCurrentAthlete() {
-
   const profile =
     getProfile()
 
   if (
     !profile?.athlete_id
   ) {
-
     return null
-
   }
 
   const {
@@ -39,35 +36,27 @@ export async function getCurrentAthlete() {
   if (
     error
   ) {
-
     throw error
-
   }
 
   return data
-
 }
 
 export function getCurrentAthleteId() {
-
   return (
     getProfile()?.athlete_id ||
     null
   )
-
 }
 
 export async function getCurrentAthleteTeamIds() {
-
   const athleteId =
     getCurrentAthleteId()
 
   if (
     !athleteId
   ) {
-
     return []
-
   }
 
   const {
@@ -93,9 +82,7 @@ export async function getCurrentAthleteTeamIds() {
   if (
     error
   ) {
-
     throw error
-
   }
 
   return (
@@ -104,5 +91,4 @@ export async function getCurrentAthleteTeamIds() {
     row =>
       row.team_id
   )
-
 }

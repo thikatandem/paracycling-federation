@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // PAGE STATE SERVICE
 // =====================================================
 
@@ -7,43 +7,38 @@ export function createPageState({
   pageSize = 10
 
 } = {}) {
-
   return {
 
-  pageSize,
+    pageSize,
 
-  currentPage: 1,
+    currentPage: 1,
 
-  selectedId: null,
+    selectedId: null,
 
-  selectedRow: null,
+    selectedRow: null,
 
-  rows: [],
+    rows: [],
 
-  filteredRows: [],
+    filteredRows: [],
 
-  filters: {},
+    filters: {},
 
-  searchTerm: '',
+    searchTerm: '',
 
-  sortField: '',
+    sortField: '',
 
-  sortDirection: 'asc',
+    sortDirection: 'asc',
 
-  lookupCache: {},
+    lookupCache: {},
 
-  metadata: {}
+    metadata: {}
 
+  }
 }
-
-}
-
-
 
 export function resetState(
   state
 ) {
-
   state.currentPage = 1
 
   state.selectedId =
@@ -54,7 +49,6 @@ export function resetState(
   state.filteredRows = []
 
   state.filters = {}
-
 }
 
 export function setRows({
@@ -64,12 +58,10 @@ export function setRows({
   rows
 
 }) {
-
   state.rows = rows
 
   state.filteredRows =
     [...rows]
-
 }
 
 export function getPageRows({
@@ -77,7 +69,6 @@ export function getPageRows({
   state
 
 }) {
-
   const start =
     (
       state.currentPage - 1
@@ -90,7 +81,6 @@ export function getPageRows({
       start +
       state.pageSize
     )
-
 }
 
 export function setSearchTerm({
@@ -100,10 +90,8 @@ export function setSearchTerm({
   searchTerm
 
 }) {
-
   state.searchTerm =
     searchTerm || ''
-
 }
 
 export function setSelectedRow({
@@ -115,13 +103,11 @@ export function setSelectedRow({
   row
 
 }) {
-
   state.selectedId =
     id || null
 
   state.selectedRow =
     row || null
-
 }
 
 export function setSort({
@@ -133,13 +119,11 @@ export function setSort({
   direction = 'asc'
 
 }) {
-
   state.sortField =
     field || ''
 
   state.sortDirection =
     direction
-
 }
 
 export function setPage({
@@ -149,13 +133,11 @@ export function setPage({
   page
 
 }) {
-
   state.currentPage =
     Math.max(
       1,
       Number(page) || 1
     )
-
 }
 
 export function setFilter({
@@ -167,18 +149,14 @@ export function setFilter({
   value
 
 }) {
-
   state.filters[key] =
     value
-
 }
 
 export function clearFilters(
   state
 ) {
-
   state.filters = {}
-
 }
 
 export function setLookupCache({
@@ -190,10 +168,8 @@ export function setLookupCache({
   value
 
 }) {
-
   state.lookupCache[key] =
     value
-
 }
 
 export function getLookupCache({
@@ -203,12 +179,10 @@ export function getLookupCache({
   key
 
 }) {
-
   return (
     state.lookupCache[key] ||
     null
   )
-
 }
 
 export function setMetadata({
@@ -220,10 +194,8 @@ export function setMetadata({
   value
 
 }) {
-
   state.metadata[key] =
     value
-
 }
 
 export function getMetadata({
@@ -233,12 +205,9 @@ export function getMetadata({
   key
 
 }) {
-
   return (
     state.metadata[key] ||
     null
   )
-
 }
-
 

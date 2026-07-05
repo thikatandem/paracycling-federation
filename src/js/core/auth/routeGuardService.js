@@ -1,8 +1,9 @@
-﻿import {
+import {
   isAuthenticated,
-  getRole
+  getRole,
+  isInitialized
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   hasPermission,
@@ -11,23 +12,15 @@ import {
   isAdmin,
   isSystemAdmin
 }
-from './permissionService.js'
-
-import {
-  isInitialized
-}
-from './authStateService.js'
-
+  from './permissionService.js'
 
 /* ============================================================
    REDIRECT
    ============================================================ */
 
 export function redirectToLogin() {
-
   window.location.href =
     '/authentication/login.html'
-
 }
 
 /* ============================================================
@@ -35,27 +28,21 @@ export function redirectToLogin() {
    ============================================================ */
 
 export function requireAuthentication() {
-
   if (
     !isInitialized()
   ) {
-
     return false
-
   }
 
   if (
     !isAuthenticated()
   ) {
-
     redirectToLogin()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -65,7 +52,6 @@ export function requireAuthentication() {
 export function requireRole(
   roleCode
 ) {
-
   if (
     !requireAuthentication()
   ) {
@@ -79,29 +65,21 @@ export function requireRole(
     role?.role_code !==
     roleCode
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 export function preventBackNavigation() {
-
   window.addEventListener(
     'pageshow',
-    async (
-      event
-    ) => {
-
+    async event => {
       if (
         event.persisted
       ) {
-
         const {
           data
         } =
@@ -113,16 +91,11 @@ export function preventBackNavigation() {
         if (
           !data?.session
         ) {
-
           redirectToLogin()
-
         }
-
       }
-
     }
   )
-
 }
 
 /* ============================================================
@@ -132,7 +105,6 @@ export function preventBackNavigation() {
 export function requireAnyRole(
   roleCodes = []
 ) {
-
   if (
     !requireAuthentication()
   ) {
@@ -147,15 +119,12 @@ export function requireAnyRole(
       roleCode
     )
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -165,7 +134,6 @@ export function requireAnyRole(
 export function requirePermission(
   permissionCode
 ) {
-
   if (
     !requireAuthentication()
   ) {
@@ -177,15 +145,12 @@ export function requirePermission(
       permissionCode
     )
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -195,7 +160,6 @@ export function requirePermission(
 export function requireAnyPermission(
   permissionCodes = []
 ) {
-
   if (
     !requireAuthentication()
   ) {
@@ -207,15 +171,12 @@ export function requireAnyPermission(
       permissionCodes
     )
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -225,7 +186,6 @@ export function requireAnyPermission(
 export function requireAllPermissions(
   permissionCodes = []
 ) {
-
   if (
     !requireAuthentication()
   ) {
@@ -237,15 +197,12 @@ export function requireAllPermissions(
       permissionCodes
     )
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -253,7 +210,6 @@ export function requireAllPermissions(
    ============================================================ */
 
 export function requireAdmin() {
-
   if (
     !requireAuthentication()
   ) {
@@ -263,15 +219,12 @@ export function requireAdmin() {
   if (
     !isAdmin()
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -279,7 +232,6 @@ export function requireAdmin() {
    ============================================================ */
 
 export function requireSystemAdmin() {
-
   if (
     !requireAuthentication()
   ) {
@@ -289,15 +241,12 @@ export function requireSystemAdmin() {
   if (
     !isSystemAdmin()
   ) {
-
     redirectUnauthorized()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -305,10 +254,8 @@ export function requireSystemAdmin() {
    ============================================================ */
 
 export function redirectUnauthorized() {
-
   window.location.href =
     '/authentication/login.html'
-
 }
 
 /* ============================================================
@@ -318,11 +265,9 @@ export function redirectUnauthorized() {
 export function protectPage(
   permissionCode
 ) {
-
   return requirePermission(
     permissionCode
   )
-
 }
 
 /* ============================================================
@@ -332,9 +277,7 @@ export function protectPage(
 export function protectModule(
   permissionCode
 ) {
-
   return hasPermission(
     permissionCode
   )
-
 }

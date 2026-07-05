@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // ERROR EXPORT
 // ParaCycling Federation Management System
 // =====================================================
@@ -6,18 +6,18 @@
 import {
   downloadCsv
 }
-from './csvExport.js'
+  from './csvExport.js'
 
 import {
   downloadErrorWorkbook
 }
-from './excelExport.js'
+  from './excelExport.js'
 
 import {
   downloadPdfErrors,
   downloadSummaryPdf
 }
-from './pdfExport.js'
+  from './pdfExport.js'
 
 // =====================================================
 // STANDARD ERROR COLUMNS
@@ -66,7 +66,6 @@ export function buildImportSummary({
   completedAt = null
 
 }) {
-
   return {
 
     totalRows,
@@ -78,21 +77,20 @@ export function buildImportSummary({
     skippedRows,
 
     successRate:
-      totalRows > 0
-        ? (
-            (
-              successfulRows /
+      totalRows > 0 ?
+        (
+          (
+            successfulRows /
               totalRows
-            ) * 100
-          ).toFixed(2)
-        : 0,
+          ) * 100
+        ).toFixed(2) :
+        0,
 
     startedAt,
 
     completedAt
 
   }
-
 }
 
 // =====================================================
@@ -102,31 +100,23 @@ export function buildImportSummary({
 export function groupErrorsByField(
   errors = []
 ) {
-
   const grouped = {}
 
-  errors.forEach(
-    error => {
-
-      const field =
+  for (const error of errors) {
+    const field =
         error.field ||
         'Unknown'
 
-      if (
-        !grouped[field]
-      ) {
-
-        grouped[field] = 0
-
-      }
-
-      grouped[field]++
-
+    if (
+      !grouped[field]
+    ) {
+      grouped[field] = 0
     }
-  )
+
+    grouped[field]++
+  }
 
   return grouped
-
 }
 
 // =====================================================
@@ -136,31 +126,23 @@ export function groupErrorsByField(
 export function groupErrorsByMessage(
   errors = []
 ) {
-
   const grouped = {}
 
-  errors.forEach(
-    error => {
-
-      const message =
+  for (const error of errors) {
+    const message =
         error.message ||
         'Unknown Error'
 
-      if (
-        !grouped[message]
-      ) {
-
-        grouped[message] = 0
-
-      }
-
-      grouped[message]++
-
+    if (
+      !grouped[message]
+    ) {
+      grouped[message] = 0
     }
-  )
+
+    grouped[message]++
+  }
 
   return grouped
-
 }
 
 // =====================================================
@@ -172,10 +154,9 @@ export function downloadImportErrorsCsv({
   errors = [],
 
   reportName =
-    'Import Errors'
+  'Import Errors'
 
 }) {
-
   downloadCsv({
 
     data:
@@ -187,7 +168,6 @@ export function downloadImportErrorsCsv({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -199,10 +179,9 @@ export async function downloadImportErrorsExcel({
   errors = [],
 
   reportName =
-    'Import Errors'
+  'Import Errors'
 
 }) {
-
   await downloadErrorWorkbook({
 
     reportName,
@@ -210,7 +189,6 @@ export async function downloadImportErrorsExcel({
     errors
 
   })
-
 }
 
 // =====================================================
@@ -222,10 +200,9 @@ export function downloadImportErrorsPdf({
   errors = [],
 
   reportName =
-    'Import Errors'
+  'Import Errors'
 
 }) {
-
   downloadPdfErrors({
 
     reportName,
@@ -233,7 +210,6 @@ export function downloadImportErrorsPdf({
     errors
 
   })
-
 }
 
 // =====================================================
@@ -245,10 +221,9 @@ export async function downloadFullErrorPackage({
   errors = [],
 
   reportName =
-    'Import Errors'
+  'Import Errors'
 
 }) {
-
   downloadImportErrorsCsv({
 
     errors,
@@ -272,7 +247,6 @@ export async function downloadFullErrorPackage({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -284,7 +258,6 @@ export function downloadUploadSummary({
   summary
 
 }) {
-
   downloadSummaryPdf({
 
     reportName:
@@ -293,7 +266,6 @@ export function downloadUploadSummary({
     summary
 
   })
-
 }
 
 // =====================================================
@@ -305,7 +277,6 @@ export function buildDiagnostics({
   errors = []
 
 }) {
-
   return {
 
     totalErrors:
@@ -322,7 +293,6 @@ export function buildDiagnostics({
       )
 
   }
-
 }
 
 // =====================================================
@@ -342,7 +312,6 @@ export function createImportResult({
   errors = []
 
 }) {
-
   const summary =
     buildImportSummary({
 
@@ -381,7 +350,6 @@ export function createImportResult({
     errors
 
   }
-
 }
 
 // =====================================================
@@ -397,15 +365,11 @@ export function buildImportMessage({
   failedRows
 
 }) {
-
   if (
     failedRows === 0
   ) {
-
     return `Import completed successfully. ${successfulRows} records imported.`
-
   }
 
   return `Import completed with issues. ${successfulRows} imported, ${failedRows} failed out of ${totalRows} records.`
-
 }

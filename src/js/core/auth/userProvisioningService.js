@@ -1,28 +1,27 @@
-﻿import {
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
   getProfile
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   enablePortal,
   disablePortal
 }
-from './portalAccessService.js'
+  from './portalAccessService.js'
 
 import {
   recordSecurityEvent
 }
-from './securityService.js'
+  from './securityService.js'
 
 import {
   logAuditEvent
 }
-from './auditService.js'
-
-import {
-  getDb
-}
-from '../supabase/getDb.js'
+  from './auditService.js'
 
 /* ============================================================
    REQUEST TYPES
@@ -74,7 +73,6 @@ export const PROVISIONING_REQUEST_STATUS = {
 export async function getProvisioningProfile(
   profileId
 ) {
-
   const {
     data,
     error
@@ -92,11 +90,11 @@ export async function getProvisioningProfile(
       )
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return data
-
 }
 
 /* ============================================================
@@ -112,7 +110,6 @@ export async function createProvisioningRequest({
   requestNotes = null
 
 }) {
-
   await getProvisioningProfile(
     profileId
   )
@@ -146,17 +143,13 @@ export async function createProvisioningRequest({
       .maybeSingle()
 
   if (existingError) {
-
     throw existingError
-
   }
 
   if (existingRequest) {
-
     throw new Error(
       `${requestType} request already exists`
     )
-
   }
 
   const currentProfile =
@@ -189,8 +182,9 @@ export async function createProvisioningRequest({
       .select()
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   await recordSecurityEvent({
 
@@ -226,7 +220,6 @@ export async function createProvisioningRequest({
   })
 
   return data
-
 }
 
 /* ============================================================
@@ -237,7 +230,6 @@ export async function requestUserCreation(
   profileId,
   notes = null
 ) {
-
   await enablePortal(
     profileId
   )
@@ -254,7 +246,6 @@ export async function requestUserCreation(
       notes
 
   })
-
 }
 
 /* ============================================================
@@ -265,7 +256,6 @@ export async function requestPasswordReset(
   profileId,
   notes = null
 ) {
-
   return createProvisioningRequest({
 
     profileId,
@@ -278,7 +268,6 @@ export async function requestPasswordReset(
       notes
 
   })
-
 }
 
 /* ============================================================
@@ -289,7 +278,6 @@ export async function requestUserEnable(
   profileId,
   notes = null
 ) {
-
   return createProvisioningRequest({
 
     profileId,
@@ -302,7 +290,6 @@ export async function requestUserEnable(
       notes
 
   })
-
 }
 
 /* ============================================================
@@ -313,7 +300,6 @@ export async function requestUserDisable(
   profileId,
   notes = null
 ) {
-
   return createProvisioningRequest({
 
     profileId,
@@ -326,7 +312,6 @@ export async function requestUserDisable(
       notes
 
   })
-
 }
 
 /* ============================================================
@@ -337,7 +322,6 @@ export async function requestUserDeletion(
   profileId,
   notes = null
 ) {
-
   return createProvisioningRequest({
 
     profileId,
@@ -350,7 +334,6 @@ export async function requestUserDeletion(
       notes
 
   })
-
 }
 
 /* ============================================================
@@ -360,7 +343,6 @@ export async function requestUserDeletion(
 export async function loadProvisioningRequests(
   profileId
 ) {
-
   let query =
     db
       .from(
@@ -377,13 +359,11 @@ export async function loadProvisioningRequests(
       )
 
   if (profileId) {
-
     query =
       query.eq(
         'profile_id',
         profileId
       )
-
   }
 
   const {
@@ -392,11 +372,11 @@ export async function loadProvisioningRequests(
   } =
     await query
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return data || []
-
 }
 
 /* ============================================================
@@ -414,7 +394,6 @@ export async function updateRequestStatus({
   errorMessage = null
 
 }) {
-
   const currentProfile =
     getProfile()
 
@@ -453,9 +432,9 @@ export async function updateRequestStatus({
       .select()
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return data
-
 }

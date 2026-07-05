@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // MODAL SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -13,7 +13,6 @@ const modalRegistry =
 export function getModal(
   modalId
 ) {
-
   if (
     modalRegistry.has(
       modalId
@@ -44,7 +43,6 @@ export function getModal(
   )
 
   return modal
-
 }
 
 // =====================================================
@@ -54,7 +52,6 @@ export function getModal(
 export function showModal(
   modalId
 ) {
-
   const modal =
     getModal(
       modalId
@@ -67,7 +64,6 @@ export function showModal(
   modal.show()
 
   return true
-
 }
 
 // =====================================================
@@ -77,7 +73,6 @@ export function showModal(
 export function hideModal(
   modalId
 ) {
-
   const modal =
     getModal(
       modalId
@@ -90,7 +85,6 @@ export function hideModal(
   modal.hide()
 
   return true
-
 }
 
 // =====================================================
@@ -100,7 +94,6 @@ export function hideModal(
 export function toggleModal(
   modalId
 ) {
-
   const element =
     document.getElementById(
       modalId
@@ -115,21 +108,16 @@ export function toggleModal(
       'show'
     )
   ) {
-
     hideModal(
       modalId
     )
-
   } else {
-
     showModal(
       modalId
     )
-
   }
 
   return true
-
 }
 
 // =====================================================
@@ -139,7 +127,6 @@ export function toggleModal(
 export function destroyModal(
   modalId
 ) {
-
   const modal =
     modalRegistry.get(
       modalId
@@ -154,13 +141,11 @@ export function destroyModal(
   modalRegistry.delete(
     modalId
   )
-
 }
 
 export function showModalByElement(
   element
 ) {
-
   if (!element) {
     return null
   }
@@ -174,13 +159,11 @@ export function showModalByElement(
   modal.show()
 
   return modal
-
 }
 
 export function hideModalByElement(
   element
 ) {
-
   if (!element) {
     return null
   }
@@ -194,13 +177,11 @@ export function hideModalByElement(
   modal.hide()
 
   return modal
-
 }
 
 export function createModal(
   modalId
 ) {
-
   const element =
     document.getElementById(
       modalId
@@ -214,7 +195,6 @@ export function createModal(
     .getOrCreateInstance(
       element
     )
-
 }
 
 export function confirmModal({
@@ -226,7 +206,6 @@ export function confirmModal({
   confirmButtonId
 
 }) {
-
   const button =
     document.getElementById(
       confirmButtonId
@@ -236,19 +215,14 @@ export function confirmModal({
     return
   }
 
-  button.onclick =
-    async () => {
+  button.addEventListener('click', async () => {
+    await onConfirm?.()
 
-      await onConfirm?.()
-
-      hideModal(
-        modalId
-      )
-
-    }
-
+    hideModal(
+      modalId
+    )
+  })
 }
-
 
 export function openEntityModal({
 
@@ -261,14 +235,11 @@ export function openEntityModal({
   beforeOpen = null
 
 }) {
-
   if (
     typeof beforeOpen ===
       'function'
   ) {
-
     beforeOpen()
-
   }
 
   const titleElement =
@@ -277,14 +248,11 @@ export function openEntityModal({
     )
 
   if (titleElement) {
-
     titleElement.textContent =
       title
-
   }
 
   return showModal(
     modalId
   )
-
 }

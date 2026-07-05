@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // PERFORMANCE MODULE
 // ParaCycling Federation Management System
 // =====================================================
@@ -53,20 +53,13 @@ const paginationInfo =
     'paginationInfo'
   )
 function showLoading() {
-
   performanceLoading
     ?.classList.remove(
       'd-none'
     )
-
 }
 
-
-
-
-
 async function loadEvents() {
-
   const {
     data: categories,
     error: categoryError
@@ -119,11 +112,9 @@ async function loadEvents() {
 
   events =
     data || []
-
 }
 
 function filterEventsBySource() {
-
   const sourceType =
     getValue(
       'sourceType'
@@ -147,45 +138,35 @@ function filterEventsBySource() {
     sourceType ===
     'TRAINING'
   ) {
-
     categoryId =
       trainingCategoryId
-
   } else if (
     sourceType ===
     'COMPETITION'
   ) {
-
     categoryId =
       competitionCategoryId
-
   }
 
-  events
+  for (const event of events
     .filter(
       event =>
         event.event_category_id ===
         categoryId
-    )
-    .forEach(
-      event => {
-
-        select.innerHTML += `
+    )) {
+    select.innerHTML += `
           <option
             value="${event.event_id}"
           >
             ${event.event_name}
           </option>
         `
-
-      }
-    )
-
+  }
 }
+
 async function loadTrainingSources(
   eventId
 ) {
-
   const {
     data,
     error
@@ -225,12 +206,11 @@ async function loadTrainingSources(
 
   sourceRecords =
     data || []
-
 }
+
 async function loadCompetitionSources(
   eventId
 ) {
-
   const {
     data,
     error
@@ -271,12 +251,9 @@ async function loadCompetitionSources(
 
   sourceRecords =
     data || []
-
 }
 
-
 function populateSourceRecords() {
-
   const select =
     document.getElementById(
       'sourceRecordId'
@@ -294,15 +271,10 @@ function populateSourceRecords() {
       'sourceType'
     )
 
-  sourceRecords.forEach(
-    record => {
-
-      if (
-        sourceType ===
-        'TRAINING'
-      ) {
-
-        select.innerHTML += `
+  for (const record of sourceRecords) {
+    select.innerHTML += sourceType ===
+        'TRAINING' ?
+      `
           <option
             value="${record.training_id}"
           >
@@ -322,11 +294,8 @@ function populateSourceRecords() {
   record.training_date || ''
 }
           </option>
-        `
-
-      } else {
-
-        select.innerHTML += `
+        ` :
+      `
           <option
             value="${record.result_id}"
           >
@@ -347,18 +316,12 @@ function populateSourceRecords() {
 }
           </option>
         `
-
-      }
-
-    }
-  )
-
+  }
 }
 
 async function handleSourceChange() {
-
   selectedTeamId = null
-selectedParticipantId = null
+  selectedParticipantId = null
 
   setValue(
     'sourceRecordId',
@@ -371,9 +334,9 @@ selectedParticipantId = null
   )
 
   setValue(
-  'teamId',
-  ''
-)
+    'teamId',
+    ''
+  )
 
   setValue(
     'distanceKm',
@@ -404,48 +367,34 @@ selectedParticipantId = null
     getValue(
       'eventId'
     )
-if (
-  !sourceType ||
-  !eventId
-) {
-
-  sourceRecords = []
-
-  populateSourceRecords()
-
-  return
-
-}
-
-// await loadAvailableTeams(
- //  eventId
-// )
-
   if (
-    sourceType ===
-    'TRAINING'
+    !sourceType ||
+  !eventId
   ) {
+    sourceRecords = []
 
-    await loadTrainingSources(
-      eventId
-    )
+    populateSourceRecords()
 
-  } else {
-
-    await loadCompetitionSources(
-      eventId
-    )
-
+    return
   }
 
-  populateSourceRecords()
+  // await loadAvailableTeams(
+  //  eventId
+  // )
 
+  await (sourceType ===
+    'TRAINING' ?
+    loadTrainingSources(
+      eventId
+    ) :
+    loadCompetitionSources(
+      eventId
+    ))
+
+  populateSourceRecords()
 }
 
-
-
 async function loadSourceRecordDetails() {
-
   const sourceType =
     getValue(
       'sourceType'
@@ -469,11 +418,10 @@ async function loadSourceRecordDetails() {
     sourceType ===
     'TRAINING'
   ) {
-
     const {
-  data,
-  error
-} =
+      data,
+      error
+    } =
   await db
     .from('training_log')
 .select(`
@@ -510,37 +458,35 @@ async function loadSourceRecordDetails() {
 
     source = data
 
-const participantDisplay =
+    const participantDisplay =
   document.getElementById(
     'participantDisplay'
   )
 
-if (participantDisplay) {
+    if (participantDisplay) {
+      participantDisplay.value =
 
-  participantDisplay.value =
+    source.team_id ?
 
-    source.team_id
+      source.teams?.team_name || '' :
 
-      ? source.teams?.team_name || ''
+      (source.athlete_id ?
 
-      : source.athlete_id
+        `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim() :
 
-      ? `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim()
+        '')
+    }
 
-      : ''
-
-}
-
-selectedParticipantId =
+    selectedParticipantId =
   source.participant_id || null
 
-selectedTeamId =
+    selectedTeamId =
   source.team_id || null
 
-selectedParticipantInstanceId =
+    selectedParticipantInstanceId =
   source.participant_instance_id || null
 
-selectedAthleteId =
+    selectedAthleteId =
   source.athlete_id || null
 
     setValue(
@@ -552,13 +498,11 @@ selectedAthleteId =
       'maxSpeedKmh',
       ''
     )
-
   } else {
-
-  const {
-    data,
-    error
-  } =
+    const {
+      data,
+      error
+    } =
     await db
       .from('race_results')
     .select(`
@@ -594,61 +538,56 @@ selectedAthleteId =
       throw error
     }
 
-   source = data
-const participantDisplay =
+    source = data
+    const participantDisplay =
   document.getElementById(
     'participantDisplay'
   )
 
-if (participantDisplay) {
+    if (participantDisplay) {
+      participantDisplay.value =
 
-  participantDisplay.value =
+    source.team_id ?
 
-    source.team_id
+      source.teams?.team_name || '' :
 
-      ? source.teams?.team_name || ''
+      (source.athlete_id ?
 
-      : source.athlete_id
+        `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim() :
 
-      ? `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim()
+        '')
+    }
 
-      : ''
-
-}
-
-   
-selectedParticipantId =
+    selectedParticipantId =
   source.participant_id || null
 
-selectedTeamId =
+    selectedTeamId =
   source.team_id || null
-selectedParticipantInstanceId =
+    selectedParticipantInstanceId =
   source.participant_instance_id || null
 
-selectedAthleteId =
+    selectedAthleteId =
   source.athlete_id || null
 
-setValue(
-  'teamId',
-  source.team_id || ''
-)
+    setValue(
+      'teamId',
+      source.team_id || ''
+    )
 
-setValue(
-  'athleteId',
-  source.athlete_id || ''
-)
-
+    setValue(
+      'athleteId',
+      source.athlete_id || ''
+    )
 
     setValue(
       'performanceDate',
       source.competition_date
     )
-   
+
     setValue(
       'maxSpeedKmh',
       source.max_speed_kmh || ''
     )
-
   }
 
   setValue(
@@ -665,66 +604,50 @@ setValue(
     'avgSpeedKmh',
     source.avg_speed_kmh || ''
   )
-
 }
 
-
-
 function hideLoading() {
-
   performanceLoading
     ?.classList.add(
       'd-none'
     )
-
 }
 
 function showError(
   message
 ) {
-
   if (
     performanceFormError
   ) {
-
     performanceFormError.textContent =
       message
-
   }
-
 }
 
 function clearError() {
-
   if (
     performanceFormError
   ) {
-
     performanceFormError.textContent =
       ''
-
   }
-
 }
 
 function getValue(
   id
 ) {
-
   const element =
     document.getElementById(id)
 
-  return element
-    ? element.value
-    : ''
-
+  return element ?
+    element.value :
+    ''
 }
 
 function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(id)
 
@@ -736,16 +659,13 @@ function setValue(
 
   element.value =
     value === null ||
-    value === undefined
-      ? ''
-      : String(value)
-
+    value === undefined ?
+      '' :
+      String(value)
 }
 
 async function loadPerformance() {
-
   try {
-
     showLoading()
 
     const {
@@ -754,8 +674,8 @@ async function loadPerformance() {
     } =
       await db
         .from(
-  'performance'
-)
+          'performance'
+        )
 .select(`
   *,
 
@@ -803,11 +723,9 @@ async function loadPerformance() {
       [...performanceRecords]
 
     renderPerformance()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -815,16 +733,12 @@ async function loadPerformance() {
     alert(
       'Failed to load performance records'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
-function renderPerformance() {
 
+function renderPerformance() {
   if (
     !performanceTableBody
   ) {
@@ -851,7 +765,6 @@ function renderPerformance() {
   if (
     pageRows.length === 0
   ) {
-
     performanceTableBody.innerHTML =
       `
       <tr>
@@ -869,38 +782,34 @@ function renderPerformance() {
     updatePagination()
 
     return
-
   }
 
   for (
     const performance
     of pageRows
   ) {
-
     performanceTableBody.innerHTML += `
 
       <tr>
 
         <td>
           ${
-            performance.performance_date || ''
-          }
+  performance.performance_date || ''
+}
         </td>
 
         <td>
           ${
-            performance.teams
+  performance.teams
               ?.team_name || ''
-          }
+}
         </td>
         
         <td>
 
 ${
   performance.source_type ===
-  'TRAINING'
-
-    ?
+  'TRAINING' ?
 
     `${
       performance
@@ -912,9 +821,7 @@ ${
       performance
         .training_log
         ?.training_date || ''
-    }`
-
-    :
+    }` :
 
     `${
       performance
@@ -934,50 +841,50 @@ ${
 
         <td>
           ${
-            performance.distance_km || 0
-          }
+  performance.distance_km || 0
+}
         </td>
 
         <td>
           ${
-            performance.duration_minutes || 0
-          }
+  performance.duration_minutes || 0
+}
         </td>
 
         <td>
           ${
-            performance.avg_speed_kmh || 0
-          }
+  performance.avg_speed_kmh || 0
+}
         </td>
 
         <td>
           ${
-            performance.avg_heart_rate || 0
-          }
+  performance.avg_heart_rate || 0
+}
         </td>
 
         <td>
           ${
-            performance.max_heart_rate || 0
-          }
+  performance.max_heart_rate || 0
+}
         </td>
 
         <td>
           ${
-            performance.avg_cadence_rpm || 0
-          }
+  performance.avg_cadence_rpm || 0
+}
         </td>
 
         <td>
           ${
-            performance.avg_watts || 0
-          }
+  performance.avg_watts || 0
+}
         </td>
 
         <td>
           ${
-            performance.training_stress_score || 0
-          }
+  performance.training_stress_score || 0
+}
         </td>
 
         <td>
@@ -1004,10 +911,9 @@ ${
   }
 
   updatePagination()
-
 }
-function updatePagination() {
 
+function updatePagination() {
   const totalPages =
     Math.max(
       1,
@@ -1020,10 +926,8 @@ function updatePagination() {
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -1039,36 +943,30 @@ function updatePagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
-
 }
-function searchPerformance() {
 
+function searchPerformance() {
   const search =
     (
-  searchPerformanceInput?.value || ''
-)
+      searchPerformanceInput?.value || ''
+    )
       .trim()
       .toLowerCase()
 
   filteredPerformance =
-    search
-      ? performanceRecords.filter(
+    search ?
+      performanceRecords.filter(
         performance => {
-
           return (
 
             (
@@ -1076,33 +974,25 @@ function searchPerformance() {
                 ?.team_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               performance.performance_date || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             String(
               performance.distance_km || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             String(
               performance.avg_speed_kmh || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             String(
               performance.avg_watts || ''
@@ -1111,33 +1001,30 @@ function searchPerformance() {
               .includes(search)
 
           )
-
         }
-      )
-      : [...performanceRecords]
+      ) :
+      [...performanceRecords]
 
   currentPage = 1
 
   renderPerformance()
-
 }
-function clearPerformanceForm() {
 
+function clearPerformanceForm() {
   clearError()
 
   selectedTeamId = null
 
-selectedParticipantId = null
-const teamSelect =
+  selectedParticipantId = null
+  const teamSelect =
   document.getElementById(
     'teamId'
   )
 
-if (teamSelect) {
+  if (teamSelect) {
+    teamSelect.disabled = false
+  }
 
-  teamSelect.disabled = false
-
-}
   setValue(
     'performanceId',
     ''
@@ -1164,19 +1051,19 @@ if (teamSelect) {
   )
 
   setValue(
-  'teamId',
-  ''
-)
+    'teamId',
+    ''
+  )
 
-setValue(
-  'participantDisplay',
-  ''
-) 
+  setValue(
+    'participantDisplay',
+    ''
+  )
 
-setValue(
-  'athleteId',
-  ''
-)
+  setValue(
+    'athleteId',
+    ''
+  )
 
   setValue(
     'distanceKm',
@@ -1246,23 +1133,22 @@ setValue(
   sourceRecords = []
 
   populateSourceRecords()
-
 }
-function openNewPerformanceModal() {
 
+function openNewPerformanceModal() {
   clearPerformanceForm()
 
-document.getElementById(
-  'sourceType'
-).disabled = false
+  document.getElementById(
+    'sourceType'
+  ).disabled = false
 
-document.getElementById(
-  'eventId'
-).disabled = false
+  document.getElementById(
+    'eventId'
+  ).disabled = false
 
-document.getElementById(
-  'sourceRecordId'
-).disabled = false
+  document.getElementById(
+    'sourceRecordId'
+  ).disabled = false
 
   document.getElementById(
     'performanceModalTitle'
@@ -1277,13 +1163,11 @@ document.getElementById(
   if (
     !modalElement
   ) {
-
     showError(
       'performanceModal not found'
     )
 
     return
-
   }
 
   const modal =
@@ -1292,11 +1176,9 @@ document.getElementById(
     )
 
   modal.show()
-
 }
 
 function validatePerformance() {
-
   clearError()
 
   if (
@@ -1304,13 +1186,11 @@ function validatePerformance() {
       'sourceType'
     )
   ) {
-
     showError(
       'Source Type is required'
     )
 
     return false
-
   }
 
   if (
@@ -1318,13 +1198,11 @@ function validatePerformance() {
       'eventId'
     )
   ) {
-
     showError(
       'Event is required'
     )
 
     return false
-
   }
 
   if (
@@ -1332,50 +1210,41 @@ function validatePerformance() {
       'sourceRecordId'
     )
   ) {
-
     showError(
       'Source Record is required'
     )
 
     return false
-
   }
 
   if (
-  !selectedParticipantId &&
+    !selectedParticipantId &&
   !selectedTeamId
-) {
+  ) {
+    showError(
+      'Selected source record has no participant'
+    )
 
-  showError(
-    'Selected source record has no participant'
-  )
-
-  return false
-
-}
+    return false
+  }
 
   if (
     !getValue(
       'performanceDate'
     )
   ) {
-
     showError(
       'Performance Date is required'
     )
 
     return false
-
   }
 
   return true
-
 }
-  
+
 async function savePerformance() {
-
   try {
-
     if (
       !validatePerformance()
     ) {
@@ -1404,31 +1273,31 @@ async function savePerformance() {
       training_id:
         getValue(
           'sourceType'
-        ) === 'TRAINING'
-          ? getValue(
-              'sourceRecordId'
-            )
-          : null,
+        ) === 'TRAINING' ?
+          getValue(
+            'sourceRecordId'
+          ) :
+          null,
 
       result_id:
         getValue(
           'sourceType'
-        ) === 'COMPETITION'
-          ? getValue(
-              'sourceRecordId'
-            )
-          : null,
+        ) === 'COMPETITION' ?
+          getValue(
+            'sourceRecordId'
+          ) :
+          null,
 
       participant_id:
   selectedParticipantId,
 
-participant_instance_id:
+      participant_instance_id:
   selectedParticipantInstanceId,
 
-athlete_id:
+      athlete_id:
   selectedAthleteId,
 
-team_id:
+      team_id:
   selectedTeamId,
 
       performance_date:
@@ -1512,75 +1381,60 @@ team_id:
     if (
       !payload.source_type
     ) {
-
       throw new Error(
         'Source Type is required'
       )
-
     }
 
     if (
       !payload.event_id
     ) {
-
       throw new Error(
         'Event is required'
       )
-
     }
 
     if (
       payload.source_type ===
-      'TRAINING'
-      &&
+      'TRAINING' &&
       !payload.training_id
     ) {
-
       throw new Error(
         'Training Session not selected'
       )
-
     }
 
     if (
       payload.source_type ===
-      'COMPETITION'
-      &&
+      'COMPETITION' &&
       !payload.result_id
     ) {
-
       throw new Error(
         'Competition Result not selected'
       )
-
     }
 
     if (
       !payload.participant_id
     ) {
-
       throw new Error(
         'Participant not selected'
       )
-
     }
 
     if (
-  !payload.participant_instance_id
-) {
-
-  throw new Error(
-    'Participant instance is required.'
-  )
-
-}
+      !payload.participant_instance_id
+    ) {
+      throw new Error(
+        'Participant instance is required.'
+      )
+    }
 
     let error
 
     if (
       performanceId
     ) {
-
       const result =
         await db
           .from(
@@ -1596,9 +1450,7 @@ team_id:
 
       error =
         result.error
-
     } else {
-
       const result =
         await db
           .from(
@@ -1610,15 +1462,12 @@ team_id:
 
       error =
         result.error
-
     }
 
     if (
       error
     ) {
-
       throw error
-
     }
 
     await db.rpc(
@@ -1638,17 +1487,13 @@ team_id:
     if (
       modal
     ) {
-
       modal.hide()
-
     }
 
     await loadPerformance()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1657,21 +1502,15 @@ team_id:
       error.message ||
       'Failed to save performance'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
-
 
 window.editPerformance =
 function (
   performanceId
 ) {
-
   const performance =
     performanceRecords.find(
       p =>
@@ -1714,12 +1553,10 @@ function (
     performance.source_type ===
     'TRAINING'
   ) {
-
     loadTrainingSources(
       performance.event_id
     ).then(
       () => {
-
         populateSourceRecords()
 
         setValue(
@@ -1728,17 +1565,13 @@ function (
         )
 
         loadSourceRecordDetails()
-
       }
     )
-
   } else {
-
     loadCompetitionSources(
       performance.event_id
     ).then(
       () => {
-
         populateSourceRecords()
 
         setValue(
@@ -1747,10 +1580,8 @@ function (
         )
 
         loadSourceRecordDetails()
-
       }
     )
-
   }
 
   setValue(
@@ -1823,38 +1654,37 @@ function (
     performance.elevation_gain
   )
 
+  document.getElementById(
+    'sourceType'
+  ).disabled = true
 
-document.getElementById(
-  'sourceType'
-).disabled = true
+  document.getElementById(
+    'eventId'
+  ).disabled = true
 
-document.getElementById(
-  'eventId'
-).disabled = true
+  document.getElementById(
+    'sourceRecordId'
+  ).disabled = true
 
-document.getElementById(
-  'sourceRecordId'
-).disabled = true
+  document.getElementById(
+    'distanceKm'
+  ).readOnly = true
 
-document.getElementById(
-  'distanceKm'
-).readOnly = true
+  document.getElementById(
+    'durationMinutes'
+  ).readOnly = true
 
-document.getElementById(
-  'durationMinutes'
-).readOnly = true
+  document.getElementById(
+    'avgSpeedKmh'
+  ).readOnly = true
 
-document.getElementById(
-  'avgSpeedKmh'
-).readOnly = true
+  document.getElementById(
+    'maxSpeedKmh'
+  ).readOnly = true
 
-document.getElementById(
-  'maxSpeedKmh'
-).readOnly = true
-
-document.getElementById(
-  'performanceDate'
-).readOnly = true
+  document.getElementById(
+    'performanceDate'
+  ).readOnly = true
 
   const modal =
     new coreui.Modal(
@@ -1864,13 +1694,12 @@ document.getElementById(
     )
 
   modal.show()
-
 }
+
 window.confirmDeletePerformance =
 function (
   performanceId
 ) {
-
   setValue(
     'deletePerformanceId',
     performanceId
@@ -1884,12 +1713,10 @@ function (
     )
 
   modal.show()
-
 }
+
 async function deletePerformance() {
-
   try {
-
     const performanceId =
       getValue(
         'deletePerformanceId'
@@ -1943,11 +1770,9 @@ async function deletePerformance() {
     }
 
     await loadPerformance()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1956,16 +1781,13 @@ async function deletePerformance() {
       error.message ||
       'Delete failed'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
+
 function wireEvents() {
-   document
+  document
   .getElementById(
     'sourceRecordId'
   )
@@ -1981,9 +1803,8 @@ function wireEvents() {
   ?.addEventListener(
     'change',
     () => {
-
       selectedTeamId = null
-selectedParticipantId = null
+      selectedParticipantId = null
 
       sourceRecords = []
 
@@ -2003,9 +1824,9 @@ selectedParticipantId = null
       )
 
       setValue(
-  'teamId',
-  ''
-)
+        'teamId',
+        ''
+      )
 
       setValue(
         'distanceKm',
@@ -2030,11 +1851,10 @@ selectedParticipantId = null
       populateSourceRecords()
 
       filterEventsBySource()
-
     }
   )
 
-document
+  document
   .getElementById(
     'eventId'
   )
@@ -2042,8 +1862,6 @@ document
     'change',
     handleSourceChange
   )
-
- 
 
   document
     .getElementById(
@@ -2088,17 +1906,13 @@ document
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           renderPerformance()
-
         }
-
       }
     )
 
@@ -2109,7 +1923,6 @@ document
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.ceil(
             filteredPerformance.length /
@@ -2120,13 +1933,10 @@ document
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           renderPerformance()
-
         }
-
       }
     )
 
@@ -2135,42 +1945,32 @@ document
       'input',
       searchPerformance
     )
-
 }
+
 async function initializePerformance() {
-
   try {
-
     if (
       !window.supabaseClient
     ) {
-
       console.error(
         'Database client not found'
       )
 
       return
-
     }
 
-   
+    await loadEvents()
 
-await loadEvents()
-
-await loadPerformance()
+    await loadPerformance()
 
     wireEvents()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
-
   }
-
 }
 
 document.addEventListener(

@@ -1,30 +1,27 @@
-﻿import {
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
   getRole,
   getProfile,
   getPermissions,
   setPermissions
 }
-from './authStateService.js'
+  from './authStateService.js'
 
-import {
-  getDb
-}
-from '../supabase/getDb.js'
 /* ============================================================
    LOAD ROLE PERMISSIONS
    ============================================================ */
 
 export async function loadPermissions() {
-
   const role =
     getRole()
 
   if (!role?.user_role_id) {
-
     setPermissions([])
 
     return []
-
   }
 
   const roleResult =
@@ -68,7 +65,6 @@ export async function loadPermissions() {
     []
 
   if (profileId) {
-
     const userResult =
      await getDb()
         .from(
@@ -105,7 +101,6 @@ export async function loadPermissions() {
               ?.permission_code
         )
         .filter(Boolean)
-
   }
 
   const permissions =
@@ -121,16 +116,13 @@ export async function loadPermissions() {
   )
 
   return permissions
-
 }
 /* ============================================================
    RELOAD
    ============================================================ */
 
 export async function reloadPermissions() {
-
   return loadPermissions()
-
 }
 
 /* ============================================================
@@ -138,9 +130,7 @@ export async function reloadPermissions() {
    ============================================================ */
 
 export function getCurrentPermissions() {
-
   return getPermissions()
-
 }
 
 /* ============================================================
@@ -150,14 +140,12 @@ export function getCurrentPermissions() {
 export function hasPermission(
   permissionCode
 ) {
-
   const permissions =
     getPermissions()
 
   return permissions.includes(
     permissionCode
   )
-
 }
 
 /* ============================================================
@@ -167,7 +155,6 @@ export function hasPermission(
 export function hasAnyPermission(
   permissionCodes = []
 ) {
-
   const permissions =
     getPermissions()
 
@@ -177,7 +164,6 @@ export function hasAnyPermission(
         permission
       )
   )
-
 }
 
 /* ============================================================
@@ -187,7 +173,6 @@ export function hasAnyPermission(
 export function hasAllPermissions(
   permissionCodes = []
 ) {
-
   const permissions =
     getPermissions()
 
@@ -197,7 +182,6 @@ export function hasAllPermissions(
         permission
       )
   )
-
 }
 
 /* ============================================================
@@ -207,7 +191,6 @@ export function hasAllPermissions(
 export function isRole(
   roleCode
 ) {
-
   const role =
     getRole()
 
@@ -215,7 +198,6 @@ export function isRole(
     role?.role_code ===
     roleCode
   )
-
 }
 
 /* ============================================================
@@ -225,14 +207,12 @@ export function isRole(
 export function isOneOfRoles(
   roleCodes = []
 ) {
-
   const role =
     getRole()
 
   return roleCodes.includes(
     role?.role_code
   )
-
 }
 
 /* ============================================================
@@ -240,12 +220,10 @@ export function isOneOfRoles(
    ============================================================ */
 
 export function isAdmin() {
-
   return isOneOfRoles([
     'SYS_ADMIN',
     'FED_ADMIN'
   ])
-
 }
 
 /* ============================================================
@@ -253,9 +231,7 @@ export function isAdmin() {
    ============================================================ */
 
 export function isSystemAdmin() {
-
   return isRole(
     'SYS_ADMIN'
   )
-
 }

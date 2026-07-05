@@ -1,32 +1,27 @@
-﻿import {
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
   getRole,
   getModulePermissions,
   setModulePermissions
 }
-from './authStateService.js'
-import {
-  getDb
-}
-from '../supabase/getDb.js'
-
-
+  from './authStateService.js'
 
 /* ============================================================
    LOAD MODULE PERMISSIONS
    ============================================================ */
 
 export async function loadModulePermissions() {
-
   const role =
     getRole()
 
   if (!role?.user_role_id) {
+    setModulePermissions([])
 
-  setModulePermissions([])
-
-  return []
-
-}
+    return []
+  }
 
   const {
     data,
@@ -42,15 +37,15 @@ export async function loadModulePermissions() {
         role.user_role_id
       )
 
-  if (error)
+  if (error) {
     throw error
+  }
 
- setModulePermissions(
-  data || []
-)
+  setModulePermissions(
+    data || []
+  )
 
   return getModulePermissions()
-
 }
 
 /* ============================================================
@@ -58,9 +53,7 @@ export async function loadModulePermissions() {
    ============================================================ */
 
 export function getCurrentModulePermissions() {
-
   return getModulePermissions()
-
 }
 
 /* ============================================================
@@ -70,14 +63,12 @@ export function getCurrentModulePermissions() {
 export function canViewModule(
   moduleCode
 ) {
-
   return getModulePermissions().some(
     module =>
       module.module_code ===
         moduleCode &&
       module.can_view
   )
-
 }
 
 /* ============================================================
@@ -87,14 +78,12 @@ export function canViewModule(
 export function canCreateModule(
   moduleCode
 ) {
-
   return getModulePermissions().some(
     module =>
       module.module_code ===
         moduleCode &&
       module.can_create
   )
-
 }
 
 /* ============================================================
@@ -104,14 +93,12 @@ export function canCreateModule(
 export function canUpdateModule(
   moduleCode
 ) {
-
   return getModulePermissions().some(
     module =>
       module.module_code ===
         moduleCode &&
       module.can_update
   )
-
 }
 
 /* ============================================================
@@ -121,12 +108,10 @@ export function canUpdateModule(
 export function canDeleteModule(
   moduleCode
 ) {
-
   return getModulePermissions().some(
     module =>
       module.module_code ===
         moduleCode &&
       module.can_delete
   )
-
 }

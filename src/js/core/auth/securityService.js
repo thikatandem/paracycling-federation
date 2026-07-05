@@ -1,12 +1,12 @@
-﻿import {
+import {
   getProfile
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   logAuditEvent
 }
-from './auditService.js'
+  from './auditService.js'
 
 const db =
   window.supabaseClient
@@ -27,9 +27,7 @@ export async function recordSecurityEvent({
   profileId = null
 
 }) {
-
   try {
-
     const currentProfile =
       getProfile()
 
@@ -53,16 +51,12 @@ export async function recordSecurityEvent({
           navigator.userAgent
 
       })
-
   } catch (error) {
-
     console.error(
       'Security event failed',
       error
     )
-
   }
-
 }
 
 /* ============================================================
@@ -76,7 +70,6 @@ export async function recordFailedLogin({
   reason = 'INVALID_CREDENTIALS'
 
 }) {
-
   await recordSecurityEvent({
 
     profileId,
@@ -89,7 +82,6 @@ export async function recordFailedLogin({
     }
 
   })
-
 }
 
 /* ============================================================
@@ -99,7 +91,6 @@ export async function recordFailedLogin({
 export async function isAccountLocked(
   profileId
 ) {
-
   const {
     data,
     error
@@ -122,8 +113,9 @@ export async function isAccountLocked(
       .limit(1)
       .maybeSingle()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   if (!data) {
     return false
@@ -140,7 +132,6 @@ export async function isAccountLocked(
       data.locked_until
     ) > new Date()
   )
-
 }
 
 /* ============================================================
@@ -150,7 +141,6 @@ export async function isAccountLocked(
 export async function getFailedAttempts(
   profileId
 ) {
-
   const {
     data,
     error
@@ -175,14 +165,14 @@ export async function getFailedAttempts(
       .limit(1)
       .maybeSingle()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return (
     data
       ?.failed_attempts || 0
   )
-
 }
 
 /* ============================================================
@@ -192,7 +182,6 @@ export async function getFailedAttempts(
 export async function incrementFailedAttempts(
   profileId
 ) {
-
   const attempts =
     await getFailedAttempts(
       profileId
@@ -205,7 +194,6 @@ export async function incrementFailedAttempts(
     nextAttempts >=
     MAX_FAILED_ATTEMPTS
   ) {
-
     await lockAccount({
       profileId,
       reason:
@@ -228,7 +216,6 @@ export async function incrementFailedAttempts(
         nextAttempts
 
     })
-
 }
 
 /* ============================================================
@@ -242,7 +229,6 @@ export async function lockAccount({
   reason
 
 }) {
-
   const lockedUntil =
     new Date(
       Date.now() +
@@ -281,7 +267,6 @@ export async function lockAccount({
     }
 
   })
-
 }
 
 /* ============================================================
@@ -291,7 +276,6 @@ export async function lockAccount({
 export async function unlockAccount(
   profileId
 ) {
-
   await db
     .from(
       'account_lockouts'
@@ -319,7 +303,6 @@ export async function unlockAccount(
       'ACCOUNT_UNLOCK'
 
   })
-
 }
 
 /* ============================================================
@@ -329,7 +312,6 @@ export async function unlockAccount(
 export async function resetFailedAttempts(
   profileId
 ) {
-
   await db
     .from(
       'account_lockouts'
@@ -342,7 +324,6 @@ export async function resetFailedAttempts(
       failed_attempts: 0
 
     })
-
 }
 
 /* ============================================================
@@ -352,7 +333,6 @@ export async function resetFailedAttempts(
 export async function recordSuccessfulLogin(
   profileId
 ) {
-
   await resetFailedAttempts(
     profileId
   )
@@ -365,7 +345,6 @@ export async function recordSuccessfulLogin(
       'LOGIN_SUCCESS'
 
   })
-
 }
 
 /* ============================================================
@@ -375,7 +354,6 @@ export async function recordSuccessfulLogin(
 export async function recordLogout(
   profileId
 ) {
-
   await recordSecurityEvent({
 
     profileId,
@@ -384,7 +362,6 @@ export async function recordLogout(
       'LOGOUT'
 
   })
-
 }
 
 /* ============================================================
@@ -394,7 +371,6 @@ export async function recordLogout(
 export async function recordPasswordChange(
   profileId
 ) {
-
   await recordSecurityEvent({
 
     profileId,
@@ -403,7 +379,6 @@ export async function recordPasswordChange(
       'PASSWORD_CHANGE'
 
   })
-
 }
 
 /* ============================================================
@@ -419,7 +394,6 @@ export async function recordRoleChange({
   newRole
 
 }) {
-
   await recordSecurityEvent({
 
     profileId,
@@ -438,7 +412,6 @@ export async function recordRoleChange({
     }
 
   })
-
 }
 
 /* ============================================================
@@ -454,7 +427,6 @@ export async function recordPermissionChange({
   action
 
 }) {
-
   await recordSecurityEvent({
 
     profileId,
@@ -472,5 +444,4 @@ export async function recordPermissionChange({
     }
 
   })
-
 }

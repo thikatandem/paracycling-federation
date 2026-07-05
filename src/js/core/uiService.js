@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // UI SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -18,7 +18,6 @@ import {
 export function showLoading(
   elementId
 ) {
-
   const element =
     get(elementId)
 
@@ -34,7 +33,6 @@ export function showLoading(
 export function hideLoading(
   elementId
 ) {
-
   const element =
     get(elementId)
 
@@ -52,22 +50,16 @@ export function hideLoading(
 // =====================================================
 
 export function showPageLoader() {
-
   document.body.classList.add(
     'loading'
   )
-
 }
 
 export function hidePageLoader() {
-
   document.body.classList.remove(
     'loading'
   )
-
 }
-
-
 
 // =====================================================
 // INTERNAL MESSAGE ENGINE
@@ -79,7 +71,6 @@ function showMessage({
   alertClass,
   timeout
 }) {
-
   const container =
     get(containerId)
 
@@ -100,7 +91,6 @@ function showMessage({
   if (
     timeout > 0
   ) {
-
     setTimeout(
       () =>
         clearMessage(
@@ -108,11 +98,9 @@ function showMessage({
         ),
       timeout
     )
-
   }
 
   return true
-
 }
 
 // =====================================================
@@ -122,57 +110,46 @@ function showMessage({
 export function toastSuccess(
   message
 ) {
-
   console.log(
     `✅ ${message}`
   )
-
 }
 
 export function toastError(
   message
 ) {
-
   console.error(
     `❌ ${message}`
   )
-
 }
 
 export function toastWarning(
   message
 ) {
-
   console.warn(
     `⚠️ ${message}`
   )
-
 }
 
 export function toastInfo(
   message
 ) {
-
   console.info(
     `ℹ️ ${message}`
   )
-
 }
 
 // =====================================================
 // CONFIRMATIONS
 // =====================================================
 
-
 export function confirmDelete(
   itemName =
-    'record'
+  'record'
 ) {
-
   return window.confirm(
     `Delete this ${itemName}?`
   )
-
 }
 
 // =====================================================
@@ -183,34 +160,34 @@ export function notify({
   type = 'info',
   message = ''
 }) {
-
   switch (type) {
-
-    case 'success':
+    case 'success': {
       toastSuccess(
         message
       )
       break
+    }
 
-    case 'error':
+    case 'error': {
       toastError(
         message
       )
       break
+    }
 
-    case 'warning':
+    case 'warning': {
       toastWarning(
         message
       )
       break
+    }
 
-    default:
+    default: {
       toastInfo(
         message
       )
-
+    }
   }
-
 }
 
 // =====================================================
@@ -218,18 +195,15 @@ export function notify({
 // =====================================================
 
 export function scrollToTop() {
-
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
   })
-
 }
 
 export function scrollToElement(
   elementId
 ) {
-
   const element =
     get(elementId)
 
@@ -245,7 +219,6 @@ export function scrollToElement(
   })
 
   return true
-
 }
 
 // =====================================================
@@ -255,9 +228,8 @@ export function scrollToElement(
 export function showEmptyState({
   containerId,
   message =
-    'No records found.'
+  'No records found.'
 }) {
-
   setHtml(
     containerId,
     `
@@ -268,15 +240,13 @@ export function showEmptyState({
       </div>
     `
   )
-
 }
 
 export function showTableError({
   containerId,
   message =
-    'Unable to load records.'
+  'Unable to load records.'
 }) {
-
   setHtml(
     containerId,
     `
@@ -290,7 +260,6 @@ export function showTableError({
       </tr>
     `
   )
-
 }
 
 export async function confirmAction({
@@ -302,11 +271,9 @@ export async function confirmAction({
   confirmText = 'Yes'
 
 }) {
-
   if (
     window.Swal
   ) {
-
     const result =
       await Swal.fire({
 
@@ -324,13 +291,8 @@ export async function confirmAction({
       })
 
     return result.isConfirmed
-
   }
 
   return confirm(message)
-
 }
-
-
-
 

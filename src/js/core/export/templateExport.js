@@ -1,13 +1,7 @@
-﻿// =====================================================
+// =====================================================
 // TEMPLATE EXPORT
 // ParaCycling Federation Management System
 // =====================================================
-
-const ExcelJS =
-  window.ExcelJS
-
-const saveAs =
-  window.saveAs
 
 import {
   createWorkbook,
@@ -15,12 +9,16 @@ import {
   styleHeaderRow,
   hideWorksheet
 }
-from './excelExport.js'
+  from './excelExport.js'
 
 import {
   buildFileName
 }
-from './exportConstants.js'
+  from './exportConstants.js'
+
+const { ExcelJS } = window
+
+const { saveAs } = window
 
 // =====================================================
 // SAVE TEMPLATE
@@ -33,7 +31,6 @@ async function saveTemplate({
   reportName
 
 }) {
-
   const buffer =
     await workbook.xlsx.writeBuffer()
 
@@ -55,7 +52,6 @@ async function saveTemplate({
     )}.xlsx`
 
   )
-
 }
 
 // =====================================================
@@ -71,7 +67,6 @@ export function addInstructionsSheet({
   instructions = []
 
 }) {
-
   const sheet =
     workbook.addWorksheet(
       'Instructions'
@@ -83,31 +78,26 @@ export function addInstructionsSheet({
 
   sheet.addRow([])
 
-  instructions.forEach(
-    instruction => {
-
-      sheet.addRow(
-        [instruction]
-      )
-
-    }
-  )
+  for (const instruction of instructions) {
+    sheet.addRow(
+      [instruction]
+    )
+  }
 
   sheet.getRow(1)
     .font = {
 
-    bold: true,
+      bold: true,
 
-    size: 16
+      size: 16
 
-  }
+    }
 
   autoFitColumns(
     sheet
   )
 
   return sheet
-
 }
 
 // =====================================================
@@ -125,7 +115,6 @@ export function addTemplateSheet({
   sampleRows = []
 
 }) {
-
   const sheet =
     workbook.addWorksheet(
       sheetName
@@ -136,9 +125,9 @@ export function addTemplateSheet({
       column => ({
 
         header:
-          column.required
-            ? `${column.label} *`
-            : column.label,
+          column.required ?
+            `${column.label} *` :
+            column.label,
 
         key:
           column.key
@@ -146,15 +135,11 @@ export function addTemplateSheet({
       })
     )
 
-  sampleRows.forEach(
-    row => {
-
-      sheet.addRow(
-        row
-      )
-
-    }
-  )
+  for (const row of sampleRows) {
+    sheet.addRow(
+      row
+    )
+  }
 
   styleHeaderRow(
     sheet
@@ -165,7 +150,6 @@ export function addTemplateSheet({
   )
 
   return sheet
-
 }
 
 // =====================================================
@@ -183,21 +167,16 @@ export function addLookupSheet({
   hidden = true
 
 }) {
-
   const sheet =
     workbook.addWorksheet(
       sheetName
     )
 
-  values.forEach(
-    value => {
-
-      sheet.addRow(
-        [value]
-      )
-
-    }
-  )
+  for (const value of values) {
+    sheet.addRow(
+      [value]
+    )
+  }
 
   autoFitColumns(
     sheet
@@ -206,15 +185,12 @@ export function addLookupSheet({
   if (
     hidden
   ) {
-
     hideWorksheet(
       sheet
     )
-
   }
 
   return sheet
-
 }
 
 // =====================================================
@@ -232,13 +208,11 @@ export function addDropdownValidation({
   rowCount = 5000
 
 }) {
-
   for (
     let row = 2;
     row <= rowCount;
     row++
   ) {
-
     worksheet.getCell(
       `${column}${row}`
     ).dataValidation = {
@@ -256,9 +230,7 @@ export function addDropdownValidation({
       ]
 
     }
-
   }
-
 }
 
 // =====================================================
@@ -272,15 +244,12 @@ export function highlightRequiredColumns({
   requiredColumns = []
 
 }) {
-
   worksheet.getRow(1)
     .eachCell(
       (cell, index) => {
-
-        const letter =
-          worksheet.getColumn(
-            index
-          ).letter
+        const { letter } = worksheet.getColumn(
+          index
+        )
 
         if (
 
@@ -289,7 +258,6 @@ export function highlightRequiredColumns({
           )
 
         ) {
-
           cell.fill = {
 
             type:
@@ -304,12 +272,9 @@ export function highlightRequiredColumns({
             }
 
           }
-
         }
-
       }
     )
-
 }
 
 // =====================================================
@@ -331,7 +296,6 @@ export async function downloadImportTemplate({
   lookups = []
 
 }) {
-
   const workbook =
     createWorkbook(
       reportName
@@ -361,23 +325,19 @@ export async function downloadImportTemplate({
 
     })
 
-  lookups.forEach(
-    lookup => {
+  for (const lookup of lookups) {
+    addLookupSheet({
 
-      addLookupSheet({
+      workbook,
 
-        workbook,
-
-        sheetName:
+      sheetName:
           lookup.sheetName,
 
-        values:
+      values:
           lookup.values
 
-      })
-
-    }
-  )
+    })
+  }
 
   await saveTemplate({
 
@@ -387,7 +347,6 @@ export async function downloadImportTemplate({
       `${reportName}_Template`
 
   })
-
 }
 
 // =====================================================
@@ -395,7 +354,6 @@ export async function downloadImportTemplate({
 // =====================================================
 
 export async function downloadAthleteTemplate() {
-
   await downloadImportTemplate({
 
     reportName:
@@ -483,5 +441,4 @@ export async function downloadAthleteTemplate() {
     ]
 
   })
-
 }

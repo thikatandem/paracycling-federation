@@ -1,4 +1,4 @@
-﻿/* global coreui */
+/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
@@ -10,14 +10,11 @@ let currentPage = 1
 let compositionTeams = []
 let filteredCompositionTeams = []
 
-
-
 let pilots = []
 let stokers = []
 
-let compositionTeamModal = null
-let deleteCompositionTeamModal = null
-
+const compositionTeamModal = null
+const deleteCompositionTeamModal = null
 
 /* ==========================================
    DOM
@@ -234,16 +231,12 @@ function renderStokerLookup() {
   }
 }
 
-
-
 /* ==========================================
    LOAD TEAMS
 ========================================== */
 
 async function loadTeams() {
-
   try {
-
     showLoading(true)
 
     const {
@@ -293,7 +286,6 @@ async function loadTeams() {
     if (
       error
     ) {
-
       throw error
     }
 
@@ -306,11 +298,9 @@ async function loadTeams() {
       ]
 
     renderTeamsTable()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -319,9 +309,7 @@ async function loadTeams() {
       error.message ||
       'Failed to load composition teams'
     )
-
   } finally {
-
     showLoading(false)
   }
 }
@@ -340,31 +328,31 @@ function applySearch() {
       .toLowerCase()
 
   filteredCompositionTeams = term ?
-  compositionTeams.filter(
+    compositionTeams.filter(
       team => {
         const text =
           [
-  team.composition
+            team.composition
     ?.composition_name || '',
 
-  team.pilot
+            team.pilot
     ?.first_name || '',
 
-  team.pilot
+            team.pilot
     ?.last_name || '',
 
-  team.stoker
+            team.stoker
     ?.first_name || '',
 
-  team.stoker
+            team.stoker
     ?.last_name || '',
 
-  team.team_type
+            team.team_type
     ?.type_name || '',
 
-  team.composition_status
+            team.composition_status
     ?.status_name || ''
-]
+          ]
             .join(' ')
             .toLowerCase()
 
@@ -385,7 +373,6 @@ function applySearch() {
 ========================================== */
 
 function renderTeamsTable() {
-
   const tbody =
     $('teamsTableBody')
 
@@ -411,7 +398,6 @@ function renderTeamsTable() {
     const composition
     of pageRows
   ) {
-
     const row =
       document.createElement(
         'tr'
@@ -421,63 +407,63 @@ function renderTeamsTable() {
 
       <td>
         ${
-          composition
+  composition
             .composition
             ?.composition_name ||
           ''
-        }
+}
       </td>
 
       <td>
         ${
-          composition
+  composition
             .pilot
             ?.first_name || ''
-        }
+}
         ${
-          composition
+  composition
             .pilot
             ?.last_name || ''
-        }
+}
       </td>
 
       <td>
         ${
-          composition
+  composition
             .stoker
             ?.first_name || ''
-        }
+}
         ${
-          composition
+  composition
             .stoker
             ?.last_name || ''
-        }
+}
       </td>
 
       <td>
         ${
-          composition
+  composition
             .team_type
             ?.type_name ||
           ''
-        }
+}
       </td>
 
       <td>
         ${
-          composition
+  composition
             .effective_from ||
           ''
-        }
+}
       </td>
 
       <td>
         ${
-          composition
+  composition
             .composition_status
             ?.status_name ||
           ''
-        }
+}
       </td>
 
       <td>
@@ -506,6 +492,7 @@ function renderTeamsTable() {
 
   updatePagination()
 }
+
 function updatePagination() {
   const totalPages =
     Math.max(
@@ -540,6 +527,7 @@ function updatePagination() {
       currentPage >= totalPages
   }
 }
+
 function nextPage() {
   const totalPages =
     Math.ceil(
@@ -588,7 +576,6 @@ async function refreshTeams() {
 ========================================== */
 
 function openAddTeamModal() {
-
   clearForm()
 
   $('pilotAthleteId').disabled =
@@ -629,8 +616,8 @@ function validateTeam() {
   }
 
   if (!effectiveDate) {
-  return 'Effective Date is required'
-}
+    return 'Effective Date is required'
+  }
 
   return null
 }
@@ -675,7 +662,6 @@ async function saveTeam() {
    CREATE TEAM
 ========================================== */
 async function createTeam() {
-
   const pilotId =
     $('pilotAthleteId').value
 
@@ -734,15 +720,15 @@ async function createTeam() {
     .map(
       athlete =>
         athlete.first_name
-          .substring(
+          .slice(
             0,
             3
           )
     )
     .join('')
-const {
-  data: existingComposition
-} =
+  const {
+    data: existingComposition
+  } =
   await window.supabaseClient
     .from(
       'team_compositions'
@@ -765,20 +751,19 @@ const {
     )
     .maybeSingle()
 
-if (
-  existingComposition
-) {
+  if (
+    existingComposition
+  ) {
+    throw new Error(
+      'This composition already exists'
+    )
+  }
 
-  throw new Error(
-    'This composition already exists'
-  )
-}
+  let compositionTeamId
 
-let compositionTeamId
-
-const {
-  data: existingTeam
-} =
+  const {
+    data: existingTeam
+  } =
   await window.supabaseClient
     .from(
       'team_composition_master'
@@ -792,20 +777,17 @@ const {
     )
     .maybeSingle()
 
-if (
-  existingTeam
-) {
-
-  compositionTeamId =
+  if (
+    existingTeam
+  ) {
+    compositionTeamId =
     existingTeam
       .composition_team_id
-
-} else {
-
-  const {
-    data: newTeam,
-    error: teamError
-  } =
+  } else {
+    const {
+      data: newTeam,
+      error: teamError
+    } =
     await window.supabaseClient
       .from(
         'team_composition_master'
@@ -817,21 +799,20 @@ if (
       .select()
       .single()
 
-  if (
-    teamError
-  ) {
+    if (
+      teamError
+    ) {
+      throw teamError
+    }
 
-    throw teamError
-  }
-
-  compositionTeamId =
+    compositionTeamId =
     newTeam
       .composition_team_id
-}
+  }
 
-const {
-  data: activeStatus
-} =
+  const {
+    data: activeStatus
+  } =
   await window.supabaseClient
     .from(
       'team_composition_status_master'
@@ -845,9 +826,9 @@ const {
     )
     .single()
 
-const {
-  data: temporaryType
-} =
+  const {
+    data: temporaryType
+  } =
   await window.supabaseClient
     .from(
       'team_type_master'
@@ -861,9 +842,9 @@ const {
     )
     .single()
 
-const {
-  error: compositionError
-} =
+  const {
+    error: compositionError
+  } =
   await window.supabaseClient
     .from(
       'team_compositions'
@@ -901,16 +882,15 @@ const {
 
     })
 
-if (
-  compositionError
-) {
+  if (
+    compositionError
+  ) {
+    throw compositionError
+  }
 
-  throw compositionError
-}
-
-const {
-  data: participantType
-} =
+  const {
+    data: participantType
+  } =
   await window.supabaseClient
     .from(
       'participant_type_master'
@@ -924,7 +904,7 @@ const {
     )
     .single()
 
-await window.supabaseClient
+  await window.supabaseClient
   .from(
     'participant_registry'
   )
@@ -944,7 +924,6 @@ await window.supabaseClient
       true
 
   })
-
 }
 
 /* ==========================================
@@ -952,7 +931,6 @@ await window.supabaseClient
 ========================================== */
 
 async function updateTeam() {
-
   const compositionId =
     $('teamId').value
 
@@ -983,14 +961,9 @@ async function updateTeam() {
   if (
     error
   ) {
-
     throw error
   }
 }
-
-
-
-
 
 /* ==========================================
    EDIT TEAM
@@ -1000,7 +973,6 @@ async function editTeam(
   teamId
 ) {
   try {
-
     const composition =
   compositionTeams.find(
     row =>
@@ -1009,39 +981,37 @@ async function editTeam(
   )
 
     if (!composition) {
-  return
-}
+      return
+    }
 
     clearForm()
 
     const activeMembers = [
-  {
-    start_date:
+      {
+        start_date:
       composition.effective_from
-  }
-]
+      }
+    ]
 
-
-    
-   $('teamId').value =
+    $('teamId').value =
   composition.composition_id || ''
 
-$('teamName').value =
+    $('teamName').value =
   composition.composition?.composition_name || ''
 
-$('pilotAthleteId').value =
+    $('pilotAthleteId').value =
   composition.pilot_id || ''
 
-$('stokerAthleteId').value =
+    $('stokerAthleteId').value =
   composition.stoker_id || ''
 
-$('pilotAthleteId').disabled =
+    $('pilotAthleteId').disabled =
   true
 
-$('stokerAthleteId').disabled =
+    $('stokerAthleteId').disabled =
   true
 
-$('teamStatus').value =
+    $('teamStatus').value =
   composition
     .composition_status
     ?.status_name || ''
@@ -1056,10 +1026,9 @@ $('teamStatus').value =
     $('teamModalTitle').textContent =
   'Edit Composition Team'
 
-   // Composition history not implemented yet
+    // Composition history not implemented yet
 
     teamModal.show()
-
   } catch (error) {
     console.error(
       error
@@ -1089,9 +1058,7 @@ function confirmDeleteTeam(
 ========================================== */
 
 async function deleteTeam() {
-
   try {
-
     const compositionId =
       $('deleteTeamId')
         .value
@@ -1106,7 +1073,6 @@ async function deleteTeam() {
     if (
       !composition
     ) {
-
       return
     }
 
@@ -1127,14 +1093,13 @@ async function deleteTeam() {
     if (
       detailError
     ) {
-
       throw detailError
     }
 
     const {
-  data: inactiveStatus,
-  error: statusError
-} =
+      data: inactiveStatus,
+      error: statusError
+    } =
   await window
     .supabaseClient
     .from(
@@ -1149,16 +1114,15 @@ async function deleteTeam() {
     )
     .single()
 
-if (
-  statusError
-) {
+    if (
+      statusError
+    ) {
+      throw statusError
+    }
 
-  throw statusError
-}
-
-const {
-  error: masterError
-} =
+    const {
+      error: masterError
+    } =
   await window
     .supabaseClient
     .from(
@@ -1181,22 +1145,18 @@ const {
       compositionId
     )
 
-if (
-  masterError
-) {
-
-  throw masterError
-}
-
+    if (
+      masterError
+    ) {
+      throw masterError
+    }
 
     deleteTeamModal.hide()
 
     await refreshTeams()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1211,18 +1171,17 @@ if (
 ========================================== */
 
 function wireEvents() {
-
-const refreshButton =
+  const refreshButton =
   $('btnRefreshTeams')
 
-if (refreshButton) {
-  refreshButton.addEventListener(
-    'click',
-    refreshTeams
-  )
-}
+  if (refreshButton) {
+    refreshButton.addEventListener(
+      'click',
+      refreshTeams
+    )
+  }
 
-const addButton =
+  const addButton =
     $('btnAddTeam')
 
   if (addButton) {
@@ -1376,9 +1335,9 @@ async function initializeTeams() {
 
     initializeModals()
 
-wireEvents()
+    wireEvents()
 
-await refreshTeams()
+    await refreshTeams()
 
     console.log(
       'Teams module initialized'

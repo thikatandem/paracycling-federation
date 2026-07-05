@@ -1,19 +1,17 @@
-﻿// =====================================================
+// =====================================================
 // EXCEL EXPORT
 // ParaCycling Federation Management System
 // =====================================================
-
-const ExcelJS =
-  window.ExcelJS
-
-const saveAs =
-  window.saveAs
 
 import {
   buildFileName,
   EXPORT_CONFIG
 }
-from './exportConstants.js'
+  from './exportConstants.js'
+
+const { ExcelJS } = window
+
+const { saveAs } = window
 
 // =====================================================
 // WORKBOOK
@@ -22,7 +20,6 @@ from './exportConstants.js'
 export function createWorkbook(
   title = 'Report'
 ) {
-
   const workbook =
     new ExcelJS.Workbook()
 
@@ -42,7 +39,6 @@ export function createWorkbook(
     new Date()
 
   return workbook
-
 }
 
 // =====================================================
@@ -56,7 +52,6 @@ export async function saveWorkbook({
   reportName
 
 }) {
-
   const buffer =
     await workbook.xlsx.writeBuffer()
 
@@ -75,7 +70,6 @@ export async function saveWorkbook({
       reportName
     )}.xlsx`
   )
-
 }
 
 // =====================================================
@@ -85,43 +79,34 @@ export async function saveWorkbook({
 export function autoFitColumns(
   worksheet
 ) {
-
-  worksheet.columns.forEach(
-    column => {
-
-      let maxLength =
+  for (const column of worksheet.columns) {
+    let maxLength =
         15
 
-      column.eachCell(
-        {
-          includeEmpty:
+    column.eachCell(
+      {
+        includeEmpty:
             true
-        },
-        cell => {
+      },
+      cell => {
+        const { length } = String(
+          cell.value || ''
+        )
 
-          const length =
-            String(
-              cell.value || ''
-            ).length
-
-          maxLength =
+        maxLength =
             Math.max(
               maxLength,
               length + 2
             )
+      }
+    )
 
-        }
-      )
-
-      column.width =
+    column.width =
         Math.min(
           maxLength,
           50
         )
-
-    }
-  )
-
+  }
 }
 
 // =====================================================
@@ -131,7 +116,6 @@ export function autoFitColumns(
 export function styleHeaderRow(
   worksheet
 ) {
-
   const header =
     worksheet.getRow(1)
 
@@ -155,7 +139,6 @@ export function styleHeaderRow(
 
   header.eachCell(
     cell => {
-
       cell.fill = {
 
         type:
@@ -194,10 +177,8 @@ export function styleHeaderRow(
         }
 
       }
-
     }
   )
-
 }
 
 // =====================================================
@@ -207,7 +188,6 @@ export function styleHeaderRow(
 export function freezeHeader(
   worksheet
 ) {
-
   worksheet.views = [
 
     {
@@ -219,7 +199,6 @@ export function freezeHeader(
     }
 
   ]
-
 }
 
 // =====================================================
@@ -229,7 +208,6 @@ export function freezeHeader(
 export function addFilters(
   worksheet
 ) {
-
   worksheet.autoFilter = {
 
     from: 'A1',
@@ -241,7 +219,6 @@ export function addFilters(
     }
 
   }
-
 }
 
 // =====================================================
@@ -259,7 +236,6 @@ export function addWorksheet({
   columns = []
 
 }) {
-
   const worksheet =
     workbook.addWorksheet(
       sheetName
@@ -278,15 +254,11 @@ export function addWorksheet({
       })
     )
 
-  data.forEach(
-    row => {
-
-      worksheet.addRow(
-        row
-      )
-
-    }
-  )
+  for (const row of data) {
+    worksheet.addRow(
+      row
+    )
+  }
 
   styleHeaderRow(
     worksheet
@@ -305,7 +277,6 @@ export function addWorksheet({
   )
 
   return worksheet
-
 }
 
 // =====================================================
@@ -321,7 +292,6 @@ export async function downloadExcel({
   data
 
 }) {
-
   const workbook =
     createWorkbook(
       reportName
@@ -347,7 +317,6 @@ export async function downloadExcel({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -361,32 +330,27 @@ export async function downloadExcelWorkbook({
   sheets = []
 
 }) {
-
   const workbook =
     createWorkbook(
       reportName
     )
 
-  sheets.forEach(
-    sheet => {
+  for (const sheet of sheets) {
+    addWorksheet({
 
-      addWorksheet({
+      workbook,
 
-        workbook,
-
-        sheetName:
+      sheetName:
           sheet.sheetName,
 
-        columns:
+      columns:
           sheet.columns,
 
-        data:
+      data:
           sheet.data
 
-      })
-
-    }
-  )
+    })
+  }
 
   await saveWorkbook({
 
@@ -395,7 +359,6 @@ export async function downloadExcelWorkbook({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -411,7 +374,6 @@ export function addSummarySheet({
   summary = {}
 
 }) {
-
   const worksheet =
     workbook.addWorksheet(
       'Summary'
@@ -423,27 +385,22 @@ export function addSummarySheet({
 
   worksheet.addRow([])
 
-  Object.entries(
+  for (const [key, value] of Object.entries(
     summary
-  ).forEach(
-    ([key, value]) => {
-
-      worksheet.addRow(
-        [
-          key,
-          value
-        ]
-      )
-
-    }
-  )
+  )) {
+    worksheet.addRow(
+      [
+        key,
+        value
+      ]
+    )
+  }
 
   autoFitColumns(
     worksheet
   )
 
   return worksheet
-
 }
 
 // =====================================================
@@ -459,7 +416,6 @@ export async function downloadImportTemplate({
   sampleRows = []
 
 }) {
-
   const workbook =
     createWorkbook(
       reportName
@@ -487,7 +443,6 @@ export async function downloadImportTemplate({
       `${reportName}_Template`
 
   })
-
 }
 
 // =====================================================
@@ -503,28 +458,22 @@ export function addLookupSheet({
   values = []
 
 }) {
-
   const worksheet =
     workbook.addWorksheet(
       sheetName
     )
 
-  values.forEach(
-    value => {
-
-      worksheet.addRow(
-        [value]
-      )
-
-    }
-  )
+  for (const value of values) {
+    worksheet.addRow(
+      [value]
+    )
+  }
 
   autoFitColumns(
     worksheet
   )
 
   return worksheet
-
 }
 
 // =====================================================
@@ -534,10 +483,8 @@ export function addLookupSheet({
 export function hideWorksheet(
   worksheet
 ) {
-
   worksheet.state =
     'hidden'
-
 }
 
 // =====================================================
@@ -551,7 +498,6 @@ export async function downloadErrorWorkbook({
   errors = []
 
 }) {
-
   const workbook =
     createWorkbook(
       reportName
@@ -598,15 +544,11 @@ export async function downloadErrorWorkbook({
 
   ]
 
-  errors.forEach(
-    error => {
-
-      worksheet.addRow(
-        error
-      )
-
-    }
-  )
+  for (const error of errors) {
+    worksheet.addRow(
+      error
+    )
+  }
 
   styleHeaderRow(
     worksheet
@@ -624,5 +566,4 @@ export async function downloadErrorWorkbook({
       `${reportName}_Errors`
 
   })
-
 }

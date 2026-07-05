@@ -1,4 +1,4 @@
-﻿/* global coreui */
+/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 /* eslint-disable no-alert */
@@ -43,7 +43,6 @@ const $ = id =>
 function showLoading(
   show = true
 ) {
-
   const el =
     $('teamMemberLoading')
 
@@ -61,7 +60,6 @@ function setText(
   id,
   value
 ) {
-
   const el = $(id)
 
   if (!el) {
@@ -73,7 +71,6 @@ function setText(
 }
 
 function clearCloseAssignmentForm() {
-
   setText(
     'closeAssignmentError',
     ''
@@ -90,7 +87,6 @@ function clearCloseAssignmentForm() {
     $('closeAssignmentDate')
 
   if (endDate) {
-
     endDate.value =
       new Date()
         .toISOString()
@@ -122,7 +118,6 @@ function clearCloseAssignmentForm() {
 function formatDate(
   value
 ) {
-
   if (!value) {
     return ''
   }
@@ -134,7 +129,6 @@ function calculateDuration(
   startDate,
   endDate
 ) {
-
   if (!startDate) {
     return ''
   }
@@ -145,9 +139,9 @@ function calculateDuration(
     )
 
   const end =
-    endDate
-      ? new Date(endDate)
-      : new Date()
+    endDate ?
+      new Date(endDate) :
+      new Date()
 
   const diffDays =
     Math.floor(
@@ -193,12 +187,10 @@ function calculateDuration(
 function getRoleBadge(
   roleCode
 ) {
-
   if (
     roleCode ===
     'PILOT'
   ) {
-
     return `
       <span
         class="badge bg-primary"
@@ -212,7 +204,6 @@ function getRoleBadge(
     roleCode ===
     'STOKER'
   ) {
-
     return `
       <span
         class="badge bg-success"
@@ -234,16 +225,15 @@ function getRoleBadge(
 function getActiveBadge(
   active
 ) {
-
-  return active
-    ? `
+  return active ?
+    `
       <span
         class="badge bg-success"
       >
         Active
       </span>
+    ` :
     `
-    : `
       <span
         class="badge bg-secondary"
       >
@@ -257,7 +247,6 @@ function getActiveBadge(
 ========================================== */
 
 async function loadTeamsLookup() {
-
   const {
     data,
     error
@@ -284,7 +273,6 @@ async function loadTeamsLookup() {
 }
 
 function renderTeamFilter() {
-
   const select =
     $('filterTeam')
 
@@ -303,7 +291,6 @@ function renderTeamFilter() {
     const team
     of teamsLookup
   ) {
-
     const option =
       document.createElement(
         'option'
@@ -322,7 +309,6 @@ function renderTeamFilter() {
 }
 
 async function loadRolesLookup() {
-
   const {
     data,
     error
@@ -349,7 +335,6 @@ async function loadRolesLookup() {
 }
 
 function renderRoleFilter() {
-
   const select =
     $('filterRole')
 
@@ -368,7 +353,6 @@ function renderRoleFilter() {
     const role
     of rolesLookup
   ) {
-
     const option =
       document.createElement(
         'option'
@@ -391,9 +375,7 @@ function renderRoleFilter() {
 ========================================== */
 
 async function loadTeamMembers() {
-
   try {
-
     showLoading(true)
 
     const {
@@ -442,9 +424,7 @@ async function loadTeamMembers() {
       [...teamMembers]
 
     updateSummaryCards()
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -453,9 +433,7 @@ async function loadTeamMembers() {
       error.message ||
       'Failed to load team members'
     )
-
   } finally {
-
     showLoading(false)
   }
 }
@@ -465,7 +443,6 @@ async function loadTeamMembers() {
 ========================================== */
 
 function updateSummaryCards() {
-
   const totalAssignments =
     teamMembers.length
 
@@ -528,7 +505,6 @@ function updateSummaryCards() {
 ========================================== */
 
 function applyFilters() {
-
   const search =
     (
       $('searchTeamMember')
@@ -556,7 +532,6 @@ function applyFilters() {
   filteredTeamMembers =
     teamMembers.filter(
       member => {
-
         const searchable =
           [
             member.teams
@@ -582,9 +557,9 @@ function applyFilters() {
 
             member.change_reason || '',
 
-            member.membership_status_master
-              ? 'active'
-              : 'inactive'
+            member.membership_status_master ?
+              'active' :
+              'inactive'
           ]
             .join(' ')
             .toLowerCase()
@@ -653,20 +628,16 @@ function applyFilters() {
 function sortBy(
   field
 ) {
-
   if (
     currentSortField ===
     field
   ) {
-
     currentSortDirection =
       currentSortDirection ===
-      'asc'
-        ? 'desc'
-        : 'asc'
-
+      'asc' ?
+        'desc' :
+        'asc'
   } else {
-
     currentSortField =
       field
 
@@ -678,13 +649,11 @@ function sortBy(
 }
 
 function applySorting() {
-
   filteredTeamMembers.sort(
     (
       a,
       b
     ) => {
-
       let valueA = ''
 
       let valueB = ''
@@ -692,77 +661,76 @@ function applySorting() {
       switch (
         currentSortField
       ) {
-
-      case 'team_code':
-
-        valueA =
+        case 'team_code': {
+          valueA =
           a.teams
             ?.team_code || ''
 
-        valueB =
+          valueB =
           b.teams
             ?.team_code || ''
 
-        break
+          break
+        }
 
-      case 'team_name':
-
-        valueA =
+        case 'team_name': {
+          valueA =
           a.teams
             ?.team_name || ''
 
-        valueB =
+          valueB =
           b.teams
             ?.team_name || ''
 
-        break
+          break
+        }
 
-      case 'athlete_code':
-
-        valueA =
+        case 'athlete_code': {
+          valueA =
           a.athletes
             ?.athlete_code || ''
 
-        valueB =
+          valueB =
           b.athletes
             ?.athlete_code || ''
 
-        break
+          break
+        }
 
-      case 'role':
-
-        valueA =
+        case 'role': {
+          valueA =
           a.role_master
             ?.role_name || ''
 
-        valueB =
+          valueB =
           b.role_master
             ?.role_name || ''
 
-        break
+          break
+        }
 
-      case 'start_date':
-
-        valueA =
+        case 'start_date': {
+          valueA =
           a.start_date || ''
 
-        valueB =
+          valueB =
           b.start_date || ''
 
-        break
+          break
+        }
 
-      case 'end_date':
-
-        valueA =
+        case 'end_date': {
+          valueA =
           a.end_date || ''
 
-        valueB =
+          valueB =
           b.end_date || ''
 
-        break
-      case 'duration':
+          break
+        }
 
-  valueA =
+        case 'duration': {
+          valueA =
     (
       new Date(
         a.end_date ||
@@ -773,7 +741,7 @@ function applySorting() {
       )
     )
 
-  valueB =
+          valueB =
     (
       new Date(
         b.end_date ||
@@ -784,34 +752,33 @@ function applySorting() {
       )
     )
 
-  break
+          break
+        }
 
-      default:
-
-        valueA = ''
-        valueB = ''
+        default: {
+          valueA = ''
+          valueB = ''
+        }
       }
 
       if (
         valueA <
         valueB
       ) {
-
         return currentSortDirection ===
-          'asc'
-          ? -1
-          : 1
+          'asc' ?
+          -1 :
+          1
       }
 
       if (
         valueA >
         valueB
       ) {
-
         return currentSortDirection ===
-          'asc'
-          ? 1
-          : -1
+          'asc' ?
+          1 :
+          -1
       }
 
       return 0
@@ -826,7 +793,6 @@ function applySorting() {
 ========================================== */
 
 function renderTable() {
-
   const tbody =
     $('teamMembersTableBody')
 
@@ -851,7 +817,6 @@ function renderTable() {
   if (
     !pageRows.length
   ) {
-
     tbody.innerHTML = `
       <tr>
         <td
@@ -871,17 +836,16 @@ function renderTable() {
   tbody.innerHTML =
     pageRows.map(
       member => {
-
         const athleteName =
           `
             ${
-              member.athletes
+  member.athletes
                 ?.first_name || ''
-            }
+}
             ${
-              member.athletes
+  member.athletes
                 ?.last_name || ''
-            }
+}
           `
 
         return `
@@ -889,23 +853,23 @@ function renderTable() {
 
             <td>
               ${
-                member.teams
+  member.teams
                   ?.team_code || ''
-              }
+}
             </td>
 
             <td>
               ${
-                member.teams
+  member.teams
                   ?.team_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                member.athletes
+  member.athletes
                   ?.athlete_code || ''
-              }
+}
             </td>
 
             <td>
@@ -914,41 +878,41 @@ function renderTable() {
 
             <td>
               ${getRoleBadge(
-                member.role_master
+    member.role_master
                   ?.role_code
-              )}
+  )}
             </td>
 
             <td>
               ${formatDate(
-                member.start_date
-              )}
+    member.start_date
+  )}
             </td>
 
             <td>
               ${formatDate(
-                member.end_date
-              )}
+    member.end_date
+  )}
             </td>
 
             <td>
               ${calculateDuration(
-                member.start_date,
-                member.end_date
-              )}
+    member.start_date,
+    member.end_date
+  )}
             </td>
 
             <td>
               ${getActiveBadge(
-                member.membership_status_master
-              )}
+    member.membership_status_master
+  )}
             </td>
 
             <td>
   ${
-    member.change_reason ||
+  member.change_reason ||
     '-'
-  }
+}
 </td>
 
             <td>
@@ -970,8 +934,8 @@ function renderTable() {
               </button>
 
               ${
-                member.membership_status_master
-                  ? `
+  member.membership_status_master ?
+    `
                     <button
                       class="
                         btn
@@ -986,9 +950,9 @@ function renderTable() {
                     >
                       Close
                     </button>
-                  `
-                  : ''
-              }
+                  ` :
+    ''
+}
 
             </td>
 
@@ -1005,7 +969,6 @@ function renderTable() {
 ========================================== */
 
 function renderPagination() {
-
   const totalPages =
     Math.max(
       1,
@@ -1029,7 +992,6 @@ function renderPagination() {
 }
 
 function nextPage() {
-
   const totalPages =
     Math.ceil(
       filteredTeamMembers.length /
@@ -1040,7 +1002,6 @@ function nextPage() {
     currentPage <
     totalPages
   ) {
-
     currentPage++
 
     renderTable()
@@ -1048,11 +1009,9 @@ function nextPage() {
 }
 
 function previousPage() {
-
   if (
     currentPage > 1
   ) {
-
     currentPage--
 
     renderTable()
@@ -1067,9 +1026,7 @@ window.viewHistory =
 async function (
   teamId
 ) {
-
   try {
-
     showLoading(true)
 
     const {
@@ -1103,7 +1060,7 @@ async function (
         .order(
           'start_date',
           {
-            ascending:true
+            ascending: true
           }
         )
 
@@ -1149,16 +1106,16 @@ async function (
 
     setText(
       'historyPilotName',
-      pilot
-        ? `${pilot.athletes?.first_name} ${pilot.athletes?.last_name}`
-        : '-'
+      pilot ?
+        `${pilot.athletes?.first_name} ${pilot.athletes?.last_name}` :
+        '-'
     )
 
     setText(
       'historyStokerName',
-      stoker
-        ? `${stoker.athletes?.first_name} ${stoker.athletes?.last_name}`
-        : '-'
+      stoker ?
+        `${stoker.athletes?.first_name} ${stoker.athletes?.last_name}` :
+        '-'
     )
 
     const activeRecord =
@@ -1167,11 +1124,11 @@ async function (
       record.membership_status_master
   )
 
-setText(
-  'historyActiveSince',
-  activeRecord
+    setText(
+      'historyActiveSince',
+      activeRecord
     ?.start_date || '-'
-)
+    )
 
     const tbody =
       $('historyTimelineBody')
@@ -1187,35 +1144,35 @@ setText(
 
             <td>
               ${
-                row.athletes
+  row.athletes
                   ?.first_name || ''
-              }
+}
               ${
-                row.athletes
+  row.athletes
                   ?.last_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                row.role_master
+  row.role_master
                   ?.role_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                row.membership_status_master
-                  ? 'Assigned'
-                  : 'Closed'
-              }
+  row.membership_status_master ?
+    'Assigned' :
+    'Closed'
+}
             </td>
 
             <td>
               ${
-                row.change_reason ||
+  row.change_reason ||
                 ''
-              }
+}
             </td>
 
           </tr>
@@ -1223,17 +1180,13 @@ setText(
       ).join('')
 
     historyModal.show()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
       error.message
     )
-
   } finally {
-
     showLoading(false)
   }
 }
@@ -1246,7 +1199,6 @@ window.openCloseAssignment =
 function (
   teamMemberId
 ) {
-
   clearCloseAssignmentForm()
 
   $('closeAssignmentId')
@@ -1257,9 +1209,7 @@ function (
 }
 
 async function closeAssignment() {
-
   try {
-
     const id =
       $('closeAssignmentId')
         .value
@@ -1280,7 +1230,6 @@ async function closeAssignment() {
       !endDate ||
       !reason
     ) {
-
       setText(
         'closeAssignmentError',
         'End date and reason are required'
@@ -1297,8 +1246,8 @@ async function closeAssignment() {
           'team_members'
         )
         .update({
-          membership_status_master:false,
-          end_date:endDate,
+          membership_status_master: false,
+          end_date: endDate,
           change_reason:
             `${reason} - ${remarks}`
         })
@@ -1316,9 +1265,7 @@ async function closeAssignment() {
     await loadTeamMembers()
 
     applyFilters()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
@@ -1331,7 +1278,6 @@ async function closeAssignment() {
 ========================================== */
 
 function exportCsv() {
-
   const rows =
     filteredTeamMembers.map(
       row => ({
@@ -1377,14 +1323,12 @@ function exportCsv() {
 }
 
 function exportExcel() {
-
   alert(
     'Excel export phase complete'
   )
 }
 
 function printTable() {
-
   window.print()
 }
 /* ==========================================
@@ -1392,7 +1336,6 @@ function printTable() {
 ========================================== */
 
 function wireEvents() {
-
   $('searchTeamMember')
     ?.addEventListener(
       'input',
@@ -1439,7 +1382,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       async () => {
-
         await loadTeamMembers()
 
         applyFilters()
@@ -1470,24 +1412,19 @@ function wireEvents() {
       printTable
     )
 
-  document
+  for (const header of document
     .querySelectorAll(
       '.sortable'
-    )
-    .forEach(
-      header => {
-
-        header.addEventListener(
-          'click',
-          () => {
-
-            sortBy(
-              header.dataset.sort
-            )
-          }
+    )) {
+    header.addEventListener(
+      'click',
+      () => {
+        sortBy(
+          header.dataset.sort
         )
       }
     )
+  }
 }
 
 /* ==========================================
@@ -1495,7 +1432,6 @@ function wireEvents() {
 ========================================== */
 
 async function initialize() {
-
   historyModal =
     new coreui.Modal(
       $('teamMemberHistoryModal')

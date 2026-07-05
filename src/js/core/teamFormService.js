@@ -1,8 +1,8 @@
-﻿import {
+import {
   setValues,
   getValues
 }
-from './domService.js'
+  from './domService.js'
 
 export function populateTeamForm({
 
@@ -11,7 +11,6 @@ export function populateTeamForm({
   effectiveDate = ''
 
 }) {
-
   setValues({
 
     teamId:
@@ -40,11 +39,9 @@ export function populateTeamForm({
     changeReason: ''
 
   })
-
 }
 
 export function buildTeamPayload() {
-
   const values =
     getValues([
 
@@ -74,94 +71,86 @@ export function buildTeamPayload() {
       values.stokerAthleteId
 
   }
-
 }
 
 export function renderCurrentPairingRow(
   member
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  member.role_master?.role_name
-)}
+    member.role_master?.role_name
+  )}
 
 ${buildTextCell(
-  `${member.athletes?.first_name || ''} ${member.athletes?.last_name || ''}`
-)}
+    `${member.athletes?.first_name || ''} ${member.athletes?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  member.start_date
-)}
+    member.start_date
+  )}
 
 </tr>
 
 `
-
 }
 
 export function renderTeamHistoryRow(
   member
 ) {
-
   return `
 
 <tr>
 
 ${buildTextCell(
-  member.role_master?.role_name
-)}
+    member.role_master?.role_name
+  )}
 
 ${buildTextCell(
-  `${member.athletes?.first_name || ''} ${member.athletes?.last_name || ''}`
-)}
+    `${member.athletes?.first_name || ''} ${member.athletes?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  member.start_date
-)}
+    member.start_date
+  )}
 
 ${buildTextCell(
-  member.end_date
-)}
+    member.end_date
+  )}
 
 ${buildTextCell(
-  member.is_active
-    ? 'Yes'
-    : 'No'
-)}
+    member.is_active ?
+      'Yes' :
+      'No'
+  )}
 
 ${buildTextCell(
-  member.change_reason
-)}
+    member.change_reason
+  )}
 
 </tr>
 
 `
-
 }
 
 export function detectPilotChange(
   team,
   selectedPilot
 ) {
-
   return (
     team.pilot_athlete_id !==
     selectedPilot
   )
-
 }
+
 export function detectStokerChange(
   team,
   selectedStoker
 ) {
-
   return (
     team.stoker_athlete_id !==
     selectedStoker
   )
-
 }

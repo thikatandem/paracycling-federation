@@ -1,7 +1,6 @@
-﻿/* global coreui */
+/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
 
 const PAGE_SIZE = 10
 
@@ -19,7 +18,6 @@ let programs = []
 let occurrences = []
 
 let participants = []
-
 
 let attendanceStatuses = []
 
@@ -59,25 +57,20 @@ const paginationInfo =
   )
 
 function showLoading() {
-
   competitionResultLoading
     ?.classList.remove(
       'd-none'
     )
-
 }
 
 function hideLoading() {
-
   competitionResultLoading
     ?.classList.add(
       'd-none'
     )
-
 }
 
 async function loadAttendanceStatuses() {
-
   const {
     data,
     error
@@ -118,22 +111,18 @@ async function loadAttendanceStatuses() {
       </option>
     `
 
-  attendanceStatuses.forEach(
-    status => {
-
-      select.innerHTML += `
+  for (const status of attendanceStatuses) {
+    select.innerHTML += `
         <option
           value="${status.attendance_status_id}"
         >
           ${status.status_name}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function loadOutcomeStatuses() {
-
   const {
     data,
     error
@@ -174,25 +163,18 @@ async function loadOutcomeStatuses() {
       </option>
     `
 
-  outcomeStatuses.forEach(
-    status => {
-
-      select.innerHTML += `
+  for (const status of outcomeStatuses) {
+    select.innerHTML += `
         <option
           value="${status.outcome_status_id}"
         >
           ${status.status_name}
         </option>
       `
-    }
-  )
+  }
 }
 
-
-
-
 function showError(message) {
-
   if (
     !competitionResultFormError
   ) {
@@ -208,18 +190,15 @@ function showError(message) {
 
   setTimeout(
     () => {
-
       competitionResultFormError.classList.add(
         'd-none'
       )
-
     },
     5000
   )
-
 }
-function showSuccess(message) {
 
+function showSuccess(message) {
   const successBox =
     document.getElementById(
       'trainingFormSuccess'
@@ -228,7 +207,6 @@ function showSuccess(message) {
   if (
     successBox
   ) {
-
     successBox.textContent =
       message
 
@@ -238,45 +216,34 @@ function showSuccess(message) {
 
     setTimeout(
       () => {
-
         successBox.classList.add(
           'd-none'
         )
-
       },
       3000
     )
   }
-
 }
 
-
 function clearError() {
-
   if (
     competitionResultFormError
   ) {
-
     competitionResultFormError.textContent = ''
-
   }
-
 }
 
 function getValue(id) {
-
   return (
     document.getElementById(id)
       ?.value || ''
   )
-
 }
 
 function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(id)
 
@@ -286,13 +253,12 @@ function setValue(
 
   element.value =
     value === null ||
-    value === undefined
-      ? ''
-      : String(value)
-
+    value === undefined ?
+      '' :
+      String(value)
 }
-function calculateDuration() {
 
+function calculateDuration() {
   const start =
     getValue(
       'startTime'
@@ -331,7 +297,6 @@ function calculateDuration() {
   if (
     minutes >= 0
   ) {
-
     setValue(
       'durationMinutes',
       minutes
@@ -342,7 +307,6 @@ function calculateDuration() {
 }
 
 function calculateAverageSpeed() {
-
   const distance =
     Number(
       getValue(
@@ -361,7 +325,6 @@ function calculateAverageSpeed() {
     !distance ||
     !duration
   ) {
-
     setValue(
       'avgSpeedKmh',
       ''
@@ -379,12 +342,12 @@ function calculateAverageSpeed() {
     speed.toFixed(2)
   )
 }
-async function loadCompetitionEvents() {
 
- const {
-  data: category,
-  error: categoryError
-} =
+async function loadCompetitionEvents() {
+  const {
+    data: category,
+    error: categoryError
+  } =
   await db
     .from(
       'event_category_master'
@@ -398,17 +361,16 @@ async function loadCompetitionEvents() {
     )
     .single()
 
-if (
-  categoryError
-) {
+  if (
+    categoryError
+  ) {
+    throw categoryError
+  }
 
-  throw categoryError
-}
-
-const {
-  data,
-  error
-} =
+  const {
+    data,
+    error
+  } =
   await db
     .from(
       'events'
@@ -452,7 +414,6 @@ const {
     const event
     of events
   ) {
-
     select.innerHTML += `
       <option
         value="${event.event_id}"
@@ -461,12 +422,11 @@ const {
       </option>
     `
   }
-
 }
+
 async function loadPrograms(
   eventId
 ) {
-
   const {
     data,
     error
@@ -511,7 +471,6 @@ async function loadPrograms(
     const program
     of programs
   ) {
-
     select.innerHTML += `
       <option
         value="${program.program_id}"
@@ -520,13 +479,11 @@ async function loadPrograms(
       </option>
     `
   }
-
 }
 
 async function loadOccurrences(
   eventId
 ) {
-
   if (
     !eventId
   ) {
@@ -606,27 +563,21 @@ async function loadOccurrences(
       </option>
     `
 
-  occurrences.forEach(
-    occurrence => {
-
-      select.innerHTML += `
+  for (const occurrence of occurrences) {
+    select.innerHTML += `
         <option
           value="${occurrence.event_instance_id}"
         >
           ${occurrence.event_area}
         </option>
       `
-
-    }
-  )
-
+  }
 }
 
 async function loadParticipants(
-occurrenceId,  
-programId
+  occurrenceId,
+  programId
 ) {
-
   const {
     data,
     error
@@ -689,61 +640,55 @@ programId
     `
 
   for (
-  const participant
-  of participants
-) {
-
-  const selectedType =
+    const participant
+    of participants
+  ) {
+    const selectedType =
     document.querySelector(
       'input[name="competitionType"]:checked'
     )?.value
 
-  const participantType =
+    const participantType =
     participant
       .participant_registry
       ?.participant_type_master
       ?.participant_type_code
 
-  if (
-    selectedType ===
-    'TEAM'
-    &&
+    if (
+      selectedType ===
+    'TEAM' &&
     participantType !==
     'TEAM'
-  ) {
-    continue
-  }
+    ) {
+      continue
+    }
 
-  if (
-    selectedType ===
-    'INDIVIDUAL'
-    &&
+    if (
+      selectedType ===
+    'INDIVIDUAL' &&
     participantType !==
     'ATHLETE'
-  ) {
-    continue
-  }
+    ) {
+      continue
+    }
 
-  select.innerHTML += `
+    select.innerHTML += `
     <option
       value="${participant.participant_instance_id}"
     >
       ${
-        participant
+  participant
           .participant_registry
           ?.display_name || ''
-      }
+}
     </option>
   `
+  }
+
+  applyAttendanceStatusRules()
 }
-applyAttendanceStatusRules()
-}
-
-
-
 
 function applyAttendanceStatusRules() {
-
   const statusId =
   getValue(
     'attendanceStatusId'
@@ -764,9 +709,7 @@ attendanceStatuses.find(
   const metricsAllowed =
 
   attendanceCode !==
-  'ABSENT_WITH_APOLOGY'
-
-  &&
+  'ABSENT_WITH_APOLOGY' &&
 
   attendanceCode !==
   'ABSENT_WITHOUT_APOLOGY'
@@ -779,75 +722,66 @@ attendanceStatuses.find(
   if (
     distanceField
   ) {
-
     distanceField.disabled =
       !metricsAllowed
 
-document.getElementById(
-  'durationMinutes'
-).disabled =
+    document.getElementById(
+      'durationMinutes'
+    ).disabled =
   !metricsAllowed
 
-document.getElementById(
-  'startTime'
-).disabled =
+    document.getElementById(
+      'startTime'
+    ).disabled =
   !metricsAllowed
 
-document.getElementById(
-  'endTime'
-).disabled =
+    document.getElementById(
+      'endTime'
+    ).disabled =
   !metricsAllowed
 
-document.getElementById(
-  'outcomeStatusId'
-).disabled =
+    document.getElementById(
+      'outcomeStatusId'
+    ).disabled =
   !metricsAllowed
-
 
     if (
       !metricsAllowed
     ) {
+      setValue(
+        'distanceKm',
+        ''
+      )
 
       setValue(
-  'distanceKm',
-  ''
-)
+        'durationMinutes',
+        ''
+      )
 
-setValue(
-  'durationMinutes',
-  ''
-)
+      setValue(
+        'avgSpeedKmh',
+        ''
+      )
 
-setValue(
-  'avgSpeedKmh',
-  ''
-)
+      setValue(
+        'startTime',
+        ''
+      )
 
-setValue(
-  'startTime',
-  ''
-)
+      setValue(
+        'endTime',
+        ''
+      )
 
-setValue(
-  'endTime',
-  ''
-)
-
-setValue(
-  'outcomeStatusId',
-  ''
-)
-
+      setValue(
+        'outcomeStatusId',
+        ''
+      )
     }
-
   }
-
 }
 
-
-
 async function loadCounties() {
-
   const {
     data,
     error
@@ -887,26 +821,20 @@ async function loadCounties() {
     </option>
     `
 
-  counties.forEach(
-    county => {
-
-      select.innerHTML += `
+  for (const county of counties) {
+    select.innerHTML += `
         <option
           value="${county.county_id}"
         >
           ${county.county_name}
         </option>
       `
-
-    }
-  )
-
+  }
 }
 
 async function loadSubcounties(
   countyId
 ) {
-
   const {
     data,
     error
@@ -950,35 +878,28 @@ async function loadSubcounties(
     </option>
     `
 
-  subcounties.forEach(
-    subcounty => {
-
-      select.innerHTML += `
+  for (const subcounty of subcounties) {
+    select.innerHTML += `
         <option
           value="${subcounty.subcounty_id}"
         >
           ${subcounty.subcounty_name}
         </option>
       `
-
-    }
-  )
-
+  }
 }
-
 
 async function loadTowns(
   subcountyId
 ) {
-
   const {
     data,
     error
   } =
     await db
       .from(
-  'town_master'
-)
+        'town_master'
+      )
 .select(`
   town_id,
   town_name,
@@ -1010,22 +931,15 @@ async function loadTowns(
 
   datalist.innerHTML = ''
 
-  towns.forEach(
-    town => {
-
-      datalist.innerHTML += `
+  for (const town of towns) {
+    datalist.innerHTML += `
         <option value="${town.town_name}">
       `
-
-    }
-  )
-
+  }
 }
 
 async function loadcompetitionResults() {
-
   try {
-
     showLoading()
 
     const {
@@ -1103,9 +1017,7 @@ async function loadcompetitionResults() {
       [...competitionResults]
 
     rendercompetitionResults()
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -1113,17 +1025,12 @@ async function loadcompetitionResults() {
     showError(
       'Failed to load competition results'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
 
 function rendercompetitionResults() {
-
   if (
     !trainingTableBody
   ) {
@@ -1150,7 +1057,6 @@ function rendercompetitionResults() {
   if (
     pageRows.length === 0
   ) {
-
     trainingTableBody.innerHTML =
       `
       <tr>
@@ -1169,79 +1075,75 @@ function rendercompetitionResults() {
   }
 
   for (
-  const competitionResult
-  of pageRows
-) {
-
-  const type =
+    const competitionResult
+    of pageRows
+  ) {
+    const type =
     competitionResult
       .participant_instances
       ?.participant_registry
       ?.participant_type_master
       ?.participant_type_code || ''
 
-  const participantName =
+    const participantName =
     competitionResult
       .participant_instances
       ?.participant_registry
       ?.display_name || ''
 
-  const eventName =
+    const eventName =
     competitionResult
       .participant_instances
       ?.event_instances
       ?.events
       ?.event_name || ''
 
-  const occurrence =
+    const occurrence =
     competitionResult
       .participant_instances
       ?.event_instances
       ?.event_area || ''
 
-  const program =
+    const program =
     competitionResult
       .participant_instances
       ?.event_programs
       ?.program_name || ''
 
-  const attendanceStatus =
+    const attendanceStatus =
   competitionResult
     .attendance_status_master
     ?.status_code || ''
 
-const attendanceIndicator =
+    const attendanceIndicator =
 
   attendanceStatus ===
-  'ABSENT_WITH_APOLOGY'
-
-  ||
+  'ABSENT_WITH_APOLOGY' ||
 
   attendanceStatus ===
-  'ABSENT_WITHOUT_APOLOGY'
+  'ABSENT_WITHOUT_APOLOGY' ?
 
-    ? '✗'
-    : '✓'
+    '✗' :
+    '✓'
 
-const outcomeStatus =
+    const outcomeStatus =
   competitionResult
     .outcome_status_master
     ?.status_code || ''
 
-
-  const session =
+    const session =
     competitionResult.session_type || ''
 
-  const position =
+    const position =
     competitionResult.position ?? ''
 
-  const points =
+    const points =
     competitionResult.points ?? ''
 
-  const medal =
+    const medal =
     competitionResult.medal ?? ''
 
-  competitionResultTableBody.innerHTML += `
+    competitionResultTableBody.innerHTML += `
     <tr>
 
       <td>${competitionResult.competition_date || ''}</td>
@@ -1253,16 +1155,12 @@ const outcomeStatus =
       <td class="text-center">
 
   ${
-    attendanceIndicator === '✓'
+  attendanceIndicator === '✓' ?
 
-      ?
+    '<span class="text-success fw-bold">✓</span>' :
 
-      '<span class="text-success fw-bold">✓</span>'
-
-      :
-
-      '<span class="text-danger fw-bold">✗</span>'
-  }
+    '<span class="text-danger fw-bold">✗</span>'
+}
 
 </td>
 
@@ -1297,15 +1195,12 @@ const outcomeStatus =
 
     </tr>
   `
-}
+  }
 
   updatePagination()
-
 }
 
-
 function updatePagination() {
-
   const totalPages =
     Math.max(
       1,
@@ -1318,10 +1213,8 @@ function updatePagination() {
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -1337,25 +1230,19 @@ function updatePagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
-
 }
 
 function searchcompetitionResults() {
-
   const search =
     (
       searchTraining?.value || ''
@@ -1368,20 +1255,17 @@ function searchcompetitionResults() {
     search ?
 
       competitionResults.filter(
-  competitionResult => {
+        competitionResult => {
+          return (
 
-    return (
-
-      (
-        competitionResult
+            (
+              competitionResult
           .participant_instances
           ?.participant_registry
           ?.display_name || ''
-      )
+            )
         .toLowerCase()
-        .includes(search)
-
-      ||
+        .includes(search) ||
 
       (
         competitionResult
@@ -1391,9 +1275,7 @@ function searchcompetitionResults() {
           ?.event_name || ''
       )
         .toLowerCase()
-        .includes(search)
-
-      ||
+        .includes(search) ||
 
       (
         competitionResult
@@ -1402,17 +1284,13 @@ function searchcompetitionResults() {
           ?.program_name || ''
       )
         .toLowerCase()
-        .includes(search)
-
-      ||
+        .includes(search) ||
 
       (
         competitionResult.session_type || ''
       )
         .toLowerCase()
-        .includes(search)
-
-      ||
+        .includes(search) ||
 
       (
         competitionResult.notes || ''
@@ -1420,21 +1298,18 @@ function searchcompetitionResults() {
         .toLowerCase()
         .includes(search)
 
-    )
-
-  }
-)
-      :
+          )
+        }
+      ) :
 
       [...competitionResults]
 
   currentPage = 1
 
   rendercompetitionResults()
-
 }
-function clearTrainingForm() {
 
+function clearTrainingForm() {
   clearError()
 
   setValue(
@@ -1443,67 +1318,67 @@ function clearTrainingForm() {
   )
 
   setValue(
-  'eventId',
-  ''
-)
+    'eventId',
+    ''
+  )
 
-setValue(
-  'programId',
-  ''
-)
-setValue(
-  'eventInstanceId',
-  ''
-)
-setValue(
-  'participantId',
-  ''
-)
+  setValue(
+    'programId',
+    ''
+  )
+  setValue(
+    'eventInstanceId',
+    ''
+  )
+  setValue(
+    'participantId',
+    ''
+  )
 
   setValue(
     'sessionType',
     ''
   )
-  
-setValue(
-  'position',
-  ''
-)
-
-setValue(
-  'points',
-  ''
-)
-
-setValue(
-  'medal',
-  ''
-)
-
-setValue(
-  'maxSpeedKmh',
-  ''
-)
 
   setValue(
-  'startTime',
-  ''
-)
+    'position',
+    ''
+  )
 
-setValue(
-  'endTime',
-  ''
-)
+  setValue(
+    'points',
+    ''
+  )
 
-setValue(
-  'avgSpeedKmh',
-  ''
-)
+  setValue(
+    'medal',
+    ''
+  )
 
-setValue(
-  'indoorSession',
-  'false'
-)
+  setValue(
+    'maxSpeedKmh',
+    ''
+  )
+
+  setValue(
+    'startTime',
+    ''
+  )
+
+  setValue(
+    'endTime',
+    ''
+  )
+
+  setValue(
+    'avgSpeedKmh',
+    ''
+  )
+
+  setValue(
+    'indoorSession',
+    'false'
+  )
 
   setValue(
     'distanceKm',
@@ -1524,25 +1399,24 @@ setValue(
     'attendance',
     'true'
   )
-setValue(
-  'competitionWeek',
-  ''
-)
+  setValue(
+    'competitionWeek',
+    ''
+  )
 
-setValue(
-  'competitionDay',
-  ''
-)
+  setValue(
+    'competitionDay',
+    ''
+  )
   setValue(
     'competitionDate',
     new Date()
       .toISOString()
       .split('T')[0]
   )
-
 }
-function openNewTrainingModal() {
 
+function openNewTrainingModal() {
   clearTrainingForm()
 
   const modal =
@@ -1553,10 +1427,9 @@ function openNewTrainingModal() {
     )
 
   modal.show()
-
 }
-function validateTraining() {
 
+function validateTraining() {
   clearError()
 
   if (
@@ -1564,7 +1437,6 @@ function validateTraining() {
       'competitionDate'
     )
   ) {
-
     showError(
       'Competition Date is required'
     )
@@ -1573,39 +1445,34 @@ function validateTraining() {
   }
 
   if (
-  !getValue(
-    'programId'
-  )
-) {
+    !getValue(
+      'programId'
+    )
+  ) {
+    showError(
+      'Program is required'
+    )
 
-  showError(
-    'Program is required'
-  )
+    return false
+  }
 
-  return false
+  if (
+    !getValue(
+      'participantId'
+    )
+  ) {
+    showError(
+      'Participant is required'
+    )
 
-}
-
-if (
-  !getValue(
-    'participantId'
-  )
-) {
-
-  showError(
-    'Participant is required'
-  )
-
-  return false
-
-}
+    return false
+  }
 
   if (
     !getValue(
       'sessionType'
     )
   ) {
-
     showError(
       'Session Type is required'
     )
@@ -1613,20 +1480,19 @@ if (
     return false
   }
 
-
   if (
     getValue(
       'attendance'
     ) === ''
   ) {
-
     showError(
       'Attendance is required'
     )
 
     return false
   }
-const attendanceStatus =
+
+  const attendanceStatus =
   attendanceStatuses.find(
     row =>
       row.attendance_status_id ===
@@ -1635,56 +1501,48 @@ const attendanceStatus =
       )
   )
 
-const attendanceCode =
+  const attendanceCode =
   attendanceStatus
     ?.status_code
     ?.toUpperCase() || ''
 
-if (
-  attendanceCode !==
-  'ABSENT_WITH_APOLOGY'
-
-  &&
+  if (
+    attendanceCode !==
+  'ABSENT_WITH_APOLOGY' &&
 
   attendanceCode !==
   'ABSENT_WITHOUT_APOLOGY'
-) {
-
-  if (
-    !getValue(
-      'distanceKm'
-    )
   ) {
+    if (
+      !getValue(
+        'distanceKm'
+      )
+    ) {
+      showError(
+        'Distance is required'
+      )
 
-    showError(
-      'Distance is required'
-    )
+      return false
+    }
 
-    return false
+    if (
+      !getValue(
+        'durationMinutes'
+      )
+    ) {
+      showError(
+        'Duration is required'
+      )
+
+      return false
+    }
   }
 
-  if (
-    !getValue(
-      'durationMinutes'
-    )
-  ) {
-
-    showError(
-      'Duration is required'
-    )
-
-    return false
-  }
-}
   return true
-
 }
-
 
 async function saveCompetitionResult() {
-
   try {
-
     if (
       !validateTraining()
     ) {
@@ -1703,54 +1561,41 @@ async function saveCompetitionResult() {
       participantId
   )
 
-const participantType =
+    const participantType =
   participant
     ?.participant_registry
     ?.participant_type_master
     ?.participant_type_code
 
-const athleteId =
+    const athleteId =
 
   participantType ===
-  'ATHLETE'
-
-    ?
+  'ATHLETE' ?
 
     participant
       ?.participant_registry
-      ?.source_id
-
-    :
+      ?.source_id :
 
     null
 
-const teamId =
+    const teamId =
 
   participantType ===
-  'TEAM'
-
-    ?
+  'TEAM' ?
 
     participant
       ?.participant_registry
-      ?.source_id
-
-    :
+      ?.source_id :
 
     null
 
     if (
       !participant
     ) {
-
       throw new Error(
         'Please select a valid participant'
       )
-
     }
-
-    
-      
 
     const attendanceStatus =
   attendanceStatuses.find(
@@ -1761,24 +1606,18 @@ const teamId =
       )
   )
 
-
-
-const attendanceCode =
+    const attendanceCode =
   attendanceStatus
     ?.status_code
     ?.toUpperCase() || ''
 
-const metricsAllowed =
+    const metricsAllowed =
 
   attendanceCode !==
-  'ABSENT_WITH_APOLOGY'
-
-  &&
+  'ABSENT_WITH_APOLOGY' &&
 
   attendanceCode !==
   'ABSENT_WITHOUT_APOLOGY'
-
-    
 
     const occurrence =
   occurrences.find(
@@ -1789,17 +1628,13 @@ const metricsAllowed =
       )
   )
 
-if (
-  !occurrence
-) {
-
-  throw new Error(
-    'Occurrence not found'
-  )
-
-}
-
- 
+    if (
+      !occurrence
+    ) {
+      throw new Error(
+        'Occurrence not found'
+      )
+    }
 
     const payload = {
 
@@ -1833,17 +1668,13 @@ if (
 
       avg_speed_kmh:
 
-        metricsAllowed
-
-          ?
+        metricsAllowed ?
 
           Number(
             getValue(
               'avgSpeedKmh'
             )
-          )
-
-          :
+          ) :
 
           null,
 
@@ -1861,28 +1692,28 @@ if (
   participant
     ?.participant_instance_id || null,
 
-event_id:
+      event_id:
   getValue(
     'eventId'
   ),
 
-event_instance_id:
+      event_instance_id:
   getValue(
     'eventInstanceId'
   ),
 
-program_id:
+      program_id:
   getValue(
     'programId'
   ),
 
-team_id:
+      team_id:
   teamId,
 
-athlete_id:
+      athlete_id:
   athleteId,
 
-     participant_source_id:
+      participant_source_id:
 
   participant
     ?.participant_registry
@@ -1893,55 +1724,45 @@ athlete_id:
           'sessionType'
         ),
 
-     distance_km:
+      distance_km:
 
-  metricsAllowed
-
-    ?
+  metricsAllowed ?
 
     Number(
       getValue(
         'distanceKm'
       )
-    )
-
-    :
+    ) :
 
     null,
 
-duration_minutes:
+      duration_minutes:
 
-  metricsAllowed
-
-    ?
+  metricsAllowed ?
 
     Number(
       getValue(
         'durationMinutes'
       )
-    )
-
-    :
+    ) :
 
     null,
 
-position:
+      position:
   Number(
     getValue(
       'position'
     )
   ) || null,
 
-points:
+      points:
   Number(
     getValue(
       'points'
     )
   ) || 0,
 
-
-
-max_speed_kmh:
+      max_speed_kmh:
   Number(
     getValue(
       'maxSpeedKmh'
@@ -1950,22 +1771,18 @@ max_speed_kmh:
 
       attendance: true,
 
-attendance_status_id:
+      attendance_status_id:
   getValue(
     'attendanceStatusId'
   ) || null,
 
-outcome_status_id:
+      outcome_status_id:
 
-  metricsAllowed
-
-    ?
+  metricsAllowed ?
 
     getValue(
       'outcomeStatusId'
-    ) || null
-
-    :
+    ) || null :
 
     null,
 
@@ -1981,28 +1798,26 @@ outcome_status_id:
         'resultId'
       )
 
+    console.log(
+      'RACE RESULTS PAYLOAD'
+    )
 
-console.log(
-  'RACE RESULTS PAYLOAD'
-)
+    console.table(
+      payload
+    )
 
-console.table(
-  payload
-)
+    console.log(
+      'PARTICIPANT'
+    )
 
-console.log(
-  'PARTICIPANT'
-)
-
-console.log(
-  participant
-)
+    console.log(
+      participant
+    )
     let error
 
     if (
       resultId
     ) {
-
       const response =
         await db
           .from(
@@ -2018,9 +1833,7 @@ console.log(
 
       error =
         response.error
-
     } else {
-
       const response =
         await db
           .from(
@@ -2032,7 +1845,6 @@ console.log(
 
       error =
         response.error
-
     }
 
     if (
@@ -2056,57 +1868,53 @@ console.log(
     await loadcompetitionResults()
 
     showSuccess(
-      resultId
-  ? 'Competition Result Updated'
-  : 'Competition Result Saved'
+      resultId ?
+        'Competition Result Updated' :
+        'Competition Result Saved'
     )
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
 
     console.error(
-  'RACE RESULT SAVE',
-  error
-)
+      'RACE RESULT SAVE',
+      error
+    )
 
-console.log(
-  'MESSAGE',
-  error.message
-)
+    console.log(
+      'MESSAGE',
+      error.message
+    )
 
-console.log(
-  'DETAILS',
-  error.details
-)
+    console.log(
+      'DETAILS',
+      error.details
+    )
 
-console.log(
-  'HINT',
-  error.hint
-)
+    console.log(
+      'HINT',
+      error.hint
+    )
 
-console.log(
-  'CODE',
-  error.code
-)
+    console.log(
+      'CODE',
+      error.code
+    )
 
-showError(
-  error.message ||
+    showError(
+      error.message ||
   'Save failed'
-)
-
+    )
   }
-
 }
+
 window.editCompetitionResult =
 async function (
   resultId
 ) {
-
   const competitionResult =
     competitionResults.find(
       item =>
@@ -2178,40 +1986,34 @@ async function (
   if (
     participantType === 'TEAM'
   ) {
-
     document.getElementById(
       'competitionTypeTeam'
     ).checked = true
-
   } else {
-
     document.getElementById(
       'competitionTypeIndividual'
     ).checked = true
-
   }
 
   setValue(
-  'participantId',
-  competitionResult
+    'participantId',
+    competitionResult
     .participant_instance_id
-)
-
-  
+  )
 
   setValue(
-  'attendanceStatusId',
-  competitionResult
+    'attendanceStatusId',
+    competitionResult
     .attendance_status_id || ''
-)
+  )
 
-setValue(
-  'outcomeStatusId',
-  competitionResult
+  setValue(
+    'outcomeStatusId',
+    competitionResult
     .outcome_status_id || ''
-)
+  )
 
-applyAttendanceStatusRules()
+  applyAttendanceStatusRules()
 
   setValue(
     'startTime',
@@ -2230,9 +2032,9 @@ applyAttendanceStatusRules()
 
   setValue(
     'indoorSession',
-    competitionResult.indoor_session
-      ? 'true'
-      : 'false'
+    competitionResult.indoor_session ?
+      'true' :
+      'false'
   )
 
   setValue(
@@ -2282,9 +2084,9 @@ applyAttendanceStatusRules()
 
   setValue(
     'attendance',
-    competitionResult.attendance
-      ? 'true'
-      : 'false'
+    competitionResult.attendance ?
+      'true' :
+      'false'
   )
 
   setValue(
@@ -2300,14 +2102,12 @@ applyAttendanceStatusRules()
     )
 
   modal.show()
-
 }
-  
+
 window.confirmdeleteCompetitionResult =
 function (
   resultId
 ) {
-
   setValue(
     'deleteresultId',
     resultId
@@ -2321,13 +2121,11 @@ function (
     )
 
   modal.show()
-
 }
 
 function getMedal(
   position
 ) {
-
   const pos =
     Number(position)
 
@@ -2344,7 +2142,6 @@ function getMedal(
   }
 
   return ''
-
 }
 
 document
@@ -2354,21 +2151,17 @@ document
   ?.addEventListener(
     'input',
     e => {
-
       setValue(
         'medal',
         getMedal(
           e.target.value
         )
       )
-
     }
   )
 
 async function deleteCompetitionResult() {
-
   try {
-
     const resultId =
       getValue(
         'deleteresultId'
@@ -2407,24 +2200,20 @@ async function deleteCompetitionResult() {
       ?.hide()
 
     await loadcompetitionResults()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
 
     showError(
-  error.message
-)
-
+      error.message
+    )
   }
-
 }
-function wireEvents() {
 
+function wireEvents() {
   document
   .getElementById(
     'attendanceStatusId'
@@ -2434,14 +2223,13 @@ function wireEvents() {
     applyAttendanceStatusRules
   )
 
-document
+  document
     .getElementById(
       'eventInstanceId'
     )
     ?.addEventListener(
       'change',
       async () => {
-
         const occurrenceId =
           getValue(
             'eventInstanceId'
@@ -2471,12 +2259,10 @@ document
         if (
           occurrence.program_id
         ) {
-
           setValue(
             'programId',
             occurrence.program_id
           )
-
         }
 
         // Date & Time
@@ -2522,13 +2308,13 @@ document
             .town_master
             ?.town_name || ''
         )
-  setValue(
-  'sessionType',
-  occurrence
+        setValue(
+          'sessionType',
+          occurrence
     ?.events
     ?.event_type_master
     ?.event_type_name || ''
-)
+        )
         // Duration
 
         calculateDuration()
@@ -2569,9 +2355,6 @@ document
         )
 
         // Participants
-
-        
-
       }
     )
 
@@ -2582,7 +2365,6 @@ document
     ?.addEventListener(
       'change',
       e => {
-
         const date =
           new Date(
             e.target.value
@@ -2621,7 +2403,6 @@ document
           'competitionWeek',
           `${monthName} Week ${weekNumber} ${year}`
         )
-
       }
     )
 
@@ -2632,7 +2413,6 @@ document
     ?.addEventListener(
       'change',
       async e => {
-
         setValue(
           'subcountyId',
           ''
@@ -2641,7 +2421,6 @@ document
         await loadSubcounties(
           e.target.value
         )
-
       }
     )
 
@@ -2652,11 +2431,9 @@ document
     ?.addEventListener(
       'change',
       async e => {
-
         await loadTowns(
           e.target.value
         )
-
       }
     )
 
@@ -2712,7 +2489,6 @@ document
     ?.addEventListener(
       'change',
       async e => {
-
         setValue(
           'programId',
           ''
@@ -2736,7 +2512,6 @@ document
             e.target.value
           )
         ])
-
       }
     )
 
@@ -2747,7 +2522,6 @@ document
     ?.addEventListener(
       'change',
       async e => {
-
         const occurrenceId =
           getValue(
             'eventInstanceId'
@@ -2768,7 +2542,6 @@ document
           occurrenceId,
           e.target.value
         )
-
       }
     )
 
@@ -2779,7 +2552,6 @@ document
     ?.addEventListener(
       'change',
       async () => {
-
         const occurrenceId =
           getValue(
             'eventInstanceId'
@@ -2794,14 +2566,11 @@ document
           occurrenceId &&
           programId
         ) {
-
           await loadParticipants(
             occurrenceId,
             programId
           )
-
         }
-
       }
     )
 
@@ -2812,7 +2581,6 @@ document
     ?.addEventListener(
       'change',
       async () => {
-
         const occurrenceId =
           getValue(
             'eventInstanceId'
@@ -2827,14 +2595,11 @@ document
           occurrenceId &&
           programId
         ) {
-
           await loadParticipants(
             occurrenceId,
             programId
           )
-
         }
-
       }
     )
 
@@ -2869,17 +2634,13 @@ document
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           rendercompetitionResults()
-
         }
-
       }
     )
 
@@ -2890,7 +2651,6 @@ document
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.max(
             1,
@@ -2904,51 +2664,40 @@ document
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           rendercompetitionResults()
-
         }
-
       }
     )
-
 }
+
 async function initializecompetitionResults() {
-
   try {
-
     await loadCompetitionEvents()
 
-await loadCounties()
+    await loadCounties()
 
+    await loadAttendanceStatuses()
 
+    await loadOutcomeStatuses()
 
-await loadAttendanceStatuses()
-
-await loadOutcomeStatuses()
-
-await loadcompetitionResults()
-    
+    await loadcompetitionResults()
 
     wireEvents()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
 
     showError(
-  error.message
-)
-
+      error.message
+    )
   }
-
 }
+
 document
   .getElementById('startTime')
   ?.addEventListener(

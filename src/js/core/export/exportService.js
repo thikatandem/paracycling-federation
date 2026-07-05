@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // EXPORT SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -22,9 +22,7 @@ export {
   downloadImportErrors
 
 }
-from './csvExport.js'
-
-
+  from './csvExport.js'
 
 // =====================================================
 // EXCEL
@@ -45,7 +43,7 @@ export {
   addSummarySheet
 
 }
-from './excelExport.js'
+  from './excelExport.js'
 
 // =====================================================
 // PDF
@@ -70,7 +68,7 @@ export {
   downloadRaceResultsPdf
 
 }
-from './pdfExport.js'
+  from './pdfExport.js'
 // =====================================================
 // TEMPLATES
 // =====================================================
@@ -82,7 +80,7 @@ export {
   downloadImportTemplate as downloadFederationTemplate
 
 }
-from './templateExport.js'
+  from './templateExport.js'
 
 // =====================================================
 // ERRORS
@@ -105,7 +103,7 @@ export {
   buildImportMessage
 
 }
-from './errorExport.js'
+  from './errorExport.js'
 
 // =====================================================
 // EXPORT TYPES
@@ -143,14 +141,11 @@ export async function exportData({
   summary = {}
 
 }) {
-
   switch (
     String(type)
       .toLowerCase()
   ) {
-
-    case 'csv':
-
+    case 'csv': {
       return downloadCsv({
 
         reportName,
@@ -160,9 +155,9 @@ export async function exportData({
         data
 
       })
+    }
 
-    case 'excel':
-
+    case 'excel': {
       return downloadExcel({
 
         reportName,
@@ -172,9 +167,9 @@ export async function exportData({
         data
 
       })
+    }
 
-    case 'pdf':
-
+    case 'pdf': {
       return downloadPdf({
 
         reportName,
@@ -188,19 +183,15 @@ export async function exportData({
         summary
 
       })
+    }
 
-    default:
-
+    default: {
       throw new Error(
         `Unsupported export type: ${type}`
       )
-
+    }
   }
-
 }
-
-
-
 
 // =====================================================
 // FILTERED DATA
@@ -221,7 +212,6 @@ export async function exportFilteredRows({
   summary = {}
 
 }) {
-
   return exportData({
 
     type,
@@ -238,7 +228,6 @@ export async function exportFilteredRows({
     summary
 
   })
-
 }
 
 // =====================================================
@@ -260,7 +249,6 @@ export async function exportAllRows({
   summary = {}
 
 }) {
-
   return exportData({
 
     type,
@@ -276,7 +264,6 @@ export async function exportAllRows({
     summary
 
   })
-
 }
 
 // =====================================================
@@ -298,7 +285,6 @@ export async function exportSelectedRows({
   summary = {}
 
 }) {
-
   return exportData({
 
     type,
@@ -315,7 +301,6 @@ export async function exportSelectedRows({
     summary
 
   })
-
 }
 
 // =====================================================
@@ -337,7 +322,6 @@ export async function exportFederationReport({
   filters = {}
 
 }) {
-
   return exportData({
 
     type,
@@ -353,7 +337,6 @@ export async function exportFederationReport({
     filters
 
   })
-
 }
 
 // =====================================================
@@ -365,16 +348,13 @@ export async function exportMultipleReports({
   reports = []
 
 }) {
-
   const results = []
 
   for (
     const report
     of reports
   ) {
-
     try {
-
       await exportData(
         report
       )
@@ -388,11 +368,9 @@ export async function exportMultipleReports({
           true
 
       })
-
     } catch (
       error
     ) {
-
       results.push({
 
         report:
@@ -405,13 +383,10 @@ export async function exportMultipleReports({
           error.message
 
       })
-
     }
-
   }
 
   return results
-
 }
 
 // =====================================================
@@ -433,7 +408,6 @@ export async function exportTemplate({
   lookups
 
 }) {
-
   return downloadFederationTemplate({
 
     reportName,
@@ -449,7 +423,6 @@ export async function exportTemplate({
     lookups
 
   })
-
 }
 
 // =====================================================
@@ -465,7 +438,6 @@ export async function exportImportFailure({
   summary
 
 }) {
-
   await downloadFullErrorPackage({
 
     reportName,
@@ -479,7 +451,6 @@ export async function exportImportFailure({
     summary
 
   })
-
 }
 
 // =====================================================
@@ -495,13 +466,11 @@ export function buildExportMenu({
   includePdf = true
 
 } = {}) {
-
   const menu = []
 
   if (
     includeCsv
   ) {
-
     menu.push({
 
       type:
@@ -511,13 +480,11 @@ export function buildExportMenu({
         'Export CSV'
 
     })
-
   }
 
   if (
     includeExcel
   ) {
-
     menu.push({
 
       type:
@@ -527,13 +494,11 @@ export function buildExportMenu({
         'Export Excel'
 
     })
-
   }
 
   if (
     includePdf
   ) {
-
     menu.push({
 
       type:
@@ -543,9 +508,7 @@ export function buildExportMenu({
         'Export PDF'
 
     })
-
   }
 
   return menu
-
 }

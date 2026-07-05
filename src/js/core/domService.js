@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // DOM SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -186,7 +186,6 @@ export function toggle(id) {
   return true
 }
 
-
 export function hideAfter(
 
   id,
@@ -194,14 +193,12 @@ export function hideAfter(
   duration = 3000
 
 ) {
-
   setTimeout(
     () => hide(id),
     duration
   )
 
   return true
-
 }
 
 // =====================================================
@@ -232,7 +229,6 @@ export function disable(id) {
   return true
 }
 
-
 export function setDisabled(
 
   id,
@@ -240,7 +236,6 @@ export function setDisabled(
   disabled = true
 
 ) {
-
   const element =
     get(id)
 
@@ -252,7 +247,6 @@ export function setDisabled(
     disabled
 
   return true
-
 }
 
 // =====================================================
@@ -367,7 +361,6 @@ export function createOption(
   dataset = {}
 
 ) {
-
   const option =
     document.createElement(
       'option'
@@ -382,19 +375,14 @@ export function createOption(
   option.selected =
     selected
 
-  Object.entries(
+  for (const [key, value] of Object.entries(
     dataset
-  ).forEach(
-    ([key, value]) => {
-
-      option.dataset[key] =
+  )) {
+    option.dataset[key] =
         value ?? ''
-
-    }
-  )
+  }
 
   return option
-
 }
 
 export function appendOption(
@@ -410,7 +398,7 @@ export function appendOption(
     return false
   }
 
-  select.appendChild(
+  select.append(
     createOption(
       value,
       text,
@@ -472,25 +460,22 @@ export function selectedText(
 export function clearForm(
   fieldIds = []
 ) {
-  fieldIds.forEach(
-    id => {
-
-      const element =
+  for (const id of fieldIds) {
+    const element =
         get(id)
 
-      if (!element) {
-        return
-      }
-
-      if (
-        element.type === 'checkbox'
-      ) {
-        element.checked = false
-      } else {
-        element.value = ''
-      }
+    if (!element) {
+      continue
     }
-  )
+
+    if (
+      element.type === 'checkbox'
+    ) {
+      element.checked = false
+    } else {
+      element.value = ''
+    }
+  }
 }
 
 export function serializeForm(
@@ -521,30 +506,26 @@ export function serializeForm(
 export function populateForm(
   data = {}
 ) {
-  Object.entries(data)
-    .forEach(
-      ([key, value]) => {
-
-        const element =
+  for (const [key, value] of Object.entries(data)) {
+    const element =
           document.querySelector(
             `[name="${key}"]`
           )
 
-        if (!element) {
-          return
-        }
+    if (!element) {
+      continue
+    }
 
-        if (
-          element.type === 'checkbox'
-        ) {
-          element.checked =
+    if (
+      element.type === 'checkbox'
+    ) {
+      element.checked =
             Boolean(value)
-        } else {
-          element.value =
+    } else {
+      element.value =
             value ?? ''
-        }
-      }
-    )
+    }
+  }
 }
 
 // =====================================================
@@ -596,10 +577,9 @@ export function replaceOptions({
   options = [],
 
   placeholder =
-    null
+  null
 
 }) {
-
   clearSelect(
     selectId
   )
@@ -608,7 +588,6 @@ export function replaceOptions({
     placeholder !==
     null
   ) {
-
     appendOption(
 
       selectId,
@@ -618,48 +597,29 @@ export function replaceOptions({
       placeholder
 
     )
-
   }
 
-  options.forEach(
-    option => {
+  for (const option of options) {
+    appendOption(
 
-      appendOption(
+      selectId,
 
-        selectId,
+      option.value,
 
-        option.value,
+      option.text
 
-        option.text
-
-      )
-
-    }
-  )
-
+    )
+  }
 }
-
-
-
 
 export function clearDataList(
   datalistId
 ) {
-
   return setHtml(
     datalistId,
     ''
   )
-
 }
-
-
-
-
-
-
-
-
 
 // =====================================================
 // BULK VALUES
@@ -668,41 +628,30 @@ export function clearDataList(
 export function setValues(
   values = {}
 ) {
-
-  Object.entries(
+  for (const [id, value] of Object.entries(
     values
-  ).forEach(
-    ([id, value]) =>
-      setValue(
-        id,
-        value
-      )
-  )
+  )) {
+    setValue(
+      id,
+      value
+    )
+  }
 
   return true
-
 }
 
 export function getValues(
   fieldIds = []
 ) {
-
   const values = {}
 
-  fieldIds.forEach(
-    id => {
-
-      values[id] =
+  for (const id of fieldIds) {
+    values[id] =
         getValue(id)
-
-    }
-  )
+  }
 
   return values
-
 }
-
-
 
 // =====================================================
 // DATALIST POPULATION
@@ -717,7 +666,6 @@ export function populateDataList({
   valueField
 
 }) {
-
   const datalist =
     get(datalistId)
 
@@ -729,23 +677,18 @@ export function populateDataList({
     datalistId
   )
 
-  items.forEach(
-    item => {
-
-      datalist.insertAdjacentHTML(
-        'beforeend',
-        `
+  for (const item of items) {
+    datalist.insertAdjacentHTML(
+      'beforeend',
+      `
         <option
           value="${item[valueField] ?? ''}">
         </option>
         `
-      )
-
-    }
-  )
+    )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -761,7 +704,6 @@ export function showMessage({
   type = 'danger'
 
 }) {
-
   const element =
     get(elementId)
 
@@ -773,10 +715,7 @@ export function showMessage({
     message
 
   element.classList.remove(
-    'd-none'
-  )
-
-  element.classList.remove(
+    'd-none',
     'alert-success',
     'alert-danger',
     'alert-warning',
@@ -788,13 +727,11 @@ export function showMessage({
   )
 
   return true
-
 }
 
 export function clearMessage(
   elementId
 ) {
-
   const element =
     get(elementId)
 
@@ -809,10 +746,7 @@ export function clearMessage(
   )
 
   return true
-
 }
-
-
 
 // =====================================================
 // READONLY
@@ -825,7 +759,6 @@ export function setReadonly(
   readonly = true
 
 ) {
-
   const element =
     get(id)
 
@@ -837,7 +770,6 @@ export function setReadonly(
     readonly
 
   return true
-
 }
 
 // =====================================================
@@ -853,7 +785,6 @@ export function setAttribute(
   value
 
 ) {
-
   const element =
     get(id)
 
@@ -867,7 +798,6 @@ export function setAttribute(
   )
 
   return true
-
 }
 
 export function getAttribute(
@@ -877,14 +807,12 @@ export function getAttribute(
   name
 
 ) {
-
   return (
     get(id)
       ?.getAttribute(
         name
       ) || null
   )
-
 }
 
 export function removeAttribute(
@@ -894,7 +822,6 @@ export function removeAttribute(
   name
 
 ) {
-
   const element =
     get(id)
 
@@ -907,7 +834,6 @@ export function removeAttribute(
   )
 
   return true
-
 }
 
 // =====================================================
@@ -921,13 +847,11 @@ export function getDataset(
   key
 
 ) {
-
   return (
     get(id)
-      ?.dataset?.[key]
-      ?? null
+      ?.dataset?.[key] ??
+      null
   )
-
 }
 
 export function setDataset(
@@ -939,7 +863,6 @@ export function setDataset(
   value
 
 ) {
-
   const element =
     get(id)
 
@@ -951,7 +874,6 @@ export function setDataset(
     value
 
   return true
-
 }
 
 export function selectedDataset(
@@ -961,7 +883,6 @@ export function selectedDataset(
   key
 
 ) {
-
   const select =
     get(selectId)
 
@@ -976,14 +897,10 @@ export function selectedDataset(
     select.options[
       select.selectedIndex
     ]
-      ?.dataset?.[key]
-      ?? null
+      ?.dataset?.[key] ??
+      null
   )
-
 }
-
-
-
 
 // =====================================================
 // ADVANCED SELECT HELPERS
@@ -996,7 +913,6 @@ export function resetSelect(
   placeholder = 'Select Option'
 
 ) {
-
   const select =
     get(selectId)
 
@@ -1011,7 +927,6 @@ export function resetSelect(
   `
 
   return true
-
 }
 
 export function populateSelect({
@@ -1033,7 +948,6 @@ export function populateSelect({
   selectedValue = null
 
 }) {
-
   const select =
     get(selectId)
 
@@ -1048,66 +962,54 @@ export function populateSelect({
   if (
     placeholder !== null
   ) {
-
     appendOption(
       selectId,
       '',
       placeholder
     )
-
   }
 
-  items.forEach(
-    item => {
-
-      const option =
+  for (const item of items) {
+    const option =
         document.createElement(
           'option'
         )
 
-      option.value =
+    option.value =
         item[valueField] ?? ''
 
-      option.textContent =
+    option.textContent =
         typeof textFormatter ===
-        'function'
+        'function' ?
 
-          ? textFormatter(item)
+          textFormatter(item) :
 
-          : item[textField] ?? ''
+          item[textField] ?? ''
 
-      Object.entries(
-        datasetFields
-      ).forEach(
-        ([datasetKey, field]) => {
-
-          option.dataset[
+    for (const [datasetKey, field] of Object.entries(
+      datasetFields
+    )) {
+      option.dataset[
             datasetKey
-          ] =
+      ] =
             item[field] ?? ''
+    }
 
-        }
-      )
-
-      option.selected =
+    option.selected =
         item[valueField] ===
         selectedValue
 
-      select.appendChild(
-        option
-      )
-
-    }
-  )
+    select.append(
+      option
+    )
+  }
 
   return true
-
 }
 
 export function selectedOption(
   selectId
 ) {
-
   const select =
     get(selectId)
 
@@ -1121,7 +1023,6 @@ export function selectedOption(
   return select.options[
     select.selectedIndex
   ]
-
 }
 
 // =====================================================
@@ -1139,7 +1040,6 @@ export function showTimedMessage({
   duration = 3000
 
 }) {
-
   const element =
     get(elementId)
 
@@ -1151,10 +1051,7 @@ export function showTimedMessage({
     message
 
   element.classList.remove(
-    'd-none'
-  )
-
-  element.classList.remove(
+    'd-none',
     'alert-success',
     'alert-danger',
     'alert-warning',
@@ -1167,19 +1064,15 @@ export function showTimedMessage({
 
   setTimeout(
     () => {
-
       element.classList.add(
         'd-none'
       )
-
     },
     duration
   )
 
   return true
-
 }
-
 
 // =====================================================
 // FORM HELPERS
@@ -1192,36 +1085,26 @@ export function resetForm({
   defaults = {}
 
 }) {
-
-  fields.forEach(
-    fieldId => {
-
-      if (
-        Object.prototype.hasOwnProperty.call(
-          defaults,
-          fieldId
-        )
-      ) {
-
-        setValue(
-          fieldId,
-          defaults[fieldId]
-        )
-
-      } else {
-
-        setValue(
-          fieldId,
-          ''
-        )
-
-      }
-
+  for (const fieldId of fields) {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        defaults,
+        fieldId
+      )
+    ) {
+      setValue(
+        fieldId,
+        defaults[fieldId]
+      )
+    } else {
+      setValue(
+        fieldId,
+        ''
+      )
     }
-  )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -1231,13 +1114,11 @@ export function resetForm({
 export function getCheckedRadio(
   name
 ) {
-
   return (
     document.querySelector(
       `input[name="${name}"]:checked`
     )?.value || ''
   )
-
 }
 
 export function setCheckedRadio(
@@ -1247,7 +1128,6 @@ export function setCheckedRadio(
   value
 
 ) {
-
   const radio =
     document.querySelector(
       `input[name="${name}"][value="${value}"]`
@@ -1260,7 +1140,6 @@ export function setCheckedRadio(
   radio.checked = true
 
   return true
-
 }
 
 // =====================================================
@@ -1270,18 +1149,14 @@ export function setCheckedRadio(
 export function requireElement(
   id
 ) {
-
   const element =
     get(id)
 
   if (!element) {
-
     throw new Error(
       `${id} not found`
     )
-
   }
 
   return element
-
 }

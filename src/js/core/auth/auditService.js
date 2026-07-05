@@ -1,13 +1,12 @@
-﻿import {
-  getProfile
- 
-}
-from './authStateService.js'
-
 import {
   getDb
 }
-from '../supabase/getDb.js'
+  from '../supabase/getDb.js'
+import {
+  getProfile
+
+}
+  from './authStateService.js'
 
 /* ============================================================
    AUDIT EVENT TYPES
@@ -53,9 +52,7 @@ export async function logAuditEvent({
   newValues = null
 
 }) {
-
   try {
-
     const profile =
       getProfile()
 
@@ -72,30 +69,26 @@ export async function logAuditEvent({
     action_type:
       action,
 
-        changed_by:
+    changed_by:
           profile?.profile_id,
 
-        changed_at:
+    changed_at:
           new Date()
             .toISOString(),
 
-        old_values:
+    old_values:
           oldValues,
 
-        new_values:
+    new_values:
           newValues
 
-      })
-
+  })
   } catch (error) {
-
     console.error(
       'Audit logging failed',
       error
     )
-
   }
-
 }
 
 /* ============================================================
@@ -111,7 +104,6 @@ export async function logCreate({
   newValues
 
 }) {
-
   return logAuditEvent({
 
     tableName,
@@ -124,7 +116,6 @@ export async function logCreate({
     newValues
 
   })
-
 }
 
 /* ============================================================
@@ -142,7 +133,6 @@ export async function logUpdate({
   newValues
 
 }) {
-
   return logAuditEvent({
 
     tableName,
@@ -157,7 +147,6 @@ export async function logUpdate({
     newValues
 
   })
-
 }
 
 /* ============================================================
@@ -173,7 +162,6 @@ export async function logDelete({
   oldValues
 
 }) {
-
   return logAuditEvent({
 
     tableName,
@@ -186,7 +174,6 @@ export async function logDelete({
     oldValues
 
   })
-
 }
 
 /* ============================================================
@@ -194,7 +181,6 @@ export async function logDelete({
    ============================================================ */
 
 export async function logLogin() {
-
   return logAuditEvent({
 
     tableName:
@@ -204,7 +190,6 @@ export async function logLogin() {
       AUDIT_EVENTS.LOGIN
 
   })
-
 }
 
 /* ============================================================
@@ -212,7 +197,6 @@ export async function logLogin() {
    ============================================================ */
 
 export async function logLogout() {
-
   return logAuditEvent({
 
     tableName:
@@ -222,7 +206,6 @@ export async function logLogout() {
       AUDIT_EVENTS.LOGOUT
 
   })
-
 }
 
 /* ============================================================
@@ -230,7 +213,6 @@ export async function logLogout() {
    ============================================================ */
 
 export async function logPasswordChange() {
-
   return logAuditEvent({
 
     tableName:
@@ -240,7 +222,6 @@ export async function logPasswordChange() {
       AUDIT_EVENTS.PASSWORD_CHANGE
 
   })
-
 }
 
 /* ============================================================
@@ -256,7 +237,6 @@ export async function logRoleChange({
   newRole
 
 }) {
-
   return logAuditEvent({
 
     tableName:
@@ -283,7 +263,6 @@ export async function logRoleChange({
     }
 
   })
-
 }
 
 /* ============================================================
@@ -299,7 +278,6 @@ export async function logPermissionChange({
   changeType
 
 }) {
-
   return logAuditEvent({
 
     tableName:
@@ -322,5 +300,4 @@ export async function logPermissionChange({
     }
 
   })
-
 }

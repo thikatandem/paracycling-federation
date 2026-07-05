@@ -1,17 +1,15 @@
-﻿// =====================================================
+// =====================================================
 // TABLE RENDERER SERVICE
 // =====================================================
 
 export function clearTable(
   tableBody
 ) {
-
   if (!tableBody) {
     return
   }
 
   tableBody.innerHTML = ''
-
 }
 
 export function renderEmptyRow({
@@ -21,10 +19,9 @@ export function renderEmptyRow({
   colspan = 1,
 
   message =
-    'No records found'
+  'No records found'
 
 }) {
-
   if (!tableBody) {
     return
   }
@@ -39,7 +36,6 @@ export function renderEmptyRow({
       </td>
     </tr>
   `
-
 }
 
 export function appendRow({
@@ -49,20 +45,17 @@ export function appendRow({
   html = ''
 
 }) {
-
   if (!tableBody) {
     return
   }
 
   tableBody.innerHTML +=
     html
-
 }
 
 function renderTeamRow(
   team
 ) {
-
   const actionButtons =
 
     buildActionButtons({
@@ -90,41 +83,40 @@ function renderTeamRow(
 <tr>
 
 ${buildTextCell(
-  team.team_code
-)}
+    team.team_code
+  )}
 
 ${buildTextCell(
-  team.team_name
-)}
+    team.team_name
+  )}
 
 ${buildTextCell(
-  team.team_nickname
-)}
+    team.team_nickname
+  )}
 
 ${buildTextCell(
-  `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
-)}
+    `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
-)}
+    `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  team.current_effective_date
-)}
+    team.current_effective_date
+  )}
 
 ${buildTextCell(
-  team.status
-)}
+    team.status
+  )}
 
 ${buildActionCell(
-  actionButtons
-)}
+    actionButtons
+  )}
 
 </tr>
 
 `
-
 }
 
 export function renderTable({
@@ -136,10 +128,9 @@ export function renderTable({
   colspan = 1,
 
   emptyMessage =
-    'No records found'
+  'No records found'
 
 }) {
-
   clearTable(
     tableBody
   )
@@ -147,7 +138,6 @@ export function renderTable({
   if (
     rows.length === 0
   ) {
-
     renderEmptyRow({
 
       tableBody,
@@ -162,10 +152,7 @@ export function renderTable({
     return
   }
 
-  rows.forEach(
-
-  row =>
-
+  for (const row of rows) {
     appendRow({
 
       tableBody,
@@ -173,15 +160,8 @@ export function renderTable({
       html: row
 
     })
-
-)
-
+  }
 }
-
-
-
-
-
 
 export function buildTableRows({
 
@@ -190,20 +170,16 @@ export function buildTableRows({
   renderRow
 
 }) {
-
   if (
     !Array.isArray(data)
   ) {
-
     return []
-
   }
 
   return data.map(
     row =>
       renderRow(row)
   )
-
 }
 
 export function renderPagedTable({
@@ -221,10 +197,9 @@ export function renderPagedTable({
   colspan = 1,
 
   emptyMessage =
-    'No records found'
+  'No records found'
 
 }) {
-
   const start =
     (page - 1) *
     pageSize
@@ -253,7 +228,6 @@ export function renderPagedTable({
     emptyMessage
 
   })
-
 }
 
 export function replaceTableBody({
@@ -263,14 +237,12 @@ export function replaceTableBody({
   html
 
 }) {
-
   if (!tableBody) {
     return
   }
 
   tableBody.innerHTML =
     html || ''
-
 }
 
 // =====================================================
@@ -290,10 +262,9 @@ export function renderEntityTable({
   colspan = 1,
 
   emptyMessage =
-    'No records found'
+  'No records found'
 
 }) {
-
   let renderData =
     data
 
@@ -305,14 +276,12 @@ export function renderEntityTable({
       'function'
 
   ) {
-
     paginator.setData(
       data
     )
 
     renderData =
       paginator.getPage()
-
   }
 
   const rows =
@@ -338,7 +307,6 @@ export function renderEntityTable({
     emptyMessage
 
   })
-
 }
 
 // =====================================================
@@ -350,18 +318,14 @@ export function buildActionButtons({
   buttons = []
 
 }) {
-
   if (
     !Array.isArray(buttons)
   ) {
-
     return ''
-
   }
 
   return buttons
     .map(button => {
-
       const config =
         TABLE_BUTTONS[
           button.type
@@ -376,10 +340,8 @@ export function buildActionButtons({
           ${config.label || ''}
         </button>
       `
-
     })
     .join('')
-
 }
 
 // =====================================================
@@ -389,19 +351,16 @@ export function buildActionButtons({
 export function buildTextCell(
   value
 ) {
-
   return `
     <td>
       ${value ?? ''}
     </td>
   `
-
 }
 
 export function buildNumberCell(
   value
 ) {
-
   return `
     <td
       class="text-end"
@@ -409,25 +368,21 @@ export function buildNumberCell(
       ${value ?? ''}
     </td>
   `
-
 }
 
 export function buildStatusCell(
   html
 ) {
-
   return `
     <td>
       ${html ?? ''}
     </td>
   `
-
 }
 
 export function buildActionCell(
   buttons
 ) {
-
   return `
   <td
 
@@ -444,9 +399,7 @@ export function buildActionCell(
     ${buttons ?? ''}
   </td>
 `
-
 }
-
 
 // =====================================================
 // BUTTONS

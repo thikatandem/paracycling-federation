@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // FORM SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -10,8 +10,7 @@ import {
   setChecked,
   clearForm as clearDomForm
 }
-from './domService.js'
-
+  from './domService.js'
 
 // =====================================================
 // FORM STATE
@@ -24,20 +23,14 @@ const dirtyForms =
 // RESET FORM
 // =====================================================
 
-
-
-
 export function resetForm(
   formId
 ) {
-
   const form =
     get(formId)
 
   if (!form) {
-
     return false
-
   }
 
   form.reset()
@@ -51,50 +44,37 @@ export function resetForm(
   )
 
   return true
-
 }
 
 export function buildPayload(
   mappings = {}
 ) {
-
   const payload = {}
 
-  Object.entries(
+  for (const [dbField, formField] of Object.entries(
     mappings
-  ).forEach(
-
-    ([dbField, formField]) => {
-
-      const value =
+  )) {
+    const value =
         getValue(
           formField
         )
 
-      payload[
+    payload[
         dbField
-      ] =
+    ] =
         value || null
-
-    }
-
-  )
+  }
 
   return payload
-
 }
 
 // =====================================================
 // SERIALIZE FORM
 // =====================================================
 
-
-
 // =====================================================
 // POPULATE FORM
 // =====================================================
-
-
 
 // =====================================================
 // GET FORM DATA
@@ -103,11 +83,9 @@ export function buildPayload(
 export function getFormData(
   formId
 ) {
-
   return serializeForm(
     formId
   )
-
 }
 
 // =====================================================
@@ -118,11 +96,9 @@ export function setFormData(
   formId,
   data
 ) {
-
   populateForm(data)
 
   return true
-
 }
 
 // =====================================================
@@ -132,31 +108,22 @@ export function setFormData(
 export function enableForm(
   formId
 ) {
-
   const form =
     get(formId)
 
   if (!form) {
-
     return false
-
   }
 
-  form
+  for (const element of form
     .querySelectorAll(
       'input, select, textarea, button'
-    )
-    .forEach(
-      element => {
-
-        element.disabled =
+    )) {
+    element.disabled =
           false
-
-      }
-    )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -166,31 +133,22 @@ export function enableForm(
 export function disableForm(
   formId
 ) {
-
   const form =
     get(formId)
 
   if (!form) {
-
     return false
-
   }
 
-  form
+  for (const element of form
     .querySelectorAll(
       'input, select, textarea, button'
-    )
-    .forEach(
-      element => {
-
-        element.disabled =
+    )) {
+    element.disabled =
           true
-
-      }
-    )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -200,21 +158,17 @@ export function disableForm(
 export function enableField(
   fieldId
 ) {
-
   const field =
     get(fieldId)
 
   if (!field) {
-
     return false
-
   }
 
   field.disabled =
     false
 
   return true
-
 }
 
 // =====================================================
@@ -224,21 +178,17 @@ export function enableField(
 export function disableField(
   fieldId
 ) {
-
   const field =
     get(fieldId)
 
   if (!field) {
-
     return false
-
   }
 
   field.disabled =
     true
 
   return true
-
 }
 
 // =====================================================
@@ -249,21 +199,17 @@ export function setReadOnly(
   fieldId,
   readOnly = true
 ) {
-
   const field =
     get(fieldId)
 
   if (!field) {
-
     return false
-
   }
 
   field.readOnly =
     readOnly
 
   return true
-
 }
 
 // =====================================================
@@ -273,31 +219,25 @@ export function setReadOnly(
 export function markDirty(
   formId
 ) {
-
   dirtyForms.add(
     formId
   )
-
 }
 
 export function markClean(
   formId
 ) {
-
   dirtyForms.delete(
     formId
   )
-
 }
 
 export function isDirty(
   formId
 ) {
-
   return dirtyForms.has(
     formId
   )
-
 }
 
 // =====================================================
@@ -307,37 +247,28 @@ export function isDirty(
 export function trackChanges(
   formId
 ) {
-
   const form =
     get(formId)
 
   if (!form) {
-
     return false
-
   }
 
-  form
+  for (const field of form
     .querySelectorAll(
       'input, select, textarea'
-    )
-    .forEach(
-      field => {
+    )) {
+    field.addEventListener(
+      'change',
 
-        field.addEventListener(
-          'change',
-
-          () =>
-            markDirty(
-              formId
-            )
+      () =>
+        markDirty(
+          formId
         )
-
-      }
     )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -348,14 +279,11 @@ export function showFieldError(
   fieldId,
   message
 ) {
-
   const field =
     get(fieldId)
 
   if (!field) {
-
     return false
-
   }
 
   field.classList.add(
@@ -370,7 +298,6 @@ export function showFieldError(
       )
 
   if (!feedback) {
-
     feedback =
       document.createElement(
         'div'
@@ -380,17 +307,15 @@ export function showFieldError(
       'invalid-feedback'
 
     field.parentElement
-      ?.appendChild(
+      ?.append(
         feedback
       )
-
   }
 
   feedback.textContent =
     message
 
   return true
-
 }
 
 // =====================================================
@@ -400,14 +325,11 @@ export function showFieldError(
 export function clearFieldError(
   fieldId
 ) {
-
   const field =
     get(fieldId)
 
   if (!field) {
-
     return false
-
   }
 
   field.classList.remove(
@@ -415,7 +337,6 @@ export function clearFieldError(
   )
 
   return true
-
 }
 
 // =====================================================
@@ -425,32 +346,23 @@ export function clearFieldError(
 export function clearValidation(
   formId
 ) {
-
   const form =
     get(formId)
 
   if (!form) {
-
     return false
-
   }
 
-  form
+  for (const field of form
     .querySelectorAll(
       '.is-invalid'
+    )) {
+    field.classList.remove(
+      'is-invalid'
     )
-    .forEach(
-      field => {
-
-        field.classList.remove(
-          'is-invalid'
-        )
-
-      }
-    )
+  }
 
   return true
-
 }
 
 // =====================================================
@@ -460,29 +372,20 @@ export function clearValidation(
 export function applyValidationErrors(
   validationResult
 ) {
-
   if (
     validationResult.valid
   ) {
-
     return true
-
   }
 
-  validationResult.errors
-    .forEach(
-      error => {
-
-        showFieldError(
-          error.field,
-          error.message
-        )
-
-      }
+  for (const error of validationResult.errors) {
+    showFieldError(
+      error.field,
+      error.message
     )
+  }
 
   return false
-
 }
 
 // =====================================================
@@ -492,21 +395,17 @@ export function applyValidationErrors(
 export function lockForm(
   formId
 ) {
-
   disableForm(
     formId
   )
-
 }
 
 export function unlockForm(
   formId
 ) {
-
   enableForm(
     formId
   )
-
 }
 
 // =====================================================
@@ -516,15 +415,12 @@ export function unlockForm(
 export function confirmUnsavedChanges(
   formId
 ) {
-
   if (
     !isDirty(
       formId
     )
   ) {
-
     return true
-
   }
 
   return window.confirm(
@@ -532,83 +428,59 @@ export function confirmUnsavedChanges(
     'You have unsaved changes. Leave this page?'
 
   )
-
 }
 
 export function getFormValues(
   fieldIds = []
 ) {
-
   const result = {}
 
-  fieldIds.forEach(
-    id => {
-
-      result[id] =
+  for (const id of fieldIds) {
+    result[id] =
         document
           .getElementById(id)
           ?.value || ''
-
-    }
-  )
+  }
 
   return result
-
 }
 
 export function setFormValues(
   values = {}
 ) {
-
-  Object.entries(
+  for (const [id, value] of Object.entries(
     values
-  ).forEach(
-    ([id, value]) => {
-
-      const element =
+  )) {
+    const element =
         document.getElementById(
           id
         )
 
-      if (
-        element
-      ) {
-
-        element.value =
+    if (
+      element
+    ) {
+      element.value =
           value ?? ''
-
-      }
-
     }
-  )
-
+  }
 }
 
 export function clearFormFields(
   fieldIds = []
 ) {
-
-  fieldIds.forEach(
-    id => {
-
-      const element =
+  for (const id of fieldIds) {
+    const element =
         document.getElementById(
           id
         )
 
-      if (
-        element
-      ) {
-
-        element.value = ''
-
-      }
-
+    if (
+      element
+    ) {
+      element.value = ''
     }
-  )
-
+  }
 }
-
 
 export function resetEntityForm({
 
@@ -617,7 +489,6 @@ export function resetEntityForm({
   defaults = {}
 
 }) {
-
   return resetForm({
 
     fields,
@@ -625,5 +496,4 @@ export function resetEntityForm({
     defaults
 
   })
-
 }

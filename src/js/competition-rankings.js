@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // COMPETITION RANKINGS MODULE
 // =====================================================
 
@@ -49,9 +49,9 @@ function formatNumber(value) {
     value || 0
   ).toFixed(2)
 }
+
 async function loadCompetitionRankings() {
   try {
-
     showLoading()
 
     const { data, error } =
@@ -84,23 +84,18 @@ async function loadCompetitionRankings() {
       [...rankings]
 
     renderCompetitionRankings()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
       'Failed to load competition rankings'
     )
-
   } finally {
-
     hideLoading()
-
   }
 }
-function renderCompetitionRankings() {
 
+function renderCompetitionRankings() {
   if (!rankingsTableBody) {
     return
   }
@@ -122,7 +117,6 @@ function renderCompetitionRankings() {
   rankingsTableBody.innerHTML = ''
 
   if (pageRows.length === 0) {
-
     rankingsTableBody.innerHTML = `
       <tr>
         <td colspan="9" class="text-center">
@@ -137,7 +131,6 @@ function renderCompetitionRankings() {
   }
 
   for (const row of pageRows) {
-
     rankingsTableBody.innerHTML += `
 
       <tr>
@@ -156,20 +149,20 @@ function renderCompetitionRankings() {
 
         <td>
           ${formatNumber(
-            row.competition_score
-          )}
+    row.competition_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.average_position
-          )}
+    row.average_position
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.average_points
-          )}
+    row.average_points
+  )}
         </td>
 
         <td>
@@ -191,8 +184,8 @@ function renderCompetitionRankings() {
 
   updatePagination()
 }
-function updatePagination() {
 
+function updatePagination() {
   const totalPages =
     Math.max(
       1,
@@ -205,10 +198,8 @@ function updatePagination() {
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -224,24 +215,19 @@ function updatePagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
-
 }
-function searchCompetitionRankings() {
 
+function searchCompetitionRankings() {
   const search =
     (
       searchRanking?.value || ''
@@ -250,10 +236,9 @@ function searchCompetitionRankings() {
       .toLowerCase()
 
   filteredRankings =
-    search
-      ? rankings.filter(
+    search ?
+      rankings.filter(
         ranking => {
-
           return (
 
             (
@@ -261,18 +246,14 @@ function searchCompetitionRankings() {
                 ?.team_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               ranking.ranking_type_master
                 ?.ranking_type_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             String(
               ranking.ranking_position || ''
@@ -280,19 +261,16 @@ function searchCompetitionRankings() {
               .includes(search)
 
           )
-
         }
-      )
-      : [...rankings]
+      ) :
+      [...rankings]
 
   currentPage = 1
 
   renderCompetitionRankings()
-
 }
 
 function wireEvents() {
-
   document
     .getElementById(
       'btnRefreshRankings'
@@ -309,17 +287,13 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           renderCompetitionRankings()
-
         }
-
       }
     )
 
@@ -330,7 +304,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.ceil(
             filteredRankings.length /
@@ -341,13 +314,10 @@ function wireEvents() {
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           renderCompetitionRankings()
-
         }
-
       }
     )
 
@@ -356,38 +326,30 @@ function wireEvents() {
       'input',
       searchCompetitionRankings
     )
-
 }
+
 async function initializeCompetitionRankings() {
-
   try {
-
     if (
       !window.supabaseClient
     ) {
-
       console.error(
         'Database client not found'
       )
 
       return
-
     }
 
     await loadCompetitionRankings()
 
     wireEvents()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
-
   }
-
 }
 
 document.addEventListener(

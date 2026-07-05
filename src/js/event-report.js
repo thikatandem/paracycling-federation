@@ -1,4 +1,4 @@
-﻿/* global coreui */
+/* global coreui */
 /* eslint-disable no-console */
 
 /* ==========================================
@@ -23,7 +23,7 @@ let categoryLookup = []
 
 let countyLookup = []
 
-let sponsorLookup = []
+const sponsorLookup = []
 
 let eventIntelligenceModal = null
 
@@ -43,7 +43,6 @@ const $ = id =>
 function showLoading(
   show = true
 ) {
-
   const loading =
     $('eventReportLoading')
 
@@ -61,7 +60,6 @@ function setText(
   id,
   value
 ) {
-
   const element =
     $(id)
 
@@ -76,7 +74,6 @@ function setText(
 function safeNumber(
   value
 ) {
-
   return Number(
     value || 0
   )
@@ -86,21 +83,19 @@ function calculatePercentage(
   count,
   total
 ) {
-
   if (
     !total
   ) {
-
     return '0%'
   }
 
   return `
     ${(
-      (
-        count /
+    (
+      count /
         total
-      ) * 100
-    ).toFixed(1)}%
+    ) * 100
+  ).toFixed(1)}%
   `
 }
 
@@ -108,12 +103,10 @@ function calculateDuration(
   startDate,
   endDate
 ) {
-
   if (
     !startDate ||
     !endDate
   ) {
-
     return '-'
   }
 
@@ -146,7 +139,6 @@ function calculateDuration(
 function getStatusBadge(
   status
 ) {
-
   const value =
     (
       status || ''
@@ -158,7 +150,6 @@ function getStatusBadge(
       'upcoming'
     )
   ) {
-
     return `
       <span class="badge bg-info">
         Upcoming
@@ -171,7 +162,6 @@ function getStatusBadge(
       'ongoing'
     )
   ) {
-
     return `
       <span class="badge bg-success">
         Ongoing
@@ -184,7 +174,6 @@ function getStatusBadge(
       'completed'
     )
   ) {
-
     return `
       <span class="badge bg-secondary">
         Completed
@@ -197,7 +186,6 @@ function getStatusBadge(
       'cancel'
     )
   ) {
-
     return `
       <span class="badge bg-danger">
         Cancelled
@@ -217,15 +205,14 @@ function getStatusBadge(
 ========================================== */
 
 async function loadStatuses() {
-
   const {
     data,
     error
   } =
     await window.supabaseClient
       .from(
-  'event_status_master'
-)
+        'event_status_master'
+      )
 .select(`
   event_status_id,
   status_name,
@@ -249,29 +236,25 @@ async function loadStatuses() {
     return
   }
 
-  statusLookup.forEach(
-    status => {
-
-      const option =
+  for (const status of statusLookup) {
+    const option =
         document.createElement(
           'option'
         )
 
-      option.value =
+    option.value =
         status.event_status_id
 
-      option.textContent =
+    option.textContent =
         status.status_name
 
-      select.appendChild(
-        option
-      )
-    }
-  )
+    select.append(
+      option
+    )
+  }
 }
 
 async function loadCategories() {
-
   const {
     data,
     error
@@ -306,29 +289,25 @@ async function loadCategories() {
     return
   }
 
-  categoryLookup.forEach(
-    category => {
-
-      const option =
+  for (const category of categoryLookup) {
+    const option =
         document.createElement(
           'option'
         )
 
-      option.value =
+    option.value =
         category.event_category_id
 
-      option.textContent =
+    option.textContent =
         category.category_name
 
-      select.appendChild(
-        option
-      )
-    }
-  )
+    select.append(
+      option
+    )
+  }
 }
 
 async function loadCounties() {
-
   const {
     data,
     error
@@ -363,29 +342,25 @@ async function loadCounties() {
     return
   }
 
-  countyLookup.forEach(
-    county => {
-
-      const option =
+  for (const county of countyLookup) {
+    const option =
         document.createElement(
           'option'
         )
 
-      option.value =
+    option.value =
         county.county_id
 
-      option.textContent =
+    option.textContent =
         county.county_name
 
-      select.appendChild(
-        option
-      )
-    }
-  )
+    select.append(
+      option
+    )
+  }
 }
 
 function buildYearFilter() {
-
   const select =
     $('filterEventYear')
 
@@ -404,7 +379,6 @@ function buildYearFilter() {
       currentYear - 10;
     year--
   ) {
-
     const option =
       document.createElement(
         'option'
@@ -416,7 +390,7 @@ function buildYearFilter() {
     option.textContent =
       year
 
-    select.appendChild(
+    select.append(
       option
     )
   }
@@ -427,9 +401,7 @@ function buildYearFilter() {
 ========================================== */
 
 async function loadEventReportData() {
-
   try {
-
     showLoading(true)
 
     const {
@@ -479,9 +451,7 @@ async function loadEventReportData() {
       [...eventReportData]
 
     buildEventStatistics()
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -489,9 +459,7 @@ async function loadEventReportData() {
     alert(
       error.message
     )
-
   } finally {
-
     showLoading(false)
   }
 }
@@ -501,7 +469,6 @@ async function loadEventReportData() {
 ========================================== */
 
 function buildEventStatistics() {
-
   updateSummaryCards()
 
   buildStatusAnalysis()
@@ -518,7 +485,6 @@ function buildEventStatistics() {
 ========================================== */
 
 function updateSummaryCards() {
-
   const totalEvents =
     eventReportData.length
 
@@ -629,7 +595,6 @@ function updateSummaryCards() {
 ========================================== */
 
 function buildStatusAnalysis() {
-
   const tbody =
     $('eventStatusAnalysisBody')
 
@@ -639,20 +604,17 @@ function buildStatusAnalysis() {
 
   const stats = {}
 
-  eventReportData.forEach(
-    event => {
-
-      const status =
+  for (const event of eventReportData) {
+    const status =
         event.event_status_master
           ?.status_name ||
         'Unknown'
 
-      stats[status] =
+    stats[status] =
         (
           stats[status] || 0
         ) + 1
-    }
-  )
+  }
 
   tbody.innerHTML =
     Object.entries(
@@ -677,9 +639,9 @@ function buildStatusAnalysis() {
 
             <td>
               ${calculatePercentage(
-                count,
-                eventReportData.length
-              )}
+    count,
+    eventReportData.length
+  )}
             </td>
 
           </tr>
@@ -693,7 +655,6 @@ function buildStatusAnalysis() {
 ========================================== */
 
 function buildCategoryAnalysis() {
-
   const tbody =
     $('eventCategoryAnalysisBody')
 
@@ -703,19 +664,16 @@ function buildCategoryAnalysis() {
 
   const stats = {}
 
-  eventReportData.forEach(
-    event => {
-
-      const category =
+  for (const event of eventReportData) {
+    const category =
         event.events?.event_category_master
           ?.category_name ||
         event.event_category ||
         'Unknown'
 
-      stats[category] =
+    stats[category] =
         (stats[category] || 0) + 1
-    }
-  )
+  }
 
   tbody.innerHTML =
     Object.entries(stats)
@@ -729,9 +687,9 @@ function buildCategoryAnalysis() {
             <td>${count}</td>
             <td>
               ${calculatePercentage(
-                count,
-                eventReportData.length
-              )}
+    count,
+    eventReportData.length
+  )}
             </td>
           </tr>
         `
@@ -744,7 +702,6 @@ function buildCategoryAnalysis() {
 ========================================== */
 
 function buildCountyAnalysis() {
-
   const tbody =
     $('eventCountyAnalysisBody')
 
@@ -754,18 +711,15 @@ function buildCountyAnalysis() {
 
   const stats = {}
 
-  eventReportData.forEach(
-    event => {
-
-      const county =
+  for (const event of eventReportData) {
+    const county =
         event.county_master
           ?.county_name ||
         'Unknown'
 
-      stats[county] =
+    stats[county] =
         (stats[county] || 0) + 1
-    }
-  )
+  }
 
   tbody.innerHTML =
     Object.entries(stats)
@@ -779,9 +733,9 @@ function buildCountyAnalysis() {
             <td>${count}</td>
             <td>
               ${calculatePercentage(
-                count,
-                eventReportData.length
-              )}
+    count,
+    eventReportData.length
+  )}
             </td>
           </tr>
         `
@@ -794,7 +748,6 @@ function buildCountyAnalysis() {
 ========================================== */
 
 function buildSponsorAnalysis() {
-
   const tbody =
     $('eventSponsorAnalysisBody')
 
@@ -804,27 +757,21 @@ function buildSponsorAnalysis() {
 
   const stats = {}
 
-  eventReportData.forEach(
-    event => {
-
-      const sponsors =
+  for (const event of eventReportData) {
+    const sponsors =
         event.event_sponsors || []
 
-      sponsors.forEach(
-        sponsor => {
-
-          const sponsorName =
+    for (const sponsor of sponsors) {
+      const sponsorName =
             sponsor
               .sponsor_master
               ?.sponsor_name ||
             'Unknown'
 
-          stats[sponsorName] =
+      stats[sponsorName] =
             (stats[sponsorName] || 0) + 1
-        }
-      )
     }
-  )
+  }
 
   tbody.innerHTML =
     Object.entries(stats)
@@ -838,9 +785,9 @@ function buildSponsorAnalysis() {
             <td>${count}</td>
             <td>
               ${calculatePercentage(
-                count,
-                eventReportData.length
-              )}
+    count,
+    eventReportData.length
+  )}
             </td>
           </tr>
         `
@@ -853,7 +800,6 @@ function buildSponsorAnalysis() {
 ========================================== */
 
 function applyFilters() {
-
   const search =
     (
       $('searchEventReport')
@@ -881,7 +827,6 @@ function applyFilters() {
   filteredEventReportData =
     eventReportData.filter(
       event => {
-
         const searchable =
           [
             event.event_code || '',
@@ -914,7 +859,6 @@ function applyFilters() {
             search
           )
         ) {
-
           return false
         }
 
@@ -923,7 +867,6 @@ function applyFilters() {
           event.status_id !==
           statusId
         ) {
-
           return false
         }
 
@@ -932,7 +875,6 @@ function applyFilters() {
           event.event_category_id !==
           categoryId
         ) {
-
           return false
         }
 
@@ -941,14 +883,12 @@ function applyFilters() {
           event.county_id !==
           countyId
         ) {
-
           return false
         }
 
         if (
           year
         ) {
-
           const eventYear =
             new Date(
               event.start_date
@@ -960,7 +900,6 @@ function applyFilters() {
             eventYear !==
             year
           ) {
-
             return false
           }
         }
@@ -979,7 +918,6 @@ function applyFilters() {
 ========================================== */
 
 function clearFilters() {
-
   $('searchEventReport')
     .value = ''
 
@@ -1010,20 +948,16 @@ function clearFilters() {
 function sortBy(
   field
 ) {
-
   if (
     currentSortField ===
     field
   ) {
-
     currentSortDirection =
       currentSortDirection ===
-      'asc'
-        ? 'desc'
-        : 'asc'
-
+      'asc' ?
+        'desc' :
+        'asc'
   } else {
-
     currentSortField =
       field
 
@@ -1035,13 +969,11 @@ function sortBy(
 }
 
 function applySorting() {
-
   filteredEventReportData.sort(
     (
       a,
       b
     ) => {
-
       let valueA = ''
 
       let valueB = ''
@@ -1049,84 +981,82 @@ function applySorting() {
       switch (
         currentSortField
       ) {
-
-      case 'event_code':
-
-        valueA =
+        case 'event_code': {
+          valueA =
           a.event_code || ''
 
-        valueB =
+          valueB =
           b.event_code || ''
 
-        break
+          break
+        }
 
-      case 'event_name':
-
-        valueA =
+        case 'event_name': {
+          valueA =
           a.event_name || ''
 
-        valueB =
+          valueB =
           b.event_name || ''
 
-        break
+          break
+        }
 
-      case 'category':
-
-        valueA =
+        case 'category': {
+          valueA =
           a.event_category_master
             ?.category_name || ''
 
-        valueB =
+          valueB =
           b.event_category_master
             ?.category_name || ''
 
-        break
+          break
+        }
 
-      case 'county':
-
-        valueA =
+        case 'county': {
+          valueA =
           a.county_master
             ?.county_name || ''
 
-        valueB =
+          valueB =
           b.county_master
             ?.county_name || ''
 
-        break
+          break
+        }
 
-      case 'organizer':
-
-        valueA =
+        case 'organizer': {
+          valueA =
           a.organizer || ''
 
-        valueB =
+          valueB =
           b.organizer || ''
 
-        break
+          break
+        }
 
-      case 'start_date':
-
-        valueA =
+        case 'start_date': {
+          valueA =
           a.start_date || ''
 
-        valueB =
+          valueB =
           b.start_date || ''
 
-        break
+          break
+        }
 
-      case 'end_date':
-
-        valueA =
+        case 'end_date': {
+          valueA =
           a.end_date || ''
 
-        valueB =
+          valueB =
           b.end_date || ''
 
-        break
+          break
+        }
 
-      case 'duration':
-
-        valueA =
+        case 'duration': {
+          valueA =
           new Date(
             a.end_date ||
             new Date()
@@ -1135,7 +1065,7 @@ function applySorting() {
             a.start_date
           )
 
-        valueB =
+          valueB =
           new Date(
             b.end_date ||
             new Date()
@@ -1144,46 +1074,45 @@ function applySorting() {
             b.start_date
           )
 
-        break
+          break
+        }
 
-      case 'status':
-
-        valueA =
+        case 'status': {
+          valueA =
           a.status_master
             ?.status_name || ''
 
-        valueB =
+          valueB =
           b.status_master
             ?.status_name || ''
 
-        break
+          break
+        }
 
-      default:
-
-        valueA = ''
-        valueB = ''
+        default: {
+          valueA = ''
+          valueB = ''
+        }
       }
 
       if (
         valueA <
         valueB
       ) {
-
         return currentSortDirection ===
-          'asc'
-          ? -1
-          : 1
+          'asc' ?
+          -1 :
+          1
       }
 
       if (
         valueA >
         valueB
       ) {
-
         return currentSortDirection ===
-          'asc'
-          ? 1
-          : -1
+          'asc' ?
+          1 :
+          -1
       }
 
       return 0
@@ -1198,7 +1127,6 @@ function applySorting() {
 ========================================== */
 
 function renderTable() {
-
   const tbody =
     $('eventReportTableBody')
 
@@ -1223,7 +1151,6 @@ function renderTable() {
   if (
     !rows.length
   ) {
-
     tbody.innerHTML = `
       <tr>
         <td
@@ -1243,7 +1170,6 @@ function renderTable() {
   tbody.innerHTML =
     rows.map(
       event => {
-
         const teams =
           safeNumber(
             event.team_count
@@ -1259,60 +1185,60 @@ function renderTable() {
 
             <td>
               ${
-                event.event_code ||
+  event.event_code ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.events?.event_name ||
+  event.events?.event_name ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.events?.event_category_master
+  event.events?.event_category_master
                   ?.category_name ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.county_master
+  event.county_master
                   ?.county_name ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.organizer ||
+  event.organizer ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.start_date ||
+  event.start_date ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${
-                event.end_date ||
+  event.end_date ||
                 ''
-              }
+}
             </td>
 
             <td>
               ${calculateDuration(
-                event.start_date,
-                event.end_date
-              )}
+    event.start_date,
+    event.end_date
+  )}
             </td>
 
             <td>
@@ -1325,9 +1251,9 @@ function renderTable() {
 
             <td>
               ${getStatusBadge(
-                event.event_status_master
+    event.event_status_master
                   ?.status_name
-              )}
+  )}
             </td>
 
             <td>
@@ -1362,7 +1288,6 @@ function renderTable() {
 ========================================== */
 
 function renderPagination() {
-
   const totalPages =
     Math.max(
       1,
@@ -1386,7 +1311,6 @@ function renderPagination() {
 }
 
 function nextPage() {
-
   const totalPages =
     Math.ceil(
       filteredEventReportData.length /
@@ -1397,7 +1321,6 @@ function nextPage() {
     currentPage <
     totalPages
   ) {
-
     currentPage++
 
     renderTable()
@@ -1405,11 +1328,9 @@ function nextPage() {
 }
 
 function previousPage() {
-
   if (
     currentPage > 1
   ) {
-
     currentPage--
 
     renderTable()
@@ -1423,9 +1344,7 @@ window.viewEventIntelligence =
 async function (
   eventId
 ) {
-
   try {
-
     showLoading(true)
 
     const event =
@@ -1438,7 +1357,6 @@ async function (
     if (
       !event
     ) {
-
       return
     }
 
@@ -1669,11 +1587,9 @@ async function (
     )
 
     eventIntelligenceModal.show()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1681,9 +1597,7 @@ async function (
     alert(
       error.message
     )
-
   } finally {
-
     showLoading(false)
   }
 }
@@ -1693,7 +1607,6 @@ async function (
 ========================================== */
 
 function exportCsv() {
-
   const headers = [
 
     'Event Code',
@@ -1779,12 +1692,10 @@ function exportCsv() {
 }
 
 function exportExcel() {
-
   exportCsv()
 }
 
 function printReport() {
-
   window.print()
 }
 
@@ -1793,7 +1704,6 @@ function printReport() {
 ========================================== */
 
 function wireEvents() {
-
   $('searchEventReport')
     ?.addEventListener(
       'input',
@@ -1828,7 +1738,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       async () => {
-
         await loadEventReportData()
       }
     )
@@ -1863,26 +1772,21 @@ function wireEvents() {
       nextPage
     )
 
-  document
+  for (const header of document
     .querySelectorAll(
       'th.sortable'
-    )
-    .forEach(
-      header => {
-
-        header
+    )) {
+    header
           .addEventListener(
             'click',
             () => {
-
               sortBy(
                 header.dataset
                   .sort
               )
             }
           )
-      }
-    )
+  }
 }
 
 /* ==========================================
@@ -1890,7 +1794,6 @@ function wireEvents() {
 ========================================== */
 
 function initializeModals() {
-
   const modalElement =
     document.getElementById(
       'eventIntelligenceModal'
@@ -1899,7 +1802,6 @@ function initializeModals() {
   if (
     modalElement
   ) {
-
     eventIntelligenceModal =
       new coreui.Modal(
         modalElement
@@ -1912,9 +1814,7 @@ function initializeModals() {
 ========================================== */
 
 async function initializeEventReport() {
-
   try {
-
     initializeModals()
 
     await Promise.all([
@@ -1934,11 +1834,9 @@ async function initializeEventReport() {
     wireEvents()
 
     renderTable()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )

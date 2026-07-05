@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // VALIDATION SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -6,7 +6,6 @@
 // =====================================================
 // HELPERS
 // =====================================================
-
 
 import {
   getValue
@@ -21,12 +20,10 @@ export function validateRequiredFields({
   showError
 
 }) {
-
   for (
     const field
     of fields
   ) {
-
     const value =
       getValue(
         field.id
@@ -37,7 +34,6 @@ export function validateRequiredFields({
         value || ''
       ).trim()
     ) {
-
       showError(
 
         errorElementId,
@@ -47,26 +43,20 @@ export function validateRequiredFields({
       )
 
       return false
-
     }
-
   }
 
   return true
-
 }
-
 
 function result(
   valid,
   message = ''
 ) {
-
   return {
     valid,
     message
   }
-
 }
 
 // =====================================================
@@ -77,19 +67,17 @@ export function required(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     value !== null &&
     value !== undefined &&
     String(value).trim() !== ''
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} is required.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} is required.`
+    )
 }
 
 // =====================================================
@@ -101,19 +89,17 @@ export function minLength(
   min,
   fieldName = 'Field'
 ) {
-
   const valid =
     String(value || '')
       .trim()
       .length >= min
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be at least ${min} characters.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be at least ${min} characters.`
+    )
 }
 
 export function maxLength(
@@ -121,19 +107,17 @@ export function maxLength(
   max,
   fieldName = 'Field'
 ) {
-
   const valid =
     String(value || '')
       .trim()
       .length <= max
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} cannot exceed ${max} characters.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} cannot exceed ${max} characters.`
+    )
 }
 
 export function exactLength(
@@ -141,19 +125,17 @@ export function exactLength(
   length,
   fieldName = 'Field'
 ) {
-
   const valid =
     String(value || '')
       .trim()
       .length === length
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must contain exactly ${length} characters.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must contain exactly ${length} characters.`
+    )
 }
 
 // =====================================================
@@ -163,7 +145,6 @@ export function exactLength(
 export function email(
   value
 ) {
-
   if (!value) {
     return result(true)
   }
@@ -171,13 +152,12 @@ export function email(
   const regex =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  return regex.test(value)
-    ? result(true)
-    : result(
-        false,
-        'Email address is invalid.'
-      )
-
+  return regex.test(value) ?
+    result(true) :
+    result(
+      false,
+      'Email address is invalid.'
+    )
 }
 
 // =====================================================
@@ -187,7 +167,6 @@ export function email(
 export function phone(
   value
 ) {
-
   if (!value) {
     return result(true)
   }
@@ -200,13 +179,12 @@ export function phone(
   const regex =
     /^(\+254|254|0)?[17]\d{8}$/
 
-  return regex.test(cleaned)
-    ? result(true)
-    : result(
-        false,
-        'Phone number is invalid.'
-      )
-
+  return regex.test(cleaned) ?
+    result(true) :
+    result(
+      false,
+      'Phone number is invalid.'
+    )
 }
 
 // =====================================================
@@ -216,26 +194,20 @@ export function phone(
 export function url(
   value
 ) {
-
   if (!value) {
     return result(true)
   }
 
   try {
-
     new URL(value)
 
     return result(true)
-
   } catch {
-
     return result(
       false,
       'URL is invalid.'
     )
-
   }
-
 }
 
 // =====================================================
@@ -246,89 +218,79 @@ export function numeric(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     !isNaN(value)
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be numeric.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be numeric.`
+    )
 }
 
 export function integer(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     Number.isInteger(
       Number(value)
     )
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be a whole number.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be a whole number.`
+    )
 }
 
 export function decimal(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     !isNaN(
-      parseFloat(value)
+      Number.parseFloat(value)
     )
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be a valid decimal number.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be a valid decimal number.`
+    )
 }
 
 export function positive(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     Number(value) > 0
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be greater than zero.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be greater than zero.`
+    )
 }
 
 export function nonNegative(
   value,
   fieldName = 'Field'
 ) {
-
   const valid =
     Number(value) >= 0
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} cannot be negative.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} cannot be negative.`
+    )
 }
 
 // =====================================================
@@ -338,17 +300,15 @@ export function nonNegative(
 export function uuid(
   value
 ) {
-
   const regex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-  return regex.test(value)
-    ? result(true)
-    : result(
-        false,
-        'Invalid identifier.'
-      )
-
+  return regex.test(value) ?
+    result(true) :
+    result(
+      false,
+      'Invalid identifier.'
+    )
 }
 
 // =====================================================
@@ -359,73 +319,65 @@ export function date(
   value,
   fieldName = 'Date'
 ) {
-
   const valid =
     !isNaN(
       Date.parse(value)
     )
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} is invalid.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} is invalid.`
+    )
 }
 
 export function futureDate(
   value,
   fieldName = 'Date'
 ) {
-
   const valid =
     new Date(value) >
     new Date()
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be in the future.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be in the future.`
+    )
 }
 
 export function pastDate(
   value,
   fieldName = 'Date'
 ) {
-
   const valid =
     new Date(value) <
     new Date()
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} must be in the past.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} must be in the past.`
+    )
 }
 
 export function dateRange(
   startDate,
   endDate
 ) {
-
   const valid =
     new Date(startDate) <=
     new Date(endDate)
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        'Start date cannot be after end date.'
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      'Start date cannot be after end date.'
+    )
 }
 
 // =====================================================
@@ -436,7 +388,6 @@ export function minimumAge(
   dateOfBirth,
   age
 ) {
-
   const dob =
     new Date(dateOfBirth)
 
@@ -447,13 +398,12 @@ export function minimumAge(
     today.getFullYear() -
     dob.getFullYear()
 
-  return years >= age
-    ? result(true)
-    : result(
-        false,
-        `Minimum age is ${age}.`
-      )
-
+  return years >= age ?
+    result(true) :
+    result(
+      false,
+      `Minimum age is ${age}.`
+    )
 }
 
 // =====================================================
@@ -465,19 +415,17 @@ export function oneOf(
   allowedValues,
   fieldName = 'Field'
 ) {
-
   const valid =
     allowedValues.includes(
       value
     )
 
-  return valid
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} contains an invalid value.`
-      )
-
+  return valid ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} contains an invalid value.`
+    )
 }
 
 // =====================================================
@@ -488,26 +436,23 @@ export function fileSize(
   file,
   maxMb
 ) {
-
   const sizeMb =
     file.size /
     1024 /
     1024
 
-  return sizeMb <= maxMb
-    ? result(true)
-    : result(
-        false,
-        `File exceeds ${maxMb} MB.`
-      )
-
+  return sizeMb <= maxMb ?
+    result(true) :
+    result(
+      false,
+      `File exceeds ${maxMb} MB.`
+    )
 }
 
 export function fileExtension(
   file,
   allowed
 ) {
-
   const extension =
     file.name
       .split('.')
@@ -516,13 +461,12 @@ export function fileExtension(
 
   return allowed.includes(
     extension
-  )
-    ? result(true)
-    : result(
-        false,
-        `Allowed file types: ${allowed.join(', ')}`
-      )
-
+  ) ?
+    result(true) :
+    result(
+      false,
+      `Allowed file types: ${allowed.join(', ')}`
+    )
 }
 
 // =====================================================
@@ -534,20 +478,17 @@ export function lookupExists(
   lookup,
   fieldName
 ) {
-
   const found =
-    lookup.some(
-      item =>
-        item === value
+    lookup.includes(
+      value
     )
 
-  return found
-    ? result(true)
-    : result(
-        false,
-        `${fieldName} was not found.`
-      )
-
+  return found ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} was not found.`
+    )
 }
 
 // =====================================================
@@ -559,19 +500,17 @@ export function unique(
   existingValues,
   fieldName
 ) {
-
   const exists =
     existingValues.includes(
       value
     )
 
-  return exists
-    ? result(
-        false,
-        `${fieldName} already exists.`
-      )
-    : result(true)
-
+  return exists ?
+    result(
+      false,
+      `${fieldName} already exists.`
+    ) :
+    result(true)
 }
 
 // =====================================================
@@ -581,33 +520,26 @@ export function unique(
 export function validateObject(
   rules = []
 ) {
-
   const errors = []
 
-  rules.forEach(
-    rule => {
-
-      const validation =
+  for (const rule of rules) {
+    const validation =
         rule.validator()
 
-      if (
-        !validation.valid
-      ) {
+    if (
+      !validation.valid
+    ) {
+      errors.push({
 
-        errors.push({
-
-          field:
+        field:
             rule.field,
 
-          message:
+        message:
             validation.message
 
-        })
-
-      }
-
+      })
     }
-  )
+  }
 
   return {
 
@@ -617,13 +549,7 @@ export function validateObject(
     errors
 
   }
-
 }
-
-
-
-
-
 
 export function validateLocationSelection({
 
@@ -632,12 +558,10 @@ export function validateLocationSelection({
   subcountyId
 
 }) {
-
   if (
     countyId &&
     !subcountyId
   ) {
-
     return {
 
       valid: false,
@@ -646,13 +570,11 @@ export function validateLocationSelection({
         'Select a Subcounty'
 
     }
-
   }
 
   return {
     valid: true
   }
-
 }
 
 export function guid(
@@ -662,23 +584,20 @@ export function guid(
   fieldName = 'Id'
 
 ) {
-
   const regex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
   return regex.test(
     value || ''
-  )
+  ) ?
 
-    ? result(true)
+    result(true) :
 
-    : result(
-        false,
-        `${fieldName} is invalid.`
-      )
-
+    result(
+      false,
+      `${fieldName} is invalid.`
+    )
 }
-
 
 export function positiveNumber(
 
@@ -687,23 +606,18 @@ export function positiveNumber(
   fieldName = 'Value'
 
 ) {
-
   const valid =
     Number(value) > 0
 
-  return valid
+  return valid ?
 
-    ? result(true)
+    result(true) :
 
-    : result(
-        false,
-        `${fieldName} must be greater than zero.`
-      )
-
+    result(
+      false,
+      `${fieldName} must be greater than zero.`
+    )
 }
-
-
-
 
 export function validateDateRange({
 
@@ -712,16 +626,13 @@ export function validateDateRange({
   endDate
 
 }) {
-
   if (
     !startDate ||
     !endDate
   ) {
-
     return {
       valid: true
     }
-
   }
 
   return new Date(
@@ -729,18 +640,16 @@ export function validateDateRange({
   ) <=
   new Date(
     endDate
-  )
-    ? {
-        valid: true
-      }
-    : {
-        valid: false,
-        message:
+  ) ?
+    {
+      valid: true
+    } :
+    {
+      valid: false,
+      message:
           'End date cannot be earlier than start date.'
-      }
-
+    }
 }
-
 
 export function validateDifferentValues({
 
@@ -751,21 +660,17 @@ export function validateDifferentValues({
   message
 
 }) {
-
   if (
     firstValue === secondValue
   ) {
-
     return {
       valid: false,
       message
     }
-
   }
 
   return {
     valid: true,
     message: ''
   }
-
 }

@@ -1,7 +1,7 @@
-﻿import {
+import {
   login
 }
-from '../../core/auth/authService.js'
+  from "./authService.js"
 
 const form =
   document.getElementById(
@@ -29,7 +29,6 @@ const loginMessage =
   )
 
 function clearMessage() {
-
   if (!loginMessage) {
     return
   }
@@ -39,14 +38,12 @@ function clearMessage() {
 
   loginMessage.className =
     'alert alert-danger d-none mt-3'
-
 }
 
 function showMessage(
   message,
   isError = true
 ) {
-
   if (!loginMessage) {
     return
   }
@@ -55,16 +52,14 @@ function showMessage(
     message
 
   loginMessage.className =
-    isError
-      ? 'alert alert-danger mt-3'
-      : 'alert alert-success mt-3'
-
+    isError ?
+      'alert alert-danger mt-3' :
+      'alert alert-success mt-3'
 }
 
 async function handleLogin(
   event
 ) {
-
   event.preventDefault()
 
   clearMessage()
@@ -79,17 +74,14 @@ async function handleLogin(
     !email ||
     !password
   ) {
-
     showMessage(
       'Email and password are required.'
     )
 
     return
-
   }
 
   try {
-
     loginButton.disabled =
       true
 
@@ -119,16 +111,13 @@ async function handleLogin(
 
     window.location.href =
       '/'
-
   } catch (error) {
-
     console.error(
       'LOGIN ERROR:',
       error
     )
 
     try {
-
       console.error(
         'LOGIN ERROR JSON:',
         JSON.stringify(
@@ -137,16 +126,13 @@ async function handleLogin(
           2
         )
       )
-
     } catch (
       jsonError
     ) {
-
       console.error(
         'ERROR SERIALIZATION FAILED:',
         jsonError
       )
-
     }
 
     let message =
@@ -155,87 +141,74 @@ async function handleLogin(
     if (
       error?.message
     ) {
-
       message =
         error.message
-
     } else if (
       error?.error_description
     ) {
-
       message =
         error.error_description
-
     } else if (
       error?.code ===
       'invalid_credentials'
     ) {
-
       message =
         'Invalid email or password.'
-
-    } else if (
-      error?.status ===
-      400
-    ) {
-
-      message =
+    } else {
+      switch (error?.status) {
+        case 400: {
+          message =
         'Invalid email or password.'
 
-    } else if (
-      error?.status ===
-      401
-    ) {
+          break
+        }
 
-      message =
+        case 401: {
+          message =
         'Authentication failed.'
 
-    } else if (
-      error?.status ===
-      403
-    ) {
+          break
+        }
 
-      message =
+        case 403: {
+          message =
         'Your account does not have permission to access the portal.'
 
-    } else if (
-      error?.status ===
-      404
-    ) {
+          break
+        }
 
-      message =
+        case 404: {
+          message =
         'User account not found.'
 
-    } else if (
-      error?.status ===
-      500
-    ) {
+          break
+        }
 
-      message =
+        case 500: {
+          message =
         'Server error. Please contact the system administrator.'
+
+          break
+        }
+ // No default
+      }
     }
 
     showMessage(
       message
     )
-
   } finally {
-
     loginButton.disabled =
       false
 
     loginButton.textContent =
       'Sign in'
-
   }
-
 }
 
 if (form) {
-
   form.addEventListener(
     'submit',
     handleLogin
   )
-
 }

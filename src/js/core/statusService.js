@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // STATUS SERVICE
 // =====================================================
 
@@ -154,7 +154,6 @@ export function getStatusBadge(
   statusName,
   statusCode = statusName
 ) {
-
   const config =
     getStatusConfig(
       statusCode
@@ -167,13 +166,11 @@ export function getStatusBadge(
       ${statusName || ''}
     </span>
   `
-
 }
 
 export function isActiveStatus(
   statusCode
 ) {
-
   return [
 
     'ACTIVE',
@@ -189,13 +186,11 @@ export function isActiveStatus(
       statusCode
     ).toUpperCase()
   )
-
 }
 
 export function isClosedStatus(
   statusCode
 ) {
-
   return [
 
     'COMPLETED',
@@ -212,6 +207,5 @@ export function isClosedStatus(
       statusCode
     ).toUpperCase()
   )
-
 }
 

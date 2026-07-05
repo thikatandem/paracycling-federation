@@ -1,7 +1,6 @@
-﻿export function renderSidebar(
+export function renderSidebar(
   items
 ) {
-
   const container =
     document.getElementById(
       'roleSidebar'
@@ -10,9 +9,7 @@
   if (
     !container
   ) {
-
     return
-
   }
 
   container.innerHTML =
@@ -39,5 +36,4 @@
           .join('')}
       </ul>
     `
-
 }

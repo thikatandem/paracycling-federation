@@ -1,0 +1,1095 @@
+﻿extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+
+      .col-lg-4
+
+        .card.mb-4
+
+          .card-body.text-center
+
+            img.rounded-circle.mb-3(
+              id='profilePhoto'
+              src='assets/img/avatars/8.jpg'
+              width='150'
+              height='150'
+              style='cursor:pointer'
+              title='Click to change profile photo'
+            )
+
+            input(
+              id='profilePhotoUpload'
+              type='file'
+              accept='image/*'
+              hidden
+            )
+
+            h4#profilePageFullName
+              Loading
+
+            p.text-muted#profilePageRole
+              Loading
+
+      .col-lg-8
+
+        ul.nav.nav-tabs.mb-4(
+          role="tablist"
+        )
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link.active(
+              data-coreui-toggle="tab"
+              data-coreui-target="#overviewTab"
+              type="button"
+            )
+              | Overview
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#trainingTab"
+              type="button"
+            )
+              | Training
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#competitionTab"
+              type="button"
+            )
+              | Competitions
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#performanceTab"
+              type="button"
+            )
+              | Performance
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#medicalTab"
+              type="button"
+            )
+              | Medical
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#travelTab"
+              type="button"
+            )
+              | Travel
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#equipmentTab"
+              type="button"
+            )
+              | Equipment
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#teamsTab"
+              type="button"
+            )
+              | Teams
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#documentsTab"
+              type="button"
+            )
+              | Documents
+
+          li.nav-item(
+            role="presentation"
+          )
+
+            button.nav-link(
+              data-coreui-toggle="tab"
+              data-coreui-target="#settingsTab"
+              type="button"
+            )
+              | Settings
+
+        .tab-content
+          .tab-pane.fade.show.active(
+            id="overviewTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+
+                strong Profile Information
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-6
+
+                    label.form-label Full Name
+
+                    input.form-control(
+                      id='fullName'
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Email
+
+                    input.form-control(
+                      id='email'
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Role
+
+                    input.form-control(
+                      id='roleCode'
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Last Login
+
+                    input.form-control(
+                      id='lastLogin'
+                      readonly
+                    )
+
+                  
+
+            .card.mb-4
+
+              .card-header
+
+                strong Federation Summary
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="membershipBadge")
+                      small.text-muted Membership
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="classificationBadge")
+                      small.text-muted Classification
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="activeTeamBadge")
+                      small.text-muted Active Team
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="rankingPoints")
+                      small.text-muted Ranking Points
+
+                hr
+
+                .row.g-3
+
+                  .col-md-3
+                    label.form-label Membership
+
+                    input.form-control(
+                      id="membershipSummary"
+                      readonly
+                    )
+
+                  .col-md-3
+                    label.form-label Classification
+
+                    input.form-control(
+                      id="classificationSummary"
+                      readonly
+                    )
+
+                  .col-md-3
+                    label.form-label Active Team
+
+                    input.form-control(
+                      id="activeTeamSummary"
+                      readonly
+                    )
+
+                  .col-md-3
+                    label.form-label Ranking Points
+
+                    input.form-control(
+                      id="rankingPointsSummary"
+                      readonly
+                    )
+
+            .card.mb-4
+
+              .card-header
+
+                strong Upcoming Events
+
+              .card-body
+
+                div(
+                  id="upcomingEvents"
+                )
+
+            .card.mb-4
+
+              .card-header
+
+                strong Recent Activity
+
+              .card-body
+
+                div(
+                  id="recentActivity"
+                )
+          .tab-pane.fade(
+            id="trainingTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Training Analytics
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="totalDistanceKm") 0
+                      small.text-muted Total Distance KM
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="totalDurationHours") 0
+                      small.text-muted Total Hours
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="averageSpeed") 0
+                      small.text-muted Avg Speed KM/H
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="attendanceRate") 0%
+                      small.text-muted Attendance
+
+            .card.mb-4
+
+              .card-header
+                strong Training History
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Date
+
+                        th Event
+
+                        th Program
+
+                        th Distance
+
+                        th Duration
+
+                        th Speed
+
+                        th Result
+
+                    tbody(
+                      id="trainingHistoryBody"
+                    )
+          .tab-pane.fade(
+            id="competitionTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Competition Analytics
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="competitionTotal") 0
+                      small.text-muted Competitions
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="goldMedals") 0
+                      small.text-muted Gold
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="silverMedals") 0
+                      small.text-muted Silver
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="bronzeMedals") 0
+                      small.text-muted Bronze
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="podiumFinishes") 0
+                      small.text-muted Podiums
+
+                  .col-md-2
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="competitionPoints") 0
+                      small.text-muted Points
+
+            .card.mb-4
+
+              .card-header
+                strong Competition History
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Date
+
+                        th Competition
+
+                        th Position
+
+                        th Points
+
+                        th Medal
+
+                    tbody(
+                      id="competitionHistoryBody"
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Ranking Dashboard
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="currentRanking") -
+                      small.text-muted Current Ranking
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="rankingPointsTotal") 0
+                      small.text-muted Ranking Points
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="rankingWins") 0
+                      small.text-muted Wins
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="rankingPodiums") 0
+                      small.text-muted Podiums
+          .tab-pane.fade(
+            id="performanceTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Performance Analytics
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="averageHeartRate") 0
+                      small.text-muted Avg Heart Rate
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="averageCadence") 0
+                      small.text-muted Avg Cadence
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="averagePower") 0
+                      small.text-muted Avg Power
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="bestSpeed") 0
+                      small.text-muted Best Speed
+          .tab-pane.fade(
+            id="medicalTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Medical Clearance
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-4
+
+                    label.form-label Clearance Status
+
+                    input.form-control(
+                      id="medicalClearanceStatus"
+                      readonly
+                    )
+
+                  .col-md-4
+
+                    label.form-label Last Review
+
+                    input.form-control(
+                      id="medicalLastReview"
+                      readonly
+                    )
+
+                  .col-md-4
+
+                    label.form-label Next Review
+
+                    input.form-control(
+                      id="medicalNextReview"
+                      readonly
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Medical Information
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-6
+
+                    label.form-label Doctor
+
+                    input.form-control(
+                      id="medicalDoctor"
+                      readonly
+                    )
+
+                  .col-md-12
+
+                    label.form-label Restrictions
+
+                    textarea.form-control(
+                      id="medicalRestrictions"
+                      rows="3"
+                      readonly
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Medical Reviews
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Review Date
+
+                        th Doctor
+
+                        th Status
+
+                        th Next Review
+
+                    tbody(
+                      id="medicalReviewBody"
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Medical Documents
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Document
+
+                        th Uploaded
+
+                        th Action
+
+                    tbody(
+                      id="medicalDocumentsBody"
+                    )
+          .tab-pane.fade(
+            id="travelTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Travel Summary
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="travelCount") 0
+                      small.text-muted Trips
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="upcomingTravelCount") 0
+                      small.text-muted Upcoming
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="completedTravelCount") 0
+                      small.text-muted Completed
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="travelCountriesCount") 0
+                      small.text-muted Countries
+
+            .card.mb-4
+
+              .card-header
+                strong Upcoming Travel
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Destination
+
+                        th Departure
+
+                        th Return
+
+                        th Purpose
+
+                        th Status
+
+                    tbody(
+                      id="travelBody"
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Travel Documents
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th File
+
+                        th Uploaded
+
+                        th Action
+
+                    tbody(
+                      id="travelDocumentsBody"
+                    )
+          .tab-pane.fade(
+            id="equipmentTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Equipment Summary
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="equipmentCount") 0
+                      small.text-muted Assigned
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="activeEquipmentCount") 0
+                      small.text-muted Active
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="maintenanceCount") 0
+                      small.text-muted Maintenance
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="equipmentDocumentCount") 0
+                      small.text-muted Documents
+
+            .card.mb-4
+
+              .card-header
+                strong Assigned Equipment
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Asset Tag
+
+                        th Equipment
+
+                        th Status
+
+                        th Assigned
+
+                        th Returned
+
+                    tbody(
+                      id="equipmentBody"
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Maintenance History
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Date
+
+                        th Equipment
+
+                        th Description
+
+                        th Status
+
+                    tbody(
+                      id="equipmentMaintenanceBody"
+                    )
+
+            .card.mb-4
+
+              .card-header
+                strong Equipment Documents
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th File
+
+                        th Uploaded
+
+                        th Action
+
+                    tbody(
+                      id="equipmentDocumentsBody"
+                    )
+          .tab-pane.fade(
+            id="teamsTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Current Team Dashboard
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-4
+
+                    label.form-label Team Name
+
+                    input.form-control(
+                      id="currentTeamName"
+                      readonly
+                    )
+
+                  .col-md-4
+
+                    label.form-label Team Code
+
+                    input.form-control(
+                      id="currentTeamCode"
+                      readonly
+                    )
+
+                  .col-md-4
+
+                    label.form-label Team Status
+
+                    input.form-control(
+                      id="currentTeamStatus"
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Pilot
+
+                    input.form-control(
+                      id="currentPilot"
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Stoker
+
+                    input.form-control(
+                      id="currentStoker"
+                      readonly
+                    )
+          .tab-pane.fade(
+            id="documentsTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Documents Summary
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="documentCount") 0
+                      small.text-muted Documents
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="certificateCount") 0
+                      small.text-muted Certificates
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="medicalDocumentCount") 0
+                      small.text-muted Medical
+
+                  .col-md-3
+                    .border.rounded.p-3.text-center
+                      h3.mb-0(id="travelDocumentCount") 0
+                      small.text-muted Travel
+
+            .card.mb-4
+
+              .card-header
+                strong Documents
+
+              .card-body
+
+                .table-responsive
+
+                  table.table.table-hover
+
+                    thead
+
+                      tr
+
+                        th Type
+
+                        th File Name
+
+                        th Uploaded
+
+                        th Action
+
+                    tbody(
+                      id="documentsBody"
+                    )
+          .tab-pane.fade(
+            id="settingsTab"
+          )
+
+            .card.mb-4
+
+              .card-header
+                strong Profile Settings
+
+              .card-body
+
+                .row.g-3
+
+                  .col-md-6
+
+                    label.form-label Full Name
+
+                    input.form-control(
+                      id="settingsFullName"
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Email
+
+                    input.form-control(
+                      id="settingsEmail"
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Role
+
+                    input.form-control(
+                      id="settingsRole"
+                      readonly
+                    )
+
+                  .col-md-6
+
+                    label.form-label Profile Photo
+
+                    button.btn.btn-primary.w-100(
+                      id="changePhotoButton"
+                      type="button"
+                    )
+                      | Change Profile Photo
+
+            .card.mb-4
+
+              .card-header
+                strong Notification Preferences
+
+              .card-body
+
+                .form-check.form-switch.mb-3
+
+                  input.form-check-input(
+                    type="checkbox"
+                    id="notifyTraining"
+                  )
+
+                  label.form-check-label(
+                    for="notifyTraining"
+                  )
+                    | Training Notifications
+
+                .form-check.form-switch.mb-3
+
+                  input.form-check-input(
+                    type="checkbox"
+                    id="notifyCompetitions"
+                  )
+
+                  label.form-check-label(
+                    for="notifyCompetitions"
+                  )
+                    | Competition Notifications
+
+                .form-check.form-switch.mb-3
+
+                  input.form-check-input(
+                    type="checkbox"
+                    id="notifyResults"
+                  )
+
+                  label.form-check-label(
+                    for="notifyResults"
+                  )
+                    | Results Notifications
+
+                .form-check.form-switch.mb-3
+
+                  input.form-check-input(
+                    type="checkbox"
+                    id="notifyTravel"
+                  )
+
+                  label.form-check-label(
+                    for="notifyTravel"
+                  )
+                    | Travel Notifications
+
+            .card.mb-4
+
+              .card-header
+                strong Appearance
+
+              .card-body
+
+                select.form-select(
+                  id="themePreference"
+                )
+
+                  option(
+                    value="light"
+                  )
+                    | Light
+
+                  option(
+                    value="dark"
+                  )
+                    | Dark
+
+                  option(
+                    value="auto"
+                  )
+                    | Auto
+
+            .card.mb-4
+
+              .card-header
+                strong Session Management
+
+              .card-body
+
+                .d-flex.gap-2
+
+                  button.btn.btn-warning(
+                    id="lockSessionButton"
+                    type="button"
+                  )
+                    | Lock Session
+
+                  button.btn.btn-danger(
+                    id="profileLogoutButton"
+                    type="button"
+                  )
+                    | Logout
+
+            .card.mb-4
+
+              .card-header
+                strong Security
+
+              .card-body
+
+                button.btn.btn-outline-primary(
+                  id="changePasswordButton"
+                  type="button"
+                )
+                  | Change Password
+append pageScripts
+
+  script(
+    type='module'
+    src='js/profile.js'
+  )

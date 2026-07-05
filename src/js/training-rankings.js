@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // TRAINING RANKINGS MODULE
 // =====================================================
 /* global coreui */
@@ -35,36 +35,29 @@ const paginationInfo =
     'paginationInfo'
   )
 function showLoading() {
-
   trainingRankingLoading
     ?.classList.remove(
       'd-none'
     )
-
 }
 
 function hideLoading() {
-
   trainingRankingLoading
     ?.classList.add(
       'd-none'
     )
-
 }
 
 function formatNumber(
   value
 ) {
-
   return Number(
     value || 0
   ).toFixed(2)
-
 }
+
 async function loadTrainingRankings() {
-
   try {
-
     showLoading()
 
     const {
@@ -101,11 +94,9 @@ async function loadTrainingRankings() {
       [...trainingRankings]
 
     renderTrainingRankings()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -113,16 +104,12 @@ async function loadTrainingRankings() {
     alert(
       'Failed to load training rankings'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
-function renderTrainingRankings() {
 
+function renderTrainingRankings() {
   if (
     !trainingRankingsTableBody
   ) {
@@ -149,7 +136,6 @@ function renderTrainingRankings() {
   if (
     pageRows.length === 0
   ) {
-
     trainingRankingsTableBody.innerHTML =
       `
       <tr>
@@ -162,14 +148,12 @@ function renderTrainingRankings() {
     updatePagination()
 
     return
-
   }
 
   for (
     const row
     of pageRows
   ) {
-
     trainingRankingsTableBody.innerHTML +=
       `
       <tr>
@@ -184,44 +168,44 @@ function renderTrainingRankings() {
 
         <td>
           ${formatNumber(
-            row.total_score
-          )}
+    row.total_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.attendance_score
-          )}
+    row.attendance_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.distance_score
-          )}
+    row.distance_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.duration_score
-          )}
+    row.duration_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.speed_score
-          )}
+    row.speed_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.power_score
-          )}
+    row.power_score
+  )}
         </td>
 
         <td>
           ${formatNumber(
-            row.recovery_score
-          )}
+    row.recovery_score
+  )}
         </td>
 
       </tr>
@@ -229,10 +213,9 @@ function renderTrainingRankings() {
   }
 
   updatePagination()
-
 }
-function updatePagination() {
 
+function updatePagination() {
   const totalPages =
     Math.max(
       1,
@@ -245,10 +228,8 @@ function updatePagination() {
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -264,24 +245,19 @@ function updatePagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
-
 }
-function searchTrainingRankings() {
 
+function searchTrainingRankings() {
   const search =
     (
       searchTrainingRanking?.value || ''
@@ -290,22 +266,19 @@ function searchTrainingRankings() {
       .toLowerCase()
 
   filteredTrainingRankings =
-    search
-      ? trainingRankings.filter(
-          ranking => {
+    search ?
+      trainingRankings.filter(
+        ranking => {
+          return (
 
-            return (
-
-              (
-                ranking.teams
+            (
+              ranking.teams
                   ?.team_name || ''
-              )
+            )
                 .toLowerCase()
                 .includes(
                   search
-                )
-
-              ||
+                ) ||
 
               String(
                 ranking.ranking_position || ''
@@ -314,19 +287,17 @@ function searchTrainingRankings() {
                   search
                 )
 
-            )
-
-          }
-        )
-      : [...trainingRankings]
+          )
+        }
+      ) :
+      [...trainingRankings]
 
   currentPage = 1
 
   renderTrainingRankings()
-
 }
-function wireEvents() {
 
+function wireEvents() {
   document
     .getElementById(
       'btnRefreshTrainingRankings'
@@ -343,17 +314,13 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           renderTrainingRankings()
-
         }
-
       }
     )
 
@@ -364,7 +331,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.ceil(
             filteredTrainingRankings.length /
@@ -375,13 +341,10 @@ function wireEvents() {
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           renderTrainingRankings()
-
         }
-
       }
     )
 
@@ -390,38 +353,30 @@ function wireEvents() {
       'input',
       searchTrainingRankings
     )
-
 }
+
 async function initializeTrainingRankings() {
-
   try {
-
     if (
       !window.supabaseClient
     ) {
-
       console.error(
         'Supabase client not found'
       )
 
       return
-
     }
 
     await loadTrainingRankings()
 
     wireEvents()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
-
   }
-
 }
 
 document.addEventListener(

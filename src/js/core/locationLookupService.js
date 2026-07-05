@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // LOCATION LOOKUP SERVICE
 // =====================================================
 import {
@@ -11,10 +11,7 @@ import {
 
 } from './domService.js'
 
-
-
 export async function loadCountries() {
-
   const {
     data,
     error
@@ -33,13 +30,11 @@ export async function loadCountries() {
   }
 
   return data || []
-
 }
 
 export async function loadCountiesByCountry(
   countryId
 ) {
-
   if (!countryId) {
     return []
   }
@@ -66,19 +61,16 @@ export async function loadCountiesByCountry(
   }
 
   return data || []
-
 }
-
 
 export async function loadCountrySelect({
 
   selectId,
 
   placeholder =
-    'Select Country'
+  'Select Country'
 
 }) {
-
   const countries =
     await loadCountries()
 
@@ -100,13 +92,9 @@ export async function loadCountrySelect({
   })
 
   return countries
-
 }
 
-
-
 export async function loadCounties() {
-
   const {
     data,
     error
@@ -125,13 +113,11 @@ export async function loadCounties() {
   }
 
   return data || []
-
 }
 
 export async function loadSubcounties(
   countyId
 ) {
-
   if (!countyId) {
     return []
   }
@@ -158,13 +144,11 @@ export async function loadSubcounties(
   }
 
   return data || []
-
 }
 
 export async function loadTowns(
   subcountyId
 ) {
-
   if (!subcountyId) {
     return []
   }
@@ -191,7 +175,6 @@ export async function loadTowns(
   }
 
   return data || []
-
 }
 
 export async function findOrCreateTown({
@@ -201,7 +184,6 @@ export async function findOrCreateTown({
   townName
 
 }) {
-
   const cleanedTown =
     String(
       townName || ''
@@ -211,9 +193,7 @@ export async function findOrCreateTown({
     !subcountyId ||
     !cleanedTown
   ) {
-
     return null
-
   }
 
   const {
@@ -237,9 +217,7 @@ export async function findOrCreateTown({
       .maybeSingle()
 
   if (existingTown) {
-
     return existingTown.town_id
-
   }
 
   const {
@@ -267,9 +245,7 @@ export async function findOrCreateTown({
   }
 
   return data.town_id
-
 }
-
 
 export async function resolveTownId({
 
@@ -280,7 +256,6 @@ export async function resolveTownId({
   townName
 
 }) {
-
   if (townId) {
     return townId
   }
@@ -292,12 +267,9 @@ export async function resolveTownId({
     townName
 
   })
-
 }
 
-
 export async function loadAllSubcounties() {
-
   const {
     data,
     error
@@ -316,7 +288,6 @@ export async function loadAllSubcounties() {
   }
 
   return data || []
-
 }
 
 export function populateCountySelect({
@@ -326,10 +297,9 @@ export function populateCountySelect({
   counties,
 
   placeholder =
-    'Select County'
+  'Select County'
 
 }) {
-
   if (!select) {
     return
   }
@@ -341,19 +311,15 @@ export function populateCountySelect({
       </option>
     `
 
-  counties.forEach(
-    county => {
-
-      select.innerHTML += `
+  for (const county of counties) {
+    select.innerHTML += `
         <option
           value="${county.county_id}"
         >
           ${county.county_name}
         </option>
       `
-    }
-  )
-
+  }
 }
 
 export function populateSubcountySelect({
@@ -363,10 +329,9 @@ export function populateSubcountySelect({
   subcounties,
 
   placeholder =
-    'Select Subcounty'
+  'Select Subcounty'
 
 }) {
-
   if (!select) {
     return
   }
@@ -378,20 +343,17 @@ export function populateSubcountySelect({
       </option>
     `
 
-  subcounties.forEach(
-    subcounty => {
-
-      select.innerHTML += `
+  for (const subcounty of subcounties) {
+    select.innerHTML += `
         <option
           value="${subcounty.subcounty_id}"
         >
           ${subcounty.subcounty_name}
         </option>
       `
-    }
-  )
-
+  }
 }
+
 export function populateTownDatalist({
 
   datalist,
@@ -399,24 +361,19 @@ export function populateTownDatalist({
   towns
 
 }) {
-
   if (!datalist) {
     return
   }
 
   datalist.innerHTML = ''
 
-  towns.forEach(
-    town => {
-
-      datalist.innerHTML += `
+  for (const town of towns) {
+    datalist.innerHTML += `
         <option
           value="${town.town_name}"
         ></option>
       `
-    }
-  )
-
+  }
 }
 
 export function findTownByName({
@@ -426,7 +383,6 @@ export function findTownByName({
   townName
 
 }) {
-
   return (
     towns.find(
       town =>
@@ -442,7 +398,6 @@ export function findTownByName({
           .toLowerCase()
     ) || null
   )
-
 }
 
 export function buildLocationText({
@@ -454,7 +409,6 @@ export function buildLocationText({
   town
 
 }) {
-
   return [
 
     county,
@@ -466,7 +420,6 @@ export function buildLocationText({
   ]
     .filter(Boolean)
     .join(', ')
-
 }
 
 export async function populateLocationHierarchy({
@@ -482,19 +435,17 @@ export async function populateLocationHierarchy({
   subcountyId = null
 
 }) {
-
   const counties =
     await loadCounties()
 
   await loadCountySelect({
 
-  selectId:
+    selectId:
     countySelect.id
 
-})
+  })
 
   if (!countyId) {
-
     return {
 
       counties,
@@ -504,7 +455,6 @@ export async function populateLocationHierarchy({
       towns: []
 
     }
-
   }
 
   const subcounties =
@@ -514,15 +464,14 @@ export async function populateLocationHierarchy({
 
   await loadSubcountySelect({
 
-  countyId,
+    countyId,
 
-  selectId:
+    selectId:
     subcountySelect.id
 
-})
+  })
 
   if (!subcountyId) {
-
     return {
 
       counties,
@@ -532,7 +481,6 @@ export async function populateLocationHierarchy({
       towns: []
 
     }
-
   }
 
   const towns =
@@ -542,12 +490,12 @@ export async function populateLocationHierarchy({
 
   await loadTownDatalist({
 
-  subcountyId,
+    subcountyId,
 
-  datalistId:
+    datalistId:
     townDatalist.id
 
-})
+  })
 
   return {
 
@@ -558,7 +506,6 @@ export async function populateLocationHierarchy({
     towns
 
   }
-
 }
 
 export async function resolveLocation({
@@ -570,7 +517,6 @@ export async function resolveLocation({
   townId
 
 }) {
-
   const [
     counties,
     subcounties,
@@ -582,11 +528,11 @@ export async function resolveLocation({
 
       loadAllSubcounties(),
 
-      townId
-        ? loadTowns(
-            subcountyId
-          )
-        : []
+      townId ?
+        loadTowns(
+          subcountyId
+        ) :
+        []
 
     ])
 
@@ -614,9 +560,7 @@ export async function resolveLocation({
       )
 
   }
-
 }
-
 
 export async function loadCountySelect({
 
@@ -625,7 +569,6 @@ export async function loadCountySelect({
   placeholder = 'Select County'
 
 }) {
-
   const counties =
     await loadCounties()
 
@@ -646,7 +589,6 @@ export async function loadCountySelect({
   })
 
   return counties
-
 }
 
 export async function loadSubcountySelect({
@@ -656,35 +598,34 @@ export async function loadSubcountySelect({
   selectId,
 
   placeholder =
-    'Select Sub County'
+  'Select Sub County'
 
 }) {
-
   const subcounties =
     await loadSubcounties(
       countyId
     )
 
- populateSelect({
+  populateSelect({
 
-  selectId,
+    selectId,
 
-  items:
+    items:
     subcounties,
 
-  valueField:
+    valueField:
     'subcounty_id',
 
-  textField:
+    textField:
     'subcounty_name',
 
-  placeholder
+    placeholder
 
-})
+  })
 
   return subcounties
-
 }
+
 export async function loadTownDatalist({
 
   subcountyId,
@@ -692,9 +633,7 @@ export async function loadTownDatalist({
   datalistId
 
 }) {
-
   if (!subcountyId) {
-
     populateDataList({
 
       datalistId,
@@ -707,7 +646,6 @@ export async function loadTownDatalist({
     })
 
     return []
-
   }
 
   const towns =
@@ -728,7 +666,6 @@ export async function loadTownDatalist({
   })
 
   return towns
-
 }
 // =====================================================
 //  LOCATION CHAIN
@@ -745,7 +682,6 @@ export function populateLocationChain({
   townId
 
 }) {
-
   wireCascade({
 
     parentId:
@@ -802,7 +738,6 @@ export function populateLocationChain({
       'town_name'
 
   })
-
 }
 //  =====================================================
 //  CASCADING SELECTS
@@ -821,10 +756,9 @@ export function wireCascade({
   textField,
 
   placeholder =
-    'Select Option'
+  'Select Option'
 
 }) {
-
   const parent =
     get(parentId)
 
@@ -832,24 +766,46 @@ export function wireCascade({
     return
   }
 
- parent.addEventListener(
-  'change',
+  parent.addEventListener(
+    'change',
 
-  async () => {
-
-    const parentValue =
+    async () => {
+      const parentValue =
       parent.value
 
-    if (
-      !parentValue
-    ) {
+      if (
+        !parentValue
+      ) {
+        populateSelect({
+
+          selectId:
+          childId,
+
+          items: [],
+
+          valueField,
+
+          textField,
+
+          placeholder
+
+        })
+
+        return
+      }
+
+      const rows =
+      await loadChildren(
+        parentValue
+      )
 
       populateSelect({
 
         selectId:
-          childId,
+        childId,
 
-        items: [],
+        items:
+        rows,
 
         valueField,
 
@@ -858,33 +814,6 @@ export function wireCascade({
         placeholder
 
       })
-
-      return
-
     }
-
-    const rows =
-      await loadChildren(
-        parentValue
-      )
-
-    populateSelect({
-
-      selectId:
-        childId,
-
-      items:
-        rows,
-
-      valueField,
-
-      textField,
-
-      placeholder
-
-    })
-
-  }
-)
-
+  )
 }

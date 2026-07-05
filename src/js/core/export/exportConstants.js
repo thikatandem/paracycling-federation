@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // EXPORT CONSTANTS
 // ParaCycling Federation Management System
 // =====================================================
@@ -208,7 +208,6 @@ export const CSV_OPTIONS = {
 export function buildFileName(
   reportName
 ) {
-
   const now =
     new Date()
 
@@ -232,5 +231,4 @@ export function buildFileName(
     )
 
   return `${EXPORT_CONFIG.defaultFilePrefix}_${reportName}_${year}${month}${day}`
-
 }

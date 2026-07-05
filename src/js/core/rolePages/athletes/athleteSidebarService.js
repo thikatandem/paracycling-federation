@@ -1,5 +1,4 @@
-﻿export function getAthleteSidebar() {
-
+export function getAthleteSidebar() {
   return [
 
     {
@@ -57,5 +56,4 @@
     }
 
   ]
-
 }

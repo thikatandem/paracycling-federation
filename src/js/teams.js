@@ -1,7 +1,6 @@
 /* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
 
 import {
   get,
@@ -11,13 +10,13 @@ import {
   resetForm,
   populateSelect
 }
-from './core/domService.js'
+  from './core/domService.js'
 
 import {
   showPageLoader,
   hidePageLoader
 }
-from './core/uiService.js'
+  from './core/uiService.js'
 
 import {
   clearMessage,
@@ -60,7 +59,7 @@ import {
   setRows
 
 }
-from './core/pageStateService.js'
+  from './core/pageStateService.js'
 
 import {
   populateTeamForm,
@@ -70,14 +69,13 @@ import {
   detectPilotChange,
   detectStokerChange
 }
-from './core/teamFormService.js'
+  from './core/teamFormService.js'
 
 import {
   loadAthletesByRole,
   populateAthleteLookup
 }
-from './core/lookupService.js'
-
+  from './core/lookupService.js'
 
 const paginator =
   createPaginator()
@@ -88,12 +86,10 @@ let roleMap = {}
 let pilots = []
 let stokers = []
 
-
 /* ==========================================
    HELPERS
 ========================================== */
 function clearForm() {
-
   clearMessage(
     'teamFormError'
   )
@@ -120,25 +116,21 @@ function clearForm() {
     }
 
   })
-
 }
 /* ==========================================
    PILOT LOOKUP
 ========================================== */
 
 async function loadPilotLookup() {
-
   pilots =
     await loadAthletesByRole(
       'Pilot'
     )
 
   renderPilotLookup()
-
 }
 
 function renderPilotLookup() {
-
   populateAthleteLookup({
 
     selectId:
@@ -151,7 +143,6 @@ function renderPilotLookup() {
       'Select Pilot'
 
   })
-
 }
 
 /* ==========================================
@@ -159,18 +150,15 @@ function renderPilotLookup() {
 ========================================== */
 
 async function loadStokerLookup() {
-
   stokers =
     await loadAthletesByRole(
       'Stoker'
     )
 
   renderStokerLookup()
-
 }
 
 function renderStokerLookup() {
-
   populateAthleteLookup({
 
     selectId:
@@ -183,10 +171,9 @@ function renderStokerLookup() {
       'Select Stoker'
 
   })
-
 }
-async function loadRoleMap() {
 
+async function loadRoleMap() {
   const {
     data,
     error
@@ -250,17 +237,16 @@ async function loadTeams() {
 
     setRows({
 
-  state,
+      state,
 
-  rows:
+      rows:
     data || []
 
-})
-   for (const team of state.rows) {
-
-  const {
-    data: activeMembers
-  } =
+    })
+    for (const team of state.rows) {
+      const {
+        data: activeMembers
+      } =
     await window.supabaseClient
       .from('team_members')
       .select(`
@@ -282,24 +268,21 @@ async function loadTeams() {
       )
       .limit(1)
 
-  team.current_effective_date =
+      team.current_effective_date =
     activeMembers?.[0]
       ?.start_date || ''
-}
-
-    
+    }
 
     renderTeamsTable()
-
   } catch (error) {
     console.error(error)
 
     showError(
-  'teamFormError',
-  getFederationFriendlyError(
-    error
-  )
-)
+      'teamFormError',
+      getFederationFriendlyError(
+        error
+      )
+    )
   } finally {
     hidePageLoader()
   }
@@ -310,7 +293,6 @@ async function loadTeams() {
 ========================================== */
 
 function applySearch() {
-
   const term =
     (
       get('searchTeam')
@@ -354,14 +336,12 @@ function applySearch() {
   )
 
   renderTeamsTable()
-
 }
 /* ==========================================
    TABLE
 ========================================== */
 
 function renderTeamsTable() {
-
   const tbody =
     get('teamsTableBody')
 
@@ -389,11 +369,9 @@ function renderTeamsTable() {
   })
 
   updatePagination()
-
 }
 
 function updatePagination() {
-
   updatePaginationUi({
 
     paginator,
@@ -408,7 +386,6 @@ function updatePagination() {
       get('btnNextTeamPage')
 
   })
-
 }
 
 /* ==========================================
@@ -432,7 +409,6 @@ async function refreshTeams() {
 ========================================== */
 
 function openAddTeamModal() {
-
   openEntityModal({
 
     modalId:
@@ -448,14 +424,12 @@ function openAddTeamModal() {
       clearForm
 
   })
-
 }
 /* ==========================================
    VALIDATION
 ========================================== */
 
 function validateTeam() {
-
   const pilotId =
     getValue(
       'pilotAthleteId'
@@ -488,7 +462,6 @@ function validateTeam() {
   }
 
   return null
-
 }
 
 /* ==========================================
@@ -498,17 +471,17 @@ function validateTeam() {
 async function saveTeam() {
   try {
     clearMessage(
-  'teamFormError'
-)
+      'teamFormError'
+    )
 
     const validationError =
       validateTeam()
 
     if (validationError) {
       showError(
-  'teamFormError',
-  validationError
-)
+        'teamFormError',
+        validationError
+      )
 
       return
     }
@@ -521,20 +494,19 @@ async function saveTeam() {
     await (teamId ? updateTeam() : createTeam())
 
     hideModal(
-  'teamModal'
-)
+      'teamModal'
+    )
 
     await refreshTeams()
   } catch (error) {
     console.error(error)
 
     showError(
-  'teamFormError',
-  getFederationFriendlyError(
-    error
-  )
-)
-
+      'teamFormError',
+      getFederationFriendlyError(
+        error
+      )
+    )
   }
 }
 
@@ -542,7 +514,6 @@ async function saveTeam() {
    CREATE TEAM
 ========================================== */
 async function createTeam() {
-
   const effectiveDate =
     getValue(
       'effectiveDate'
@@ -586,44 +557,42 @@ async function createTeam() {
       'changeReason'
     )
   )
-
 }
 /* ==========================================
    UPDATE TEAM
 ========================================== */
 
 async function updateTeam() {
-
- const teamId =
+  const teamId =
   getValue(
     'teamId'
   )
 
-const selectedPilot =
+  const selectedPilot =
   getValue(
     'pilotAthleteId'
   )
 
-const selectedStoker =
+  const selectedStoker =
   getValue(
     'stokerAthleteId'
   )
 
-const effectiveDate =
+  const effectiveDate =
   getValue(
     'effectiveDate'
   )
 
-const reason =
+  const reason =
   getValue(
     'changeReason'
   )
 
   const currentTeam =
   state.rows.find(
-      team =>
-        team.team_id === teamId
-    )
+    team =>
+      team.team_id === teamId
+  )
 
   if (!currentTeam) {
     throw new Error(
@@ -642,12 +611,12 @@ const reason =
       currentTeam,
       selectedStoker
     )
-const payload =
+  const payload =
   buildTeamPayload()
 
-const {
-  error
-} =
+  const {
+    error
+  } =
   await window.supabaseClient
   .from('teams')
   .update(payload)
@@ -661,40 +630,37 @@ const {
   }
 
   if (pilotChanged) {
+    await closeActiveMember(
+      teamId,
+      roleMap.PILOT
+    )
 
-  await closeActiveMember(
-    teamId,
-    roleMap.PILOT
-  )
+    await createPilotHistory(
+      teamId,
+      selectedPilot,
+      effectiveDate,
+      reason
+    )
+  }
 
-  await createPilotHistory(
-    teamId,
-    selectedPilot,
-    effectiveDate,
-    reason
-  )
+  if (stokerChanged) {
+    await closeActiveMember(
+      teamId,
+      roleMap.STOKER
+    )
+
+    await createStokerHistory(
+      teamId,
+      selectedStoker,
+      effectiveDate,
+      reason
+    )
+  }
 }
 
- if (stokerChanged) {
-
-  await closeActiveMember(
-    teamId,
-    roleMap.STOKER
-  )
-
-  await createStokerHistory(
-    teamId,
-    selectedStoker,
-    effectiveDate,
-    reason
-  )
-}
-
-}
 async function loadTeamHistory(
   teamId
 ) {
-
   const {
     data,
     error
@@ -739,7 +705,6 @@ async function loadTeamHistory(
 function renderCurrentPairing(
   members
 ) {
-
   const tbody =
     get('currentPairingBody')
 
@@ -759,7 +724,6 @@ function renderCurrentPairing(
     const member
     of activeMembers
   ) {
-
     const row =
       document.createElement(
         'tr'
@@ -787,7 +751,6 @@ function renderCurrentPairing(
 function renderTeamHistory(
   members
 ) {
-
   const tbody =
     get('teamHistoryBody')
 
@@ -801,7 +764,6 @@ function renderTeamHistory(
     const member
     of members
   ) {
-
     const row =
       document.createElement(
         'tr'
@@ -837,13 +799,13 @@ function renderTeamHistory(
     tbody.append(row)
   }
 }
+
 async function createPilotHistory(
   teamId,
   athleteId,
   effectiveDate,
   reason
 ) {
-
   const {
     error
   } =
@@ -880,7 +842,6 @@ async function createStokerHistory(
   effectiveDate,
   reason
 ) {
-
   const {
     error
   } =
@@ -915,7 +876,6 @@ async function closeActiveMember(
   teamId,
   roleId
 ) {
-
   const {
     error
   } =
@@ -951,9 +911,6 @@ async function closeActiveMember(
   }
 }
 
-
-
-
 /* ==========================================
    EDIT TEAM
 ========================================== */
@@ -962,13 +919,12 @@ async function editTeam(
   teamId
 ) {
   try {
-
     const team =
   state.rows.find(
-        team =>
-          team.team_id ===
+    team =>
+      team.team_id ===
           teamId
-      )
+  )
 
     if (!team) {
       return
@@ -1007,27 +963,26 @@ async function editTeam(
 
     populateTeamForm({
 
-  team,
+      team,
 
-  effectiveDate:
+      effectiveDate:
     activeMembers?.[0]
       ?.start_date || ''
 
-})
+    })
 
     setText(
-  'teamModalTitle',
-  'Edit Team'
-)
+      'teamModalTitle',
+      'Edit Team'
+    )
 
     await loadTeamHistory(
       teamId
     )
 
     showModal(
-  'teamModal'
-)
-
+      'teamModal'
+    )
   } catch (error) {
     console.error(
       error
@@ -1035,13 +990,13 @@ async function editTeam(
 
     showError(
 
-  'teamFormError',
+      'teamFormError',
 
-  getFederationFriendlyError(
-    error
-  )
+      getFederationFriendlyError(
+        error
+      )
 
-)
+    )
   }
 }
 /* ==========================================
@@ -1051,22 +1006,19 @@ async function editTeam(
 function confirmDeleteTeam(
   teamId
 ) {
-
   setValue(
-  'deleteTeamId',
-  teamId
-)
+    'deleteTeamId',
+    teamId
+  )
 
   showModal(
     'deleteTeamModal'
   )
-
 }
 
 function renderTeamRow(
   team
 ) {
-
   const actionButtons =
 
     buildActionButtons({
@@ -1094,46 +1046,44 @@ function renderTeamRow(
 <tr>
 
 ${buildTextCell(
-  team.team_code
-)}
+    team.team_code
+  )}
 
 ${buildTextCell(
-  team.team_name
-)}
+    team.team_name
+  )}
 
 ${buildTextCell(
-  team.team_nickname
-)}
+    team.team_nickname
+  )}
 
 ${buildTextCell(
-  `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
-)}
+    `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
-)}
+    `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
+  )}
 
 ${buildTextCell(
-  team.current_effective_date
-)}
+    team.current_effective_date
+  )}
 
 ${buildStatusCell(
-  getStatusBadge(
-    team.status,
-    team.status
-  )
-)}
+    getStatusBadge(
+      team.status,
+      team.status
+    )
+  )}
 
 ${buildActionCell(
-  actionButtons
-)}
+    actionButtons
+  )}
 
 </tr>
 
 `
-
 }
-
 
 /* ==========================================
    DELETE TEAM
@@ -1151,8 +1101,8 @@ async function deleteTeam() {
     }
 
     const {
-  error: historyError
-} =
+      error: historyError
+    } =
   await window.supabaseClient
     .from('team_members')
     .delete()
@@ -1161,13 +1111,13 @@ async function deleteTeam() {
       teamId
     )
 
-if (historyError) {
-  throw historyError
-}
+    if (historyError) {
+      throw historyError
+    }
 
-const {
-  error: teamError
-} =
+    const {
+      error: teamError
+    } =
   await window.supabaseClient
     .from('teams')
     .delete()
@@ -1176,24 +1126,24 @@ const {
       teamId
     )
 
-if (teamError) {
-  throw teamError
-}
+    if (teamError) {
+      throw teamError
+    }
 
     hideModal(
-  'deleteTeamModal'
-)
+      'deleteTeamModal'
+    )
 
     await refreshTeams()
   } catch (error) {
     console.error(error)
 
     showError(
-  'teamFormError',
-  getFederationFriendlyError(
-    error
-  )
-)
+      'teamFormError',
+      getFederationFriendlyError(
+        error
+      )
+    )
   }
 }
 /* ==========================================
@@ -1201,18 +1151,17 @@ if (teamError) {
 ========================================== */
 
 function wireEvents() {
-
-const refreshButton =
+  const refreshButton =
   get('btnRefreshTeams')
 
-if (refreshButton) {
-  refreshButton.addEventListener(
-    'click',
-    refreshTeams
-  )
-}
+  if (refreshButton) {
+    refreshButton.addEventListener(
+      'click',
+      refreshTeams
+    )
+  }
 
-const addButton =
+  const addButton =
     get('btnAddTeam')
 
   if (addButton) {
@@ -1251,14 +1200,11 @@ const addButton =
       applySearch
     )
   }
-
-  
 }
 
 /* ==========================================
    MODALS
 ========================================== */
-
 
 /* ==========================================
    ERROR HANDLING
@@ -1297,7 +1243,6 @@ window.confirmDeleteTeam =
 window.openAddTeamModal =
   openAddTeamModal
 
-
 /* ==========================================
    INITIALIZATION
 ========================================== */
@@ -1314,25 +1259,25 @@ async function initializeTeams() {
       return
     }
 
-   bindPagination({
+    bindPagination({
 
-  paginator,
+      paginator,
 
-  previousButtonId:
+      previousButtonId:
     'btnPreviousTeamPage',
 
-  nextButtonId:
+      nextButtonId:
     'btnNextTeamPage',
 
-  infoElementId:
+      infoElementId:
     'teamPaginationInfo',
 
-  onChange:
+      onChange:
     renderTeamsTable
 
-})
+    })
 
-   wireEvents()
+    wireEvents()
 
     await loadRoleMap()
 

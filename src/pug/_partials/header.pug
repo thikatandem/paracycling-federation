@@ -36,42 +36,110 @@
       li.nav-item.dropdown
         a.nav-link.py-0.pe-0(data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false")
           .avatar.avatar-md
-            img.avatar-img(src="assets/img/avatars/8.jpg" alt="user@email.com")
+            img.avatar-img(
+              id="profileAvatar"
+              src="/assets/img/profiles/default-avatar.png"
+              alt="User Avatar"
+              style="cursor:pointer;"
+            )
+            input(
+              type="file"
+              id="headerProfilePhotoUpload"
+              accept="image/*"
+              hidden
+            )
         .dropdown-menu.dropdown-menu-end.pt-0
-          .dropdown-header.bg-body-tertiary.text-body-secondary.fw-semibold.rounded-top.mb-2 Account
-          a.dropdown-item(href="#")
+          .dropdown-header.bg-body-tertiary.rounded-top.mb-2
+            .d-flex.align-items-center.gap-2
+
+              .avatar.avatar-md
+                img.avatar-img(
+                  id="profileAvatarDropdown"
+                  src="/assets/img/profiles/default-avatar.png"
+                  alt="User Avatar"
+                  style="cursor:pointer;"
+                )
+
+              div
+                .fw-semibold(id="profileFullName") Loading...
+                small.text-body-secondary(id="profileRole") Loading...
+
+          
+          a.dropdown-item(
+            href="#"
+            id="headerUpdates"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-bell.svg').icon.me-2
             |  Updates
+
             span.badge.badge-sm.bg-info.ms-2 8
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerMessages"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-envelope-open.svg').icon.me-2
             |  Messages
+
             span.badge.badge-sm.bg-success.ms-2 42
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerTasks"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-task.svg').icon.me-2
             |  Tasks
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerComments"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-comment-square.svg').icon.me-2
             |  Comments
+
           .dropdown-header.bg-body-tertiary.text-body-secondary.fw-semibold.my-2
             .fw-semibold Settings
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="/federation/profile.html"
+            id="headerProfile"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-user.svg').icon.me-2
             |  Profile
-          a.dropdown-item(href="#")
+          a.dropdown-item(
+            href="#"
+            id="headerSettings"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-settings.svg').icon.me-2
             |  Settings
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerPayments"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-credit-card.svg').icon.me-2
             |  Payments
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerProjects"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-file.svg').icon.me-2
             |  Projects
+
           .dropdown-divider
-          a.dropdown-item(href="#")
+
+          a.dropdown-item(
+            href="#"
+            id="headerLock"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-lock-locked.svg').icon.me-2
             |  Lock Account
-          a.dropdown-item(href="/authentication/login.html")
+
+          a.dropdown-item(
+            href="#"
+            id="logoutButton"
+          )
             +inlineSvg('node_modules/@coreui/icons/svg/free/cil-account-logout.svg').icon.me-2
             |  Logout
   .container-fluid.px-4

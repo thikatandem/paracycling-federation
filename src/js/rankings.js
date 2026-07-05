@@ -84,8 +84,8 @@ function setValue(
       value || ''
   }
 }
-async function loadRankingTypes() {
 
+async function loadRankingTypes() {
   const { data, error } =
     await db
       .from(
@@ -124,7 +124,6 @@ async function loadRankingTypes() {
     const rankingType
     of rankingTypes
   ) {
-
     select.innerHTML += `
       <option
         value="${rankingType.ranking_type_id}"
@@ -134,8 +133,8 @@ async function loadRankingTypes() {
     `
   }
 }
-async function loadTeams() {
 
+async function loadTeams() {
   const { data, error } =
     await db
       .from('teams')
@@ -174,7 +173,6 @@ async function loadTeams() {
     const team
     of teams
   ) {
-
     select.innerHTML += `
       <option
         value="${team.team_id}"
@@ -184,10 +182,9 @@ async function loadTeams() {
     `
   }
 }
+
 async function loadRankings() {
-
   try {
-
     showLoading()
 
     const { data, error } =
@@ -220,23 +217,18 @@ async function loadRankings() {
       [...rankings]
 
     renderRankings()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
       'Failed to load rankings'
     )
-
   } finally {
-
     hideLoading()
-
   }
 }
-function renderRankings() {
 
+function renderRankings() {
   if (
     !rankingsTableBody
   ) {
@@ -263,7 +255,6 @@ function renderRankings() {
   if (
     pageRows.length === 0
   ) {
-
     rankingsTableBody.innerHTML =
       `
       <tr>
@@ -285,52 +276,51 @@ function renderRankings() {
     const ranking
     of pageRows
   ) {
-
     rankingsTableBody.innerHTML += `
       <tr>
 
         <td>
           ${
-            ranking
+  ranking
               .ranking_type_master
               ?.ranking_type_name || ''
-          }
+}
         </td>
 
         <td>
           ${
-            ranking
+  ranking
               .teams
               ?.team_name || ''
-          }
+}
         </td>
 
         <td>
           ${
-            ranking
+  ranking
               .ranking_position || ''
-          }
+}
         </td>
 
         <td>
           ${
-            ranking
+  ranking
               .ranking_points || 0
-          }
+}
         </td>
 
         <td>
           ${
-            ranking
+  ranking
               .ranking_date || ''
-          }
+}
         </td>
 
         <td>
           ${
-            ranking
+  ranking
               .remarks || ''
-          }
+}
         </td>
 
         <td>
@@ -357,8 +347,8 @@ function renderRankings() {
 
   updatePagination()
 }
-function updatePagination() {
 
+function updatePagination() {
   const totalPages =
     Math.max(
       1,
@@ -369,10 +359,8 @@ function updatePagination() {
     )
 
   if (paginationInfo) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -386,21 +374,17 @@ function updatePagination() {
     )
 
   if (previousButton) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (nextButton) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
 }
-function searchRankings() {
 
+function searchRankings() {
   const search =
     (
       searchRanking?.value || ''
@@ -414,7 +398,6 @@ function searchRankings() {
 
       rankings.filter(
         ranking => {
-
           return (
 
             (
@@ -423,9 +406,7 @@ function searchRankings() {
                 ?.ranking_type_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               ranking
@@ -433,9 +414,7 @@ function searchRankings() {
                 ?.team_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               ranking
@@ -445,11 +424,8 @@ function searchRankings() {
               .includes(search)
 
           )
-
         }
-      )
-
-      :
+      ) :
 
       [...rankings]
 
@@ -457,8 +433,8 @@ function searchRankings() {
 
   renderRankings()
 }
-function clearRankingForm() {
 
+function clearRankingForm() {
   clearError()
 
   setValue(
@@ -498,8 +474,8 @@ function clearRankingForm() {
       .split('T')[0]
   )
 }
-function openNewRankingModal() {
 
+function openNewRankingModal() {
   clearRankingForm()
 
   const modal =
@@ -511,8 +487,8 @@ function openNewRankingModal() {
 
   modal.show()
 }
-function validateRanking() {
 
+function validateRanking() {
   clearError()
 
   if (
@@ -520,7 +496,6 @@ function validateRanking() {
       'rankingTypeId'
     )
   ) {
-
     showError(
       'Ranking Type is required'
     )
@@ -533,7 +508,6 @@ function validateRanking() {
       'teamId'
     )
   ) {
-
     showError(
       'Team is required'
     )
@@ -546,7 +520,6 @@ function validateRanking() {
       'rankingPosition'
     )
   ) {
-
     showError(
       'Position is required'
     )
@@ -559,7 +532,6 @@ function validateRanking() {
       'rankingPoints'
     )
   ) {
-
     showError(
       'Points are required'
     )
@@ -572,7 +544,6 @@ function validateRanking() {
       'rankingDate'
     )
   ) {
-
     showError(
       'Ranking Date is required'
     )
@@ -582,10 +553,9 @@ function validateRanking() {
 
   return true
 }
+
 async function saveRanking() {
-
   try {
-
     if (!validateRanking()) {
       return
     }
@@ -629,7 +599,6 @@ async function saveRanking() {
     let error
 
     if (rankingId) {
-
       const response =
         await db
           .from('rankings')
@@ -641,9 +610,7 @@ async function saveRanking() {
 
       error =
         response.error
-
     } else {
-
       const response =
         await db
           .from('rankings')
@@ -666,9 +633,7 @@ async function saveRanking() {
       ?.hide()
 
     await loadRankings()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -676,11 +641,11 @@ async function saveRanking() {
     )
   }
 }
+
 window.editRanking =
 function (
   rankingId
 ) {
-
   const ranking =
     rankings.find(
       item =>
@@ -738,11 +703,11 @@ function (
 
   modal.show()
 }
+
 window.confirmDeleteRanking =
 function (
   rankingId
 ) {
-
   setValue(
     'deleteRankingId',
     rankingId
@@ -757,10 +722,9 @@ function (
 
   modal.show()
 }
+
 async function deleteRanking() {
-
   try {
-
     const rankingId =
       getValue(
         'deleteRankingId'
@@ -788,9 +752,7 @@ async function deleteRanking() {
       ?.hide()
 
     await loadRankings()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
@@ -798,8 +760,8 @@ async function deleteRanking() {
     )
   }
 }
-function wireEvents() {
 
+function wireEvents() {
   document
     .getElementById(
       'btnAddRanking'
@@ -849,11 +811,9 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           renderRankings()
@@ -868,7 +828,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.max(
             1,
@@ -882,7 +841,6 @@ function wireEvents() {
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           renderRankings()
@@ -890,10 +848,9 @@ function wireEvents() {
       }
     )
 }
+
 async function initializeRankings() {
-
   try {
-
     await loadRankingTypes()
 
     await loadTeams()
@@ -901,9 +858,7 @@ async function initializeRankings() {
     await loadRankings()
 
     wireEvents()
-
   } catch (error) {
-
     console.error(error)
 
     alert(

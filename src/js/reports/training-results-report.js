@@ -1,11 +1,11 @@
-﻿// =====================================================
+// =====================================================
 // TRAINING RESULTS REPORT
 // =====================================================
 
 import {
   supabase
 }
-from '../core/supabase/supabaseClient.js'
+  from '../core/supabase/supabaseClient.js'
 
 import {
   getValue,
@@ -15,21 +15,19 @@ import {
   replaceOptions,
   get
 }
-from '../core/domService.js'
-
+  from '../core/domService.js'
 
 import {
   calculateAverage,
   calculateTotal,
   attendancePercentage
 }
-from '../core/calculationService.js'
+  from '../core/calculationService.js'
 
 import {
   downloadCsv
 }
-from '../core/export/csvExport.js'
-
+  from '../core/export/csvExport.js'
 
 import {
 
@@ -40,12 +38,12 @@ import {
   downloadTrainingReportPdf
 
 }
-from '../core/export/exportService.js'
+  from '../core/export/exportService.js'
 
 import {
   getParticipantStatusBadge
 }
-from '../core/badgeService.js'
+  from '../core/badgeService.js'
 
 // =====================================================
 // STATE
@@ -69,11 +67,10 @@ let currentTrainingPage = 1
 
 const TRAINING_PAGE_SIZE =
   25
-let participantAnalysisPage = 1
+const participantAnalysisPage = 1
 
 const PARTICIPANT_PAGE_SIZE =
   20
-
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -81,7 +78,6 @@ document.addEventListener(
 )
 
 function getPagedTrainingRecords() {
-
   const startIndex =
 
     (
@@ -102,7 +98,6 @@ function getPagedTrainingRecords() {
 }
 
 function updateTrainingPagination() {
-
   const totalPages =
 
     Math.max(
@@ -123,18 +118,17 @@ function updateTrainingPagination() {
 
   const previousButton =
     get(
-  'btnPreviousTrainingPage'
-)
+      'btnPreviousTrainingPage'
+    )
 
   const nextButton =
     get(
-  'btnNextTrainingPage'
-)
+      'btnNextTrainingPage'
+    )
 
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentTrainingPage <= 1
   }
@@ -142,7 +136,6 @@ function updateTrainingPagination() {
   if (
     nextButton
   ) {
-
     nextButton.disabled =
 
       currentTrainingPage >=
@@ -150,11 +143,9 @@ function updateTrainingPagination() {
   }
 }
 
-
 function goToTrainingPage(
   page
 ) {
-
   const totalPages =
 
     Math.max(
@@ -183,56 +174,47 @@ function goToTrainingPage(
 }
 
 function nextTrainingPage() {
-
   goToTrainingPage(
     currentTrainingPage + 1
   )
 }
 
 function previousTrainingPage() {
-
   goToTrainingPage(
     currentTrainingPage - 1
   )
 }
 
-
 function buildAttendanceIntelligence() {
-
   const weeks = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const week =
+  for (const record of filteredTrainingRecords) {
+    const week =
 
         record.training_week ||
         'Unknown'
 
-      if (
-        !weeks[week]
-      ) {
+    if (
+      !weeks[week]
+    ) {
+      weeks[week] = {
 
-        weeks[week] = {
+        sessions: 0,
 
-          sessions: 0,
-
-          attendance: 0
-        }
-      }
-
-      weeks[week]
-        .sessions++
-
-      if (
-        record.attendance
-      ) {
-
-        weeks[week]
-          .attendance++
+        attendance: 0
       }
     }
-  )
+
+    weeks[week]
+        .sessions++
+
+    if (
+      record.attendance
+    ) {
+      weeks[week]
+          .attendance++
+    }
+  }
 
   const results =
 
@@ -245,16 +227,12 @@ function buildAttendanceIntelligence() {
 
         percentage:
 
-          stat.sessions
-
-            ?
+          stat.sessions ?
 
             (
               stat.attendance /
               stat.sessions
-            ) * 100
-
-            :
+            ) * 100 :
 
             0
       })
@@ -288,21 +266,18 @@ function buildAttendanceIntelligence() {
       <tbody>
   `
 
-  results.forEach(
-    row => {
-
-      html += `
+  for (const row of results) {
+    html += `
         <tr>
           <td>${row.week}</td>
           <td>
             ${row.percentage.toFixed(
-              1
-            )}%
+    1
+  )}%
           </td>
         </tr>
       `
-    }
-  )
+  }
 
   html += `
       </tbody>
@@ -317,27 +292,22 @@ function buildAttendanceIntelligence() {
   return results
 }
 
-
 function buildPerformanceCorrelation() {
-
   const correlations = []
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const performance =
+  for (const record of filteredTrainingRecords) {
+    const performance =
         record.performance?.[0]
 
-      if (
-        !performance
-      ) {
+    if (
+      !performance
+    ) {
+      continue
+    }
 
-        return
-      }
+    correlations.push({
 
-      correlations.push({
-
-        participant:
+      participant:
 
           record
             ?.participant_instances
@@ -346,32 +316,31 @@ function buildPerformanceCorrelation() {
 
           'Unknown',
 
-        attendance:
+      attendance:
 
-          record.attendance
-            ? 100
-            : 0,
+          record.attendance ?
+            100 :
+            0,
 
-        speed:
+      speed:
 
           Number(
             performance.avg_speed_kmh || 0
           ),
 
-        watts:
+      watts:
 
           Number(
             performance.avg_watts || 0
           ),
 
-        tss:
+      tss:
 
           Number(
             performance.training_stress_score || 0
           )
-      })
-    }
-  )
+    })
+  }
 
   let html = `
     <table
@@ -389,10 +358,8 @@ function buildPerformanceCorrelation() {
       <tbody>
   `
 
-  correlations.forEach(
-    row => {
-
-      html += `
+  for (const row of correlations) {
+    html += `
         <tr>
           <td>${row.participant}</td>
           <td>${row.attendance}%</td>
@@ -401,8 +368,7 @@ function buildPerformanceCorrelation() {
           <td>${row.tss}</td>
         </tr>
       `
-    }
-  )
+  }
 
   html += `
       </tbody>
@@ -417,15 +383,8 @@ function buildPerformanceCorrelation() {
   return correlations
 }
 
-
-
-
-
-
 async function initializeTrainingReport() {
-
   try {
-
     bindEvents()
 
     await loadLookups()
@@ -433,9 +392,7 @@ async function initializeTrainingReport() {
     await loadTrainingRecords()
 
     applyTrainingFilters()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -443,63 +400,59 @@ async function initializeTrainingReport() {
     )
   }
 }
-function bindEvents() {
 
+function bindEvents() {
   on(
     'btnRefreshTrainingReport',
     'click',
     async () => {
-
       await loadTrainingRecords()
 
       applyTrainingFilters()
     }
   )
 
-on(
-  'filterEventId',
-  'change',
-  handleEventFilterChange
-)
+  on(
+    'filterEventId',
+    'change',
+    handleEventFilterChange
+  )
 
-on(
-  'filterProgramId',
-  'change',
-  handleProgramFilterChange
-)
+  on(
+    'filterProgramId',
+    'change',
+    handleProgramFilterChange
+  )
 
+  on(
+    'filterOccurrenceId',
+    'change',
+    handleOccurrenceFilterChange
+  )
 
-on(
-  'filterOccurrenceId',
-  'change',
-  handleOccurrenceFilterChange
-)
+  on(
+    'filterCountyId',
+    'change',
+    applyTrainingFilters
+  )
 
+  on(
+    'filterStatusId',
+    'change',
+    applyTrainingFilters
+  )
 
-on(
-  'filterCountyId',
-  'change',
-  applyTrainingFilters
-)
+  on(
+    'filterStartDate',
+    'change',
+    applyTrainingFilters
+  )
 
-on(
-  'filterStatusId',
-  'change',
-  applyTrainingFilters
-)
-
-on(
-  'filterStartDate',
-  'change',
-  applyTrainingFilters
-)
-
-on(
-  'filterEndDate',
-  'change',
-  applyTrainingFilters
-)
-
+  on(
+    'filterEndDate',
+    'change',
+    applyTrainingFilters
+  )
 
   on(
     'btnApplyTrainingReportFilters',
@@ -513,17 +466,17 @@ on(
     clearFilters
   )
 
-on(
-  'btnPreviousTrainingPage',
-  'click',
-  previousTrainingPage
-)
+  on(
+    'btnPreviousTrainingPage',
+    'click',
+    previousTrainingPage
+  )
 
-on(
-  'btnNextTrainingPage',
-  'click',
-  nextTrainingPage
-)
+  on(
+    'btnNextTrainingPage',
+    'click',
+    nextTrainingPage
+  )
 
   on(
     'btnExportTrainingCsv',
@@ -532,41 +485,40 @@ on(
   )
 
   on(
-  'btnExportTrainingExcel',
-  'click',
-  exportTrainingExcel
-)
-
-on(
-  'btnExportTrainingPdf',
-  'click',
-  exportTrainingPdf
-)   
-
+    'btnExportTrainingExcel',
+    'click',
+    exportTrainingExcel
+  )
 
   on(
-  'searchParticipantAnalysis',
-  'input',
-  buildParticipantAnalysis
-)
+    'btnExportTrainingPdf',
+    'click',
+    exportTrainingPdf
+  )
+
+  on(
+    'searchParticipantAnalysis',
+    'input',
+    buildParticipantAnalysis
+  )
 }
+
 async function loadLookups() {
-
   const [
-  eventsResponse,
-  occurrencesResponse,
-  programsResponse,
-  countiesResponse,
-  statusesResponse
-] = await Promise.all([
+    eventsResponse,
+    occurrencesResponse,
+    programsResponse,
+    countiesResponse,
+    statusesResponse
+  ] = await Promise.all([
 
-  supabase
+    supabase
     .from('events')
     .select('*')
     .order(
       'event_name'
     ),
-  supabase
+    supabase
   .from('event_instances')
   .select(`
     event_instance_id,
@@ -577,37 +529,35 @@ async function loadLookups() {
     'event_area'
   ),
 
-  supabase
+    supabase
     .from('event_programs')
     .select('*')
     .order(
       'program_name'
     ),
 
-  supabase
+    supabase
     .from('county_master')
     .select('*')
     .order(
       'county_name'
     ),
 
-  supabase
+    supabase
     .from('status_master')
     .select('*')
     .order(
       'status_name'
     )
-])
+  ])
 
-programsLookup =
+  programsLookup =
   programsResponse.data || []
-
-
 
   eventsLookup =
     eventsResponse.data || []
 
-occurrencesLookup =
+  occurrencesLookup =
   occurrencesResponse.data || []
 
   countiesLookup =
@@ -636,27 +586,26 @@ occurrencesLookup =
       )
   })
 
-replaceOptions({
+  replaceOptions({
 
-  selectId:
+    selectId:
     'filterOccurrenceId',
 
-  placeholder:
+    placeholder:
     'All Occurrences',
 
-  options: []
-})
+    options: []
+  })
 
+  replaceOptions({
 
-replaceOptions({
-
-  selectId:
+    selectId:
     'filterProgramId',
 
-  placeholder:
+    placeholder:
     'All Programs',
 
-  options:
+    options:
     programsLookup.map(
       program => ({
         value:
@@ -666,7 +615,7 @@ replaceOptions({
           program.program_name
       })
     )
-})
+  })
 
   replaceOptions({
 
@@ -709,22 +658,19 @@ replaceOptions({
   })
 }
 
-
 function handleEventFilterChange() {
-
   const eventId =
     getValue(
       'filterEventId'
     )
 
-const occurrenceId =
+  const occurrenceId =
   getValue(
     'filterOccurrenceId'
   )
 
-if (occurrenceId) {
-
-  filteredTrainingRecords =
+  if (occurrenceId) {
+    filteredTrainingRecords =
     filteredTrainingRecords.filter(
       record =>
 
@@ -732,10 +678,9 @@ if (occurrenceId) {
           ?.event_instance_id ===
         occurrenceId
     )
-}
+  }
 
   if (!eventId) {
-
     replaceOptions({
 
       selectId:
@@ -801,87 +746,76 @@ if (occurrenceId) {
   const countyMap =
     new Map()
 
-const statusMap =
+  const statusMap =
   new Map()
 
-
-  trainingRecords.forEach(
-    record => {
-
-      if (
-  record.event_instances
+  for (const record of trainingRecords) {
+    if (
+      record.event_instances
     ?.events
     ?.event_id !==
   eventId
-) {
-  return
-}
+    ) {
+      continue
+    }
 
-      const occurrence =
+    const occurrence =
         record.event_instances
 
-      if (
-        occurrence?.event_instance_id
-      ) {
+    if (
+      occurrence?.event_instance_id
+    ) {
+      occurrenceMap.set(
+        occurrence.event_instance_id,
+        occurrence
+      )
+    }
 
-        occurrenceMap.set(
-          occurrence.event_instance_id,
-          occurrence
-        )
-      }
-
-      const program =
+    const program =
         record.event_programs
 
-      if (
-        program?.program_id
-      ) {
+    if (
+      program?.program_id
+    ) {
+      programMap.set(
+        program.program_id,
+        program
+      )
+    }
 
-        programMap.set(
-          program.program_id,
-          program
-        )
-      }
-
-      const county =
+    const county =
         occurrence?.county_master
 
-      if (
-        county?.county_id
-      ) {
+    if (
+      county?.county_id
+    ) {
+      countyMap.set(
+        county.county_id,
+        county
+      )
+    }
 
-        countyMap.set(
-          county.county_id,
-          county
-        )
-      }
-
-const statusId =
+    const statusId =
   record
     ?.participant_instances
     ?.participant_status_id
 
-const status =
+    const status =
   statusesLookup.find(
     s =>
       s.status_id ===
       statusId
   )
 
-if (
-  status?.status_id
-) {
-
-  statusMap.set(
-    status.status_id,
-    status
-  )
-}
+    if (
+      status?.status_id
+    ) {
+      statusMap.set(
+        status.status_id,
+        status
+      )
     }
-  )
-  
-
-
+  }
 
   replaceOptions({
 
@@ -946,16 +880,15 @@ if (
         )
   })
 
+  replaceOptions({
 
-replaceOptions({
-
-  selectId:
+    selectId:
     'filterStatusId',
 
-  placeholder:
+    placeholder:
     'All Statuses',
 
-  options:
+    options:
     [...statusMap.values()]
       .map(
         status => ({
@@ -966,13 +899,12 @@ replaceOptions({
             status.status_name
         })
       )
-})
+  })
 
   applyTrainingFilters()
 }
 
 function handleOccurrenceFilterChange() {
-
   const occurrenceId =
     getValue(
       'filterOccurrenceId'
@@ -981,30 +913,25 @@ function handleOccurrenceFilterChange() {
   const programMap =
     new Map()
 
-  trainingRecords.forEach(
-    record => {
-
-      if (
-  record.event_instances
+  for (const record of trainingRecords) {
+    if (
+      record.event_instances
     ?.event_instance_id ===
   occurrenceId
-) {
-
-        const program =
+    ) {
+      const program =
           record.event_programs
 
-        if (
-          program?.program_id
-        ) {
-
-          programMap.set(
-            program.program_id,
-            program
-          )
-        }
+      if (
+        program?.program_id
+      ) {
+        programMap.set(
+          program.program_id,
+          program
+        )
       }
     }
-  )
+  }
 
   replaceOptions({
 
@@ -1026,14 +953,10 @@ function handleOccurrenceFilterChange() {
           })
         )
   })
-applyTrainingFilters()
-
+  applyTrainingFilters()
 }
 
-
-
 function handleProgramFilterChange() {
-
   const eventId =
     getValue(
       'filterEventId'
@@ -1052,52 +975,48 @@ function handleProgramFilterChange() {
   const countyMap =
     new Map()
 
-  trainingRecords.forEach(
-    record => {
-
-      if (
-  eventId &&
+  for (const record of trainingRecords) {
+    if (
+      eventId &&
   record.event_instances
     ?.events
     ?.event_id !==
   eventId
-) {
-        return
-      }
+    ) {
+      continue
+    }
 
-     if (
-  occurrenceId &&
+    if (
+      occurrenceId &&
   record.event_instances
     ?.event_instance_id !==
   occurrenceId
-) {
-        return
-      }
+    ) {
+      continue
+    }
 
-      if (
-        programId &&
+    if (
+      programId &&
         record.event_programs
           ?.program_id !==
         programId
-      ) {
-        return
-      }
+    ) {
+      continue
+    }
 
-      const county =
+    const county =
         record.event_instances
           ?.county_master
 
-      if (
-        county?.county_id
-      ) {
-
-        countyMap.set(
-          county.county_id,
-          county
-        )
-      }
+    if (
+      county?.county_id
+    ) {
+      countyMap.set(
+        county.county_id,
+        county
+      )
     }
-  )
+  }
 
   replaceOptions({
 
@@ -1124,9 +1043,6 @@ function handleProgramFilterChange() {
 }
 
 async function loadTrainingRecords() {
-
-
-
   const {
     data,
     error
@@ -1193,51 +1109,49 @@ async function loadTrainingRecords() {
     .order(
       'training_date',
       {
-        ascending:false
+        ascending: false
       }
     )
-if (error) {
+  if (error) {
+    console.error(
+      'TRAINING REPORT QUERY ERROR',
+      error
+    )
 
-  console.error(
-    'TRAINING REPORT QUERY ERROR',
-    error
-  )
-
-  throw error
-}
+    throw error
+  }
 
   trainingRecords =
     data || []
 
-console.table(
-  trainingRecords.map(
-    r => ({
-      training_id: r.training_id,
-      hasEventInstance: !!r.event_instances,
-      hasEvent: !!r.event_instances?.events,
-      hasProgram: !!r.event_programs,
-      hasParticipant: !!r.participant_instances
-    })
+  console.table(
+    trainingRecords.map(
+      r => ({
+        training_id: r.training_id,
+        hasEventInstance: Boolean(r.event_instances),
+        hasEvent: Boolean(r.event_instances?.events),
+        hasProgram: Boolean(r.event_programs),
+        hasParticipant: Boolean(r.participant_instances)
+      })
+    )
   )
-)
 
-console.log(
-  'TRAINING RECORD COUNT',
-  trainingRecords.length
-)
-
-console.log(
-  'FIRST RECORD',
-  JSON.stringify(
-    trainingRecords[0],
-    null,
-    2
+  console.log(
+    'TRAINING RECORD COUNT',
+    trainingRecords.length
   )
-)
 
+  console.log(
+    'FIRST RECORD',
+    JSON.stringify(
+      trainingRecords[0],
+      null,
+      2
+    )
+  )
 }
-function applyTrainingFilters() {
 
+function applyTrainingFilters() {
   filteredTrainingRecords =
     [...trainingRecords]
 
@@ -1247,8 +1161,7 @@ function applyTrainingFilters() {
     )
 
   if (eventId) {
-
-  filteredTrainingRecords =
+    filteredTrainingRecords =
     filteredTrainingRecords.filter(
       record =>
 
@@ -1257,8 +1170,7 @@ function applyTrainingFilters() {
           ?.event_id ===
         eventId
     )
-}
-
+  }
 
   const programId =
     getValue(
@@ -1266,7 +1178,6 @@ function applyTrainingFilters() {
     )
 
   if (programId) {
-
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
@@ -1282,7 +1193,6 @@ function applyTrainingFilters() {
     )
 
   if (countyId) {
-
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
@@ -1299,7 +1209,6 @@ function applyTrainingFilters() {
     )
 
   if (statusId) {
-
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
@@ -1316,7 +1225,6 @@ function applyTrainingFilters() {
     )
 
   if (startDate) {
-
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
@@ -1331,7 +1239,6 @@ function applyTrainingFilters() {
     )
 
   if (endDate) {
-
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
@@ -1381,14 +1288,11 @@ function applyTrainingFilters() {
   renderTrainingTable()
 
   updateTrainingPagination()
-
-
 }
 
 function showError(
   message
 ) {
-
   setText(
     'trainingReportError',
     message
@@ -1407,7 +1311,6 @@ function showError(
 function showSuccess(
   message
 ) {
-
   setText(
     'trainingReportSuccess',
     message
@@ -1424,7 +1327,6 @@ function showSuccess(
 }
 
 function buildSummaryCards() {
-
   const totalSessions =
     filteredTrainingRecords.length
 
@@ -1443,108 +1345,99 @@ function buildSummaryCards() {
 
   let attendanceCount = 0
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participantId =
+  for (const record of filteredTrainingRecords) {
+    const participantId =
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
+    if (
+      participantId
+    ) {
+      uniqueParticipants.add(
         participantId
-      ) {
+      )
+    }
 
-        uniqueParticipants.add(
-          participantId
-        )
-      }
-
-      const distance =
+    const distance =
         Number(
           record.distance_km || 0
         )
 
-      const speed =
+    const speed =
   Number(
     record.performance?.[0]
       ?.avg_speed_kmh || 0
   )
 
-      const duration =
+    const duration =
         Number(
           record.duration_minutes || 0
         )
 
-      distanceValues.push(
-        distance
+    distanceValues.push(
+      distance
+    )
+
+    if (speed > 0) {
+      speedValues.push(
+        speed
       )
+    }
 
-      if (speed > 0) {
+    if (duration > 0) {
+      durationValues.push(
+        duration
+      )
+    }
 
-        speedValues.push(
-          speed
-        )
-      }
+    if (
+      record.attendance
+    ) {
+      attendanceCount++
+    }
 
-      if (duration > 0) {
-
-        durationValues.push(
-          duration
-        )
-      }
-
-      if (
-        record.attendance
-      ) {
-
-        attendanceCount++
-      }
-
-      const countyName =
+    const countyName =
         record.event_instances
           ?.county_master
           ?.county_name
 
-      if (
-        countyName
-      ) {
-
-        countyTotals[
+    if (
+      countyName
+    ) {
+      countyTotals[
           countyName
-        ] =
+      ] =
           (
             countyTotals[
               countyName
             ] || 0
           ) + 1
-      }
+    }
 
-      const week =
+    const week =
         record.training_week
 
-      if (week) {
-
-        weekTotals[
+    if (week) {
+      weekTotals[
           week
-        ] =
+      ] =
           (
             weekTotals[
               week
             ] || 0
           ) + 1
-      }
     }
-  )
+  }
 
   const attendance =
-    totalSessions
-      ? (
-          attendanceCount /
+    totalSessions ?
+      (
+        attendanceCount /
           totalSessions
-        ) * 100
-      : 0
+      ) * 100 :
+      0
 
   const topCounty =
     Object.entries(
@@ -1618,85 +1511,76 @@ function buildSummaryCards() {
 }
 
 function buildProgramAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const programName =
+  for (const record of filteredTrainingRecords) {
+    const programName =
         record.event_programs
           ?.program_name ||
         'Unknown Program'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           programName
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           programName
-        ] = {
+      ] = {
 
-          sessions: 0,
+        sessions: 0,
 
-          distance: 0,
+        distance: 0,
 
-          duration: 0,
+        duration: 0,
 
-          attendance: 0
-        }
+        attendance: 0
       }
+    }
 
-      const stat =
+    const stat =
         statistics[
           programName
         ]
 
-      stat.sessions++
+    stat.sessions++
 
-      stat.distance +=
+    stat.distance +=
         Number(
           record.distance_km || 0
         )
 
-      stat.duration +=
+    stat.duration +=
         Number(
           record.duration_minutes || 0
         )
 
-      if (
-        record.attendance
-      ) {
-
-        stat.attendance++
-      }
+    if (
+      record.attendance
+    ) {
+      stat.attendance++
     }
-  )
+  }
 
   let html = ''
 
-  Object.entries(
+  for (const [programName, stat] of Object.entries(
     statistics
-  ).forEach(
-    ([programName, stat]) => {
-
-      html += `
+  )) {
+    html += `
         <tr>
           <td>${programName}</td>
           <td>${stat.sessions}</td>
           <td>${stat.distance.toFixed(2)}</td>
           <td>${stat.duration}</td>
           <td>${(
-            stat.attendance /
+    stat.attendance /
             stat.sessions *
             100
-          ).toFixed(1)}%</td>
+  ).toFixed(1)}%</td>
         </tr>
       `
-    }
-  )
+  }
 
   setHtml(
     'programAnalysisTableBody',
@@ -1705,73 +1589,68 @@ function buildProgramAnalysis() {
 }
 
 function buildParticipantAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of filteredTrainingRecords) {
+    const participant =
         record
           ?.participant_instances
           ?.participant_registry
 
-      const name =
+    const name =
         participant
           ?.display_name ||
         'Unknown Participant'
 
-      if (
-        !statistics[name]
-      ) {
+    if (
+      !statistics[name]
+    ) {
+      statistics[name] = {
 
-        statistics[name] = {
-
-  participantRefId:
+        participantRefId:
     participant
       ?.participant_ref_id,
 
-  sessions: 0,
+        sessions: 0,
 
-  distance: 0,
+        distance: 0,
 
-  duration: 0,
+        duration: 0,
 
-  attendance: 0,
+        attendance: 0,
 
-  speeds: []
-}
-}
-      const stat =
+        speeds: []
+      }
+    }
+
+    const stat =
         statistics[name]
 
-      stat.sessions++
+    stat.sessions++
 
-      stat.distance +=
+    stat.distance +=
         Number(
           record.distance_km || 0
         )
 
-      stat.duration +=
+    stat.duration +=
         Number(
           record.duration_minutes || 0
         )
 
-      stat.speeds.push(
-  Number(
-    record.performance?.[0]
+    stat.speeds.push(
+      Number(
+        record.performance?.[0]
       ?.avg_speed_kmh || 0
-  )
-)
+      )
+    )
 
-      if (
-        record.attendance
-      ) {
-
-        stat.attendance++
-      }
+    if (
+      record.attendance
+    ) {
+      stat.attendance++
     }
-  )
+  }
 
   const search =
     getValue(
@@ -1782,7 +1661,7 @@ function buildParticipantAnalysis() {
 
   let html = ''
 
-  Object.entries(
+  for (const [name, stat] of Object.entries(
     statistics
   )
     .filter(
@@ -1792,11 +1671,8 @@ function buildParticipantAnalysis() {
           .includes(
             search
           )
-    )
-    .forEach(
-      ([name, stat]) => {
-
-        html += `
+    )) {
+    html += `
   <tr>
 
     <td>
@@ -1826,16 +1702,15 @@ function buildParticipantAnalysis() {
 
     <td>
       ${(
-        stat.attendance /
+    stat.attendance /
         stat.sessions *
         100
-      ).toFixed(1)}%
+  ).toFixed(1)}%
     </td>
 
   </tr>
 `
-      }
-    )
+  }
 
   setHtml(
     'participantAnalysisTableBody',
@@ -1844,75 +1719,67 @@ function buildParticipantAnalysis() {
 }
 
 function buildCountyAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const county =
+  for (const record of filteredTrainingRecords) {
+    const county =
         record.event_instances
           ?.county_master
           ?.county_name ||
         'Unknown'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           county
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           county
-        ] = {
+      ] = {
 
-          sessions: 0,
+        sessions: 0,
 
-          distance: 0,
+        distance: 0,
 
-          participants:
+        participants:
             new Set()
-        }
       }
+    }
 
-      statistics[
+    statistics[
         county
-      ].sessions++
+    ].sessions++
 
-      statistics[
+    statistics[
         county
-      ].distance +=
+    ].distance +=
         Number(
           record.distance_km || 0
         )
 
-      const participantId =
+    const participantId =
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
-        participantId
-      ) {
-
-        statistics[
+    if (
+      participantId
+    ) {
+      statistics[
           county
-        ].participants.add(
-          participantId
-        )
-      }
+      ].participants.add(
+        participantId
+      )
     }
-  )
+  }
 
   let html = ''
 
-  Object.entries(
+  for (const [county, stat] of Object.entries(
     statistics
-  ).forEach(
-    ([county, stat]) => {
-
-      html += `
+  )) {
+    html += `
         <tr>
           <td>${county}</td>
           <td>${stat.sessions}</td>
@@ -1920,8 +1787,7 @@ function buildCountyAnalysis() {
           <td>${stat.distance.toFixed(2)}</td>
         </tr>
       `
-    }
-  )
+  }
 
   setHtml(
     'countyAnalysisTableBody',
@@ -1930,79 +1796,69 @@ function buildCountyAnalysis() {
 }
 
 function buildStatusAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const statusId =
+  for (const record of filteredTrainingRecords) {
+    const statusId =
         record
           ?.participant_instances
           ?.participant_status_id
 
-      const status =
+    const status =
         statusesLookup.find(
           item =>
             item.status_id ===
             statusId
         )
 
-      const statusName =
+    const statusName =
         status?.status_name ||
         'Unknown'
 
-      statistics[
+    statistics[
         statusName
-      ] =
+    ] =
         (
           statistics[
             statusName
           ] || 0
         ) + 1
-    }
-  )
+  }
 
   const total =
     filteredTrainingRecords.length
 
   let html = ''
 
-  Object.entries(
-    statistics
-  )
+  for (const [
+    status,
+    count
+  ] of Object.entries(
+      statistics
+    )
     .sort(
       (
         a,
         b
       ) =>
         b[1] - a[1]
-    )
-    .forEach(
-      (
-        [
-          status,
-          count
-        ]
-      ) => {
-
-        const percentage =
-          total
-            ? (
-                count /
+    )) {
+    const percentage =
+          total ?
+            (
+              count /
                 total
-              ) * 100
-            : 0
+            ) * 100 :
+            0
 
-        html += `
+    html += `
           <tr>
             <td>${status}</td>
             <td>${count}</td>
             <td>${percentage.toFixed(1)}%</td>
           </tr>
         `
-      }
-    )
+  }
 
   setHtml(
     'statusAnalysisTableBody',
@@ -2011,80 +1867,69 @@ function buildStatusAnalysis() {
 }
 
 function buildWeeklyAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const week =
+  for (const record of filteredTrainingRecords) {
+    const week =
         record.training_week ||
         'Unknown'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           week
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           week
-        ] = {
+      ] = {
 
-          sessions: 0,
+        sessions: 0,
 
-          distance: 0,
+        distance: 0,
 
-          participants:
+        participants:
             new Set()
-        }
       }
+    }
 
-      statistics[
+    statistics[
         week
-      ].sessions++
+    ].sessions++
 
-      statistics[
+    statistics[
         week
-      ].distance +=
+    ].distance +=
         Number(
           record.distance_km || 0
         )
 
-      const participantId =
+    const participantId =
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
-        participantId
-      ) {
-
-        statistics[
+    if (
+      participantId
+    ) {
+      statistics[
           week
-        ].participants.add(
-          participantId
-        )
-      }
+      ].participants.add(
+        participantId
+      )
     }
-  )
+  }
 
   let html = ''
 
-  Object.entries(
-    statistics
-  )
-    .sort()
-    .forEach(
-      (
-        [
-          week,
-          stat
-        ]
-      ) => {
-
-        html += `
+  for (const [
+    week,
+    stat
+  ] of Object.entries(
+      statistics
+    )
+    .sort()) {
+    html += `
           <tr>
             <td>${week}</td>
             <td>${stat.sessions}</td>
@@ -2092,68 +1937,66 @@ function buildWeeklyAnalysis() {
             <td>${stat.participants.size}</td>
           </tr>
         `
-      }
-    )
+  }
 
   setHtml(
     'weeklyAnalysisTableBody',
     html
   )
 }
-function buildSessionTypeAnalysis() {
 
+function buildSessionTypeAnalysis() {
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const sessionType =
+  for (const record of filteredTrainingRecords) {
+    const sessionType =
         record.session_type ||
         'Unknown'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           sessionType
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           sessionType
-        ] = {
+      ] = {
 
-          sessions: 0,
+        sessions: 0,
 
-          distance: 0,
+        distance: 0,
 
-          duration: 0
-        }
+        duration: 0
       }
+    }
 
-      statistics[
+    statistics[
         sessionType
-      ].sessions++
+    ].sessions++
 
-      statistics[
+    statistics[
         sessionType
-      ].distance +=
+    ].distance +=
         Number(
           record.distance_km || 0
         )
 
-      statistics[
+    statistics[
         sessionType
-      ].duration +=
+    ].duration +=
         Number(
           record.duration_minutes || 0
         )
-    }
-  )
+  }
 
   let html = ''
 
-  Object.entries(
-    statistics
-  )
+  for (const [
+    sessionType,
+    stat
+  ] of Object.entries(
+      statistics
+    )
     .sort(
       (
         a,
@@ -2161,16 +2004,8 @@ function buildSessionTypeAnalysis() {
       ) =>
         b[1].sessions -
         a[1].sessions
-    )
-    .forEach(
-      (
-        [
-          sessionType,
-          stat
-        ]
-      ) => {
-
-        html += `
+    )) {
+    html += `
           <tr>
             <td>${sessionType}</td>
             <td>${stat.sessions}</td>
@@ -2178,8 +2013,7 @@ function buildSessionTypeAnalysis() {
             <td>${stat.duration}</td>
           </tr>
         `
-      }
-    )
+  }
 
   setHtml(
     'sessionTypeAnalysisTableBody',
@@ -2188,19 +2022,16 @@ function buildSessionTypeAnalysis() {
 }
 
 function buildEventAnalysis() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-     const eventId =
+  for (const record of filteredTrainingRecords) {
+    const eventId =
 
   record.event_instances
     ?.events
     ?.event_id
 
-      const eventName =
+    const eventName =
   eventsLookup.find(
     e =>
       e.event_id ===
@@ -2211,68 +2042,62 @@ record.event_instances
   )?.event_name ||
   'Unknown Event'
 
+    if (
+      !statistics[eventId]
+    ) {
+      statistics[eventId] = {
 
-      if (
-        !statistics[eventId]
-      ) {
+        eventId,
 
-        statistics[eventId] = {
+        eventName,
 
-          eventId,
+        sessions: 0,
 
-          eventName,
+        distance: 0,
 
-          sessions: 0,
+        duration: 0,
 
-          distance: 0,
-
-          duration: 0,
-
-          participants:
+        participants:
             new Set()
-        }
       }
+    }
 
-      const stat =
+    const stat =
         statistics[eventId]
 
-      stat.sessions++
+    stat.sessions++
 
-      stat.distance +=
+    stat.distance +=
         Number(
           record.distance_km || 0
         )
 
-      stat.duration +=
+    stat.duration +=
         Number(
           record.duration_minutes || 0
         )
 
-      const participantId =
+    const participantId =
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
+    if (
+      participantId
+    ) {
+      stat.participants.add(
         participantId
-      ) {
-
-        stat.participants.add(
-          participantId
-        )
-      }
+      )
     }
-  )
+  }
 
   let html = ''
 
-  Object.values(
+  for (const stat of Object.values(
     statistics
-  ).forEach(
-    stat => {
-
-      html += `
+  )) {
+    html += `
         <tr>
           <td>${stat.eventName}</td>
           <td>${stat.sessions}</td>
@@ -2293,8 +2118,7 @@ record.event_instances
           </td>
         </tr>
       `
-    }
-  )
+  }
 
   setHtml(
     'eventAnalysisTableBody',
@@ -2305,9 +2129,7 @@ record.event_instances
 async function viewEventTraining(
   eventId
 ) {
-
   try {
-
     const records =
       filteredTrainingRecords.filter(
         record =>
@@ -2318,16 +2140,12 @@ eventId
       )
 
     if (!records.length) {
-
       showError(
         'No event records found'
       )
 
       return
     }
-
-
-
 
     const eventName =
       records[0]
@@ -2350,39 +2168,36 @@ eventId
 
     let bestSpeed = 0
 
-    records.forEach(
-      record => {
-
-        participants.add(
-          record
+    for (const record of records) {
+      participants.add(
+        record
             ?.participant_instances
             ?.participant_registry
             ?.participant_ref_id
-        )
+      )
 
-        programs.add(
-          record.program_id
-        )
+      programs.add(
+        record.program_id
+      )
 
-        counties.add(
-          record.event_instances
+      counties.add(
+        record.event_instances
             ?.county_master
             ?.county_name
-        )
+      )
 
-        distance +=
+      distance +=
           Number(
             record.distance_km || 0
           )
 
-        if (
-          record.attendance
-        ) {
+      if (
+        record.attendance
+      ) {
+        attendance++
+      }
 
-          attendance++
-        }
-
-        bestSpeed =
+      bestSpeed =
   Math.max(
     bestSpeed,
     Number(
@@ -2390,9 +2205,7 @@ eventId
         ?.avg_speed_kmh || 0
     )
   )
-
-      }
-    )
+    }
 
     setHtml(
       'trainingInsightsContainer',
@@ -2426,10 +2239,10 @@ eventId
           <th>Attendance</th>
           <td>
             ${(
-              attendance /
+    attendance /
               records.length *
               100
-            ).toFixed(1)}%
+  ).toFixed(1)}%
           </td>
         </tr>
 
@@ -2447,9 +2260,7 @@ eventId
         'trainingInsightsModal'
       )
     ).show()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -2459,7 +2270,6 @@ eventId
 }
 
 function clearFilters() {
-
   document.getElementById(
     'filterEventId'
   ).value = ''
@@ -2494,14 +2304,10 @@ function clearFilters() {
   applyTrainingFilters()
 }
 
-
-
 async function viewParticipantTraining(
   participantRefId
 ) {
-
   try {
-
     const records =
       filteredTrainingRecords.filter(
         record =>
@@ -2513,7 +2319,6 @@ async function viewParticipantTraining(
       )
 
     if (!records.length) {
-
       showError(
         'Participant training records not found'
       )
@@ -2549,96 +2354,87 @@ async function viewParticipantTraining(
 
     let attendance = 0
 
-    records.forEach(
-      record => {
-
-        totalDistance +=
+    for (const record of records) {
+      totalDistance +=
           Number(
             record.distance_km || 0
           )
 
-        totalDuration +=
+      totalDuration +=
           Number(
             record.duration_minutes || 0
           )
 
-        if (
-          record.attendance
-        ) {
+      if (
+        record.attendance
+      ) {
+        attendance++
+      }
 
-          attendance++
-        }
-
-        const speed =
+      const speed =
   Number(
     record.performance?.[0]
       ?.avg_speed_kmh || 0
   )
 
-        if (speed > 0) {
+      if (speed > 0) {
+        speeds.push(
+          speed
+        )
+      }
 
-          speeds.push(
-            speed
+      const performance =
+          record.performance?.[0]
+
+      if (performance) {
+        if (
+          performance.avg_watts
+        ) {
+          watts.push(
+            Number(
+              performance.avg_watts
+            )
           )
         }
 
-        const performance =
-          record.performance?.[0]
-
-        if (performance) {
-
-          if (
-            performance.avg_watts
-          ) {
-
-            watts.push(
-              Number(
-                performance.avg_watts
-              )
+        if (
+          performance.normalized_power
+        ) {
+          powers.push(
+            Number(
+              performance.normalized_power
             )
-          }
-
-          if (
-            performance.normalized_power
-          ) {
-
-            powers.push(
-              Number(
-                performance.normalized_power
-              )
-            )
-          }
-
-          if (
-            performance.training_stress_score
-          ) {
-
-            tssValues.push(
-              Number(
-                performance.training_stress_score
-              )
-            )
-          }
+          )
         }
 
-        events.add(
-          record.event_instances
+        if (
+          performance.training_stress_score
+        ) {
+          tssValues.push(
+            Number(
+              performance.training_stress_score
+            )
+          )
+        }
+      }
+
+      events.add(
+        record.event_instances
             ?.events
             ?.event_name
-        )
+      )
 
-        programs.add(
-          record.event_programs
+      programs.add(
+        record.event_programs
             ?.program_name
-        )
+      )
 
-        counties.add(
-          record.event_instances
+      counties.add(
+        record.event_instances
             ?.county_master
             ?.county_name
-        )
-      }
-    )
+      )
+    }
 
     setHtml(
       'trainingInsightsContainer',
@@ -2669,10 +2465,10 @@ async function viewParticipantTraining(
           <th>Attendance %</th>
           <td>
             ${(
-              attendance /
+    attendance /
               records.length *
               100
-            ).toFixed(1)}%
+  ).toFixed(1)}%
           </td>
         </tr>
 
@@ -2680,8 +2476,8 @@ async function viewParticipantTraining(
           <th>Average Speed</th>
           <td>
             ${calculateAverage(
-              speeds
-            )}
+    speeds
+  )}
           </td>
         </tr>
 
@@ -2689,8 +2485,8 @@ async function viewParticipantTraining(
           <th>Average Watts</th>
           <td>
             ${calculateAverage(
-              watts
-            )}
+    watts
+  )}
           </td>
         </tr>
 
@@ -2698,8 +2494,8 @@ async function viewParticipantTraining(
           <th>Normalized Power</th>
           <td>
             ${calculateAverage(
-              powers
-            )}
+    powers
+  )}
           </td>
         </tr>
 
@@ -2707,8 +2503,8 @@ async function viewParticipantTraining(
           <th>Training Stress Score</th>
           <td>
             ${calculateAverage(
-              tssValues
-            )}
+    tssValues
+  )}
           </td>
         </tr>
 
@@ -2736,9 +2532,7 @@ async function viewParticipantTraining(
         'trainingInsightsModal'
       )
     ).show()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -2750,86 +2544,77 @@ async function viewParticipantTraining(
 function viewTrainingInsight(
   eventId
 ) {
-
   viewEventTraining(
     eventId
   )
 }
 
 function buildTrainingIntelligence() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of filteredTrainingRecords) {
+    const participant =
         record
           ?.participant_instances
           ?.participant_registry
 
-      const name =
+    const name =
         participant
           ?.display_name
 
-      if (!name) {
+    if (!name) {
+      continue
+    }
 
-        return
-      }
+    if (
+      !statistics[name]
+    ) {
+      statistics[name] = {
 
-      if (
-        !statistics[name]
-      ) {
-
-       statistics[name] = {
-
-  participantRefId:
+        participantRefId:
     participant
       ?.participant_ref_id,
 
-  sessions: 0,
+        sessions: 0,
 
-  distance: 0,
+        distance: 0,
 
-  duration: 0,
+        duration: 0,
 
-  attendance: 0,
+        attendance: 0,
 
-  speeds: []
-}
+        speeds: []
       }
+    }
 
-      const stat =
+    const stat =
         statistics[name]
 
-      stat.sessions++
+    stat.sessions++
 
-      stat.distance +=
+    stat.distance +=
         Number(
           record.distance_km || 0
         )
 
-      if (
-        record.attendance
-      ) {
-
-        stat.attendance++
-      }
-
-      stat.speeds.push(
-  Number(
-    record.performance?.[0]
-      ?.avg_speed_kmh || 0
-  )
-)
+    if (
+      record.attendance
+    ) {
+      stat.attendance++
     }
-  )
+
+    stat.speeds.push(
+      Number(
+        record.performance?.[0]
+      ?.avg_speed_kmh || 0
+      )
+    )
+  }
 
   return Object.entries(
     statistics
   ).map(
     ([name, stat]) => {
-
       const attendanceScore =
         (
           stat.attendance /
@@ -2875,7 +2660,6 @@ function buildTrainingIntelligence() {
 }
 
 function buildTopPerformers() {
-
   const intelligence =
     buildTrainingIntelligence()
 
@@ -2909,13 +2693,8 @@ function buildTopPerformers() {
       <tbody>
   `
 
-  topFive.forEach(
-    (
-      athlete,
-      index
-    ) => {
-
-      html += `
+  for (const [index, athlete] of topFive.entries()) {
+    html += `
         <tr>
 
           <td>
@@ -2932,8 +2711,7 @@ function buildTopPerformers() {
 
         </tr>
       `
-    }
-  )
+  }
 
   html += `
       </tbody>
@@ -2946,65 +2724,59 @@ function buildTopPerformers() {
     html
   )
 }
-function buildRiskAnalysis() {
 
+function buildRiskAnalysis() {
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of filteredTrainingRecords) {
+    const participant =
         record
           ?.participant_instances
           ?.participant_registry
 
-      const participantRefId =
+    const participantRefId =
         participant
           ?.participant_ref_id
 
-      const participantName =
+    const participantName =
         participant
           ?.display_name
 
-      if (
-        !participantRefId
-      ) {
+    if (
+      !participantRefId
+    ) {
+      continue
+    }
 
-        return
-      }
-
-      if (
-        !statistics[
+    if (
+      !statistics[
           participantRefId
-        ]
-      ) {
-
-        statistics[
-          participantRefId
-        ] = {
-
-          participantName,
-
-          sessions: 0,
-
-          attendance: 0
-        }
-      }
-
+      ]
+    ) {
       statistics[
-        participantRefId
-      ].sessions++
-
-      if (
-        record.attendance
-      ) {
-
-        statistics[
           participantRefId
-        ].attendance++
+      ] = {
+
+        participantName,
+
+        sessions: 0,
+
+        attendance: 0
       }
     }
-  )
+
+    statistics[
+        participantRefId
+    ].sessions++
+
+    if (
+      record.attendance
+    ) {
+      statistics[
+          participantRefId
+      ].attendance++
+    }
+  }
 
   const riskRecords =
 
@@ -3012,19 +2784,14 @@ function buildRiskAnalysis() {
       statistics
     ).map(
       participant => {
-
         const attendanceRate =
 
-          participant.sessions
-
-            ?
+          participant.sessions ?
 
             (
               participant.attendance /
               participant.sessions
-            ) * 100
-
-            :
+            ) * 100 :
 
             0
 
@@ -3034,15 +2801,11 @@ function buildRiskAnalysis() {
         if (
           attendanceRate < 50
         ) {
-
           riskLevel =
             'HIGH'
-        }
-
-        else if (
+        } else if (
           attendanceRate < 75
         ) {
-
           riskLevel =
             'MEDIUM'
         }
@@ -3098,31 +2861,25 @@ function buildRiskAnalysis() {
 
   `
 
-  riskRecords.forEach(
-    record => {
-
-      let badgeClass =
+  for (const record of riskRecords) {
+    let badgeClass =
         'success'
 
-      if (
-        record.riskLevel ===
+    if (
+      record.riskLevel ===
         'HIGH'
-      ) {
-
-        badgeClass =
+    ) {
+      badgeClass =
           'danger'
-      }
-
-      else if (
-        record.riskLevel ===
+    } else if (
+      record.riskLevel ===
         'MEDIUM'
-      ) {
-
-        badgeClass =
+    ) {
+      badgeClass =
           'warning'
-      }
+    }
 
-      html += `
+    html += `
 
         <tr>
 
@@ -3152,8 +2909,7 @@ function buildRiskAnalysis() {
         </tr>
 
       `
-    }
-  )
+  }
 
   html += `
 
@@ -3171,99 +2927,89 @@ function buildRiskAnalysis() {
   return riskRecords
 }
 
-
-
 function buildCountyRankings() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const countyId =
+  for (const record of filteredTrainingRecords) {
+    const countyId =
         record
           ?.event_instances
           ?.county_master
           ?.county_id
 
-      const countyName =
+    const countyName =
         record
           ?.event_instances
           ?.county_master
           ?.county_name
 
-      if (
-        !countyId
-      ) {
+    if (
+      !countyId
+    ) {
+      continue
+    }
 
-        return
-      }
-
-      if (
-        !statistics[
+    if (
+      !statistics[
           countyId
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           countyId
-        ] = {
+      ] = {
 
-          countyId,
+        countyId,
 
-          countyName,
+        countyName,
 
-          sessions: 0,
+        sessions: 0,
 
-          distance: 0,
+        distance: 0,
 
-          attendance: 0,
+        attendance: 0,
 
-          participants:
+        participants:
             new Set()
-        }
       }
+    }
 
-      statistics[
+    statistics[
         countyId
-      ].sessions++
+    ].sessions++
 
-      statistics[
+    statistics[
         countyId
-      ].distance +=
+    ].distance +=
 
         Number(
           record.distance_km || 0
         )
 
-      if (
-        record.attendance
-      ) {
-
-        statistics[
+    if (
+      record.attendance
+    ) {
+      statistics[
           countyId
-        ].attendance++
-      }
+      ].attendance++
+    }
 
-      const participantRefId =
+    const participantRefId =
 
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
-        participantRefId
-      ) {
-
-        statistics[
+    if (
+      participantRefId
+    ) {
+      statistics[
           countyId
-        ].participants.add(
-          participantRefId
-        )
-      }
+      ].participants.add(
+        participantRefId
+      )
     }
-  )
+  }
 
   const rankings =
 
@@ -3271,19 +3017,14 @@ function buildCountyRankings() {
       statistics
     ).map(
       county => {
-
         const attendanceRate =
 
-          county.sessions
-
-            ?
+          county.sessions ?
 
             (
               county.attendance /
               county.sessions
-            ) * 100
-
-            :
+            ) * 100 :
 
             0
 
@@ -3385,13 +3126,8 @@ function buildCountyRankings() {
 
   `
 
-  rankings.forEach(
-    (
-      county,
-      index
-    ) => {
-
-      html += `
+  for (const [index, county] of rankings.entries()) {
+    html += `
 
         <tr>
 
@@ -3426,8 +3162,7 @@ function buildCountyRankings() {
         </tr>
 
       `
-    }
-  )
+  }
 
   html += `
 
@@ -3445,115 +3180,105 @@ function buildCountyRankings() {
   return rankings
 }
 
-
 function buildProgramEffectiveness() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const programId =
+  for (const record of filteredTrainingRecords) {
+    const programId =
         record
           ?.event_programs
           ?.program_id
 
-      const programName =
+    const programName =
         record
           ?.event_programs
           ?.program_name
 
-      if (
-        !programId
-      ) {
+    if (
+      !programId
+    ) {
+      continue
+    }
 
-        return
-      }
-
-      if (
-        !statistics[
+    if (
+      !statistics[
           programId
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           programId
-        ] = {
+      ] = {
 
-          programId,
+        programId,
 
-          programName,
+        programName,
 
-          sessions: 0,
+        sessions: 0,
 
-          attendance: 0,
+        attendance: 0,
 
-          distance: 0,
+        distance: 0,
 
-          speeds: [],
+        speeds: [],
 
-          participants:
+        participants:
             new Set()
-        }
       }
+    }
 
-      statistics[
+    statistics[
         programId
-      ].sessions++
+    ].sessions++
 
-      if (
-        record.attendance
-      ) {
-
-        statistics[
+    if (
+      record.attendance
+    ) {
+      statistics[
           programId
-        ].attendance++
-      }
+      ].attendance++
+    }
 
-      statistics[
+    statistics[
         programId
-      ].distance +=
+    ].distance +=
 
         Number(
           record.distance_km || 0
         )
 
-      const speed =
+    const speed =
   Number(
     record.performance?.[0]
       ?.avg_speed_kmh || 0
   )
 
-      if (
-        speed > 0
-      ) {
-
-        statistics[
+    if (
+      speed > 0
+    ) {
+      statistics[
           programId
-        ].speeds.push(
-          speed
-        )
-      }
+      ].speeds.push(
+        speed
+      )
+    }
 
-      const participantRefId =
+    const participantRefId =
 
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
-        participantRefId
-      ) {
-
-        statistics[
+    if (
+      participantRefId
+    ) {
+      statistics[
           programId
-        ].participants.add(
-          participantRefId
-        )
-      }
+      ].participants.add(
+        participantRefId
+      )
     }
-  )
+  }
 
   const programs =
 
@@ -3561,19 +3286,14 @@ function buildProgramEffectiveness() {
       statistics
     ).map(
       program => {
-
         const attendanceRate =
 
-          program.sessions
-
-            ?
+          program.sessions ?
 
             (
               program.attendance /
               program.sessions
-            ) * 100
-
-            :
+            ) * 100 :
 
             0
 
@@ -3695,13 +3415,8 @@ function buildProgramEffectiveness() {
 
   `
 
-  programs.forEach(
-    (
-      program,
-      index
-    ) => {
-
-      html += `
+  for (const [index, program] of programs.entries()) {
+    html += `
 
         <tr>
 
@@ -3731,8 +3446,8 @@ function buildProgramEffectiveness() {
 
           <td>
             ${Number(
-              program.avgSpeed || 0
-            ).toFixed(2)}
+    program.avgSpeed || 0
+  ).toFixed(2)}
           </td>
 
           <td>
@@ -3765,8 +3480,7 @@ function buildProgramEffectiveness() {
         </tr>
 
       `
-    }
-  )
+  }
 
   html += `
 
@@ -3787,9 +3501,7 @@ function buildProgramEffectiveness() {
 async function viewProgramTraining(
   programId
 ) {
-
   try {
-
     const records =
       filteredTrainingRecords.filter(
         record =>
@@ -3802,7 +3514,6 @@ async function viewProgramTraining(
     if (
       !records.length
     ) {
-
       showError(
         'Program records not found'
       )
@@ -3839,127 +3550,115 @@ async function viewProgramTraining(
 
     let attendanceCount = 0
 
-    records.forEach(
-      record => {
-
-        const participantRefId =
+    for (const record of records) {
+      const participantRefId =
           record
             ?.participant_instances
             ?.participant_registry
             ?.participant_ref_id
 
-        if (
+      if (
+        participantRefId
+      ) {
+        participants.add(
           participantRefId
-        ) {
+        )
+      }
 
-          participants.add(
-            participantRefId
-          )
-        }
-
-        const eventName =
+      const eventName =
           record
             ?.event_instances
             ?.events
             ?.event_name
 
-        if (
+      if (
+        eventName
+      ) {
+        events.add(
           eventName
-        ) {
+        )
+      }
 
-          events.add(
-            eventName
-          )
-        }
-
-        const countyName =
+      const countyName =
           record
             ?.event_instances
             ?.county_master
             ?.county_name
 
-        if (
+      if (
+        countyName
+      ) {
+        counties.add(
           countyName
-        ) {
+        )
+      }
 
-          counties.add(
-            countyName
-          )
-        }
-
-        totalDistance +=
+      totalDistance +=
           Number(
             record.distance_km || 0
           )
 
-        totalDuration +=
+      totalDuration +=
           Number(
             record.duration_minutes || 0
           )
 
-        if (
-          record.attendance
-        ) {
+      if (
+        record.attendance
+      ) {
+        attendanceCount++
+      }
 
-          attendanceCount++
-        }
-
-        const speed =
+      const speed =
           Number(
             record.avg_speed_kmh || 0
           )
 
-        if (
-          speed > 0
-        ) {
+      if (
+        speed > 0
+      ) {
+        speeds.push(
+          speed
+        )
+      }
 
-          speeds.push(
-            speed
+      const performance =
+          record.performance?.[0]
+
+      if (
+        performance
+      ) {
+        if (
+          performance.avg_watts
+        ) {
+          watts.push(
+            Number(
+              performance.avg_watts
+            )
           )
         }
 
-        const performance =
-          record.performance?.[0]
+        if (
+          performance.normalized_power
+        ) {
+          powers.push(
+            Number(
+              performance.normalized_power
+            )
+          )
+        }
 
         if (
-          performance
+          performance.training_stress_score
         ) {
-
-          if (
-            performance.avg_watts
-          ) {
-
-            watts.push(
-              Number(
-                performance.avg_watts
-              )
+          tssValues.push(
+            Number(
+              performance.training_stress_score
             )
-          }
-
-          if (
-            performance.normalized_power
-          ) {
-
-            powers.push(
-              Number(
-                performance.normalized_power
-              )
-            )
-          }
-
-          if (
-            performance.training_stress_score
-          ) {
-
-            tssValues.push(
-              Number(
-                performance.training_stress_score
-              )
-            )
-          }
+          )
         }
       }
-    )
+    }
 
     const attendanceRate =
       (
@@ -4029,8 +3728,8 @@ async function viewProgramTraining(
 
           <td>
             ${totalDistance.toFixed(
-              2
-            )}
+    2
+  )}
           </td>
         </tr>
 
@@ -4051,8 +3750,8 @@ async function viewProgramTraining(
 
           <td>
             ${attendanceRate.toFixed(
-              1
-            )}%
+    1
+  )}%
           </td>
         </tr>
 
@@ -4063,8 +3762,8 @@ async function viewProgramTraining(
 
           <td>
             ${calculateAverage(
-              speeds
-            )}
+    speeds
+  )}
           </td>
         </tr>
 
@@ -4075,8 +3774,8 @@ async function viewProgramTraining(
 
           <td>
             ${calculateAverage(
-              watts
-            )}
+    watts
+  )}
           </td>
         </tr>
 
@@ -4087,8 +3786,8 @@ async function viewProgramTraining(
 
           <td>
             ${calculateAverage(
-              powers
-            )}
+    powers
+  )}
           </td>
         </tr>
 
@@ -4099,8 +3798,8 @@ async function viewProgramTraining(
 
           <td>
             ${calculateAverage(
-              tssValues
-            )}
+    tssValues
+  )}
           </td>
         </tr>
 
@@ -4113,9 +3812,7 @@ async function viewProgramTraining(
         'trainingInsightsModal'
       )
     ).show()
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -4126,9 +3823,7 @@ async function viewProgramTraining(
   }
 }
 
-
 function buildTrainingLoadAnalysis() {
-
   const loadSummary = {
 
     low: 0,
@@ -4140,81 +3835,69 @@ function buildTrainingLoadAnalysis() {
 
   const participantLoads = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of filteredTrainingRecords) {
+    const participant =
         record
           ?.participant_instances
           ?.participant_registry
 
-      const participantRefId =
+    const participantRefId =
         participant
           ?.participant_ref_id
 
-      const participantName =
+    const participantName =
         participant
           ?.display_name
 
-      const tss =
+    const tss =
         Number(
           record.performance?.[0]
             ?.training_stress_score || 0
         )
 
-      if (
-        tss < 50
-      ) {
-
-        loadSummary.low++
-      }
-
-      else if (
-        tss < 100
-      ) {
-
-        loadSummary.medium++
-      }
-
-      else {
-
-        loadSummary.high++
-      }
-
-      if (
-        !participantRefId
-      ) {
-
-        return
-      }
-
-      if (
-        !participantLoads[
-          participantRefId
-        ]
-      ) {
-
-        participantLoads[
-          participantRefId
-        ] = {
-
-          participantName,
-
-          totalTss: 0,
-
-          sessions: 0
-        }
-      }
-
-      participantLoads[
-        participantRefId
-      ].totalTss += tss
-
-      participantLoads[
-        participantRefId
-      ].sessions++
+    if (
+      tss < 50
+    ) {
+      loadSummary.low++
+    } else if (
+      tss < 100
+    ) {
+      loadSummary.medium++
+    } else {
+      loadSummary.high++
     }
-  )
+
+    if (
+      !participantRefId
+    ) {
+      continue
+    }
+
+    if (
+      !participantLoads[
+          participantRefId
+      ]
+    ) {
+      participantLoads[
+          participantRefId
+      ] = {
+
+        participantName,
+
+        totalTss: 0,
+
+        sessions: 0
+      }
+    }
+
+    participantLoads[
+        participantRefId
+    ].totalTss += tss
+
+    participantLoads[
+        participantRefId
+    ].sessions++
+  }
 
   const athleteLoads =
 
@@ -4222,17 +3905,12 @@ function buildTrainingLoadAnalysis() {
       participantLoads
     ).map(
       participant => {
-
         const averageTss =
 
-          participant.sessions
-
-            ?
+          participant.sessions ?
 
             participant.totalTss /
-            participant.sessions
-
-            :
+            participant.sessions :
 
             0
 
@@ -4242,15 +3920,11 @@ function buildTrainingLoadAnalysis() {
         if (
           averageTss < 40
         ) {
-
           loadStatus =
             'Undertrained'
-        }
-
-        else if (
+        } else if (
           averageTss > 100
         ) {
-
           loadStatus =
             'Overtrained'
         }
@@ -4361,37 +4035,28 @@ function buildTrainingLoadAnalysis() {
 
   `
 
-  athleteLoads.forEach(
-    athlete => {
-
-      let badgeClass =
+  for (const athlete of athleteLoads) {
+    let badgeClass =
         'success'
 
-      if (
-        athlete.loadStatus ===
+    if (
+      athlete.loadStatus ===
         'Overtrained'
-      ) {
-
-        badgeClass =
+    ) {
+      badgeClass =
           'danger'
-      }
-
-      else if (
-        athlete.loadStatus ===
+    } else if (
+      athlete.loadStatus ===
         'Balanced'
-      ) {
-
-        badgeClass =
+    ) {
+      badgeClass =
           'primary'
-      }
-
-      else {
-
-        badgeClass =
+    } else {
+      badgeClass =
           'warning'
-      }
+    }
 
-      html += `
+    html += `
 
         <tr>
 
@@ -4401,8 +4066,8 @@ function buildTrainingLoadAnalysis() {
 
           <td>
             ${athlete.averageTss.toFixed(
-              1
-            )}
+    1
+  )}
           </td>
 
           <td>
@@ -4423,8 +4088,7 @@ function buildTrainingLoadAnalysis() {
         </tr>
 
       `
-    }
-  )
+  }
 
   html += `
 
@@ -4447,18 +4111,14 @@ function buildTrainingLoadAnalysis() {
   }
 }
 
-
 function renderTrainingTable() {
-
   const records =
     getPagedTrainingRecords()
 
   let html = ''
 
-  records.forEach(
-    record => {
-
-      const participant =
+  for (const record of records) {
+    const participant =
 
         record
           ?.participant_instances
@@ -4467,7 +4127,7 @@ function renderTrainingTable() {
 
         '-'
 
-      const eventName =
+    const eventName =
 
         record
           ?.event_instances
@@ -4476,7 +4136,7 @@ function renderTrainingTable() {
 
         '-'
 
-      const programName =
+    const programName =
 
         record
           ?.event_programs
@@ -4484,7 +4144,7 @@ function renderTrainingTable() {
 
         '-'
 
-      const countyName =
+    const countyName =
 
         record
           ?.event_instances
@@ -4493,7 +4153,7 @@ function renderTrainingTable() {
 
         '-'
 
-      html += `
+    html += `
         <td>${record.training_date || ''}</td>
 
 <td>${record.training_week || ''}</td>
@@ -4502,48 +4162,48 @@ function renderTrainingTable() {
 
 <td>
   ${
-    record.event_instances
+  record.event_instances
       ?.events
       ?.event_name || ''
-  }
+}
 </td>
 
 <td>
   ${
-    record.event_instances
+  record.event_instances
       ?.event_area || ''
-  }
+}
 </td>
 
 <td>
   ${
-    record.event_programs
+  record.event_programs
       ?.program_name || ''
-  }
+}
 </td>
 
 <td>
   ${
-    record.participant_instances
+  record.participant_instances
       ?.participant_registry
       ?.display_name || ''
-  }
+}
 </td>
 
 <td>
   ${
-    record.event_instances
+  record.event_instances
       ?.county_master
       ?.county_name || ''
-  }
+}
 </td>
 
 <td>
   ${
-    record.event_instances
+  record.event_instances
       ?.town_master
       ?.town_name || ''
-  }
+}
 </td>
 
 <td>${record.session_type || ''}</td>
@@ -4560,24 +4220,23 @@ function renderTrainingTable() {
 
 <td>
   ${
-    record.attendance
-      ? 'Present'
-      : 'Absent'
-  }
+  record.attendance ?
+    'Present' :
+    'Absent'
+}
 </td>
 
 <td>
   ${
-    record.indoor_session
-      ? 'Yes'
-      : 'No'
-  }
+  record.indoor_session ?
+    'Yes' :
+    'No'
+}
 </td>
 
 <td>${record.notes || ''}</td>
       `
-    }
-  )
+  }
 
   setHtml(
     'trainingResultsTableBody',
@@ -4585,13 +4244,7 @@ function renderTrainingTable() {
   )
 }
 
-
-
-
-
-
 function buildRecommendations() {
-
   const recommendations = []
 
   const risks =
@@ -4609,7 +4262,6 @@ function buildRecommendations() {
   if (
     risks.length
   ) {
-
     const highRisk =
 
       risks.filter(
@@ -4621,7 +4273,6 @@ function buildRecommendations() {
     if (
       highRisk.length
     ) {
-
       recommendations.push(
 
         `${highRisk.length} participants are at high attendance risk.`
@@ -4632,7 +4283,6 @@ function buildRecommendations() {
   if (
     countyRankings.length
   ) {
-
     recommendations.push(
 
       `${countyRankings[0]?.countyName} currently leads federation training activity.`
@@ -4642,7 +4292,6 @@ function buildRecommendations() {
   if (
     programEffectiveness.length
   ) {
-
     recommendations.push(
 
       `${programEffectiveness[0]?.programName} is the most effective training program.`
@@ -4652,7 +4301,6 @@ function buildRecommendations() {
   if (
     attendance.length >= 2
   ) {
-
     const firstWeek =
       attendance[0]
         ?.percentage || 0
@@ -4665,15 +4313,11 @@ function buildRecommendations() {
     if (
       lastWeek < firstWeek
     ) {
-
       recommendations.push(
 
         'Attendance trend is declining and requires intervention.'
       )
-    }
-
-    else {
-
+    } else {
       recommendations.push(
 
         'Attendance trend is improving.'
@@ -4690,10 +4334,8 @@ function buildRecommendations() {
 
     '<ul class="list-group">'
 
-  recommendations.forEach(
-    recommendation => {
-
-      html += `
+  for (const recommendation of recommendations) {
+    html += `
 
         <li
           class="
@@ -4706,8 +4348,7 @@ function buildRecommendations() {
         </li>
 
       `
-    }
-  )
+  }
 
   html +=
     '</ul>'
@@ -4721,7 +4362,6 @@ function buildRecommendations() {
 }
 
 function buildExecutiveDashboard() {
-
   const totalSessions =
     filteredTrainingRecords.length
 
@@ -4730,30 +4370,26 @@ function buildExecutiveDashboard() {
 
   let distance = 0
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const participantId =
+  for (const record of filteredTrainingRecords) {
+    const participantId =
         record
           ?.participant_instances
           ?.participant_registry
           ?.participant_ref_id
 
-      if (
+    if (
+      participantId
+    ) {
+      participants.add(
         participantId
-      ) {
+      )
+    }
 
-        participants.add(
-          participantId
-        )
-      }
-
-      distance +=
+    distance +=
         Number(
           record.distance_km || 0
         )
-    }
-  )
+  }
 
   const countyRanking =
     buildCountyRankings()
@@ -4855,10 +4491,10 @@ function buildExecutiveDashboard() {
 
               <h2>
                 ${
-                  countyRanking[0]
+  countyRanking[0]
                    ?.countyName ||
                   '-'
-                }
+}
               </h2>
 
             </div>
@@ -4878,22 +4514,19 @@ function buildExecutiveDashboard() {
         </strong>
 
         ${
-          topParticipant
+  topParticipant
             ?.participant || '-'
-        }
+}
 
       </p>
     `
   )
 }
 
-
 function exportTrainingCsv() {
-
   if (
     !filteredTrainingRecords.length
   ) {
-
     showError(
       'No training records available for export'
     )
@@ -4962,14 +4595,14 @@ function exportTrainingCsv() {
         record.avg_speed_kmh || '',
 
       attendance:
-        record.attendance
-          ? 'Present'
-          : 'Absent',
+        record.attendance ?
+          'Present' :
+          'Absent',
 
       indoor_session:
-        record.indoor_session
-          ? 'Yes'
-          : 'No',
+        record.indoor_session ?
+          'Yes' :
+          'No',
 
       notes:
         record.notes || ''
@@ -4979,46 +4612,46 @@ function exportTrainingCsv() {
 
   downloadCsv({
 
-  reportName:
+    reportName:
     'Training Results Report',
 
-  columns: [
+    columns: [
 
-    { key:'training_date', label:'Training Date' },
-    { key:'training_week', label:'Training Week' },
-    { key:'training_day', label:'Training Day' },
+      { key: 'training_date', label: 'Training Date' },
+      { key: 'training_week', label: 'Training Week' },
+      { key: 'training_day', label: 'Training Day' },
 
-    { key:'event', label:'Event' },
-    { key:'occurrence', label:'Occurrence' },
-    { key:'program', label:'Program' },
+      { key: 'event', label: 'Event' },
+      { key: 'occurrence', label: 'Occurrence' },
+      { key: 'program', label: 'Program' },
 
-    { key:'participant', label:'Participant' },
+      { key: 'participant', label: 'Participant' },
 
-    { key:'county', label:'County' },
-    { key:'town', label:'Town' },
+      { key: 'county', label: 'County' },
+      { key: 'town', label: 'Town' },
 
-    { key:'session_type', label:'Session Type' },
+      { key: 'session_type', label: 'Session Type' },
 
-    { key:'start_time', label:'Start Time' },
-    { key:'end_time', label:'End Time' },
+      { key: 'start_time', label: 'Start Time' },
+      { key: 'end_time', label: 'End Time' },
 
-    { key:'distance_km', label:'Distance KM' },
+      { key: 'distance_km', label: 'Distance KM' },
 
-    { key:'duration_minutes', label:'Duration Minutes' },
+      { key: 'duration_minutes', label: 'Duration Minutes' },
 
-    { key:'avg_speed_kmh', label:'Average Speed' },
+      { key: 'avg_speed_kmh', label: 'Average Speed' },
 
-    { key:'attendance', label:'Attendance' },
+      { key: 'attendance', label: 'Attendance' },
 
-    { key:'indoor_session', label:'Indoor Session' },
+      { key: 'indoor_session', label: 'Indoor Session' },
 
-    { key:'notes', label:'Notes' }
+      { key: 'notes', label: 'Notes' }
 
-  ],
+    ],
 
-  data:
+    data:
     rows
-})
+  })
 
   showSuccess(
     'Training report exported successfully'
@@ -5026,7 +4659,6 @@ function exportTrainingCsv() {
 }
 
 function applyTrainingSearch() {
-
   const searchTerm =
     getValue(
       'searchParticipantAnalysis'
@@ -5037,7 +4669,6 @@ function applyTrainingSearch() {
   filteredTrainingRecords =
     trainingRecords.filter(
       record => {
-
         const participant =
           record
             ?.participant_instances
@@ -5083,77 +4714,62 @@ on(
   applyTrainingSearch
 )
 
-
-
 function buildAttendanceTrends() {
-
   const statistics = {}
 
-  filteredTrainingRecords.forEach(
-    record => {
-
-      const week =
+  for (const record of filteredTrainingRecords) {
+    const week =
         record.training_week ||
         'Unknown'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           week
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           week
-        ] = {
+      ] = {
 
-          present: 0,
-          absent: 0
-        }
-      }
-
-      if (
-        record.attendance
-      ) {
-
-        statistics[
-          week
-        ].present++
-      }
-
-      else {
-
-        statistics[
-          week
-        ].absent++
+        present: 0,
+        absent: 0
       }
     }
-  )
+
+    if (
+      record.attendance
+    ) {
+      statistics[
+          week
+      ].present++
+    } else {
+      statistics[
+          week
+      ].absent++
+    }
+  }
 
   let html = ''
 
-  Object.entries(
-    statistics
-  ).forEach(
-    (
-      [
-        week,
-        stat
-      ]
-    ) => {
-
-      const total =
+  for (const [
+    week,
+    stat
+  ] of Object.entries(
+      statistics
+    )) {
+    const total =
         stat.present +
         stat.absent
 
-      const percentage =
-        total
-          ? (
-              stat.present /
+    const percentage =
+        total ?
+          (
+            stat.present /
               total
-            ) * 100
-          : 0
+          ) * 100 :
+          0
 
-      html += `
+    html += `
         <tr>
           <td>${week}</td>
           <td>${stat.present}</td>
@@ -5161,8 +4777,7 @@ function buildAttendanceTrends() {
           <td>${percentage.toFixed(1)}%</td>
         </tr>
       `
-    }
-  )
+  }
 
   setHtml(
     'attendanceTrendTableBody',
@@ -5170,13 +4785,8 @@ function buildAttendanceTrends() {
   )
 }
 
-
 async function exportTrainingExcel() {
-
   try {
-
-
-
     const summaryData = [
 
       {
@@ -5207,11 +4817,9 @@ async function exportTrainingExcel() {
       }
     ]
 
-   const rawData =
+    const rawData =
   filteredTrainingRecords.map(
     record => ({
-
-      
 
       training_date:
         record.training_date,
@@ -5226,8 +4834,6 @@ async function exportTrainingExcel() {
         record.event_instances
           ?.events
           ?.event_name || '',
-
-      
 
       occurrence:
         record.event_instances
@@ -5258,10 +4864,6 @@ async function exportTrainingExcel() {
           ?.participant_instances
           ?.participant_registry
           ?.display_name || '',
-
-      
-
-      
 
       participant_type:
         record
@@ -5299,14 +4901,14 @@ async function exportTrainingExcel() {
         record.avg_speed_kmh || 0,
 
       attendance:
-        record.attendance
-          ? 'Present'
-          : 'Absent',
+        record.attendance ?
+          'Present' :
+          'Absent',
 
       indoor_session:
-        record.indoor_session
-          ? 'Yes'
-          : 'No',
+        record.indoor_session ?
+          'Yes' :
+          'No',
 
       participant_status:
         statusesLookup.find(
@@ -5319,8 +4921,6 @@ async function exportTrainingExcel() {
 
       notes:
         record.notes || '',
-
-      
 
       avg_watts:
         record.performance?.[0]
@@ -5350,169 +4950,161 @@ async function exportTrainingExcel() {
 
           columns: [
 
- 
+            {
+              key: 'training_date',
+              label: 'Training Date'
+            },
 
-  {
-    key:'training_date',
-    label:'Training Date'
-  },
+            {
+              key: 'training_week',
+              label: 'Week'
+            },
 
-  {
-    key:'training_week',
-    label:'Week'
-  },
+            {
+              key: 'training_day',
+              label: 'Day'
+            },
 
-  {
-    key:'training_day',
-    label:'Day'
-  },
+            {
+              key: 'event',
+              label: 'Event'
+            },
 
-  {
-    key:'event',
-    label:'Event'
-  },
+            {
+              key: 'occurrence',
+              label: 'Occurrence'
+            },
 
- 
+            {
+              key: 'occurrence_start_date',
+              label: 'Occurrence Start Date'
+            },
 
-  {
-    key:'occurrence',
-    label:'Occurrence'
-  },
+            {
+              key: 'occurrence_end_date',
+              label: 'Occurrence End Date'
+            },
 
-  {
-    key:'occurrence_start_date',
-    label:'Occurrence Start Date'
-  },
+            {
+              key: 'occurrence_start_time',
+              label: 'Occurrence Start Time'
+            },
 
-  {
-    key:'occurrence_end_date',
-    label:'Occurrence End Date'
-  },
+            {
+              key: 'occurrence_end_time',
+              label: 'Occurrence End Time'
+            },
 
-  {
-    key:'occurrence_start_time',
-    label:'Occurrence Start Time'
-  },
+            {
+              key: 'program',
+              label: 'Program'
+            },
 
-  {
-    key:'occurrence_end_time',
-    label:'Occurrence End Time'
-  },
+            {
+              key: 'participant',
+              label: 'Participant'
+            },
 
-  {
-    key:'program',
-    label:'Program'
-  },
+            {
+              key: 'participant_type',
+              label: 'Participant Type'
+            },
 
-  {
-    key:'participant',
-    label:'Participant'
-  },
+            {
+              key: 'county',
+              label: 'County'
+            },
 
-  
-  
+            {
+              key: 'town',
+              label: 'Town'
+            },
 
-  {
-    key:'participant_type',
-    label:'Participant Type'
-  },
+            {
+              key: 'session_type',
+              label: 'Session Type'
+            },
 
-  {
-    key:'county',
-    label:'County'
-  },
+            {
+              key: 'training_start_time',
+              label: 'Training Start'
+            },
 
-  {
-    key:'town',
-    label:'Town'
-  },
+            {
+              key: 'training_end_time',
+              label: 'Training End'
+            },
 
-  {
-    key:'session_type',
-    label:'Session Type'
-  },
+            {
+              key: 'distance_km',
+              label: 'Distance KM'
+            },
 
-  {
-    key:'training_start_time',
-    label:'Training Start'
-  },
+            {
+              key: 'duration_minutes',
+              label: 'Duration Minutes'
+            },
 
-  {
-    key:'training_end_time',
-    label:'Training End'
-  },
+            {
+              key: 'avg_speed_kmh',
+              label: 'Average Speed'
+            },
 
-  {
-    key:'distance_km',
-    label:'Distance KM'
-  },
+            {
+              key: 'attendance',
+              label: 'Attendance'
+            },
 
-  {
-    key:'duration_minutes',
-    label:'Duration Minutes'
-  },
+            {
+              key: 'participant_status',
+              label: 'Participant Status'
+            },
 
-  {
-    key:'avg_speed_kmh',
-    label:'Average Speed'
-  },
+            {
+              key: 'indoor_session',
+              label: 'Indoor Session'
+            },
 
-  {
-    key:'attendance',
-    label:'Attendance'
-  },
+            {
+              key: 'avg_watts',
+              label: 'Average Watts'
+            },
 
-  {
-    key:'participant_status',
-    label:'Participant Status'
-  },
+            {
+              key: 'normalized_power',
+              label: 'Normalized Power'
+            },
 
-  {
-    key:'indoor_session',
-    label:'Indoor Session'
-  },
+            {
+              key: 'training_stress_score',
+              label: 'TSS'
+            },
 
-  {
-    key:'avg_watts',
-    label:'Average Watts'
-  },
+            {
+              key: 'notes',
+              label: 'Notes'
+            }
 
-  {
-    key:'normalized_power',
-    label:'Normalized Power'
-  },
-
-  {
-    key:'training_stress_score',
-    label:'TSS'
-  },
-
-  {
-    key:'notes',
-    label:'Notes'
-  }
-
-],
+          ],
 
           data:
             rawData
         },
-{
-    sheetName:
+        {
+          sheetName:
       'Event Analysis',
 
-    columns: [
-      { key:'event', label:'Event' },
-      { key:'sessions', label:'Sessions' },
-      { key:'participants', label:'Participants' },
-      { key:'distance', label:'Distance KM' }
-    ],
+          columns: [
+            { key: 'event', label: 'Event' },
+            { key: 'sessions', label: 'Sessions' },
+            { key: 'participants', label: 'Participants' },
+            { key: 'distance', label: 'Distance KM' }
+          ],
 
-    data:
+          data:
       Object.values(
         filteredTrainingRecords.reduce(
           (acc, record) => {
-
             const event =
               record.event_instances
                 ?.events
@@ -5520,7 +5112,6 @@ async function exportTrainingExcel() {
               'Unknown'
 
             if (!acc[event]) {
-
               acc[event] = {
 
                 event,
@@ -5551,7 +5142,6 @@ async function exportTrainingExcel() {
               )
 
             return acc
-
           },
           {}
         )
@@ -5571,18 +5161,15 @@ async function exportTrainingExcel() {
             item.distance.toFixed(2)
         })
       )
-  }
-]
+        }
+      ]
 
-      
     })
 
     showSuccess(
       'Excel report exported successfully'
     )
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -5596,9 +5183,7 @@ console.log(
 )
 
 async function exportTrainingPdf() {
-
   try {
-
     const attendanceData =
       buildAttendanceIntelligence()
 
@@ -5616,10 +5201,8 @@ async function exportTrainingPdf() {
 
     const countyStats = {}
 
-    filteredTrainingRecords.forEach(
-      record => {
-
-        const county =
+    for (const record of filteredTrainingRecords) {
+      const county =
 
           record
             ?.event_instances
@@ -5628,14 +5211,12 @@ async function exportTrainingPdf() {
 
           'Unknown'
 
-        countyStats[county] =
+      countyStats[county] =
 
           (
             countyStats[county] || 0
           ) + 1
-
-      }
-    )
+    }
 
     const countyLabels =
       Object.keys(
@@ -5647,19 +5228,17 @@ async function exportTrainingPdf() {
         countyStats
       )
 
-   const weeklyStats = {}
+    const weeklyStats = {}
 
-filteredTrainingRecords.forEach(
-  record => {
-
-    const week =
+    for (const record of filteredTrainingRecords) {
+      const week =
       record.training_week
 
-    if (!week) {
-      return
-    }
+      if (!week) {
+        continue
+      }
 
-    weeklyStats[week] =
+      weeklyStats[week] =
 
       (
         weeklyStats[week] || 0
@@ -5668,16 +5247,14 @@ filteredTrainingRecords.forEach(
       Number(
         record.distance_km || 0
       )
+    }
 
-  }
-)
-
-const distanceLabels =
+    const distanceLabels =
   Object.keys(
     weeklyStats
   )
 
-const distanceValues =
+    const distanceValues =
   Object.values(
     weeklyStats
   )
@@ -5687,62 +5264,52 @@ const distanceValues =
     let late = 0
     let excused = 0
 
-    filteredTrainingRecords.forEach(
-      record => {
-
-        const statusId =
+    for (const record of filteredTrainingRecords) {
+      const statusId =
 
           record
             ?.participant_instances
             ?.participant_status_id
 
-        const status =
+      const status =
           statusesLookup.find(
             item =>
               item.status_id ===
               statusId
           )
 
-        const statusName =
+      const statusName =
           (
             status?.status_name || ''
           )
             .toUpperCase()
 
-        if (
-          statusName.includes(
-            'PARTICIP'
-          )
-        ) {
-          participated++
-        }
-
-        else if (
-          statusName.includes(
-            'ABSENT'
-          )
-        ) {
-          absent++
-        }
-
-        else if (
-          statusName.includes(
-            'LATE'
-          )
-        ) {
-          late++
-        }
-
-        else if (
-          statusName.includes(
-            'EXCUSED'
-          )
-        ) {
-          excused++
-        }
-
+      if (
+        statusName.includes(
+          'PARTICIP'
+        )
+      ) {
+        participated++
+      } else if (
+        statusName.includes(
+          'ABSENT'
+        )
+      ) {
+        absent++
+      } else if (
+        statusName.includes(
+          'LATE'
+        )
+      ) {
+        late++
+      } else if (
+        statusName.includes(
+          'EXCUSED'
+        )
+      ) {
+        excused++
       }
-    )
+    }
 
     const totalAthletes =
       new Set(
@@ -5763,16 +5330,12 @@ const distanceValues =
 
     const attendancePercentageValue =
 
-      totalSessions
-
-        ?
+      totalSessions ?
 
         (
           participated /
           totalSessions
-        ) * 100
-
-        :
+        ) * 100 :
 
         0
 
@@ -5870,98 +5433,97 @@ const distanceValues =
     ?.avg_speed_kmh || '',
 
       attendance:
-        record.attendance
-          ? 'Present'
-          : 'Absent'
+        record.attendance ?
+          'Present' :
+          'Absent'
 
     })
   )
 
-
     const columns = [
 
-  {
-    key: 'training_date',
-    label: 'Date'
-  },
+      {
+        key: 'training_date',
+        label: 'Date'
+      },
 
-  {
-    key: 'training_week',
-    label: 'Week'
-  },
+      {
+        key: 'training_week',
+        label: 'Week'
+      },
 
-  {
-    key: 'training_day',
-    label: 'Day'
-  },
+      {
+        key: 'training_day',
+        label: 'Day'
+      },
 
-  {
-    key: 'event_name',
-    label: 'Event'
-  },
+      {
+        key: 'event_name',
+        label: 'Event'
+      },
 
-  {
-    key: 'occurrence',
-    label: 'Occurrence'
-  },
+      {
+        key: 'occurrence',
+        label: 'Occurrence'
+      },
 
-  {
-    key: 'program_name',
-    label: 'Program'
-  },
+      {
+        key: 'program_name',
+        label: 'Program'
+      },
 
-  {
-    key: 'participant_name',
-    label: 'Participant'
-  },
+      {
+        key: 'participant_name',
+        label: 'Participant'
+      },
 
-  {
-    key: 'county_name',
-    label: 'County'
-  },
+      {
+        key: 'county_name',
+        label: 'County'
+      },
 
-  {
-    key: 'town_name',
-    label: 'Town'
-  },
+      {
+        key: 'town_name',
+        label: 'Town'
+      },
 
-  {
-    key: 'session_type',
-    label: 'Session'
-  },
+      {
+        key: 'session_type',
+        label: 'Session'
+      },
 
-  {
-    key: 'start_time',
-    label: 'Start'
-  },
+      {
+        key: 'start_time',
+        label: 'Start'
+      },
 
-  {
-    key: 'end_time',
-    label: 'End'
-  },
+      {
+        key: 'end_time',
+        label: 'End'
+      },
 
-  {
-    key: 'distance_km',
-    label: 'Distance'
-  },
+      {
+        key: 'distance_km',
+        label: 'Distance'
+      },
 
-  {
-    key: 'duration_minutes',
-    label: 'Duration'
-  },
+      {
+        key: 'duration_minutes',
+        label: 'Duration'
+      },
 
-  {
-    key: 'avg_speed_kmh',
-    label: 'Speed'
-  },
+      {
+        key: 'avg_speed_kmh',
+        label: 'Speed'
+      },
 
-  {
-    key: 'attendance',
-    label: 'Attendance'
-  }
+      {
+        key: 'attendance',
+        label: 'Attendance'
+      }
 
-]
-const selectedEvent =
+    ]
+    const selectedEvent =
 
   document
     .getElementById(
@@ -5972,7 +5534,7 @@ const selectedEvent =
 
   'All'
 
-const selectedOccurrence =
+    const selectedOccurrence =
 
   document
     .getElementById(
@@ -5983,7 +5545,7 @@ const selectedOccurrence =
 
   'All'
 
-const selectedProgram =
+    const selectedProgram =
 
   document
     .getElementById(
@@ -5994,7 +5556,7 @@ const selectedProgram =
 
   'All'
 
-const selectedCounty =
+    const selectedCounty =
 
   document
     .getElementById(
@@ -6004,7 +5566,7 @@ const selectedCounty =
     ?.text ||
 
   'All'
-const teamCount =
+    const teamCount =
 
   filteredTrainingRecords.filter(
     record =>
@@ -6012,7 +5574,7 @@ const teamCount =
       'TEAM'
   ).length
 
-const individualCount =
+    const individualCount =
 
   filteredTrainingRecords.filter(
     record =>
@@ -6020,7 +5582,7 @@ const individualCount =
       'INDIVIDUAL'
   ).length
 
-const trainingDates =
+    const trainingDates =
 
   filteredTrainingRecords
     .map(
@@ -6030,30 +5592,25 @@ const trainingDates =
     .filter(Boolean)
     .sort()
 
-const reportPeriod =
+    const reportPeriod =
 
-  trainingDates.length
-
-    ?
+  trainingDates.length ?
 
     `${trainingDates[0]} - ${
       trainingDates[
         trainingDates.length - 1
       ]
-    }`
-
-    :
+    }` :
 
     'No Training Dates'
 
-   await downloadTrainingReportPdf({
+    await downloadTrainingReportPdf({
 
-  reportPeriod,
+      reportPeriod,
 
+      filters: {
 
-filters: {
-
-  Event:
+        Event:
 
     document
       .getElementById(
@@ -6064,7 +5621,7 @@ filters: {
 
     'All Events',
 
-  Occurrence:
+        Occurrence:
 
     document
       .getElementById(
@@ -6075,7 +5632,7 @@ filters: {
 
     'All Occurrences',
 
-  Program:
+        Program:
 
     document
       .getElementById(
@@ -6086,7 +5643,7 @@ filters: {
 
     'All Programs',
 
-  County:
+        County:
 
     document
       .getElementById(
@@ -6097,7 +5654,7 @@ filters: {
 
     'All Counties',
 
-  Status:
+        Status:
 
     document
       .getElementById(
@@ -6108,19 +5665,19 @@ filters: {
 
     'All Statuses',
 
-  StartDate:
+        StartDate:
 
     getValue(
       'filterStartDate'
     ) || 'All',
 
-  EndDate:
+        EndDate:
 
     getValue(
       'filterEndDate'
     ) || 'All'
 
-},
+      },
       columns,
 
       data:
@@ -6150,7 +5707,7 @@ filters: {
 
       teamCount,
 
-individualCount,
+      individualCount,
 
       totalAthletes,
 
@@ -6167,28 +5724,22 @@ individualCount,
         )
 
     })
+  } catch (error) {
+    console.error(
+      'PDF EXPORT ERROR',
+      error
+    )
 
-  }
-
-  catch (error) {
-
-  console.error(
-    'PDF EXPORT ERROR',
-    error
-  )
-
-  alert(
-    `PDF Export Failed:\n\n${
-      error?.message ||
+    alert(
+      `PDF Export Failed:\n\n${
+        error?.message ||
       JSON.stringify(error, null, 2)
-    }`
-  )
+      }`
+    )
 
-  showError(
-    error?.message ||
+    showError(
+      error?.message ||
     'Failed to export PDF report'
-  )
-
-}
-
+    )
+  }
 }

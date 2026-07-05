@@ -1,4 +1,4 @@
-﻿/* =====================================================
+/* =====================================================
    CONSTANTS
 ===================================================== */
 
@@ -23,21 +23,17 @@ let currentParticipationPage = 1
 ===================================================== */
 
 function getElement(id) {
-
   return document.getElementById(id)
 }
 
 function getValue(id) {
-
   return getElement(id)?.value || ''
 }
 
 function setText(id, value) {
-
   const element = getElement(id)
 
   if (!element) {
-
     return
   }
 
@@ -45,11 +41,9 @@ function setText(id, value) {
 }
 
 function showError(message) {
-
   if (
     window.Swal
   ) {
-
     Swal.fire(
       'Error',
       message,
@@ -63,11 +57,9 @@ function showError(message) {
 }
 
 function showSuccess(message) {
-
   if (
     window.Swal
   ) {
-
     Swal.fire(
       'Success',
       message,
@@ -81,10 +73,9 @@ function showSuccess(message) {
 }
 
 function safeArray(value) {
-
-  return Array.isArray(value)
-    ? value
-    : []
+  return Array.isArray(value) ?
+    value :
+    []
 }
 
 /* =====================================================
@@ -92,7 +83,6 @@ function safeArray(value) {
 ===================================================== */
 
 async function loadEventsLookup() {
-
   const {
     data,
     error
@@ -108,7 +98,6 @@ async function loadEventsLookup() {
       )
 
   if (error) {
-
     console.error(error)
 
     return
@@ -123,7 +112,6 @@ async function loadEventsLookup() {
     )
 
   if (!select) {
-
     return
   }
 
@@ -134,10 +122,8 @@ async function loadEventsLookup() {
       </option>
     `
 
-  eventsLookup.forEach(
-    event => {
-
-      select.innerHTML +=
+  for (const event of eventsLookup) {
+    select.innerHTML +=
         `
           <option
             value="${event.event_id}"
@@ -145,12 +131,10 @@ async function loadEventsLookup() {
             ${event.event_name}
           </option>
         `
-    }
-  )
+  }
 }
 
 async function loadProgramsLookup() {
-
   const {
     data,
     error
@@ -168,7 +152,6 @@ async function loadProgramsLookup() {
       )
 
   if (error) {
-
     console.error(error)
 
     return
@@ -183,7 +166,6 @@ async function loadProgramsLookup() {
     )
 
   if (!select) {
-
     return
   }
 
@@ -194,10 +176,8 @@ async function loadProgramsLookup() {
       </option>
     `
 
-  programsLookup.forEach(
-    program => {
-
-      select.innerHTML +=
+  for (const program of programsLookup) {
+    select.innerHTML +=
         `
           <option
             value="${program.program_id}"
@@ -205,12 +185,10 @@ async function loadProgramsLookup() {
             ${program.program_name}
           </option>
         `
-    }
-  )
+  }
 }
 
 async function loadCountiesLookup() {
-
   const {
     data,
     error
@@ -228,7 +206,6 @@ async function loadCountiesLookup() {
       )
 
   if (error) {
-
     console.error(error)
 
     return
@@ -243,7 +220,6 @@ async function loadCountiesLookup() {
     )
 
   if (!select) {
-
     return
   }
 
@@ -254,10 +230,8 @@ async function loadCountiesLookup() {
       </option>
     `
 
-  countiesLookup.forEach(
-    county => {
-
-      select.innerHTML +=
+  for (const county of countiesLookup) {
+    select.innerHTML +=
         `
           <option
             value="${county.county_id}"
@@ -265,12 +239,10 @@ async function loadCountiesLookup() {
             ${county.county_name}
           </option>
         `
-    }
-  )
+  }
 }
 
 async function loadClassificationsLookup() {
-
   const {
     data,
     error
@@ -289,7 +261,6 @@ async function loadClassificationsLookup() {
       )
 
   if (error) {
-
     console.error(error)
 
     return
@@ -300,14 +271,12 @@ async function loadClassificationsLookup() {
 }
 
 async function loadYearsLookup() {
-
   const select =
     getElement(
       'filterParticipationYear'
     )
 
   if (!select) {
-
     return
   }
 
@@ -338,17 +307,14 @@ async function loadYearsLookup() {
       </option>
     `
 
-  years.forEach(
-    year => {
-
-      select.innerHTML +=
+  for (const year of years) {
+    select.innerHTML +=
         `
           <option value="${year}">
             ${year}
           </option>
         `
-    }
-  )
+  }
 }
 
 /* =====================================================
@@ -356,9 +322,7 @@ async function loadYearsLookup() {
 ===================================================== */
 
 async function loadParticipationData() {
-
   try {
-
     const {
       data,
       error
@@ -403,7 +367,6 @@ async function loadParticipationData() {
   )
 `)
     if (error) {
-
       throw error
     }
 
@@ -414,9 +377,7 @@ async function loadParticipationData() {
       [...participationRecords]
 
     buildParticipationStatistics()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
@@ -430,7 +391,6 @@ async function loadParticipationData() {
 ===================================================== */
 
 function buildParticipationStatistics() {
-
   buildSummaryCards()
 
   buildEventAnalysis()
@@ -451,7 +411,6 @@ function buildParticipationStatistics() {
 ===================================================== */
 
 function buildSummaryCards() {
-
   const uniqueEvents =
     new Set()
 
@@ -461,43 +420,31 @@ function buildSummaryCards() {
   const uniquePrograms =
     new Set()
 
- 
-
-  
-
-  participationRecords.forEach(
-    record => {
-
-      if (
-       record.event_instances?.events?.event_id
-      ) {
-
-        uniqueEvents.add(
-          record.event_instances?.events?.event_id
-        )
-      }
-
-      if (
-  record.participant_ref_id
-) {
-
-  uniqueParticipants.add(
-    record.participant_ref_id
-  )
-}
-
-      if (
-        record.program_id
-      ) {
-
-        uniquePrograms.add(
-          record.program_id
-        )
-      }
-
-     
+  for (const record of participationRecords) {
+    if (
+      record.event_instances?.events?.event_id
+    ) {
+      uniqueEvents.add(
+        record.event_instances?.events?.event_id
+      )
     }
-  )
+
+    if (
+      record.participant_ref_id
+    ) {
+      uniqueParticipants.add(
+        record.participant_ref_id
+      )
+    }
+
+    if (
+      record.program_id
+    ) {
+      uniquePrograms.add(
+        record.program_id
+      )
+    }
+  }
 
   setText(
     'totalRegistrationsCard',
@@ -510,14 +457,14 @@ function buildSummaryCards() {
   )
 
   setText(
-  'uniqueTeamsCard',
-  uniqueParticipants.size
-)
+    'uniqueTeamsCard',
+    uniqueParticipants.size
+  )
 
   setText(
-  'uniqueAthletesCard',
-  uniqueParticipants.size
-)
+    'uniqueAthletesCard',
+    uniqueParticipants.size
+  )
 
   setText(
     'programsUtilizedCard',
@@ -525,18 +472,16 @@ function buildSummaryCards() {
   )
 
   setText(
-  'countiesRepresentedCard',
-  '-'
-)
+    'countiesRepresentedCard',
+    '-'
+  )
 }
 
 /* =====================================================
    EVENT ANALYSIS
 ===================================================== */
 
-
 function buildEventAnalysis() {
-
   const body =
     getElement(
       'eventParticipationAnalysisBody'
@@ -550,57 +495,49 @@ function buildEventAnalysis() {
 
   const statistics = {}
 
-  participationRecords.forEach(
-    record => {
-
-      const eventName =
+  for (const record of participationRecords) {
+    const eventName =
         record.event_instances?.events?.event_name ||
         'Unknown Event'
 
-      if (!statistics[eventName]) {
-        statistics[eventName] = {
-          teams: new Set(),
-          athletes: new Set(),
-          programs: new Set(),
-          registrations: 0
-        }
+    if (!statistics[eventName]) {
+      statistics[eventName] = {
+        teams: new Set(),
+        athletes: new Set(),
+        programs: new Set(),
+        registrations: 0
       }
+    }
 
-      statistics[eventName].registrations += 1
+    statistics[eventName].registrations += 1
 
-      if (
-  record.participant_ref_id
-) {
-
-  statistics[eventName]
+    if (
+      record.participant_ref_id
+    ) {
+      statistics[eventName]
     .athletes
     .add(
       record.participant_ref_id
     )
 
-  statistics[eventName]
+      statistics[eventName]
     .teams
     .add(
       record.participant_ref_id
     )
-}
-
-      if (record.program_id) {
-        statistics[eventName].programs.add(
-          record.program_id
-        )
-      }
-
-      
     }
-  )
 
-  Object.entries(
+    if (record.program_id) {
+      statistics[eventName].programs.add(
+        record.program_id
+      )
+    }
+  }
+
+  for (const [eventName, item] of Object.entries(
     statistics
-  ).forEach(
-    ([eventName, item]) => {
-
-      body.innerHTML += `
+  )) {
+    body.innerHTML += `
         <tr>
           <td>${eventName}</td>
           <td>${item.teams.size}</td>
@@ -609,22 +546,19 @@ function buildEventAnalysis() {
           <td>${item.registrations}</td>
         </tr>
       `
-    }
-  )
+  }
 }
 /* =====================================================
    TEAM ANALYSIS
 ===================================================== */
 
 function buildTeamAnalysis() {
-
   const body =
     getElement(
       'teamParticipationAnalysisBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -632,75 +566,68 @@ function buildTeamAnalysis() {
 
   const statistics = {}
 
-  participationRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of participationRecords) {
+    const participant =
         record.participant_registry
 
-      if (
-        !participant
-      ) {
+    if (
+      !participant
+    ) {
+      continue
+    }
 
-        return
-      }
-
-      const participantId =
+    const participantId =
         participant.participant_ref_id
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           participantId
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           participantId
-        ] = {
+      ] = {
 
-          displayName:
+        displayName:
             participant.display_name,
 
-          events:
+        events:
             new Set(),
 
-          programs:
+        programs:
             new Set(),
 
-          latestEvent:
+        latestEvent:
             ''
-        }
       }
+    }
 
-      statistics[
+    statistics[
         participantId
-      ].events.add(
-        record.event_instances
+    ].events.add(
+      record.event_instances
           ?.events
           ?.event_id
-      )
+    )
 
-      statistics[
+    statistics[
         participantId
-      ].programs.add(
-        record.program_id
-      )
+    ].programs.add(
+      record.program_id
+    )
 
-      statistics[
+    statistics[
         participantId
-      ].latestEvent =
+    ].latestEvent =
         record.event_instances
           ?.events
           ?.event_name || ''
-    }
-  )
+  }
 
-  Object.values(
+  for (const item of Object.values(
     statistics
-  ).forEach(
-    item => {
-
-      body.innerHTML += `
+  )) {
+    body.innerHTML += `
         <tr>
           <td>-</td>
           <td>${item.displayName}</td>
@@ -710,8 +637,7 @@ function buildTeamAnalysis() {
           <td>Active</td>
         </tr>
       `
-    }
-  )
+  }
 }
 
 /* =====================================================
@@ -719,14 +645,12 @@ function buildTeamAnalysis() {
 ===================================================== */
 
 function buildAthleteAnalysis() {
-
   const body =
     getElement(
       'athleteParticipationAnalysisBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -734,70 +658,63 @@ function buildAthleteAnalysis() {
 
   const participants = {}
 
-  participationRecords.forEach(
-    record => {
-
-      const participant =
+  for (const record of participationRecords) {
+    const participant =
         record.participant_registry
 
-      if (
-        !participant
-      ) {
+    if (
+      !participant
+    ) {
+      continue
+    }
 
-        return
-      }
-
-      const participantId =
+    const participantId =
         participant.participant_ref_id
 
-      if (
-        !participants[
+    if (
+      !participants[
           participantId
-        ]
-      ) {
-
-        participants[
+      ]
+    ) {
+      participants[
           participantId
-        ] = {
+      ] = {
 
-          displayName:
+        displayName:
             participant.display_name,
 
-          participantType:
+        participantType:
             participant
               ?.participant_type_master
               ?.participant_type_code || '',
 
-          events:
+        events:
             new Set(),
 
-          programs:
+        programs:
             new Set()
-        }
       }
+    }
 
-      participants[
+    participants[
         participantId
-      ].events.add(
-        record.event_instances
+    ].events.add(
+      record.event_instances
           ?.events
           ?.event_id
-      )
+    )
 
-      participants[
+    participants[
         participantId
-      ].programs.add(
-        record.program_id
-      )
-    }
-  )
+    ].programs.add(
+      record.program_id
+    )
+  }
 
-  Object.values(
+  for (const item of Object.values(
     participants
-  ).forEach(
-    item => {
-
-      body.innerHTML += `
+  )) {
+    body.innerHTML += `
         <tr>
           <td>-</td>
           <td>${item.displayName}</td>
@@ -807,8 +724,7 @@ function buildAthleteAnalysis() {
           <td>${item.programs.size}</td>
         </tr>
       `
-    }
-  )
+  }
 }
 
 /* =====================================================
@@ -816,14 +732,12 @@ function buildAthleteAnalysis() {
 ===================================================== */
 
 function buildClassificationAnalysis() {
-
   const body =
     getElement(
       'classificationParticipationAnalysisBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -831,46 +745,40 @@ function buildClassificationAnalysis() {
 
   const statistics = {}
 
-  participationRecords.forEach(
-    record => {
-
-      const type =
+  for (const record of participationRecords) {
+    const type =
         record
           ?.participant_registry
           ?.participant_type_master
           ?.participant_type_code ||
         'Unknown'
 
-      if (
-        !statistics[type]
-      ) {
+    if (
+      !statistics[type]
+    ) {
+      statistics[type] = {
 
-        statistics[type] = {
-
-          participants:
+        participants:
             new Set(),
 
-          registrations: 0
-        }
+        registrations: 0
       }
+    }
 
-      statistics[type]
+    statistics[type]
         .participants
         .add(
           record.participant_ref_id
         )
 
-      statistics[type]
+    statistics[type]
         .registrations += 1
-    }
-  )
+  }
 
-  Object.entries(
+  for (const [type, item] of Object.entries(
     statistics
-  ).forEach(
-    ([type, item]) => {
-
-      body.innerHTML += `
+  )) {
+    body.innerHTML += `
         <tr>
           <td>${type}</td>
           <td>${item.participants.size}</td>
@@ -878,8 +786,7 @@ function buildClassificationAnalysis() {
           <td>-</td>
         </tr>
       `
-    }
-  )
+  }
 }
 
 /* =====================================================
@@ -887,14 +794,12 @@ function buildClassificationAnalysis() {
 ===================================================== */
 
 function buildCountyAnalysis() {
-
   const body =
     getElement(
       'countyParticipationAnalysisBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -907,20 +812,17 @@ function buildCountyAnalysis() {
   `
 }
 
-
 /* =====================================================
    PROGRAM ANALYSIS
 ===================================================== */
 
 function buildProgramAnalysis() {
-
   const body =
     getElement(
       'programParticipationAnalysisBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -928,80 +830,72 @@ function buildProgramAnalysis() {
 
   const statistics = {}
 
-  participationRecords.forEach(
-    record => {
-
-      const programName =
+  for (const record of participationRecords) {
+    const programName =
         record.event_programs
           ?.program_name ||
         'Unknown Program'
 
-      if (
-        !statistics[
+    if (
+      !statistics[
           programName
-        ]
-      ) {
-
-        statistics[
+      ]
+    ) {
+      statistics[
           programName
-        ] = {
+      ] = {
 
-          registrations: 0,
+        registrations: 0,
 
-          teams:
+        teams:
             new Set(),
 
-          athletes:
+        athletes:
             new Set()
-        }
-      }
-
-      statistics[
-        programName
-      ].registrations += 1
-
-      statistics[
-        programName
-      ].teams.add(
-        record.team_id
-      )
-
-      const pilot =
-        record.teams?.pilot
-
-      const stoker =
-        record.teams?.stoker
-
-      if (
-        pilot?.athlete_id
-      ) {
-
-        statistics[
-          programName
-        ].athletes.add(
-          pilot.athlete_id
-        )
-      }
-
-      if (
-        stoker?.athlete_id
-      ) {
-
-        statistics[
-          programName
-        ].athletes.add(
-          stoker.athlete_id
-        )
       }
     }
-  )
 
-  Object.entries(
+    statistics[
+        programName
+    ].registrations += 1
+
+    statistics[
+        programName
+    ].teams.add(
+      record.team_id
+    )
+
+    const pilot =
+        record.teams?.pilot
+
+    const stoker =
+        record.teams?.stoker
+
+    if (
+      pilot?.athlete_id
+    ) {
+      statistics[
+          programName
+      ].athletes.add(
+        pilot.athlete_id
+      )
+    }
+
+    if (
+      stoker?.athlete_id
+    ) {
+      statistics[
+          programName
+      ].athletes.add(
+        stoker.athlete_id
+      )
+    }
+  }
+
+  for (const [program, item] of Object.entries(
     statistics
-  ).forEach(
-    ([program, item]) => {
-
-      body.innerHTML += `
+  )) {
+    body.innerHTML += `
         <tr>
           <td>${program}</td>
           <td>${item.teams.size}</td>
@@ -1009,8 +903,7 @@ function buildProgramAnalysis() {
           <td>${item.registrations}</td>
         </tr>
       `
-    }
-  )
+  }
 }
 
 /* =====================================================
@@ -1018,7 +911,6 @@ function buildProgramAnalysis() {
 ===================================================== */
 
 function applyParticipationSearch() {
-
   const searchTerm =
     getValue(
       'searchParticipationReport'
@@ -1029,7 +921,6 @@ function applyParticipationSearch() {
   filteredParticipationRecords =
     participationRecords.filter(
       record => {
-
         const eventName =
           record.event_instances
             ?.events
@@ -1082,7 +973,6 @@ function applyParticipationSearch() {
 ===================================================== */
 
 function applyParticipationFilters() {
-
   const eventId =
     getValue(
       'filterParticipationEvent'
@@ -1097,7 +987,7 @@ function applyParticipationFilters() {
     getValue(
       'filterParticipationStatus'
     )
-const countyId =
+  const countyId =
   getValue(
     'filterParticipationCounty'
   )
@@ -1108,32 +998,29 @@ const countyId =
   filteredParticipationRecords =
     participationRecords.filter(
       record => {
-       if (
-  year
-) {
+        if (
+          year
+        ) {
+          const recordYear =
+    record.registration_date ?
+      String(
+        new Date(
+          record.registration_date
+        ).getFullYear()
+      ) :
+      ''
 
-  const recordYear =
-    record.registration_date
-      ? String(
-          new Date(
-            record.registration_date
-          ).getFullYear()
-        )
-      : ''
-
-  if (
-    recordYear !== year
-  ) {
-
-    return false
-  }
-}
+          if (
+            recordYear !== year
+          ) {
+            return false
+          }
+        }
 
         if (
           eventId &&
           record.event_instances?.events?.event_id !== eventId
         ) {
-
           return false
         }
 
@@ -1142,7 +1029,6 @@ const countyId =
           record.program_id !==
             programId
         ) {
-
           return false
         }
 
@@ -1150,15 +1036,15 @@ const countyId =
           statusId &&
           record.participant_status_id !== statusId
         ) {
-
           return false
         }
-       if (
-  countyId
-) {
 
-  return false
-}
+        if (
+          countyId
+        ) {
+          return false
+        }
+
         return true
       }
     )
@@ -1173,11 +1059,9 @@ const countyId =
   if (
     searchTerm
   ) {
-
     filteredParticipationRecords =
       filteredParticipationRecords.filter(
         record => {
-
           const searchableText =
             `
               ${record.event_instances?.events?.event_name || ''}
@@ -1219,19 +1103,16 @@ let participationSortDirection =
 function sortParticipationData(
   field
 ) {
-
   if (
     participationSortField ===
     field
   ) {
-
     participationSortDirection =
       participationSortDirection ===
-      'asc'
-        ? 'desc'
-        : 'asc'
+      'asc' ?
+        'desc' :
+        'asc'
   } else {
-
     participationSortField =
       field
 
@@ -1241,16 +1122,13 @@ function sortParticipationData(
 
   filteredParticipationRecords.sort(
     (a, b) => {
-
       let valueA = ''
       let valueB = ''
 
       switch (
         participationSortField
       ) {
-
-        case 'event':
-
+        case 'event': {
           valueA =
             a.event_instances?.events?.event_name || ''
 
@@ -1258,9 +1136,9 @@ function sortParticipationData(
             b.event_instances?.events?.event_name || ''
 
           break
+        }
 
-        case 'program':
-
+        case 'program': {
           valueA =
             a.event_programs
               ?.program_name || ''
@@ -1270,9 +1148,9 @@ function sortParticipationData(
               ?.program_name || ''
 
           break
+        }
 
-        case 'team_code':
-
+        case 'team_code': {
           valueA =
             a.teams
               ?.team_code || ''
@@ -1282,9 +1160,9 @@ function sortParticipationData(
               ?.team_code || ''
 
           break
+        }
 
-        case 'team_name':
-
+        case 'team_name': {
           valueA =
             a.teams
               ?.team_name || ''
@@ -1294,9 +1172,9 @@ function sortParticipationData(
               ?.team_name || ''
 
           break
+        }
 
-        case 'registration_date':
-
+        case 'registration_date': {
           valueA =
             a.registration_date || ''
 
@@ -1304,13 +1182,13 @@ function sortParticipationData(
             b.registration_date || ''
 
           break
+        }
       }
 
       if (
         participationSortDirection ===
         'asc'
       ) {
-
         return String(
           valueA
         ).localeCompare(
@@ -1338,14 +1216,12 @@ function sortParticipationData(
 ===================================================== */
 
 function renderParticipationTable() {
-
   const body =
     getElement(
       'participationReportTableBody'
     )
 
   if (!body) {
-
     return
   }
 
@@ -1364,58 +1240,56 @@ function renderParticipationTable() {
         PARTICIPATION_PAGE_SIZE
     )
 
-  pageRecords.forEach(
-  record => {
-
+  for (const record of pageRecords) {
     body.innerHTML += `
       <tr>
 
         <td>
           ${
-            record.event_instances?.events?.event_name ||
+  record.event_instances?.events?.event_name ||
             '-'
-          }
+}
         </td>
 
         <td>
           ${
-            record.event_programs?.program_name ||
+  record.event_programs?.program_name ||
             '-'
-          }
+}
         </td>
 
         <td>
           ${
-            record.participant_registry?.display_name ||
+  record.participant_registry?.display_name ||
             '-'
-          }
+}
         </td>
 
         <td>
           ${
-            record.participant_registry
+  record.participant_registry
               ?.participant_type_master
               ?.participant_type_code ||
             '-'
-          }
+}
         </td>
 
         <td>
           ${
-            record.registration_date
-              ? new Date(
-                  record.registration_date
-                ).toLocaleDateString()
-              : '-'
-          }
+  record.registration_date ?
+    new Date(
+      record.registration_date
+    ).toLocaleDateString() :
+    '-'
+}
         </td>
 
         <td>
           ${
-            record.registration_status_master
+  record.registration_status_master
               ?.status_name ||
             '-'
-          }
+}
         </td>
 
         <td>
@@ -1432,7 +1306,6 @@ function renderParticipationTable() {
       </tr>
     `
   }
-)
 }
 
 /* =====================================================
@@ -1440,7 +1313,6 @@ function renderParticipationTable() {
 ===================================================== */
 
 function updateParticipationPagination() {
-
   const totalPages =
     Math.max(
       1,
@@ -1468,7 +1340,6 @@ function updateParticipationPagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentParticipationPage <=
       1
@@ -1477,7 +1348,6 @@ function updateParticipationPagination() {
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentParticipationPage >=
       totalPages
@@ -1485,12 +1355,10 @@ function updateParticipationPagination() {
 }
 
 function goToPreviousParticipationPage() {
-
   if (
     currentParticipationPage <=
     1
   ) {
-
     return
   }
 
@@ -1502,7 +1370,6 @@ function goToPreviousParticipationPage() {
 }
 
 function goToNextParticipationPage() {
-
   const totalPages =
     Math.ceil(
       filteredParticipationRecords.length /
@@ -1513,7 +1380,6 @@ function goToNextParticipationPage() {
     currentParticipationPage >=
     totalPages
   ) {
-
     return
   }
 
@@ -1530,9 +1396,7 @@ function goToNextParticipationPage() {
 async function viewParticipationRecord(
   participantId
 ) {
-
   try {
-
     const record =
       participationRecords.find(
         item =>
@@ -1541,7 +1405,6 @@ async function viewParticipationRecord(
       )
 
     if (!record) {
-
       showError(
         'Participation record not found'
       )
@@ -1570,11 +1433,11 @@ async function viewParticipationRecord(
 
     setText(
       'reportRegistrationDate',
-      record.registration_date
-        ? new Date(
-            record.registration_date
-          ).toLocaleString()
-        : '-'
+      record.registration_date ?
+        new Date(
+          record.registration_date
+        ).toLocaleString() :
+        '-'
     )
 
     setText(
@@ -1600,26 +1463,25 @@ async function viewParticipationRecord(
     if (
       participantContainer
     ) {
-
       participantContainer.innerHTML =
         `
           <p>
             <strong>Participant:</strong>
             ${
-              record
+  record
                 .participant_registry
                 ?.display_name || '-'
-            }
+}
           </p>
 
           <p>
             <strong>Type:</strong>
             ${
-              record
+  record
                 .participant_registry
                 ?.participant_type_master
                 ?.participant_type_code || '-'
-            }
+}
           </p>
         `
     }
@@ -1632,25 +1494,24 @@ async function viewParticipationRecord(
     if (
       secondaryContainer
     ) {
-
       secondaryContainer.innerHTML =
         `
           <p>
             <strong>Participant Ref:</strong>
             ${
-              record
+  record
                 .participant_registry
                 ?.participant_ref_id || '-'
-            }
+}
           </p>
 
           <p>
             <strong>Source ID:</strong>
             ${
-              record
+  record
                 .participant_registry
                 ?.source_id || '-'
-            }
+}
           </p>
         `
     }
@@ -1671,32 +1532,27 @@ async function viewParticipationRecord(
     const uniquePrograms =
       new Set()
 
-    participantRecords.forEach(
-      item => {
-
-        if (
-          item.event_instances
+    for (const item of participantRecords) {
+      if (
+        item.event_instances
             ?.events
             ?.event_id
-        ) {
-
-          uniqueEvents.add(
-            item.event_instances
+      ) {
+        uniqueEvents.add(
+          item.event_instances
               ?.events
               ?.event_id
-          )
-        }
-
-        if (
-          item.program_id
-        ) {
-
-          uniquePrograms.add(
-            item.program_id
-          )
-        }
+        )
       }
-    )
+
+      if (
+        item.program_id
+      ) {
+        uniquePrograms.add(
+          item.program_id
+        )
+      }
+    }
 
     setText(
       'metricEvents',
@@ -1726,7 +1582,6 @@ async function viewParticipationRecord(
     if (
       modalElement
     ) {
-
       const modal =
         new coreui.Modal(
           modalElement
@@ -1734,9 +1589,7 @@ async function viewParticipationRecord(
 
       modal.show()
     }
-
   } catch (error) {
-
     console.error(
       error
     )
@@ -1751,11 +1604,9 @@ async function viewParticipationRecord(
 ===================================================== */
 
 function exportParticipationCsv() {
-
   if (
     !filteredParticipationRecords.length
   ) {
-
     showError(
       'No data available'
     )
@@ -1777,34 +1628,31 @@ function exportParticipationCsv() {
     ]
   ]
 
-  filteredParticipationRecords.forEach(
-    record => {
+  for (const record of filteredParticipationRecords) {
+    rows.push([
 
-      rows.push([
-
-        record.events
+      record.events
           ?.event_name || '',
 
-        record.event_programs
+      record.event_programs
           ?.program_name || '',
 
-        record.teams
+      record.teams
           ?.team_code || '',
 
-        record.teams
+      record.teams
           ?.team_name || '',
 
-        `${record.teams?.pilot?.first_name || ''} ${record.teams?.pilot?.last_name || ''}`,
+      `${record.teams?.pilot?.first_name || ''} ${record.teams?.pilot?.last_name || ''}`,
 
-        `${record.teams?.stoker?.first_name || ''} ${record.teams?.stoker?.last_name || ''}`,
+      `${record.teams?.stoker?.first_name || ''} ${record.teams?.stoker?.last_name || ''}`,
 
-        record.registration_date || '',
+      record.registration_date || '',
 
-        record.registration_status_master
+      record.registration_status_master
           ?.status_name || ''
-      ])
-    }
-  )
+    ])
+  }
 
   const csv =
     rows
@@ -1842,14 +1690,12 @@ function exportParticipationCsv() {
 }
 
 function exportParticipationExcel() {
-
   showSuccess(
     'Excel export reserved for next enhancement phase'
   )
 }
 
 function printParticipationReport() {
-
   window.print()
 }
 
@@ -1858,7 +1704,6 @@ function printParticipationReport() {
 ===================================================== */
 
 function wireParticipationEvents() {
-
   getElement(
     'searchParticipationReport'
   )
@@ -1891,16 +1736,16 @@ function wireParticipationEvents() {
       applyParticipationFilters
     )
   getElement(
-  'filterParticipationCounty'
-)
+    'filterParticipationCounty'
+  )
   ?.addEventListener(
     'change',
     applyParticipationFilters
   )
 
-getElement(
-  'filterParticipationYear'
-)
+  getElement(
+    'filterParticipationYear'
+  )
   ?.addEventListener(
     'change',
     applyParticipationFilters
@@ -1951,35 +1796,29 @@ getElement(
     ?.addEventListener(
       'click',
       async () => {
-
         await loadParticipationData()
 
-await loadYearsLookup()
+        await loadYearsLookup()
 
-renderParticipationTable()
+        renderParticipationTable()
 
-updateParticipationPagination()
+        updateParticipationPagination()
       }
     )
 
-  document
+  for (const header of document
     .querySelectorAll(
       '[data-sort]'
-    )
-    .forEach(
-      header => {
-
-        header.addEventListener(
-          'click',
-          () => {
-
-            sortParticipationData(
-              header.dataset.sort
-            )
-          }
+    )) {
+    header.addEventListener(
+      'click',
+      () => {
+        sortParticipationData(
+          header.dataset.sort
         )
       }
     )
+  }
 }
 
 /* =====================================================
@@ -1987,16 +1826,13 @@ updateParticipationPagination()
 ===================================================== */
 
 function initializeParticipationModals() {
-
   const modal =
     getElement(
       'participationIntelligenceModal'
     )
 
   if (!modal) {
-
-    return
-  }
+}
 }
 
 /* =====================================================
@@ -2004,9 +1840,7 @@ function initializeParticipationModals() {
 ===================================================== */
 
 async function initializeParticipationReport() {
-
   try {
-
     await Promise.all([
 
       loadEventsLookup(),
@@ -2019,7 +1853,7 @@ async function initializeParticipationReport() {
     ])
 
     await loadParticipationData()
-  await loadYearsLookup()
+    await loadYearsLookup()
 
     renderParticipationTable()
 
@@ -2028,9 +1862,7 @@ async function initializeParticipationReport() {
     wireParticipationEvents()
 
     initializeParticipationModals()
-
   } catch (error) {
-
     console.error(error)
 
     showError(

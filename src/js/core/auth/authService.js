@@ -1,4 +1,4 @@
-﻿import {
+import {
   setSession,
   setUser,
   setProfile,
@@ -11,22 +11,18 @@
   getSession,
   setLoginId
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   trackLogin,
   trackLogout
 }
-from './sessionService.js'
-
-
+  from './sessionService.js'
 
 import {
   loadPermissions
 }
-from './permissionService.js'
-
-
+  from './permissionService.js'
 
 /* ============================================================
    LOGIN
@@ -36,7 +32,6 @@ export async function login(
   email,
   password
 ) {
-
   const {
     data,
     error
@@ -49,37 +44,31 @@ export async function login(
 
     })
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   try {
+    await initializeAuth()
+  } catch (error) {
+    console.error(
+      'INITIALIZE AUTH FAILED:',
+      error
+    )
 
-  await initializeAuth()
-
-} catch (error) {
-
-  console.error(
-    'INITIALIZE AUTH FAILED:',
-    error
-  )
-
-  throw error
-
-}
+    throw error
+  }
 
   const loginId =
     await trackLogin()
 
   if (loginId) {
-
     setLoginId(
       loginId
     )
-
   }
 
   return data
-
 }
 
 /* ============================================================
@@ -87,7 +76,6 @@ export async function login(
    ============================================================ */
 
 export async function logout() {
-
   await trackLogout()
 
   const {
@@ -95,11 +83,11 @@ export async function logout() {
   } =
     await getDb().auth.signOut()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   clearAuthState()
-
 }
 
 /* ============================================================
@@ -111,7 +99,6 @@ export async function register(
   password,
   metadata = {}
 ) {
-
   const {
     data,
     error
@@ -128,11 +115,11 @@ export async function register(
 
     })
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return data
-
 }
 
 /* ============================================================
@@ -143,7 +130,6 @@ export async function resetPassword(
   email,
   redirectUrl
 ) {
-
   const {
     error
   } =
@@ -155,9 +141,9 @@ export async function resetPassword(
       }
     )
 
-  if (error)
+  if (error) {
     throw error
-
+  }
 }
 
 /* ============================================================
@@ -167,7 +153,6 @@ export async function resetPassword(
 export async function updatePassword(
   password
 ) {
-
   const {
     error
   } =
@@ -175,9 +160,9 @@ export async function updatePassword(
       password
     })
 
-  if (error)
+  if (error) {
     throw error
-
+  }
 }
 
 /* ============================================================
@@ -187,7 +172,6 @@ export async function updatePassword(
 export async function loadProfile(
   userId
 ) {
-
   const {
     data,
     error
@@ -212,13 +196,10 @@ export async function loadProfile(
   )
 
   if (error) {
-
     throw error
-
   }
 
   return data
-
 }
 
 /* ============================================================
@@ -226,21 +207,20 @@ export async function loadProfile(
    ============================================================ */
 
 export async function initializeAuth() {
-
   const {
     data,
     error
   } =
     await getDb().auth.getSession()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   const session =
     data?.session
 
   if (!session) {
-
     clearAuthState()
 
     setInitialized(
@@ -248,38 +228,39 @@ export async function initializeAuth() {
     )
 
     return null
-
   }
 
-  const user =
-    session.user
+  const { user } = session
 
   const profile =
   await loadProfile(
     user.id
   )
 
-const {
-  data: roleCode,
-  error: roleError
-}
-=
+  const {
+    data: roleCode,
+    error: roleError
+  } =
 await getDb()
   .rpc(
     'current_role_code'
   )
 
-if (
-  roleError
-) {
+  if (
+    roleError
+  ) {
+    throw roleError
+  }
 
-  throw roleError
+ const role = {
 
-}
-
-const role = {
+  user_role_id:
+    profile.user_role_id,
 
   role_code:
+    roleCode,
+
+  role_name:
     roleCode
 
 }
@@ -301,7 +282,6 @@ const role = {
   )
 
   await loadPermissions()
- 
 
   setInitialized(
     true
@@ -313,7 +293,6 @@ const role = {
     profile,
     role
   }
-
 }
 
 /* ============================================================
@@ -321,27 +300,19 @@ const role = {
    ============================================================ */
 
 export function getCurrentUser() {
-
   return getUser()
-
 }
 
 export function getCurrentProfile() {
-
   return getProfile()
-
 }
 
 export function getCurrentRole() {
-
   return getRole()
-
 }
 
 export function getCurrentSession() {
-
   return getSession()
-
 }
 
 /* ============================================================
@@ -349,56 +320,46 @@ export function getCurrentSession() {
    ============================================================ */
 
 export function initializeAuthListener() {
-
   getDb().auth.onAuthStateChange(
     async (
       event,
       session
     ) => {
-
       switch (
         event
       ) {
-
-        case 'SIGNED_IN':
-
+        case 'SIGNED_IN': {
           await initializeAuth()
 
           break
+        }
 
-        case 'SIGNED_OUT':
-
+        case 'SIGNED_OUT': {
           clearAuthState()
 
           break
+        }
 
-        case 'TOKEN_REFRESHED':
-
+        case 'TOKEN_REFRESHED': {
           setSession(
             session
           )
 
           break
-
+        }
       }
-
     }
   )
-
 }
 
 function getDb() {
-
   if (
     !window.supabaseClient
   ) {
-
     throw new Error(
       'Supabase client not initialized.'
     )
-
   }
 
   return window.supabaseClient
-
 }

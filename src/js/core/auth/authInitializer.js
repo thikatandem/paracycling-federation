@@ -1,4 +1,7 @@
-﻿
+﻿import {
+  initializeProfileHeader
+}
+from './profileHeaderService.js'
 
 import {
   requireAuthentication,
@@ -27,7 +30,10 @@ import {
   renderSidebar
 }
 from '../rolePages/sidebarRenderer.js'
-
+import {
+  initializeProfilePhotoUpload
+}
+from '../profile/profilePhotoService.js'
 
 
 let initialized =
@@ -60,17 +66,21 @@ export async function initializeAuthentication() {
   preventBackNavigation()
 
   const sidebar =
-    getRoleSidebar()
+  getRoleSidebar()
 
-  if (
+if (
+  sidebar
+) {
+
+  renderSidebar(
     sidebar
-  ) {
+  )
 
-    renderSidebar(
-      sidebar
-    )
+}
 
-  }
+initializeProfileHeader()
+
+
 
   document
     .getElementById(

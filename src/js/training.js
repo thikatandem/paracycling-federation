@@ -16,7 +16,7 @@ let events = []
 
 let programs = []
 
-let participants = []
+const participants = []
 
 let currentPage = 1
 
@@ -45,73 +45,55 @@ const paginationInfo =
     'paginationInfo'
   )
 function showLoading() {
-
   trainingLoading?.classList.remove(
     'd-none'
   )
-
 }
 
 function hideLoading() {
-
   trainingLoading?.classList.add(
     'd-none'
   )
-
 }
 
 function showError(message) {
-
   if (
     trainingFormError
   ) {
-
     trainingFormError.textContent =
       message
-
   }
-
 }
 
 function clearError() {
-
   if (
     trainingFormError
   ) {
-
     trainingFormError.textContent = ''
-
   }
-
 }
 
 function getValue(id) {
-
   return (
     document.getElementById(id)
       ?.value || ''
   )
-
 }
 
 function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(id)
 
   if (element) {
-
     element.value =
       value || ''
-
   }
-
 }
-async function loadTrainingEvents() {
 
+async function loadTrainingEvents() {
   const {
     data,
     error
@@ -157,7 +139,6 @@ async function loadTrainingEvents() {
     const event
     of events
   ) {
-
     select.innerHTML += `
       <option
         value="${event.event_id}"
@@ -166,12 +147,11 @@ async function loadTrainingEvents() {
       </option>
     `
   }
-
 }
+
 async function loadPrograms(
   eventId
 ) {
-
   const {
     data,
     error
@@ -219,7 +199,6 @@ async function loadPrograms(
     const program
     of programs
   ) {
-
     select.innerHTML += `
       <option
         value="${program.program_id}"
@@ -228,14 +207,10 @@ async function loadPrograms(
       </option>
     `
   }
-
 }
 
-
 async function loadTrainingLogs() {
-
   try {
-
     showLoading()
 
     const {
@@ -270,24 +245,18 @@ async function loadTrainingLogs() {
       [...trainingLogs]
 
     renderTrainingLogs()
-
   } catch (error) {
-
     console.error(error)
 
     alert(
       'Failed to load training logs'
     )
-
   } finally {
-
     hideLoading()
-
   }
-
 }
-function renderTrainingLogs() {
 
+function renderTrainingLogs() {
   if (
     !trainingTableBody
   ) {
@@ -314,7 +283,6 @@ function renderTrainingLogs() {
   if (
     pageRows.length === 0
   ) {
-
     trainingTableBody.innerHTML =
       `
       <tr>
@@ -338,53 +306,52 @@ function renderTrainingLogs() {
     const training
     of pageRows
   ) {
-
     trainingTableBody.innerHTML += `
       <tr>
 
         <td>
           ${
-            training.training_date || ''
-          }
+  training.training_date || ''
+}
         </td>
 
         <td>
           ${
-            training.teams
+  training.teams
               ?.team_name || ''
-          }
+}
         </td>
 
         <td>
           ${
-            training.session_type || ''
-          }
+  training.session_type || ''
+}
         </td>
 
         <td>
           ${
-            training.distance_km || 0
-          }
+  training.distance_km || 0
+}
         </td>
 
         <td>
           ${
-            training.duration_minutes || 0
-          }
+  training.duration_minutes || 0
+}
         </td>
 
         <td>
           ${
-            training.attendance
-              ? 'Present'
-              : 'Absent'
-          }
+  training.attendance ?
+    'Present' :
+    'Absent'
+}
         </td>
 
         <td>
           ${
-            training.notes || ''
-          }
+  training.notes || ''
+}
         </td>
 
         <td>
@@ -410,10 +377,9 @@ function renderTrainingLogs() {
   }
 
   updatePagination()
-
 }
-function updatePagination() {
 
+function updatePagination() {
   const totalPages =
     Math.max(
       1,
@@ -426,10 +392,8 @@ function updatePagination() {
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `Page ${currentPage} of ${totalPages}`
-
   }
 
   const previousButton =
@@ -445,24 +409,19 @@ function updatePagination() {
   if (
     previousButton
   ) {
-
     previousButton.disabled =
       currentPage <= 1
-
   }
 
   if (
     nextButton
   ) {
-
     nextButton.disabled =
       currentPage >= totalPages
-
   }
-
 }
-function searchTrainingLogs() {
 
+function searchTrainingLogs() {
   const search =
     (
       searchTraining?.value || ''
@@ -476,7 +435,6 @@ function searchTrainingLogs() {
 
       trainingLogs.filter(
         training => {
-
           return (
 
             (
@@ -484,17 +442,13 @@ function searchTrainingLogs() {
                 ?.team_name || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               training.session_type || ''
             )
               .toLowerCase()
-              .includes(search)
-
-            ||
+              .includes(search) ||
 
             (
               training.notes || ''
@@ -503,21 +457,17 @@ function searchTrainingLogs() {
               .includes(search)
 
           )
-
         }
-      )
-
-      :
+      ) :
 
       [...trainingLogs]
 
   currentPage = 1
 
   renderTrainingLogs()
-
 }
-function clearTrainingForm() {
 
+function clearTrainingForm() {
   clearError()
 
   setValue(
@@ -561,10 +511,9 @@ function clearTrainingForm() {
       .toISOString()
       .split('T')[0]
   )
-
 }
-function openNewTrainingModal() {
 
+function openNewTrainingModal() {
   clearTrainingForm()
 
   const modal =
@@ -575,10 +524,9 @@ function openNewTrainingModal() {
     )
 
   modal.show()
-
 }
-function validateTraining() {
 
+function validateTraining() {
   clearError()
 
   if (
@@ -586,7 +534,6 @@ function validateTraining() {
       'trainingDate'
     )
   ) {
-
     showError(
       'Training Date is required'
     )
@@ -599,7 +546,6 @@ function validateTraining() {
       'teamId'
     )
   ) {
-
     showError(
       'Team is required'
     )
@@ -612,7 +558,6 @@ function validateTraining() {
       'sessionType'
     )
   ) {
-
     showError(
       'Session Type is required'
     )
@@ -625,7 +570,6 @@ function validateTraining() {
       'distanceKm'
     )
   ) {
-
     showError(
       'Distance is required'
     )
@@ -638,7 +582,6 @@ function validateTraining() {
       'durationMinutes'
     )
   ) {
-
     showError(
       'Duration is required'
     )
@@ -651,7 +594,6 @@ function validateTraining() {
       'attendance'
     ) === ''
   ) {
-
     showError(
       'Attendance is required'
     )
@@ -660,12 +602,10 @@ function validateTraining() {
   }
 
   return true
-
 }
+
 async function saveTraining() {
-
   try {
-
     if (
       !validateTraining()
     ) {
@@ -724,7 +664,6 @@ async function saveTraining() {
     if (
       trainingId
     ) {
-
       const response =
         await db
           .from(
@@ -740,9 +679,7 @@ async function saveTraining() {
 
       error =
         response.error
-
     } else {
-
       const response =
         await db
           .from(
@@ -754,7 +691,6 @@ async function saveTraining() {
 
       error =
         response.error
-
     }
 
     if (
@@ -772,11 +708,9 @@ async function saveTraining() {
       ?.hide()
 
     await loadTrainingLogs()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -784,15 +718,13 @@ async function saveTraining() {
     showError(
       error.message
     )
-
   }
-
 }
+
 window.editTraining =
 function (
   trainingId
 ) {
-
   const training =
     trainingLogs.find(
       item =>
@@ -840,9 +772,9 @@ function (
 
   setValue(
     'attendance',
-    training.attendance
-      ? 'true'
-      : 'false'
+    training.attendance ?
+      'true' :
+      'false'
   )
 
   setValue(
@@ -858,13 +790,12 @@ function (
     )
 
   modal.show()
-
 }
+
 window.confirmDeleteTraining =
 function (
   trainingId
 ) {
-
   setValue(
     'deleteTrainingId',
     trainingId
@@ -878,12 +809,10 @@ function (
     )
 
   modal.show()
-
 }
+
 async function deleteTraining() {
-
   try {
-
     const trainingId =
       getValue(
         'deleteTrainingId'
@@ -917,11 +846,9 @@ async function deleteTraining() {
       ?.hide()
 
     await loadTrainingLogs()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -929,12 +856,10 @@ async function deleteTraining() {
     alert(
       error.message
     )
-
   }
-
 }
-function wireEvents() {
 
+function wireEvents() {
   document
     .getElementById(
       'btnAddTraining'
@@ -984,17 +909,13 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         if (
           currentPage > 1
         ) {
-
           currentPage--
 
           renderTrainingLogs()
-
         }
-
       }
     )
 
@@ -1005,7 +926,6 @@ function wireEvents() {
     ?.addEventListener(
       'click',
       () => {
-
         const totalPages =
           Math.max(
             1,
@@ -1019,31 +939,24 @@ function wireEvents() {
           currentPage <
           totalPages
         ) {
-
           currentPage++
 
           renderTrainingLogs()
-
         }
-
       }
     )
-
 }
+
 async function initializeTrainingLogs() {
-
   try {
-
     await loadTeams()
 
     await loadTrainingLogs()
 
     wireEvents()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1051,9 +964,7 @@ async function initializeTrainingLogs() {
     alert(
       error.message
     )
-
   }
-
 }
 
 document.addEventListener(

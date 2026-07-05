@@ -1,23 +1,21 @@
-﻿import {
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
   getSession,
   getProfile,
   isAuthenticated,
   getLoginId,
   clearLoginId
 }
-from './authStateService.js'
-
+  from './authStateService.js'
 
 import {
   logout,
   initializeAuth
 }
-from './authService.js'
-
-import {
-  getDb
-}
-from '../supabase/getDb.js'
+  from './authService.js'
 
 let sessionCheckInterval =
   null
@@ -39,7 +37,6 @@ const INACTIVITY_LIMIT =
    ============================================================ */
 
 export async function initializeSession() {
-
   await initializeAuth()
 
   if (
@@ -51,7 +48,6 @@ export async function initializeSession() {
   startSessionMonitor()
 
   startActivityTracking()
-
 }
 
 /* ============================================================
@@ -59,16 +55,13 @@ export async function initializeSession() {
    ============================================================ */
 
 export async function validateSession() {
-
   const session =
     getSession()
 
   if (!session) {
-
     await expireSession()
 
     return false
-
   }
 
   const expiresAt =
@@ -86,15 +79,12 @@ export async function validateSession() {
   if (
     now >= expiresAt
   ) {
-
     await expireSession()
 
     return false
-
   }
 
   return true
-
 }
 
 /* ============================================================
@@ -102,22 +92,18 @@ export async function validateSession() {
    ============================================================ */
 
 export async function expireSession() {
-
   stopSessionMonitor()
 
   stopActivityTracking()
 
   await logout()
-
 }
 /* ============================================================
    FORCE LOGOUT
    ============================================================ */
 
 export async function forceLogout() {
-
   await expireSession()
-
 }
 
 /* ============================================================
@@ -125,38 +111,30 @@ export async function forceLogout() {
    ============================================================ */
 
 export function startSessionMonitor() {
-
   stopSessionMonitor()
 
   sessionCheckInterval =
     setInterval(
       async () => {
-
         await validateSession()
 
         await validateInactivity()
-
       },
       SESSION_CHECK_INTERVAL
     )
-
 }
 
 export function stopSessionMonitor() {
-
   if (
     sessionCheckInterval
   ) {
-
     clearInterval(
       sessionCheckInterval
     )
 
     sessionCheckInterval =
       null
-
   }
-
 }
 
 /* ============================================================
@@ -164,15 +142,12 @@ export function stopSessionMonitor() {
    ============================================================ */
 
 export function startActivityTracking() {
-
   stopActivityTracking()
 
   const updateActivity =
     () => {
-
       lastActivityTime =
         Date.now()
-
     }
 
   window.addEventListener(
@@ -192,15 +167,12 @@ export function startActivityTracking() {
 
   inactivityTimeout =
     updateActivity
-
 }
 
 export function stopActivityTracking() {
-
   if (
     inactivityTimeout
   ) {
-
     window.removeEventListener(
       'click',
       inactivityTimeout
@@ -218,9 +190,7 @@ export function stopActivityTracking() {
 
     inactivityTimeout =
       null
-
   }
-
 }
 
 /* ============================================================
@@ -228,7 +198,6 @@ export function stopActivityTracking() {
    ============================================================ */
 
 export async function validateInactivity() {
-
   const inactiveTime =
     Date.now() -
     lastActivityTime
@@ -237,11 +206,8 @@ export async function validateInactivity() {
     inactiveTime >=
     INACTIVITY_LIMIT
   ) {
-
     await expireSession()
-
   }
-
 }
 
 /* ============================================================
@@ -249,9 +215,7 @@ export async function validateInactivity() {
    ============================================================ */
 
 export async function trackLogin() {
-
   try {
-
     const profile =
       getProfile()
 
@@ -287,33 +251,27 @@ export async function trackLogin() {
         )
         .single()
 
-    if (error)
+    if (error) {
       throw error
+    }
 
     return data.login_id
-
   } catch (error) {
-
     console.error(
       'Failed to track login',
       error
     )
 
     return null
-
   }
-
 }
-
 
 /* ============================================================
    LOGOUT TRACKING
    ============================================================ */
 
 export async function trackLogout() {
-
   try {
-
     const profile =
       getProfile()
 
@@ -344,16 +302,12 @@ export async function trackLogout() {
       )
 
     clearLoginId()
-
   } catch (error) {
-
     console.error(
       'Failed to track logout',
       error
     )
-
   }
-
 }
 
 /* ============================================================
@@ -361,12 +315,10 @@ export async function trackLogout() {
    ============================================================ */
 
 export function hasActiveSession() {
-
   return (
     isAuthenticated() &&
-    !!getSession()
+    Boolean(getSession())
   )
-
 }
 
 /* ============================================================
@@ -374,7 +326,5 @@ export function hasActiveSession() {
    ============================================================ */
 
 export function getCurrentSession() {
-
   return getSession()
-
 }

@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // STORAGE SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -24,12 +24,10 @@ export const STORAGE_TYPES = {
 function getStorage(
   type = STORAGE_TYPES.LOCAL
 ) {
-
   return type ===
-    STORAGE_TYPES.SESSION
-      ? sessionStorage
-      : localStorage
-
+    STORAGE_TYPES.SESSION ?
+    sessionStorage :
+    localStorage
 }
 
 // =====================================================
@@ -43,12 +41,10 @@ export function setItem({
   value,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   try {
-
     getStorage(type)
       .setItem(
         key,
@@ -56,18 +52,14 @@ export function setItem({
       )
 
     return true
-
   } catch (error) {
-
     console.error(
       'Storage Error:',
       error
     )
 
     return false
-
   }
-
 }
 
 // =====================================================
@@ -81,12 +73,10 @@ export function getItem({
   defaultValue = null,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   try {
-
     const value =
       getStorage(type)
         .getItem(key)
@@ -94,21 +84,15 @@ export function getItem({
     if (
       value === null
     ) {
-
       return defaultValue
-
     }
 
     return JSON.parse(
       value
     )
-
   } catch {
-
     return defaultValue
-
   }
-
 }
 
 // =====================================================
@@ -120,13 +104,11 @@ export function removeItem({
   key,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   getStorage(type)
     .removeItem(key)
-
 }
 
 // =====================================================
@@ -138,15 +120,13 @@ export function exists({
   key,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   return (
     getStorage(type)
       .getItem(key) !== null
   )
-
 }
 
 // =====================================================
@@ -155,12 +135,10 @@ export function exists({
 
 export function clearStorage(
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 ) {
-
   getStorage(type)
     .clear()
-
 }
 
 // =====================================================
@@ -169,13 +147,11 @@ export function clearStorage(
 
 export function getKeys(
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 ) {
-
   return Object.keys(
     getStorage(type)
   )
-
 }
 
 // =====================================================
@@ -191,10 +167,9 @@ export function setWithExpiry({
   ttl,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   const item = {
 
     value,
@@ -214,7 +189,6 @@ export function setWithExpiry({
     type
 
   })
-
 }
 
 // =====================================================
@@ -228,10 +202,9 @@ export function getWithExpiry({
   defaultValue = null,
 
   type =
-    STORAGE_TYPES.LOCAL
+  STORAGE_TYPES.LOCAL
 
 }) {
-
   const item =
     getItem({
 
@@ -245,27 +218,22 @@ export function getWithExpiry({
     })
 
   if (!item) {
-
     return defaultValue
-
   }
 
   if (
     Date.now() >
     item.expiry
   ) {
-
     removeItem({
       key,
       type
     })
 
     return defaultValue
-
   }
 
   return item.value
-
 }
 
 // =====================================================
@@ -279,7 +247,6 @@ export function savePageState({
   state
 
 }) {
-
   setItem({
 
     key:
@@ -289,7 +256,6 @@ export function savePageState({
       state
 
   })
-
 }
 
 // =====================================================
@@ -299,7 +265,6 @@ export function savePageState({
 export function getPageState(
   page
 ) {
-
   return getItem({
 
     key:
@@ -309,7 +274,6 @@ export function getPageState(
       {}
 
   })
-
 }
 
 // =====================================================
@@ -323,7 +287,6 @@ export function saveFilters({
   filters
 
 }) {
-
   setItem({
 
     key:
@@ -333,13 +296,11 @@ export function saveFilters({
       filters
 
   })
-
 }
 
 export function getFilters(
   page
 ) {
-
   return getItem({
 
     key:
@@ -349,7 +310,6 @@ export function getFilters(
       {}
 
   })
-
 }
 
 // =====================================================
@@ -363,7 +323,6 @@ export function saveSearchTerm({
   searchTerm
 
 }) {
-
   setItem({
 
     key:
@@ -373,13 +332,11 @@ export function saveSearchTerm({
       searchTerm
 
   })
-
 }
 
 export function getSearchTerm(
   page
 ) {
-
   return getItem({
 
     key:
@@ -389,7 +346,6 @@ export function getSearchTerm(
       ''
 
   })
-
 }
 
 // =====================================================
@@ -405,7 +361,6 @@ export function saveSort({
   direction
 
 }) {
-
   setItem({
 
     key:
@@ -420,13 +375,11 @@ export function saveSort({
     }
 
   })
-
 }
 
 export function getSort(
   page
 ) {
-
   return getItem({
 
     key:
@@ -442,7 +395,6 @@ export function getSort(
     }
 
   })
-
 }
 
 // =====================================================
@@ -458,7 +410,6 @@ export function savePagination({
   pageSize
 
 }) {
-
   setItem({
 
     key:
@@ -473,13 +424,11 @@ export function savePagination({
     }
 
   })
-
 }
 
 export function getPagination(
   page
 ) {
-
   return getItem({
 
     key:
@@ -496,7 +445,6 @@ export function getPagination(
     }
 
   })
-
 }
 
 // =====================================================
@@ -510,7 +458,6 @@ export function saveTableSettings({
   settings
 
 }) {
-
   setItem({
 
     key:
@@ -520,13 +467,11 @@ export function saveTableSettings({
       settings
 
   })
-
 }
 
 export function getTableSettings(
   table
 ) {
-
   return getItem({
 
     key:
@@ -536,7 +481,6 @@ export function getTableSettings(
       {}
 
   })
-
 }
 
 // =====================================================
@@ -550,7 +494,6 @@ export function saveVisibleColumns({
   columns
 
 }) {
-
   setItem({
 
     key:
@@ -560,13 +503,11 @@ export function saveVisibleColumns({
       columns
 
   })
-
 }
 
 export function getVisibleColumns(
   table
 ) {
-
   return getItem({
 
     key:
@@ -576,7 +517,6 @@ export function getVisibleColumns(
       []
 
   })
-
 }
 
 // =====================================================
@@ -590,7 +530,6 @@ export function savePreference({
   value
 
 }) {
-
   setItem({
 
     key:
@@ -599,7 +538,6 @@ export function savePreference({
     value
 
   })
-
 }
 
 export function getPreference({
@@ -609,7 +547,6 @@ export function getPreference({
   defaultValue = null
 
 }) {
-
   return getItem({
 
     key:
@@ -618,7 +555,6 @@ export function getPreference({
     defaultValue
 
   })
-
 }
 
 // =====================================================
@@ -632,7 +568,6 @@ export function saveExportSettings({
   settings
 
 }) {
-
   setItem({
 
     key:
@@ -642,13 +577,11 @@ export function saveExportSettings({
       settings
 
   })
-
 }
 
 export function getExportSettings(
   page
 ) {
-
   return getItem({
 
     key:
@@ -658,7 +591,6 @@ export function getExportSettings(
       {}
 
   })
-
 }
 
 // =====================================================
@@ -668,7 +600,6 @@ export function getExportSettings(
 export function removePageData(
   page
 ) {
-
   removeItem({
     key:
       `page-state:${page}`
@@ -693,5 +624,4 @@ export function removePageData(
     key:
       `pagination:${page}`
   })
-
 }

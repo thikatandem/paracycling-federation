@@ -1,33 +1,29 @@
-﻿import {
+import {
   getRole
 }
-from '../auth/authStateService.js'
+  from '../auth/authStateService.js'
 
 import {
   getAthleteSidebar
 }
-from './athletes/athleteSidebarService.js'
+  from './athletes/athleteSidebarService.js'
 
 export function getRoleSidebar() {
-
   const role =
   getRole()
 
-const roleCode =
+  const roleCode =
   role?.role_code
 
   switch (
     roleCode
   ) {
-
-    case 'ATHLETE':
-
+    case 'ATHLETE': {
       return getAthleteSidebar()
+    }
 
-    default:
-
+    default: {
       return null
-
+    }
   }
-
 }

@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // EVENTS MODULE
 // ParaCycling Federation Management System
 // =====================================================
@@ -6,7 +6,6 @@
 /* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
 
 const PAGE_SIZE = 10
 
@@ -89,8 +88,6 @@ const occurrenceStatusId =
     'occurrenceStatusId'
   )
 
-
-
 const btnSaveOccurrence =
   document.getElementById(
     'btnSaveOccurrence'
@@ -126,11 +123,7 @@ const townSuggestions =
     'townSuggestions'
   )
 
-
-
-
 function getValue(id) {
-
   return (
     document.getElementById(id)
       ?.value || ''
@@ -141,12 +134,10 @@ function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(id)
 
   if (element) {
-
     element.value =
       value || ''
   }
@@ -155,11 +146,9 @@ function setValue(
 function showError(
   message
 ) {
-
   if (
     occurrenceError
   ) {
-
     occurrenceError
       .textContent =
       message
@@ -173,11 +162,9 @@ function showError(
 }
 
 function clearError() {
-
   if (
     occurrenceError
   ) {
-
     occurrenceError
       .textContent = ''
 
@@ -192,11 +179,9 @@ function clearError() {
 function showSuccess(
   message
 ) {
-
   if (
     occurrenceError
   ) {
-
     occurrenceError.classList.remove(
       'alert-danger'
     )
@@ -214,7 +199,6 @@ function showSuccess(
 
     setTimeout(
       () => {
-
         occurrenceError.classList.add(
           'd-none'
         )
@@ -226,7 +210,6 @@ function showSuccess(
         occurrenceError.classList.add(
           'alert-danger'
         )
-
       },
       4000
     )
@@ -234,7 +217,6 @@ function showSuccess(
 }
 
 async function loadEvents() {
-
   const {
     data,
     error
@@ -259,7 +241,6 @@ async function loadEvents() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -285,7 +266,6 @@ async function loadEvents() {
     const event
     of events
   ) {
-
     eventId.innerHTML += `
       <option
         value="${event.event_id}"
@@ -295,8 +275,8 @@ async function loadEvents() {
     `
   }
 }
-async function loadSponsors() {
 
+async function loadSponsors() {
   const {
     data,
     error
@@ -312,7 +292,6 @@ async function loadSponsors() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -338,7 +317,6 @@ async function loadSponsors() {
     const sponsor
     of sponsors
   ) {
-
     sponsorId.innerHTML += `
       <option
         value="${sponsor.sponsor_id}"
@@ -348,8 +326,8 @@ async function loadSponsors() {
     `
   }
 }
-async function loadCountries() {
 
+async function loadCountries() {
   const {
     data,
     error
@@ -365,7 +343,6 @@ async function loadCountries() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -391,7 +368,6 @@ async function loadCountries() {
     const country
     of countries
   ) {
-
     countryId.innerHTML += `
       <option
         value="${country.country_id}"
@@ -401,8 +377,8 @@ async function loadCountries() {
     `
   }
 }
-async function loadCounties() {
 
+async function loadCounties() {
   const {
     data,
     error
@@ -418,7 +394,6 @@ async function loadCounties() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -431,7 +406,6 @@ async function loadCounties() {
 }
 
 async function loadAllSubcounties() {
-
   const {
     data,
     error
@@ -447,7 +421,6 @@ async function loadAllSubcounties() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -458,8 +431,8 @@ async function loadAllSubcounties() {
   subcounties =
     data || []
 }
-async function loadStatuses() {
 
+async function loadStatuses() {
   const {
     data,
     error
@@ -467,8 +440,8 @@ async function loadStatuses() {
     await window
       .supabaseClient
       .from(
-  'event_status_master'
-)
+        'event_status_master'
+      )
 .select(`
   event_status_id,
   status_name,
@@ -482,7 +455,6 @@ async function loadStatuses() {
       )
 
   if (error) {
-
     console.error(error)
 
     return
@@ -495,10 +467,8 @@ async function loadStatuses() {
       </option>
     `
 
-  data.forEach(
-    status => {
-
-      occurrenceStatusId
+  for (const status of data) {
+    occurrenceStatusId
         .innerHTML += `
           <option
   value="${status.event_status_id}"
@@ -507,24 +477,14 @@ async function loadStatuses() {
             ${status.status_name}
           </option>
         `
-    }
-  )
+  }
 }
 
-
-
-
-
-
-
 async function initializeEvents() {
-
   try {
-
     if (
       !window.supabaseClient
     ) {
-
       console.error(
         'Supabase client not found'
       )
@@ -544,12 +504,10 @@ async function initializeEvents() {
 
     await loadStatuses()
 
-await loadOccurrences()
-
+    await loadOccurrences()
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -564,7 +522,6 @@ document.addEventListener(
 async function loadCountyOptions(
   countryIdValue
 ) {
-
   if (!countyId) {
     return
   }
@@ -587,24 +544,20 @@ async function loadCountyOptions(
         countryIdValue
     )
 
-  filtered.forEach(
-    county => {
-
-      countyId.innerHTML += `
+  for (const county of filtered) {
+    countyId.innerHTML += `
         <option
           value="${county.county_id}"
         >
           ${county.county_name}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function loadSubcounties(
   countyIdValue
 ) {
-
   if (!subcountyId) {
     return
   }
@@ -627,7 +580,6 @@ async function loadSubcounties(
     const subcounty
     of filtered
   ) {
-
     subcountyId.innerHTML += `
       <option
         value="${subcounty.subcounty_id}"
@@ -637,10 +589,10 @@ async function loadSubcounties(
     `
   }
 }
+
 async function loadTowns(
   subcountyIdValue
 ) {
-
   const {
     data,
     error
@@ -660,7 +612,6 @@ async function loadTowns(
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -684,7 +635,6 @@ async function loadTowns(
     const town
     of towns
   ) {
-
     townSuggestions.innerHTML += `
       <option
         value="${town.town_name}">
@@ -693,9 +643,7 @@ async function loadTowns(
   }
 }
 
-
 function handleEventSelection() {
-
   const selected =
     events.find(
       event =>
@@ -704,7 +652,6 @@ function handleEventSelection() {
     )
 
   if (!selected) {
-
     setValue(
       'eventCategory',
       ''
@@ -734,8 +681,8 @@ function handleEventSelection() {
 
   generateEventArea()
 }
-function generateEventArea() {
 
+function generateEventArea() {
   const town =
     getValue(
       'townName'
@@ -752,7 +699,6 @@ function generateEventArea() {
     !town ||
     !type
   ) {
-
     setValue(
       'eventArea',
       ''
@@ -768,7 +714,6 @@ function generateEventArea() {
 }
 
 async function buildOccurrencePayload() {
-
   const townId =
     await getOrCreateTown()
 
@@ -830,21 +775,18 @@ async function buildOccurrencePayload() {
     end_time:
       getValue(
         'endTime'
-      ),
+      )
 
-    
   }
 }
 
 async function getOrCreateTown() {
-
   const town =
     getValue(
       'townName'
     ).trim()
 
   if (!town) {
-
     throw new Error(
       'Town is required'
     )
@@ -875,7 +817,6 @@ async function getOrCreateTown() {
   if (
     existing.data
   ) {
-
     return existing.data.town_id
   }
 
@@ -901,7 +842,6 @@ async function getOrCreateTown() {
   if (
     inserted.error
   ) {
-
     throw inserted.error
   }
 
@@ -910,15 +850,12 @@ async function getOrCreateTown() {
     .town_id
 }
 
-
 function validateOccurrence() {
-
   if (
     !getValue(
       'eventId'
     )
   ) {
-
     showError(
       'Event is required'
     )
@@ -931,7 +868,6 @@ function validateOccurrence() {
       'countryId'
     )
   ) {
-
     showError(
       'Country is required'
     )
@@ -944,7 +880,6 @@ function validateOccurrence() {
       'countyId'
     )
   ) {
-
     showError(
       'County is required'
     )
@@ -957,7 +892,6 @@ function validateOccurrence() {
       'subcountyId'
     )
   ) {
-
     showError(
       'Subcounty is required'
     )
@@ -970,69 +904,64 @@ function validateOccurrence() {
       'townName'
     )
   ) {
-
     showError(
       'Town is required'
     )
 
     return false
   }
- 
-if (
-  !getValue(
-    'startDate'
-  )
-) {
 
-  showError(
-    'Start Date is required'
-  )
+  if (
+    !getValue(
+      'startDate'
+    )
+  ) {
+    showError(
+      'Start Date is required'
+    )
 
-  return false
-}
+    return false
+  }
 
-if (
-  !getValue(
-    'endDate'
-  )
-) {
+  if (
+    !getValue(
+      'endDate'
+    )
+  ) {
+    showError(
+      'End Date is required'
+    )
 
-  showError(
-    'End Date is required'
-  )
+    return false
+  }
 
-  return false
-}
-
-const isEditMode =
-  !!getValue(
+  const isEditMode =
+  Boolean(getValue(
     'eventInstanceId'
-  )
+  ))
 
-if (
-  isEditMode &&
+  if (
+    isEditMode &&
   !getValue(
     'occurrenceStatusId'
   )
-) {
+  ) {
+    showError(
+      'Event Status is required'
+    )
 
-  showError(
-    'Event Status is required'
-  )
+    return false
+  }
 
-  return false
-}
   clearError()
 
   return true
 }
 
 async function saveSame() {
-
   if (
     btnSaveOccurrence.disabled
   ) {
-
     return
   }
 
@@ -1040,11 +969,9 @@ async function saveSame() {
     true
 
   try {
-
     if (
       !validateOccurrence()
     ) {
-
       btnSaveOccurrence.disabled =
         false
 
@@ -1054,7 +981,7 @@ async function saveSame() {
     const payload =
       await buildOccurrencePayload()
 
-  const currentStatusCode =
+    const currentStatusCode =
   document
     .querySelector(
       '#occurrenceStatusId option:checked'
@@ -1062,30 +989,25 @@ async function saveSame() {
     ?.dataset
     ?.code
 
-if (
-  currentStatusCode !==
+    if (
+      currentStatusCode !==
     'CANCELLED' &&
   currentStatusCode !==
     'RESCHEDULED'
-) {
-
-  payload.event_status_id =
+    ) {
+      payload.event_status_id =
     getCalculatedStatusId(
       payload
     )
 
-if (
-  !payload.event_status_id
-) {
-
-  throw new Error(
-    'Unable to determine event status.'
-  )
-
-}
-
-}
-
+      if (
+        !payload.event_status_id
+      ) {
+        throw new Error(
+          'Unable to determine event status.'
+        )
+      }
+    }
 
     const eventInstanceId =
       getValue(
@@ -1095,7 +1017,6 @@ if (
     if (
       !eventInstanceId
     ) {
-
       showError(
         'No Event Occurrence selected'
       )
@@ -1123,22 +1044,17 @@ if (
         )
 
     if (error) {
-
       throw error
     }
-
-    
 
     await loadOccurrences()
 
     showSuccess(
       'Event Occurrence Updated'
     )
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1146,9 +1062,7 @@ if (
     showError(
       error.message
     )
-
   } finally {
-
     btnSaveOccurrence.disabled =
       false
   }
@@ -1157,7 +1071,6 @@ if (
 function getCalculatedStatusId(
   payload
 ) {
-
   const now =
     new Date()
 
@@ -1177,19 +1090,14 @@ function getCalculatedStatusId(
   if (
     now >= endDateTime
   ) {
-
     statusCode =
       'COMPLETED'
-
   } else if (
     now >= startDateTime
   ) {
-
     statusCode =
       'ONGOING'
-
   } else {
-
     const today =
       now
         .toISOString()
@@ -1199,44 +1107,34 @@ function getCalculatedStatusId(
       payload.start_date ===
       today
     ) {
-
       statusCode =
         'OPEN'
-
     }
-
   }
 
   return document.querySelector(
     `#occurrenceStatusId option[data-code="${statusCode}"]`
   )?.value || null
-
 }
 
 async function saveNew() {
-
   if (
     btnSaveOccurrenceAsNew.disabled
   ) {
-
     return
-
   }
 
   btnSaveOccurrenceAsNew.disabled =
     true
 
   try {
-
     if (
       !validateOccurrence()
     ) {
-
       btnSaveOccurrenceAsNew.disabled =
         false
 
       return
-
     }
 
     const payload =
@@ -1246,8 +1144,6 @@ async function saveNew() {
   getCalculatedStatusId(
     payload
   )
-
-    
 
     const existing =
   await window
@@ -1276,25 +1172,23 @@ async function saveNew() {
     )
     .maybeSingle()
 
-if (
-  existing.data
-) {
+    if (
+      existing.data
+    ) {
+      showError(
+        'An occurrence already exists for the same Event, Area, Date and Start Time.'
+      )
 
-  showError(
-    'An occurrence already exists for the same Event, Area, Date and Start Time.'
-  )
-
-  btnSaveOccurrenceAsNew.disabled =
+      btnSaveOccurrenceAsNew.disabled =
     false
 
-  return
+      return
+    }
 
-}
-
-const {
-  data,
-  error
-} =
+    const {
+      data,
+      error
+    } =
   await window
     .supabaseClient
     .from(
@@ -1308,9 +1202,7 @@ const {
     if (
       error
     ) {
-
       throw error
-
     }
 
     await loadOccurrences()
@@ -1334,11 +1226,9 @@ const {
       )
 
     modal?.hide()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1346,21 +1236,15 @@ const {
     showError(
       error.message
     )
-
   } finally {
-
     btnSaveOccurrenceAsNew.disabled =
       false
-
   }
-
 }
-
 
 async function checkDependencies(
   occurrenceId
 ) {
-
   const {
     count,
     error
@@ -1383,7 +1267,6 @@ async function checkDependencies(
       )
 
   if (error) {
-
     throw error
   }
 
@@ -1396,7 +1279,6 @@ async function checkDependencies(
 async function deleteOccurrence(
   occurrenceId
 ) {
-
   const dependencyInfo =
     await checkDependencies(
       occurrenceId
@@ -1406,21 +1288,20 @@ async function deleteOccurrence(
     pendingOccurrenceDeleteId =
   occurrenceId
 
-document.getElementById(
-  'deleteOccurrenceMessage'
-).textContent =
+  document.getElementById(
+    'deleteOccurrenceMessage'
+  ).textContent =
   `This occurrence contains ${dependencyInfo.participantCount} participant registration(s).`
 
-new coreui.Modal(
-  document.getElementById(
-    'deleteOccurrenceModal'
-  )
-).show()
+  new coreui.Modal(
+    document.getElementById(
+      'deleteOccurrenceModal'
+    )
+  ).show()
 
-return
+  return
 
   try {
-
     const {
       error
     } =
@@ -1436,7 +1317,6 @@ return
         )
 
     if (error) {
-
       throw error
     }
 
@@ -1453,13 +1333,11 @@ return
     renderOccurrences()
 
     showSuccess(
-  'Event Occurrence Deleted'
-)
-
+      'Event Occurrence Deleted'
+    )
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1471,7 +1349,6 @@ return
 }
 
 async function loadOccurrences() {
-
   const {
     data,
     error
@@ -1505,7 +1382,6 @@ async function loadOccurrences() {
       )
 
   if (error) {
-
     console.error(
       error
     )
@@ -1522,16 +1398,10 @@ async function loadOccurrences() {
   renderOccurrences()
 }
 
-
-
-
-
 function renderOccurrences() {
-
   if (
     !occurrenceTableBody
   ) {
-
     return
   }
 
@@ -1552,34 +1422,32 @@ function renderOccurrences() {
       end
     )
 
-  pageData.forEach(
-    occurrence => {
-
-      const participantCount =
+  for (const occurrence of pageData) {
+    const participantCount =
         occurrence
           .participant_instances
           ?.length || 0
 
- const eventMaster =
+    const eventMaster =
   events.find(
     event =>
       event.event_id ===
       occurrence.event_id
   )
 
-const eventTypeName =
+    const eventTypeName =
   eventMaster
     ?.event_type_master
     ?.event_type_name || ''
-      occurrenceTableBody.innerHTML += `
+    occurrenceTableBody.innerHTML += `
 
         <tr>
 
           <td>
             ${
-              occurrence.events
+  occurrence.events
                 ?.event_name || ''
-            }
+}
           </td>
 
           <td>
@@ -1588,45 +1456,45 @@ const eventTypeName =
 
           <td>
             ${
-              occurrence.event_area || ''
-            }
+  occurrence.event_area || ''
+}
           </td>
 
           <td>
             ${
-              occurrence.organizer || ''
-            }
+  occurrence.organizer || ''
+}
           </td>
 
           <td>
             ${
-              occurrence.sponsor_master
+  occurrence.sponsor_master
                 ?.sponsor_name || ''
-            }
+}
           </td>
 
           <td>
             ${
-              occurrence.start_date || ''
-            }
+  occurrence.start_date || ''
+}
           </td>
 
           <td>
             ${
-              occurrence.end_date || ''
-            }
+  occurrence.end_date || ''
+}
           </td>
 
           <td>
             ${
-              occurrence.start_time || ''
-            }
+  occurrence.start_time || ''
+}
           </td>
 
           <td>
             ${
-              occurrence.end_time || ''
-            }
+  occurrence.end_time || ''
+}
           </td>
 
           <td>
@@ -1636,7 +1504,6 @@ const eventTypeName =
          <td>
 
   ${(() => {
-
     const status =
       occurrence
         .event_status_master
@@ -1651,55 +1518,43 @@ const eventTypeName =
         'CANCEL'
       )
     ) {
-
       badgeClass =
         'bg-danger'
-
     } else if (
       status.includes(
         'OPEN'
       )
     ) {
-
       badgeClass =
         'bg-success'
-
     } else if (
       status.includes(
         'ONGOING'
       )
     ) {
-
       badgeClass =
         'bg-success'
-
     } else if (
       status.includes(
         'COMPLETED'
       )
     ) {
-
       badgeClass =
         'bg-warning text-dark'
-
     } else if (
       status.includes(
         'PLANNED'
       )
     ) {
-
       badgeClass =
         'bg-primary'
-
     } else if (
       status.includes(
         'RESCHEDULE'
       )
     ) {
-
       badgeClass =
         'bg-warning text-dark'
-
     }
 
     return `
@@ -1711,7 +1566,6 @@ const eventTypeName =
           ?.status_name || ''}
       </span>
     `
-
   })()}
 
 </td>
@@ -1740,13 +1594,11 @@ const eventTypeName =
 
         </tr>
       `
-    }
-  )
+  }
 
   if (
     paginationInfo
   ) {
-
     paginationInfo.textContent =
       `${filteredOccurrences.length} record(s)`
   }
@@ -1754,9 +1606,7 @@ const eventTypeName =
   renderPagination()
 }
 
-
 function renderPagination() {
-
   const container =
     document.getElementById(
       'paginationContainer'
@@ -1765,7 +1615,6 @@ function renderPagination() {
   if (
     !container
   ) {
-
     return
   }
 
@@ -1786,14 +1635,13 @@ function renderPagination() {
     i <= totalPages;
     i++
   ) {
-
     container.innerHTML += `
 
       <li class="page-item ${
-        i === currentPage
-          ? 'active'
-          : ''
-      }">
+  i === currentPage ?
+    'active' :
+    ''
+}">
 
         <a
           href="#"
@@ -1814,16 +1662,13 @@ window.goToPage =
 function (
   page
 ) {
-
   currentPage =
     page
 
   renderOccurrences()
 }
 
-
 function searchOccurrences() {
-
   const term =
     (
       searchOccurrence
@@ -1866,13 +1711,10 @@ function searchOccurrences() {
   renderOccurrences()
 }
 
-
 window.editOccurrence =
 async function (
   occurrenceId
 ) {
-
-
   const occurrence =
     eventOccurrences.find(
       item =>
@@ -1881,7 +1723,6 @@ async function (
     )
 
   if (!occurrence) {
-
     return
   }
 
@@ -1889,19 +1730,19 @@ async function (
     'eventInstanceId',
     occurrence.event_instance_id
   )
- btnSaveOccurrence
+  btnSaveOccurrence
   ?.classList
   .remove(
     'd-none'
   )
 
-btnSaveOccurrenceAsNew
+  btnSaveOccurrenceAsNew
   ?.classList
   .remove(
     'd-none'
   )
 
-document
+  document
   .getElementById(
     'occurrenceStatusCard'
   )
@@ -1916,8 +1757,8 @@ document
   )
 
   await Promise.resolve(
-  handleEventSelection()
-)
+    handleEventSelection()
+  )
 
   setValue(
     'sponsorId',
@@ -1951,24 +1792,24 @@ document
     occurrence.subcounty_id
   )
 
-const town =
+  const town =
   towns.find(
     item =>
       item.town_id ===
       occurrence.town_id
   )
 
-setValue(
-  'townName',
-  town?.town_name || ''
-)
+  setValue(
+    'townName',
+    town?.town_name || ''
+  )
 
-generateEventArea()
+  generateEventArea()
 
-setValue(
-  'organizer',
-  occurrence.organizer
-)
+  setValue(
+    'organizer',
+    occurrence.organizer
+  )
 
   setValue(
     'organizer',
@@ -2004,7 +1845,7 @@ setValue(
     'occurrenceStatusId',
     occurrence.event_status_id
   )
- 
+
   const modal =
     new coreui.Modal(
       document.getElementById(
@@ -2014,12 +1855,11 @@ setValue(
 
   modal.show()
 }
+
 window.deleteOccurrence =
   deleteOccurrence
 
-
 function clearOccurrenceForm() {
-
   setValue(
     'eventInstanceId',
     ''
@@ -2100,8 +1940,6 @@ function clearOccurrenceForm() {
     ''
   )
 
-  
-
   clearError()
 }
 
@@ -2114,13 +1952,11 @@ document
     'd-none'
   )
 
-
 // =====================================================
 // PHASE 2 EVENT LISTENERS
 // =====================================================
 
 if (eventId) {
-
   eventId.addEventListener(
     'change',
     handleEventSelection
@@ -2128,11 +1964,9 @@ if (eventId) {
 }
 
 if (countryId) {
-
   countryId.addEventListener(
     'change',
     async () => {
-
       await loadCountyOptions(
         countryId.value
       )
@@ -2164,11 +1998,9 @@ if (countryId) {
 }
 
 if (countyId) {
-
   countyId.addEventListener(
     'change',
     async () => {
-
       await loadSubcounties(
         countyId.value
       )
@@ -2191,15 +2023,12 @@ if (countyId) {
 }
 
 if (subcountyId) {
-
   subcountyId.addEventListener(
     'change',
     async () => {
-
       await loadTowns(
         subcountyId.value
       )
-
 
       setValue(
         'townName',
@@ -2215,20 +2044,15 @@ if (subcountyId) {
 }
 
 if (townName) {
-
   townName.addEventListener(
     'input',
     generateEventArea
   )
 }
 
-
-
-
 if (
   btnSaveOccurrence
 ) {
-
   btnSaveOccurrence
     .addEventListener(
       'click',
@@ -2239,7 +2063,6 @@ if (
 if (
   btnSaveOccurrenceAsNew
 ) {
-
   btnSaveOccurrenceAsNew
     .addEventListener(
       'click',
@@ -2250,7 +2073,6 @@ if (
 if (
   searchOccurrence
 ) {
-
   searchOccurrence
     .addEventListener(
       'input',
@@ -2261,12 +2083,10 @@ if (
 if (
   btnNewOccurrence
 ) {
-
   btnNewOccurrence
     .addEventListener(
       'click',
       () => {
-
         clearOccurrenceForm()
         btnSaveOccurrence
   ?.classList
@@ -2274,7 +2094,7 @@ if (
     'd-none'
   )
 
-btnSaveOccurrenceAsNew
+        btnSaveOccurrenceAsNew
   ?.classList
   .remove(
     'd-none'
@@ -2299,17 +2119,13 @@ document
   ?.addEventListener(
     'click',
     async () => {
-
       if (
         !pendingOccurrenceDeleteId
       ) {
-
         return
-
       }
 
       try {
-
         const {
           error
         } =
@@ -2327,9 +2143,7 @@ document
         if (
           error
         ) {
-
           throw error
-
         }
 
         await loadOccurrences()
@@ -2337,15 +2151,12 @@ document
         showSuccess(
           'Event Occurrence Deleted'
         )
-
       } catch (
         error
       ) {
-
         showError(
           error.message
         )
-
       }
 
       pendingOccurrenceDeleteId =
@@ -2358,6 +2169,5 @@ document
           )
         )
         ?.hide()
-
     }
   )

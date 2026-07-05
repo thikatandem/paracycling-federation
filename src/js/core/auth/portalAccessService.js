@@ -1,22 +1,22 @@
-﻿import {
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
   getProfile
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   recordSecurityEvent
 }
-from './securityService.js'
+  from './securityService.js'
 
 import {
   logAuditEvent
 }
-from './auditService.js'
+  from './auditService.js'
 
-import {
-  getDb
-}
-from '../supabase/getDb.js'
 /* ============================================================
    PORTAL STATUS
    ============================================================ */
@@ -24,7 +24,6 @@ from '../supabase/getDb.js'
 export async function getPortalStatus(
   profileId
 ) {
-
   const {
     data,
     error
@@ -46,11 +45,11 @@ export async function getPortalStatus(
       )
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   return data
-
 }
 
 /* ============================================================
@@ -60,7 +59,6 @@ export async function getPortalStatus(
 export async function isPortalEnabled(
   profileId
 ) {
-
   const profile =
     await getPortalStatus(
       profileId
@@ -70,7 +68,6 @@ export async function isPortalEnabled(
     profile?.portal_enabled ===
     true
   )
-
 }
 
 /* ============================================================
@@ -80,7 +77,6 @@ export async function isPortalEnabled(
 export async function enablePortal(
   profileId
 ) {
-
   const currentProfile =
     getProfile()
 
@@ -112,8 +108,9 @@ export async function enablePortal(
       .select()
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   await recordSecurityEvent({
 
@@ -145,7 +142,6 @@ export async function enablePortal(
   })
 
   return data
-
 }
 
 /* ============================================================
@@ -155,7 +151,6 @@ export async function enablePortal(
 export async function disablePortal(
   profileId
 ) {
-
   const {
     data,
     error
@@ -166,15 +161,15 @@ export async function disablePortal(
       )
       .update({
 
-  portal_enabled: false,
+        portal_enabled: false,
 
-  portal_enabled_at:
+        portal_enabled_at:
     null,
 
-  portal_enabled_by:
+        portal_enabled_by:
     null
 
-})
+      })
       .eq(
         'profile_id',
         profileId
@@ -182,8 +177,9 @@ export async function disablePortal(
       .select()
       .single()
 
-  if (error)
+  if (error) {
     throw error
+  }
 
   await recordSecurityEvent({
 
@@ -215,7 +211,6 @@ export async function disablePortal(
   })
 
   return data
-
 }
 
 /* ============================================================
@@ -225,11 +220,9 @@ export async function disablePortal(
 export async function grantPortalAccess(
   profileId
 ) {
-
   return enablePortal(
     profileId
   )
-
 }
 
 /* ============================================================
@@ -239,9 +232,7 @@ export async function grantPortalAccess(
 export async function revokePortalAccess(
   profileId
 ) {
-
   return disablePortal(
     profileId
   )
-
 }

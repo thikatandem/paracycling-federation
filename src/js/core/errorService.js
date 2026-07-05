@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // ERROR SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -94,14 +94,13 @@ const FRIENDLY_MESSAGES = {
 export function createError({
 
   code =
-    ERROR_CODES.UNKNOWN_ERROR,
+  ERROR_CODES.UNKNOWN_ERROR,
 
   message = '',
 
   details = null
 
 }) {
-
   return {
 
     code,
@@ -115,7 +114,6 @@ export function createError({
         .toISOString()
 
   }
-
 }
 
 // =====================================================
@@ -125,14 +123,11 @@ export function createError({
 export function parseSupabaseError(
   error
 ) {
-
   if (!error) {
-
     return createError({
       code:
         ERROR_CODES.UNKNOWN_ERROR
     })
-
   }
 
   const message =
@@ -155,7 +150,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -168,7 +162,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   // ------------------------------------------
@@ -186,7 +179,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -199,7 +191,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   // ------------------------------------------
@@ -217,7 +208,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -230,7 +220,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   // ------------------------------------------
@@ -248,7 +237,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -261,7 +249,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   // ------------------------------------------
@@ -279,7 +266,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -292,7 +278,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   // ------------------------------------------
@@ -306,7 +291,6 @@ export function parseSupabaseError(
     )
 
   ) {
-
     return createError({
 
       code:
@@ -319,7 +303,6 @@ export function parseSupabaseError(
         error
 
     })
-
   }
 
   return createError({
@@ -335,7 +318,6 @@ export function parseSupabaseError(
       error
 
   })
-
 }
 
 // =====================================================
@@ -345,21 +327,17 @@ export function parseSupabaseError(
 export function parseError(
   error
 ) {
-
   if (!error) {
-
     return createError({
       code:
         ERROR_CODES.UNKNOWN_ERROR
     })
-
   }
 
   if (
     typeof error ===
     'string'
   ) {
-
     return createError({
 
       code:
@@ -369,7 +347,6 @@ export function parseError(
         error
 
     })
-
   }
 
   if (
@@ -377,11 +354,9 @@ export function parseError(
     error.details ||
     error.hint
   ) {
-
     return parseSupabaseError(
       error
     )
-
   }
 
   return createError({
@@ -397,7 +372,6 @@ export function parseError(
       error
 
   })
-
 }
 
 // =====================================================
@@ -407,7 +381,6 @@ export function parseError(
 export function getFriendlyError(
   error
 ) {
-
   const parsed =
     parseError(
       error
@@ -422,7 +395,6 @@ export function getFriendlyError(
 
     FRIENDLY_MESSAGES.UNKNOWN_ERROR
   )
-
 }
 
 // =====================================================
@@ -433,7 +405,6 @@ export function buildValidationError(
   field,
   message
 ) {
-
   return {
 
     field,
@@ -441,7 +412,6 @@ export function buildValidationError(
     message
 
   }
-
 }
 
 // =====================================================
@@ -451,7 +421,6 @@ export function buildValidationError(
 export function buildValidationErrors(
   errors = []
 ) {
-
   return {
 
     valid:
@@ -460,7 +429,6 @@ export function buildValidationErrors(
     errors
 
   }
-
 }
 
 // =====================================================
@@ -478,7 +446,6 @@ export function buildImportError({
   message
 
 }) {
-
   return {
 
     row,
@@ -490,7 +457,6 @@ export function buildImportError({
     message
 
   }
-
 }
 
 // =====================================================
@@ -506,7 +472,6 @@ export function buildImportSummary({
   failedRows = 0
 
 }) {
-
   return {
 
     totalRows,
@@ -520,7 +485,6 @@ export function buildImportSummary({
         .toISOString()
 
   }
-
 }
 
 // =====================================================
@@ -531,7 +495,6 @@ export function logError(
   error,
   context = ''
 ) {
-
   console.error({
 
     context,
@@ -543,7 +506,6 @@ export function logError(
         .toISOString()
 
   })
-
 }
 
 // =====================================================
@@ -554,9 +516,7 @@ export async function tryExecute(
   callback,
   context = ''
 ) {
-
   try {
-
     return {
 
       success: true,
@@ -565,9 +525,7 @@ export async function tryExecute(
         await callback()
 
     }
-
   } catch (error) {
-
     logError(
       error,
       context
@@ -583,15 +541,12 @@ export async function tryExecute(
         )
 
     }
-
   }
-
 }
 
 export function getFederationFriendlyError(
   error
 ) {
-
   const message =
     String(
       error?.message || ''
@@ -604,11 +559,9 @@ export function getFederationFriendlyError(
     )
 
   ) {
-
     return (
       'This record is currently being used elsewhere in the federation system and cannot be removed.'
     )
-
   }
 
   if (
@@ -618,11 +571,9 @@ export function getFederationFriendlyError(
     )
 
   ) {
-
     return (
       'A similar record already exists.'
     )
-
   }
 
   if (
@@ -632,17 +583,14 @@ export function getFederationFriendlyError(
     )
 
   ) {
-
     return (
       'Please complete all required fields.'
     )
-
   }
 
   return getFriendlyError(
     error
   )
-
 }
 
 export async function executeSafely({
@@ -652,15 +600,11 @@ export async function executeSafely({
   onError = null
 
 }) {
-
   try {
-
     return await action()
-
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -673,17 +617,13 @@ export async function executeSafely({
     if (
       onError
     ) {
-
       onError(
         message
       )
-
     }
 
     throw error
-
   }
-
 }
 
 // =====================================================
@@ -695,7 +635,6 @@ export function showSuccess(
   message,
   timeout = 4000
 ) {
-
   showMessage({
     containerId,
     message,
@@ -703,7 +642,6 @@ export function showSuccess(
       'alert-success',
     timeout
   })
-
 }
 
 export function showError(
@@ -711,7 +649,6 @@ export function showError(
   message,
   timeout = 0
 ) {
-
   showMessage({
     containerId,
     message,
@@ -719,7 +656,6 @@ export function showError(
       'alert-danger',
     timeout
   })
-
 }
 
 export function showWarning(
@@ -727,7 +663,6 @@ export function showWarning(
   message,
   timeout = 5000
 ) {
-
   showMessage({
     containerId,
     message,
@@ -735,7 +670,6 @@ export function showWarning(
       'alert-warning',
     timeout
   })
-
 }
 
 export function showInfo(
@@ -743,7 +677,6 @@ export function showInfo(
   message,
   timeout = 4000
 ) {
-
   showMessage({
     containerId,
     message,
@@ -751,13 +684,11 @@ export function showInfo(
       'alert-info',
     timeout
   })
-
 }
 
 export function clearMessage(
   containerId
 ) {
-
   const container =
     get(containerId)
 
@@ -770,5 +701,4 @@ export function clearMessage(
   )
 
   container.textContent = ''
-
 }

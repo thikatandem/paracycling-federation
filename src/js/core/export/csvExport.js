@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // CSV EXPORT
 // ParaCycling Federation Management System
 // =====================================================
@@ -8,7 +8,7 @@ import {
   CSV_OPTIONS,
   buildFileName
 }
-from './exportConstants.js'
+  from './exportConstants.js'
 
 // =====================================================
 // CSV ESCAPING
@@ -17,14 +17,11 @@ from './exportConstants.js'
 export function escapeCsvValue(
   value
 ) {
-
   if (
     value === null ||
     value === undefined
   ) {
-
     return ''
-
   }
 
   let stringValue =
@@ -47,14 +44,11 @@ export function escapeCsvValue(
     stringValue.includes('\r')
 
   ) {
-
     stringValue =
       `"${stringValue}"`
-
   }
 
   return stringValue
-
 }
 
 // =====================================================
@@ -64,7 +58,6 @@ export function escapeCsvValue(
 export function buildCsvRow(
   values = []
 ) {
-
   return values
     .map(
       escapeCsvValue
@@ -72,7 +65,6 @@ export function buildCsvRow(
     .join(
       CSV_OPTIONS.delimiter
     )
-
 }
 
 // =====================================================
@@ -86,7 +78,6 @@ export function buildCsvContent({
   columns = []
 
 }) {
-
   const rows = []
 
   const headerRow =
@@ -103,36 +94,29 @@ export function buildCsvContent({
     )
   )
 
-  data.forEach(
-    record => {
-
-      const row =
+  for (const record of data) {
+    const row =
         columns.map(
           column => {
-
             const value =
               record[
                 column.key
               ]
 
             return value ?? ''
-
           }
         )
 
-      rows.push(
-        buildCsvRow(
-          row
-        )
+    rows.push(
+      buildCsvRow(
+        row
       )
-
-    }
-  )
+    )
+  }
 
   return rows.join(
     CSV_OPTIONS.lineBreak
   )
-
 }
 
 // =====================================================
@@ -142,12 +126,10 @@ export function buildCsvContent({
 export function addUtf8Bom(
   content
 ) {
-
   return (
-    '\uFEFF' +
-    content
+    `\uFEFF${
+      content}`
   )
-
 }
 
 // =====================================================
@@ -161,7 +143,6 @@ export function downloadBlob({
   fileName
 
 }) {
-
   const url =
     URL.createObjectURL(
       blob
@@ -178,20 +159,17 @@ export function downloadBlob({
   link.download =
     fileName
 
-  document.body.appendChild(
+  document.body.append(
     link
   )
 
   link.click()
 
-  document.body.removeChild(
-    link
-  )
+  link.remove()
 
   URL.revokeObjectURL(
     url
   )
-
 }
 
 // =====================================================
@@ -205,10 +183,9 @@ export function downloadCsv({
   columns = [],
 
   reportName =
-    'Export'
+  'Export'
 
 }) {
-
   const csvContent =
     buildCsvContent({
 
@@ -242,7 +219,6 @@ export function downloadCsv({
       )}.csv`
 
   })
-
 }
 
 // =====================================================
@@ -258,7 +234,6 @@ export function exportCurrentPage({
   reportName
 
 }) {
-
   downloadCsv({
 
     data:
@@ -269,7 +244,6 @@ export function exportCurrentPage({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -285,7 +259,6 @@ export function exportAll({
   reportName
 
 }) {
-
   downloadCsv({
 
     data,
@@ -295,7 +268,6 @@ export function exportAll({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -311,7 +283,6 @@ export function exportSelected({
   reportName
 
 }) {
-
   downloadCsv({
 
     data:
@@ -322,7 +293,6 @@ export function exportSelected({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -332,9 +302,7 @@ export function exportSelected({
 export function requiredHeader(
   header
 ) {
-
   return `${header} *`
-
 }
 
 // =====================================================
@@ -346,17 +314,15 @@ export function buildTemplateHeaders(
   columns = []
 
 ) {
-
   return columns.map(
     column =>
 
-      column.required
-        ? requiredHeader(
-            column.label
-          )
-        : column.label
+      column.required ?
+        requiredHeader(
+          column.label
+        ) :
+        column.label
   )
-
 }
 
 // =====================================================
@@ -370,7 +336,6 @@ export function buildTemplateCsv({
   sampleRows = []
 
 }) {
-
   const rows = []
 
   rows.push(
@@ -383,30 +348,25 @@ export function buildTemplateCsv({
 
   )
 
-  sampleRows.forEach(
-    row => {
+  for (const row of sampleRows) {
+    rows.push(
 
-      rows.push(
+      buildCsvRow(
+        columns.map(
+          column =>
 
-        buildCsvRow(
-          columns.map(
-            column =>
-
-              row[
+            row[
                 column.key
-              ] ?? ''
-          )
+            ] ?? ''
         )
-
       )
 
-    }
-  )
+    )
+  }
 
   return rows.join(
     CSV_OPTIONS.lineBreak
   )
-
 }
 
 // =====================================================
@@ -420,10 +380,9 @@ export function downloadCsvTemplate({
   sampleRows = [],
 
   reportName =
-    'Template'
+  'Template'
 
 }) {
-
   const content =
     addUtf8Bom(
 
@@ -456,7 +415,6 @@ export function downloadCsvTemplate({
       )}_Template.csv`
 
   })
-
 }
 
 // =====================================================
@@ -468,10 +426,9 @@ export function downloadImportErrors({
   errors = [],
 
   reportName =
-    'ImportErrors'
+  'ImportErrors'
 
 }) {
-
   const columns = [
 
     {
@@ -506,7 +463,6 @@ export function downloadImportErrors({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -520,37 +476,30 @@ export function validateCsvExport({
   columns
 
 }) {
-
   const errors = []
 
   if (
     !Array.isArray(data)
   ) {
-
     errors.push(
       'Data must be an array.'
     )
-
   }
 
   if (
     !Array.isArray(columns)
   ) {
-
     errors.push(
       'Columns must be an array.'
     )
-
   }
 
   if (
     columns.length === 0
   ) {
-
     errors.push(
       'At least one column is required.'
     )
-
   }
 
   return {
@@ -561,5 +510,4 @@ export function validateCsvExport({
     errors
 
   }
-
 }

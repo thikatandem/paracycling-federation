@@ -1,59 +1,50 @@
-﻿import {
- 
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+import {
+
   getProfile,
   getRole
 }
-from './authStateService.js'
+  from './authStateService.js'
 
 import {
   isSystemAdmin,
   isAdmin
 }
-from './permissionService.js'
-
-import {
-  getDb
-}
-from '../supabase/getDb.js'
+  from './permissionService.js'
 
 /* ============================================================
    ROLE HELPERS
    ============================================================ */
 
 export function isAthlete() {
-
   return (
     getRole()?.role_code ===
     'ATHLETE'
   )
-
 }
 
 export function isCoach() {
-
   return (
     getRole()?.role_code ===
     'COACH'
   )
-
 }
 
 export function isMedicalOfficer() {
-
   return (
     getRole()?.role_code ===
     'MEDICAL_OFFICER'
   )
-
 }
 
 export function isEquipmentOfficer() {
-
   return (
     getRole()?.role_code ===
     'EQUIPMENT_OFFICER'
   )
-
 }
 
 /* ============================================================
@@ -63,12 +54,10 @@ export function isEquipmentOfficer() {
 export function ownsProfile(
   profileId
 ) {
-
   return (
     getProfile()?.profile_id ===
     profileId
   )
-
 }
 
 /* ============================================================
@@ -78,32 +67,26 @@ export function ownsProfile(
 export function ownsAthlete(
   athleteId
 ) {
-
   return (
     getProfile()
       ?.athlete_id ===
     athleteId
   )
-
 }
 
 /* ============================================================
    TEAM OWNERSHIP
    ============================================================ */
 
-
 export async function ownsTeam(
   teamId
 ) {
-
   const athleteId =
     getProfile()
       ?.athlete_id
 
   if (!athleteId) {
-
     return false
-
   }
 
   const {
@@ -132,28 +115,21 @@ export async function ownsTeam(
       .maybeSingle()
 
   if (error) {
-
     throw error
-
   }
 
-  return !!data
-
+  return Boolean(data)
 }
-
 
 export async function ownsStaff(
   staffId
 ) {
-
   const profileId =
     getProfile()
       ?.profile_id
 
   if (!profileId) {
-
     return false
-
   }
 
   const {
@@ -178,13 +154,10 @@ export async function ownsStaff(
       .maybeSingle()
 
   if (error) {
-
     throw error
-
   }
 
-  return !!data
-
+  return Boolean(data)
 }
 
 /* ============================================================
@@ -194,7 +167,6 @@ export async function ownsStaff(
 export function canViewAthlete(
   athleteId
 ) {
-
   if (
     isSystemAdmin()
   ) {
@@ -216,15 +188,12 @@ export function canViewAthlete(
   if (
     isAthlete()
   ) {
-
     return ownsAthlete(
       athleteId
     )
-
   }
 
   return false
-
 }
 
 /* ============================================================
@@ -234,7 +203,6 @@ export function canViewAthlete(
 export function canEditAthlete(
   athleteId
 ) {
-
   if (
     isSystemAdmin()
   ) {
@@ -248,7 +216,6 @@ export function canEditAthlete(
   }
 
   return false
-
 }
 
 /* ============================================================
@@ -258,17 +225,14 @@ export function canEditAthlete(
 export function canViewTraining(
   athleteId
 ) {
-
   return canViewAthlete(
     athleteId
   )
-
 }
 
 export function canEditTraining(
   athleteId
 ) {
-
   if (
     isSystemAdmin()
   ) {
@@ -288,7 +252,6 @@ export function canEditTraining(
   }
 
   return false
-
 }
 
 /* ============================================================
@@ -298,21 +261,17 @@ export function canEditTraining(
 export function canViewPerformance(
   athleteId
 ) {
-
   return canViewAthlete(
     athleteId
   )
-
 }
 
 export function canEditPerformance(
   athleteId
 ) {
-
   return canEditTraining(
     athleteId
   )
-
 }
 
 /* ============================================================
@@ -322,11 +281,9 @@ export function canEditPerformance(
 export function canViewResults(
   athleteId
 ) {
-
   return canViewAthlete(
     athleteId
   )
-
 }
 
 /* ============================================================
@@ -336,7 +293,6 @@ export function canViewResults(
 export function canViewMedical(
   athleteId
 ) {
-
   if (
     isSystemAdmin()
   ) {
@@ -352,11 +308,9 @@ export function canViewMedical(
   return ownsAthlete(
     athleteId
   )
-
 }
 
 export function canEditMedical() {
-
   if (
     isSystemAdmin()
   ) {
@@ -370,7 +324,6 @@ export function canEditMedical() {
   }
 
   return false
-
 }
 
 /* ============================================================
@@ -380,20 +333,16 @@ export function canEditMedical() {
 export function canViewTravel(
   athleteId
 ) {
-
   return canViewAthlete(
     athleteId
   )
-
 }
 
 export function canApproveTravel() {
-
   return (
     getRole()?.role_code ===
     'TRAVEL_OFFICER'
   )
-
 }
 
 /* ============================================================
@@ -401,7 +350,6 @@ export function canApproveTravel() {
    ============================================================ */
 
 export function canViewEquipment() {
-
   if (
     isSystemAdmin()
   ) {
@@ -411,13 +359,10 @@ export function canViewEquipment() {
   return (
     isEquipmentOfficer()
   )
-
 }
 
 export function canEditEquipment() {
-
   return canViewEquipment()
-
 }
 
 /* ============================================================
@@ -425,12 +370,10 @@ export function canEditEquipment() {
    ============================================================ */
 
 export function canManageStaff() {
-
   return (
     getRole()?.role_code ===
     'STAFF_MANAGER'
   )
-
 }
 
 /* ============================================================
@@ -438,7 +381,6 @@ export function canManageStaff() {
    ============================================================ */
 
 export function canViewAudit() {
-
   const roleCode =
     getRole()?.role_code
 
@@ -449,5 +391,4 @@ export function canViewAudit() {
   ].includes(
     roleCode
   )
-
 }

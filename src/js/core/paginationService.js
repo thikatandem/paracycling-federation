@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // PAGINATION SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -6,7 +6,7 @@
 import {
   PAGE_SIZE
 }
-from './constants.js'
+  from './constants.js'
 // =====================================================
 // PAGINATOR FACTORY
 // =====================================================
@@ -19,7 +19,6 @@ export function createPaginator({
   storageKey = null
 
 } = {}) {
-
   let data = []
 
   let currentPage = 1
@@ -36,11 +35,10 @@ export function createPaginator({
   function setData(
     rows = []
   ) {
-
     data =
-      Array.isArray(rows)
-        ? rows
-        : []
+      Array.isArray(rows) ?
+        rows :
+        []
 
     const totalPages =
       getTotalPages()
@@ -49,38 +47,26 @@ export function createPaginator({
       currentPage >
       totalPages
     ) {
-
       currentPage =
         totalPages || 1
-
     }
 
     saveState()
-
   }
 
   function getData() {
-
     return [...data]
-
   }
-
-
-
-
 
   // ===================================================
   // PAGE INFO
   // ===================================================
 
   function getTotalRows() {
-
     return data.length
-
   }
 
   function getTotalPages() {
-
     return Math.max(
       1,
       Math.ceil(
@@ -88,19 +74,14 @@ export function createPaginator({
         currentPageSize
       )
     )
-
   }
 
   function getCurrentPage() {
-
     return currentPage
-
   }
 
   function getPageSize() {
-
     return currentPageSize
-
   }
 
   // ===================================================
@@ -108,7 +89,6 @@ export function createPaginator({
   // ===================================================
 
   function getPage() {
-
     const start =
       (currentPage - 1) *
       currentPageSize
@@ -121,11 +101,9 @@ export function createPaginator({
       start,
       end
     )
-
   }
 
   function getStartIndex() {
-
     if (
       data.length === 0
     ) {
@@ -138,11 +116,9 @@ export function createPaginator({
       ) *
       currentPageSize
     ) + 1
-
   }
 
   function getEndIndex() {
-
     return Math.min(
 
       currentPage *
@@ -151,7 +127,6 @@ export function createPaginator({
       data.length
 
     )
-
   }
 
   // ===================================================
@@ -159,71 +134,56 @@ export function createPaginator({
   // ===================================================
 
   function first() {
-
     currentPage = 1
 
     saveState()
 
     return getPage()
-
   }
 
   function last() {
-
     currentPage =
       getTotalPages()
 
     saveState()
 
     return getPage()
-
   }
 
   function next() {
-
     if (
       hasNext()
     ) {
-
       currentPage++
 
       saveState()
-
     }
 
     return getPage()
-
   }
 
   function previous() {
-
     if (
       hasPrevious()
     ) {
-
       currentPage--
 
       saveState()
-
     }
 
     return getPage()
-
   }
 
   function goTo(
     page
   ) {
-
     const target =
       Number(page)
 
     if (
       Number.isNaN(target)
     ) {
-
       return getPage()
-
     }
 
     currentPage =
@@ -238,7 +198,6 @@ export function createPaginator({
     saveState()
 
     return getPage()
-
   }
 
   // ===================================================
@@ -246,20 +205,16 @@ export function createPaginator({
   // ===================================================
 
   function hasNext() {
-
     return (
       currentPage <
       getTotalPages()
     )
-
   }
 
   function hasPrevious() {
-
     return (
       currentPage > 1
     )
-
   }
 
   // ===================================================
@@ -269,7 +224,6 @@ export function createPaginator({
   function setPageSize(
     size
   ) {
-
     const parsed =
       Number(size)
 
@@ -277,9 +231,7 @@ export function createPaginator({
       Number.isNaN(parsed) ||
       parsed <= 0
     ) {
-
       return
-
     }
 
     currentPageSize =
@@ -288,7 +240,6 @@ export function createPaginator({
     currentPage = 1
 
     saveState()
-
   }
 
   // ===================================================
@@ -296,7 +247,6 @@ export function createPaginator({
   // ===================================================
 
   function getPageInfo() {
-
     return {
 
       currentPage,
@@ -323,7 +273,6 @@ export function createPaginator({
         hasPrevious()
 
     }
-
   }
 
   // ===================================================
@@ -331,13 +280,10 @@ export function createPaginator({
   // ===================================================
 
   function saveState() {
-
     if (
       !storageKey
     ) {
-
       return
-
     }
 
     localStorage.setItem(
@@ -354,21 +300,16 @@ export function createPaginator({
       })
 
     )
-
   }
 
   function restoreState() {
-
     if (
       !storageKey
     ) {
-
       return
-
     }
 
     try {
-
       const state =
         JSON.parse(
 
@@ -379,9 +320,7 @@ export function createPaginator({
         )
 
       if (!state) {
-
         return
-
       }
 
       currentPage =
@@ -390,29 +329,21 @@ export function createPaginator({
       currentPageSize =
         state.pageSize ||
         pageSize
-
     } catch {
-
       currentPage = 1
-
     }
-
   }
 
   function clearState() {
-
     if (
       !storageKey
     ) {
-
       return
-
     }
 
     localStorage.removeItem(
       storageKey
     )
-
   }
 
   // ===================================================
@@ -460,7 +391,6 @@ export function createPaginator({
     clearState
 
   }
-
 }
 
 export function paginateRows({
@@ -468,11 +398,8 @@ export function paginateRows({
   paginator
 
 }) {
-
   return paginator.getPage()
-
 }
-
 
 export function applyPagination({
 
@@ -481,7 +408,6 @@ export function applyPagination({
   paginator
 
 }) {
-
   return paginateRows({
 
     rows,
@@ -489,7 +415,6 @@ export function applyPagination({
     paginator
 
   })
-
 }
 
 export function wirePaginationButtons({
@@ -503,16 +428,13 @@ export function wirePaginationButtons({
   onPageChange
 
 }) {
-
   previousButton
     ?.addEventListener(
       'click',
       () => {
-
         paginator.previous()
 
         onPageChange()
-
       }
     )
 
@@ -520,14 +442,11 @@ export function wirePaginationButtons({
     ?.addEventListener(
       'click',
       () => {
-
         paginator.next()
 
         onPageChange()
-
       }
     )
-
 }
 
 export function updatePaginationUi({
@@ -541,38 +460,29 @@ export function updatePaginationUi({
   nextButton
 
 }) {
-
   const info =
     paginator.getPageInfo()
 
   if (infoElement) {
-
     infoElement.textContent =
       `Page ${info.currentPage} of ${info.totalPages}`
-
   }
 
   if (previousButton) {
-
     previousButton.disabled =
       !info.hasPrevious
-
   }
 
   if (nextButton) {
-
     nextButton.disabled =
       !info.hasNext
-
   }
-
 }
+
 export function resetPagination(
   paginator
 ) {
-
   paginator.goTo(1)
-
 }
 
 export function refreshPagination({
@@ -582,13 +492,11 @@ export function refreshPagination({
   rows
 
 }) {
-
   paginator.setData(
     rows || []
   )
 
   return paginator.getPage()
-
 }
 
 export function bindPagination({
@@ -604,7 +512,6 @@ export function bindPagination({
   onChange
 
 }) {
-
   const previousButton =
     document.getElementById(
       previousButtonId
@@ -619,11 +526,9 @@ export function bindPagination({
     ?.addEventListener(
       'click',
       () => {
-
         paginator.previous()
 
         onChange?.()
-
       }
     )
 
@@ -631,11 +536,9 @@ export function bindPagination({
     ?.addEventListener(
       'click',
       () => {
-
         paginator.next()
 
         onChange?.()
-
       }
     )
 
@@ -644,17 +547,17 @@ export function bindPagination({
     infoElementId
   )
 
-updatePaginationUi({
+  updatePaginationUi({
 
-  paginator,
+    paginator,
 
-  infoElement,
+    infoElement,
 
-  previousButton,
+    previousButton,
 
-  nextButton
+    nextButton
 
-})
+  })
 }
 
 export function getPagedRows({
@@ -666,7 +569,6 @@ export function getPagedRows({
   pageSize
 
 }) {
-
   const start =
     (page - 1) *
     pageSize
@@ -678,5 +580,4 @@ export function getPagedRows({
     start + pageSize
 
   )
-
 }

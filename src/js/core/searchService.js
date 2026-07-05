@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // SEARCH SERVICE
 // ParaCycling Federation Management System
 // =====================================================
@@ -8,20 +8,16 @@
 // =====================================================
 
 function normalize(value) {
-
   if (
     value === null ||
     value === undefined
   ) {
-
     return ''
-
   }
 
   return String(value)
     .trim()
     .toLowerCase()
-
 }
 
 // =====================================================
@@ -35,12 +31,10 @@ export function containsSearch({
   searchTerm
 
 }) {
-
   return normalize(value)
     .includes(
       normalize(searchTerm)
     )
-
 }
 
 export function startsWithSearch({
@@ -50,12 +44,10 @@ export function startsWithSearch({
   searchTerm
 
 }) {
-
   return normalize(value)
     .startsWith(
       normalize(searchTerm)
     )
-
 }
 
 export function exactSearch({
@@ -65,12 +57,10 @@ export function exactSearch({
   searchTerm
 
 }) {
-
   return (
     normalize(value) ===
     normalize(searchTerm)
   )
-
 }
 
 // =====================================================
@@ -86,14 +76,11 @@ export function searchCollection({
   fields = []
 
 }) {
-
   if (
     !searchTerm ||
     !fields.length
   ) {
-
     return [...data]
-
   }
 
   const term =
@@ -110,7 +97,6 @@ export function searchCollection({
           ).includes(term)
       )
   )
-
 }
 
 // =====================================================
@@ -126,13 +112,10 @@ export function multiTermSearch({
   fields = []
 
 }) {
-
   if (
     !searchTerm
   ) {
-
     return [...data]
-
   }
 
   const terms =
@@ -157,7 +140,6 @@ export function multiTermSearch({
           )
       )
   )
-
 }
 
 // =====================================================
@@ -173,11 +155,8 @@ export function filterByStatus({
   status
 
 }) {
-
   if (!status) {
-
     return [...data]
-
   }
 
   return data.filter(
@@ -190,7 +169,6 @@ export function filterByStatus({
       ) ===
       String(status)
   )
-
 }
 
 // =====================================================
@@ -206,15 +184,12 @@ export function filterByLookup({
   value
 
 }) {
-
   if (
     value === '' ||
     value === null ||
     value === undefined
   ) {
-
     return [...data]
-
   }
 
   return data.filter(
@@ -225,7 +200,6 @@ export function filterByLookup({
       ) ===
       String(value)
   )
-
 }
 
 // =====================================================
@@ -241,14 +215,11 @@ export function filterByBoolean({
   value
 
 }) {
-
   if (
     value === null ||
     value === undefined
   ) {
-
     return [...data]
-
   }
 
   return data.filter(
@@ -259,7 +230,6 @@ export function filterByBoolean({
       ) ===
       Boolean(value)
   )
-
 }
 
 // =====================================================
@@ -277,19 +247,15 @@ export function dateRangeSearch({
   endDate
 
 }) {
-
   if (
     !startDate &&
     !endDate
   ) {
-
     return [...data]
-
   }
 
   return data.filter(
     row => {
-
       const value =
         new Date(
           row[field]
@@ -302,9 +268,7 @@ export function dateRangeSearch({
           startDate
         )
       ) {
-
         return false
-
       }
 
       if (
@@ -314,16 +278,12 @@ export function dateRangeSearch({
           endDate
         )
       ) {
-
         return false
-
       }
 
       return true
-
     }
   )
-
 }
 
 // =====================================================
@@ -341,10 +301,8 @@ export function numericRangeSearch({
   max
 
 }) {
-
   return data.filter(
     row => {
-
       const value =
         Number(
           row[field]
@@ -355,9 +313,7 @@ export function numericRangeSearch({
         min !== undefined &&
         value < min
       ) {
-
         return false
-
       }
 
       if (
@@ -365,16 +321,12 @@ export function numericRangeSearch({
         max !== undefined &&
         value > max
       ) {
-
         return false
-
       }
 
       return true
-
     }
   )
-
 }
 
 // =====================================================
@@ -390,13 +342,11 @@ export function sortBy({
   direction = 'asc'
 
 }) {
-
   const rows =
     [...data]
 
   rows.sort(
     (a, b) => {
-
       const valueA =
         normalize(
           a[field]
@@ -411,31 +361,25 @@ export function sortBy({
         valueA <
         valueB
       ) {
-
-        return direction === 'asc'
-          ? -1
-          : 1
-
+        return direction === 'asc' ?
+          -1 :
+          1
       }
 
       if (
         valueA >
         valueB
       ) {
-
-        return direction === 'asc'
-          ? 1
-          : -1
-
+        return direction === 'asc' ?
+          1 :
+          -1
       }
 
       return 0
-
     }
   )
 
   return rows
-
 }
 
 // =====================================================
@@ -457,7 +401,6 @@ export function applyFilters({
   numericFilters = []
 
 }) {
-
   let results =
     [...data]
 
@@ -467,7 +410,6 @@ export function applyFilters({
     searchTerm &&
     searchFields.length
   ) {
-
     results =
       searchCollection({
 
@@ -480,23 +422,19 @@ export function applyFilters({
           searchFields
 
       })
-
   }
 
   // Exact Filters
 
-  Object.entries(
+  for (const [field, value] of Object.entries(
     filters
-  ).forEach(
-    ([field, value]) => {
-
-      if (
-        value !== '' &&
+  )) {
+    if (
+      value !== '' &&
         value !== null &&
         value !== undefined
-      ) {
-
-        results =
+    ) {
+      results =
           filterByLookup({
 
             data:
@@ -507,18 +445,13 @@ export function applyFilters({
             value
 
           })
-
-      }
-
     }
-  )
+  }
 
   // Date Filters
 
-  dateFilters.forEach(
-    filter => {
-
-      results =
+  for (const filter of dateFilters) {
+    results =
         dateRangeSearch({
 
           data:
@@ -534,16 +467,12 @@ export function applyFilters({
             filter.endDate
 
         })
-
-    }
-  )
+  }
 
   // Numeric Filters
 
-  numericFilters.forEach(
-    filter => {
-
-      results =
+  for (const filter of numericFilters) {
+    results =
         numericRangeSearch({
 
           data:
@@ -559,12 +488,9 @@ export function applyFilters({
             filter.max
 
         })
-
-    }
-  )
+  }
 
   return results
-
 }
 
 // =====================================================
@@ -575,11 +501,9 @@ export function debounce(
   callback,
   delay = 300
 ) {
-
   let timeout
 
   return (...args) => {
-
     clearTimeout(
       timeout
     )
@@ -592,9 +516,7 @@ export function debounce(
           ),
         delay
       )
-
   }
-
 }
 
 // =====================================================
@@ -608,21 +530,17 @@ export function createRemoteSearch({
   delay = 300
 
 }) {
-
   return debounce(
 
     async term => {
-
       return await searchFunction(
         term
       )
-
     },
 
     delay
 
   )
-
 }
 
 export function searchNestedCollection({
@@ -634,14 +552,11 @@ export function searchNestedCollection({
   fields = []
 
 }) {
-
   if (
     !searchTerm ||
     !fields.length
   ) {
-
     return [...data]
-
   }
 
   const term =
@@ -652,12 +567,11 @@ export function searchNestedCollection({
 
       fields.some(
         field => {
-
           const value =
             field
               .split('.')
               .reduce(
-                (obj,key) =>
+                (obj, key) =>
                   obj?.[key],
                 row
               )
@@ -665,11 +579,9 @@ export function searchNestedCollection({
           return normalize(
             value
           ).includes(term)
-
         }
       )
   )
-
 }
 
 export function searchAndSort({
@@ -685,7 +597,6 @@ export function searchAndSort({
   sortDirection = 'asc'
 
 }) {
-
   const filtered =
     searchCollection({
 
@@ -698,14 +609,11 @@ export function searchAndSort({
     })
 
   if (!sortField) {
-
     return filtered
-
   }
 
   return [...filtered].sort(
     (a, b) => {
-
       const left =
         String(
           a[
@@ -720,11 +628,9 @@ export function searchAndSort({
           ] || ''
         )
 
-      return sortDirection === 'desc'
-        ? right.localeCompare(left)
-        : left.localeCompare(right)
-
+      return sortDirection === 'desc' ?
+        right.localeCompare(left) :
+        left.localeCompare(right)
     }
   )
-
 }

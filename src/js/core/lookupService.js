@@ -1,8 +1,7 @@
-﻿ // =====================================================
+// =====================================================
 // LOOKUP SERVICE
 // ParaCycling Federation Management System
 // =====================================================
-
 
 import {
 
@@ -14,15 +13,15 @@ import {
   populateDataList
 
 }
-from './domService.js'
+  from './domService.js'
 
 import {
   getRecords
 }
-from './supabase/supabaseCrudService.js'
- // =====================================================
+  from './supabase/supabaseCrudService.js'
+// =====================================================
 // CACHE
- // =====================================================
+// =====================================================
 
 const lookupCache =
   new Map()
@@ -30,36 +29,30 @@ const lookupCache =
 const CACHE_TTL =
   5 * 60 * 1000
 
- // =====================================================
- // CACHE HELPERS
- // =====================================================
+// =====================================================
+// CACHE HELPERS
+// =====================================================
 
 function buildCacheKey({
   table,
   filters = []
 }) {
-
   return JSON.stringify({
     table,
     filters
   })
-
 }
 
 function isExpired(
   timestamp
 ) {
-
- return (
-  Date.now() -
+  return (
+    Date.now() -
   timestamp
-) > CACHE_TTL
-
+  ) > CACHE_TTL
 }
 
-
 export async function loadDepartmentLookup() {
-
   const {
     data,
     error
@@ -86,13 +79,11 @@ export async function loadDepartmentLookup() {
   }
 
   return data || []
-
 }
 
 export async function loadPositionLookupByDepartment(
   departmentId
 ) {
-
   if (!departmentId) {
     return []
   }
@@ -127,13 +118,11 @@ export async function loadPositionLookupByDepartment(
   }
 
   return data || []
-
 }
 
 export async function loadPositions(
   departmentId
 ) {
-
   if (!departmentId) {
     return []
   }
@@ -166,7 +155,6 @@ export async function loadPositions(
   }
 
   return data || []
-
 }
 
 export async function
@@ -185,7 +173,6 @@ loadLookupOptions({
   placeholder
 
 }) {
-
   const rows =
     await getRecords({
 
@@ -217,9 +204,7 @@ loadLookupOptions({
   })
 
   return rows
-
 }
-
 
 // =====================================================
 // LOAD LOOKUP
@@ -234,15 +219,12 @@ export async function loadLookup({
   orderBy = null
 
 }) {
-
   let query =
   window.supabaseClient
     .from(table)
     .select('*')
 
-  filters.forEach(
-  filter => {
-
+  for (const filter of filters) {
     const {
       field,
       operator = 'eq',
@@ -256,17 +238,13 @@ export async function loadLookup({
         field,
         value
       )
-
   }
-)
 
   if (orderBy) {
-
     query =
       query.order(
         orderBy
       )
-
   }
 
   const {
@@ -276,15 +254,12 @@ export async function loadLookup({
     await query
 
   if (error) {
-
     throw new Error(
       error.message
     )
-
   }
 
- return data || []
-
+  return data || []
 }
 
 //  =====================================================
@@ -294,7 +269,6 @@ export async function loadLookup({
 export async function loadLookupCached(
   config
 ) {
-
   const key =
     buildCacheKey(
       config
@@ -311,9 +285,7 @@ export async function loadLookupCached(
       cached.timestamp
     )
   ) {
-
     return cached.data
-
   }
 
   const data =
@@ -324,14 +296,13 @@ export async function loadLookupCached(
   lookupCache.set(
     key,
     {
-  data,
-  timestamp:
+      data,
+      timestamp:
     Date.now()
-}
+    }
   )
 
   return data
-
 }
 
 //  =====================================================
@@ -341,18 +312,16 @@ export async function loadLookupCached(
 export async function preloadLookups(
   lookups = []
 ) {
-
   await Promise.all(
 
     lookups.map(
-  lookup =>
-    loadLookupCached(
-      lookup
+      lookup =>
+        loadLookupCached(
+          lookup
+        )
     )
-)
 
   )
-
 }
 
 //  =====================================================
@@ -360,15 +329,12 @@ export async function preloadLookups(
 //  =====================================================
 
 export function clearLookupCache() {
-
   lookupCache.clear()
-
 }
 
 export function refreshLookup(
   config
 ) {
-
   const key =
     buildCacheKey(
       config
@@ -377,14 +343,11 @@ export function refreshLookup(
   lookupCache.delete(
     key
   )
-
 }
-
 
 export async function getMembershipStatusId(
   statusName
 ) {
-
   const {
     data,
     error
@@ -407,9 +370,8 @@ export async function getMembershipStatusId(
   }
 
   return data
-    ?.membership_status_id
-    || null
-
+    ?.membership_status_id ||
+    null
 }
 
 //  =====================================================
@@ -429,7 +391,6 @@ export function populateMultiSelect({
   selectedValues = []
 
 }) {
-
   clearSelect(
     selectId
   )
@@ -441,9 +402,7 @@ export function populateMultiSelect({
     return
   }
 
- data.forEach(
-  row => {
-
+  for (const row of data) {
     const option =
       document.createElement(
         'option'
@@ -466,15 +425,11 @@ export function populateMultiSelect({
         ]
       )
 
-    select.appendChild(
+    select.append(
       option
     )
-
   }
-)
-
 }
-
 
 //  =====================================================
 //  LOOKUP HELPERS
@@ -489,7 +444,6 @@ export function getLookupItem({
   value
 
 }) {
-
   return (
     data.find(
       row =>
@@ -501,7 +455,6 @@ export function getLookupItem({
         )
     ) || null
   )
-
 }
 
 export function getLookupName({
@@ -515,7 +468,6 @@ export function getLookupName({
   value
 
 }) {
-
   const item =
     getLookupItem({
 
@@ -528,12 +480,11 @@ export function getLookupName({
 
     })
 
-  return item
-    ? item[
+  return item ?
+    item[
         textField
-      ]
-    : ''
-
+    ] :
+    ''
 }
 
 export function lookupExists({
@@ -545,7 +496,6 @@ export function lookupExists({
   value
 
 }) {
-
   return Boolean(
 
     getLookupItem({
@@ -559,7 +509,6 @@ export function lookupExists({
     })
 
   )
-
 }
 
 //  =====================================================
@@ -575,13 +524,10 @@ export function filterLookup({
   fields
 
 }) {
-
   if (
     !searchTerm
   ) {
-
     return data
-
   }
 
   const term =
@@ -607,12 +553,7 @@ export function filterLookup({
             )
       )
   )
-
 }
-
-
-
-
 
 export function loadLookupById({
 
@@ -623,7 +564,6 @@ export function loadLookupById({
   id
 
 }) {
-
   return (
     data.find(
       row =>
@@ -633,7 +573,6 @@ export function loadLookupById({
         String(id)
     ) || null
   )
-
 }
 
 export async function populateSelectFromLookup({
@@ -649,12 +588,11 @@ export async function populateSelectFromLookup({
   orderBy,
 
   placeholder =
-    'Select Option',
+  'Select Option',
 
   filters = []
 
 }) {
-
   const rows =
     await loadLookupCached({
 
@@ -681,7 +619,6 @@ export async function populateSelectFromLookup({
   })
 
   return rows
-
 }
 
 export async function populateDataListFromLookup({
@@ -697,7 +634,6 @@ export async function populateDataListFromLookup({
   filters = []
 
 }) {
-
   const rows =
     await loadLookupCached({
 
@@ -720,7 +656,6 @@ export async function populateDataListFromLookup({
   })
 
   return rows
-
 }
 
 export async function loadStatusLookup(
@@ -728,7 +663,6 @@ export async function loadStatusLookup(
   entityType
 
 ) {
-
   return loadLookupCached({
 
     table:
@@ -752,11 +686,9 @@ export async function loadStatusLookup(
       'status_name'
 
   })
-
 }
 
 export async function loadCountyLookup() {
-
   return loadLookupCached({
 
     table:
@@ -766,11 +698,9 @@ export async function loadCountyLookup() {
       'county_name'
 
   })
-
 }
 
 export async function loadCountryLookup() {
-
   return loadLookupCached({
 
     table:
@@ -780,11 +710,9 @@ export async function loadCountryLookup() {
       'country_name'
 
   })
-
 }
 
 export async function loadSponsorLookup() {
-
   return loadLookupCached({
 
     table:
@@ -794,11 +722,9 @@ export async function loadSponsorLookup() {
       'sponsor_name'
 
   })
-
 }
 
 export async function loadClassificationLookup() {
-
   return loadLookupCached({
 
     table:
@@ -808,11 +734,9 @@ export async function loadClassificationLookup() {
       'classification_code'
 
   })
-
 }
 
 export async function loadRankingTypeLookup() {
-
   return loadLookupCached({
 
     table:
@@ -822,11 +746,9 @@ export async function loadRankingTypeLookup() {
       'ranking_type_name'
 
   })
-
 }
 
 export async function loadParticipantStatusLookup() {
-
   return loadLookupCached({
 
     table:
@@ -836,11 +758,9 @@ export async function loadParticipantStatusLookup() {
       'status_name'
 
   })
-
 }
 
 export async function loadEventCategoryLookup() {
-
   return loadLookupCached({
 
     table:
@@ -850,11 +770,9 @@ export async function loadEventCategoryLookup() {
       'category_name'
 
   })
-
 }
 
 export async function loadEventTypeLookup() {
-
   return loadLookupCached({
 
     table:
@@ -864,11 +782,9 @@ export async function loadEventTypeLookup() {
       'event_type_name'
 
   })
-
 }
 
 export async function loadTeamLookup() {
-
   return loadLookupCached({
 
     table:
@@ -878,11 +794,9 @@ export async function loadTeamLookup() {
       'team_name'
 
   })
-
 }
 
 export async function loadAthleteLookup() {
-
   return loadLookupCached({
 
     table:
@@ -892,11 +806,9 @@ export async function loadAthleteLookup() {
       'first_name'
 
   })
-
 }
 
 export async function loadTrainingLookup() {
-
   return loadLookupCached({
 
     table:
@@ -906,10 +818,9 @@ export async function loadTrainingLookup() {
       'training_date'
 
   })
-
 }
-export async function loadEventLookup() {
 
+export async function loadEventLookup() {
   return loadLookupCached({
 
     table:
@@ -919,17 +830,14 @@ export async function loadEventLookup() {
       'event_name'
 
   })
-
 }
 
 export async function loadProgramLookup(
   eventId = null
 ) {
-
   const filters = []
 
   if (eventId) {
-
     filters.push({
 
       field:
@@ -939,7 +847,6 @@ export async function loadProgramLookup(
         eventId
 
     })
-
   }
 
   return loadLookupCached({
@@ -953,11 +860,9 @@ export async function loadProgramLookup(
       'program_name'
 
   })
-
 }
 
 export async function loadRoleLookup() {
-
   return loadLookupCached({
 
     table:
@@ -967,12 +872,9 @@ export async function loadRoleLookup() {
       'role_name'
 
   })
-
 }
 
-
 export async function loadGenderLookup() {
-
   return loadLookupCached({
 
     table:
@@ -982,11 +884,9 @@ export async function loadGenderLookup() {
       'gender_name'
 
   })
-
 }
 
 export async function loadContractTypeLookup() {
-
   return loadLookupCached({
 
     table:
@@ -996,11 +896,9 @@ export async function loadContractTypeLookup() {
       'contract_name'
 
   })
-
 }
 
 export async function loadEmploymentStatusLookup() {
-
   return loadLookupCached({
 
     table:
@@ -1010,11 +908,9 @@ export async function loadEmploymentStatusLookup() {
       'status_name'
 
   })
-
 }
 
 export async function loadStaffStatusLookup() {
-
   return loadLookupCached({
 
     table:
@@ -1024,9 +920,7 @@ export async function loadStaffStatusLookup() {
       'status_name'
 
   })
-
 }
-
 
 export function populateAthleteLookup({
 
@@ -1037,7 +931,6 @@ export function populateAthleteLookup({
   placeholder
 
 }) {
-
   return populateSelect({
 
     selectId,
@@ -1055,14 +948,11 @@ export function populateAthleteLookup({
     placeholder
 
   })
-
 }
-
 
 export async function loadAthletesByRole(
   role
 ) {
-
   const {
     data,
     error
@@ -1092,5 +982,4 @@ export async function loadAthletesByRole(
   }
 
   return data || []
-
 }

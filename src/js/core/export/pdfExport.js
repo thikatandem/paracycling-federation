@@ -1,32 +1,7 @@
-﻿// =====================================================
+// =====================================================
 // PDF EXPORT
 // ParaCycling Federation Management System
 // =====================================================
-
-const {
-  jsPDF
-} = window.jspdf
-
-const autoTable =
-  window.autoTable
-
-console.log(
-  'window.autoTable',
-  window.autoTable
-)
-
-import {
-  EXPORT_CONFIG,
-  buildFileName
-}
-from './exportConstants.js'
-
-const tandemLogo =
-  '/assets/logo/tandem-logo.png'
-
-const tandemBackground =
-  '/assets/shared/tandem-pdf.png'
-
 
 import {
 
@@ -55,7 +30,29 @@ import {
   destroyPdfCharts
 
 }
-from '../../reports/chartExport.js'
+  from '../../reports/chartExport.js'
+import {
+  EXPORT_CONFIG,
+  buildFileName
+}
+  from './exportConstants.js'
+
+const {
+  jsPDF
+} = window.jspdf
+
+const { autoTable } = window
+
+console.log(
+  'window.autoTable',
+  window.autoTable
+)
+
+const tandemLogo =
+  '/assets/logo/tandem-logo.png'
+
+const tandemBackground =
+  '/assets/shared/tandem-pdf.png'
 
 export const PDF_COLORS = {
 
@@ -76,65 +73,58 @@ export const PDF_COLORS = {
 function imageToBase64(
   imageUrl
 ) {
-
   return new Promise(
 
     (
       resolve,
       reject
     ) => {
-
       const image =
         new Image()
 
       image.crossOrigin =
         'anonymous'
 
-      image.onload =
-        () => {
-
-          const canvas =
+      image.addEventListener('load', () => {
+        const canvas =
             document.createElement(
               'canvas'
             )
 
-          canvas.width =
+        canvas.width =
             image.width
 
-          canvas.height =
+        canvas.height =
             image.height
 
-          const context =
+        const context =
             canvas.getContext(
               '2d'
             )
 
-          context.drawImage(
-            image,
-            0,
-            0
+        context.drawImage(
+          image,
+          0,
+          0
+        )
+
+        resolve(
+
+          canvas.toDataURL(
+            'image/png'
           )
 
-          resolve(
-
-            canvas.toDataURL(
-              'image/png'
-            )
-
-          )
-
-        }
+        )
+      })
 
       image.onerror =
         reject
 
       image.src =
         imageUrl
-
     }
 
   )
-
 }
 
 // =====================================================
@@ -144,16 +134,15 @@ function imageToBase64(
 export function createPdf({
 
   orientation =
-    'landscape',
+  'landscape',
 
   unit =
-    'mm',
+  'mm',
 
   format =
-    'a4'
+  'a4'
 
 } = {}) {
-
   return new jsPDF({
 
     orientation,
@@ -161,9 +150,7 @@ export function createPdf({
     format
 
   })
-
 }
-
 
 export function addKpiCard({
 
@@ -184,7 +171,6 @@ export function addKpiCard({
   color = PDF_COLORS.primary
 
 }) {
-
   pdf.setFillColor(
     ...color
   )
@@ -246,35 +232,25 @@ export function addKpiPage({
   kpis = []
 
 }) {
-
   addPageWithBackground(
-  pdf
-)
-
-
-
+    pdf
+  )
 
   pdf.setFontSize(
     18
   )
 
   pdf.text(
-  'Executive Performance Dashboard',
-  14,
-  20
-)
+    'Executive Performance Dashboard',
+    14,
+    20
+  )
 
   let x = 14
 
   let y = 35
 
- kpis.forEach(
-
-  (
-    card,
-    index
-  ) => {
-
+  for (const [index, card] of kpis.entries()) {
     addKpiCard({
 
       pdf,
@@ -332,18 +308,12 @@ export function addKpiPage({
         index + 1
       ) % 4 === 0
     ) {
-
       x = 14
 
       y += 50
-
     }
-
   }
-)
-  
 }
-
 
 export function addBackgroundWatermark({
 
@@ -352,11 +322,9 @@ export function addBackgroundWatermark({
   imageBase64
 
 }) {
-
   if (
     !imageBase64
   ) {
-
     return
   }
 
@@ -397,19 +365,16 @@ export function addBackgroundWatermark({
   )
 
   pdf.restoreGraphicsState()
-
 }
 
 export function addPageWithBackground(
   pdf
 ) {
-
   pdf.addPage()
 
   if (
     window.pdfBackgroundImage
   ) {
-
     addBackgroundWatermark({
 
       pdf,
@@ -418,9 +383,7 @@ export function addPageWithBackground(
         window.pdfBackgroundImage
 
     })
-
   }
-
 }
 
 export function addCoverPage({
@@ -436,7 +399,6 @@ export function addCoverPage({
   logoBase64 = null
 
 }) {
-
   pdf.setFillColor(
     ...PDF_COLORS.primary
   )
@@ -449,43 +411,38 @@ export function addCoverPage({
     'F'
   )
 
- if (
-  window.pdfBackgroundImage
-) {
+  if (
+    window.pdfBackgroundImage
+  ) {
+    addBackgroundWatermark({
 
-  addBackgroundWatermark({
+      pdf,
 
-    pdf,
-
-    imageBase64:
+      imageBase64:
       window.pdfBackgroundImage
 
-  })
+    })
+  }
 
-}
+  if (
+    logoBase64
+  ) {
+    addFederationLogo({
 
-if (
-  logoBase64
-) {
+      pdf,
 
-  addFederationLogo({
+      logoBase64,
 
-    pdf,
+      x: 245,
 
-    logoBase64,
+      y: 10,
 
-    x: 245,
+      width: 40,
 
-    y: 10,
+      height: 40
 
-    width: 40,
-
-    height: 40
-
-  })
-
-}
-  
+    })
+  }
 
   pdf.setTextColor(
     255,
@@ -497,98 +454,96 @@ if (
     26
   )
 
- const centerX = 148.5
+  const centerX = 148.5
 
-pdf.setFont(
-  'helvetica',
-  'bold'
-)
+  pdf.setFont(
+    'helvetica',
+    'bold'
+  )
 
-pdf.setFontSize(
-  30
-)
+  pdf.setFontSize(
+    30
+  )
 
-pdf.text(
+  pdf.text(
 
-  'THIKA TANDEM PARACYCLING CLUB',
+    'THIKA TANDEM PARACYCLING CLUB',
 
-  centerX,
+    centerX,
 
-  75,
+    75,
 
-  {
-    align:
+    {
+      align:
       'center'
-  }
+    }
 
-)
+  )
 
   pdf.setFontSize(
     22
   )
 
   pdf.setFontSize(
-  22
-)
+    22
+  )
 
-pdf.text(
+  pdf.text(
 
-  reportTitle,
+    reportTitle,
 
-  centerX,
+    centerX,
 
-  105,
+    105,
 
-  {
-    align:
+    {
+      align:
       'center'
-  }
+    }
 
-)
-
+  )
 
   pdf.setFontSize(
     12
   )
 
- pdf.setFontSize(
-  14
-)
+  pdf.setFontSize(
+    14
+  )
 
-pdf.text(
+  pdf.text(
 
-  `Reporting Period: ${reportPeriod}`,
+    `Reporting Period: ${reportPeriod}`,
 
-  centerX,
+    centerX,
 
-  125,
+    125,
 
-  {
-    align:
+    {
+      align:
       'center'
-  }
+    }
 
-)
+  )
 
   pdf.setFontSize(
-  8
-)
+    8
+  )
 
-pdf.text(
+  pdf.text(
 
-  `Generated ${generatedDate}`,
+    `Generated ${generatedDate}`,
 
-  centerX,
+    centerX,
 
-  190,
+    190,
 
-  {
-    align:
+    {
+      align:
       'center'
-  }
+    }
 
-)
-
+  )
 }
 
 export function addReportContext({
@@ -598,13 +553,9 @@ export function addReportContext({
   filters = {}
 
 }) {
-
   addPageWithBackground(
-  pdf
-)
-
-
-
+    pdf
+  )
 
   pdf.setFontSize(20)
 
@@ -622,71 +573,62 @@ export function addReportContext({
   let x = 14
   let y = 40
 
-  entries.forEach(
+  for (const [index, [key, value]] of entries.entries()) {
+    pdf.setFillColor(
+      25,
+      135,
+      84
+    )
 
-    ([key, value], index) => {
+    pdf.roundedRect(
+      x,
+      y,
+      60,
+      30,
+      3,
+      3,
+      'F'
+    )
 
-      pdf.setFillColor(
-  25,
-  135,
-  84
-)
+    pdf.setFontSize(10)
 
-      pdf.roundedRect(
-        x,
-        y,
-        60,
-        30,
-        3,
-        3,
-        'F'
-      )
+    pdf.text(
+      key,
+      x + 4,
+      y + 8
+    )
+    pdf.setTextColor(
+      255,
+      255,
+      255
+    )
+    pdf.setFontSize(14)
 
-      pdf.setFontSize(10)
+    pdf.text(
+      String(
+        value || 'All'
+      ),
+      x + 4,
+      y + 20
+    )
+    pdf.setTextColor(
+      0,
+      0,
+      0
+    )
+    x += 70
 
-      pdf.text(
-        key,
-        x + 4,
-        y + 8
-      )
-  pdf.setTextColor(
-  255,
-  255,
-  255
-)
-      pdf.setFontSize(14)
+    if (
+      (
+        index + 1
+      ) % 4 === 0
+    ) {
+      x = 14
 
-      pdf.text(
-        String(
-          value || 'All'
-        ),
-        x + 4,
-        y + 20
-      )
-pdf.setTextColor(
-  0,
-  0,
-  0
-)
-      x += 70
-
-      if (
-        (
-          index + 1
-        ) % 4 === 0
-      ) {
-
-        x = 14
-
-        y += 40
-      }
-
+      y += 40
     }
-
-  )
-
+  }
 }
-
 
 // =====================================================
 // DASHBOARD PAGE
@@ -699,12 +641,9 @@ export function addDashboardPage({
   title = 'Analytics Dashboard'
 
 }) {
-
   addPageWithBackground(
-  pdf
-)
-
-
+    pdf
+  )
 
   pdf.setFontSize(
     20
@@ -732,7 +671,6 @@ export function addDashboardPage({
     280,
     25
   )
-
 }
 
 // =====================================================
@@ -756,11 +694,9 @@ export function addChartImage({
   title = ''
 
 }) {
-
   if (
     title
   ) {
-
     pdf.setFontSize(
       11
     )
@@ -770,7 +706,6 @@ export function addChartImage({
       x,
       y - 4
     )
-
   }
 
   pdf.addImage(
@@ -788,7 +723,6 @@ export function addChartImage({
     height
 
   )
-
 }
 
 // =====================================================
@@ -804,7 +738,6 @@ export function addInsightsSection({
   startY = 140
 
 }) {
-
   pdf.setFontSize(
     14
   )
@@ -818,30 +751,25 @@ export function addInsightsSection({
   let y =
     startY + 10
 
-  insights.forEach(
-    insight => {
+  for (const insight of insights) {
+    pdf.setFontSize(
+      10
+    )
 
-      pdf.setFontSize(
-        10
-      )
+    pdf.text(
 
-      pdf.text(
+      `• ${insight}`,
 
-        `• ${insight}`,
+      18,
 
-        18,
+      y
 
-        y
+    )
 
-      )
-
-      y += 8
-
-    }
-  )
+    y += 8
+  }
 
   return y
-
 }
 
 // =====================================================
@@ -861,7 +789,6 @@ export function addPodiumSection({
   startY = 40
 
 }) {
-
   pdf.setFontSize(
     18
   )
@@ -943,7 +870,6 @@ export function addPodiumSection({
     175,
     startY + 50
   )
-
 }
 
 // =====================================================
@@ -965,11 +891,9 @@ export function addFederationLogo({
   height = 30
 
 }) {
-
   if (
     !logoBase64
   ) {
-
     return
   }
 
@@ -988,9 +912,7 @@ export function addFederationLogo({
     height
 
   )
-
 }
-
 
 // =====================================================
 // HEADER
@@ -1005,7 +927,6 @@ export function addReportHeader({
   reportSubtitle = ''
 
 }) {
-
   pdf.setFontSize(18)
 
   pdf.text(
@@ -1029,7 +950,6 @@ export function addReportHeader({
   if (
     reportSubtitle
   ) {
-
     pdf.setFontSize(10)
 
     pdf.text(
@@ -1037,9 +957,7 @@ export function addReportHeader({
       14,
       30
     )
-
   }
-
 }
 
 // =====================================================
@@ -1051,10 +969,9 @@ export function addGeneratedInfo({
   pdf,
 
   generatedBy =
-    EXPORT_CONFIG.generatedBy
+  EXPORT_CONFIG.generatedBy
 
 }) {
-
   const pageWidth =
     pdf.internal.pageSize.width
 
@@ -1082,7 +999,6 @@ export function addGeneratedInfo({
     20
 
   )
-
 }
 
 // =====================================================
@@ -1096,7 +1012,6 @@ export function addFiltersSection({
   filters = {}
 
 }) {
-
   let y = 38
 
   const entries =
@@ -1107,9 +1022,7 @@ export function addFiltersSection({
   if (
     entries.length === 0
   ) {
-
     return y
-
   }
 
   pdf.setFontSize(10)
@@ -1122,28 +1035,21 @@ export function addFiltersSection({
 
   y += 6
 
-  entries.forEach(
+  for (const [key, value] of entries) {
+    pdf.text(
 
-    ([key, value]) => {
+      `${key}: ${value}`,
 
-      pdf.text(
+      18,
 
-        `${key}: ${value}`,
+      y
 
-        18,
+    )
 
-        y
-
-      )
-
-      y += 5
-
-    }
-
-  )
+    y += 5
+  }
 
   return y
-
 }
 
 // =====================================================
@@ -1159,7 +1065,6 @@ export function addSummarySection({
   startY = 40
 
 }) {
-
   const entries =
     Object.entries(
       summary
@@ -1168,9 +1073,7 @@ export function addSummarySection({
   if (
     entries.length === 0
   ) {
-
     return startY
-
   }
 
   pdf.setFontSize(10)
@@ -1184,28 +1087,21 @@ export function addSummarySection({
   let y =
     startY + 6
 
-  entries.forEach(
+  for (const [key, value] of entries) {
+    pdf.text(
 
-    ([key, value]) => {
+      `${key}: ${value}`,
 
-      pdf.text(
+      18,
 
-        `${key}: ${value}`,
+      y
 
-        18,
+    )
 
-        y
-
-      )
-
-      y += 5
-
-    }
-
-  )
+    y += 5
+  }
 
   return y
-
 }
 
 // =====================================================
@@ -1223,7 +1119,6 @@ export function addTable({
   startY = 50
 
 }) {
-
   autoTable(
     pdf,
     {
@@ -1274,7 +1169,6 @@ export function addTable({
     pdf.lastAutoTable
       ?.finalY || startY
   )
-
 }
 
 // =====================================================
@@ -1284,7 +1178,6 @@ export function addTable({
 export function addFooter(
   pdf
 ) {
-
   const pageCount =
     pdf.internal
       .getNumberOfPages()
@@ -1298,7 +1191,6 @@ export function addFooter(
     page++
 
   ) {
-
     pdf.setPage(
       page
     )
@@ -1336,29 +1228,20 @@ export function addFooter(
       height - 8
 
     )
-
   }
-
 }
 
 // =====================================================
 // FEDERATION REPORT BUILDER
 // =====================================================
 
-
 // =====================================================
 // TRAINING REPORT
 // =====================================================
 
-
-
 // =====================================================
 // PERFORMANCE REPORT
 // =====================================================
-
-
-
-
 
 // =====================================================
 // SAVE
@@ -1371,7 +1254,6 @@ export function savePdf({
   reportName
 
 }) {
-
   pdf.save(
 
     `${buildFileName(
@@ -1379,7 +1261,6 @@ export function savePdf({
     )}.pdf`
 
   )
-
 }
 
 // =====================================================
@@ -1399,10 +1280,9 @@ export function downloadPdf({
   summary = {},
 
   orientation =
-    'landscape'
+  'landscape'
 
 }) {
-
   const pdf =
     createPdf({
 
@@ -1468,7 +1348,6 @@ export function downloadPdf({
     reportName
 
   })
-
 }
 
 // =====================================================
@@ -1482,7 +1361,6 @@ export function downloadPdfErrors({
   errors = []
 
 }) {
-
   const columns = [
 
     {
@@ -1517,7 +1395,6 @@ export function downloadPdfErrors({
       errors
 
   })
-
 }
 
 // =====================================================
@@ -1531,7 +1408,6 @@ export function downloadSummaryPdf({
   summary
 
 }) {
-
   const pdf =
     createPdf()
 
@@ -1569,22 +1445,17 @@ export function downloadSummaryPdf({
     reportName
 
   })
-
 }
 
 // =====================================================
 // FEDERATION REPORT BUILDER
 // =====================================================
 
-
 // =====================================================
 // TRAINING REPORT
 // =====================================================
 
 export async function downloadTrainingReportPdf({
-
-
-
 
   reportPeriod,
 
@@ -1630,22 +1501,20 @@ export async function downloadTrainingReportPdf({
   totalDistance = 0
 
 }) {
-
   try {
-
-const logoBase64Loaded =
+    const logoBase64Loaded =
 
   await imageToBase64(
     tandemLogo
   )
 
-const backgroundBase64 =
+    const backgroundBase64 =
 
   await imageToBase64(
     tandemBackground
   )
 
-window.pdfBackgroundImage =
+    window.pdfBackgroundImage =
   backgroundBase64
 
     const attendanceChart =
@@ -1705,7 +1574,7 @@ window.pdfBackgroundImage =
 
       })
 
- const uniqueOccurrences =
+    const uniqueOccurrences =
 
   new Set(
 
@@ -1719,8 +1588,7 @@ window.pdfBackgroundImage =
 
   )
 
-
-const dates =
+    const dates =
 
   data
     .map(
@@ -1730,192 +1598,184 @@ const dates =
     .filter(Boolean)
     .sort()
 
-const oldestDate =
+    const oldestDate =
   dates[0]
 
-const newestDate =
+    const newestDate =
   dates[
     dates.length - 1
   ]
 
-const actualReportPeriod =
+    const actualReportPeriod =
 
-  oldestDate === newestDate
+  oldestDate === newestDate ?
 
-    ? oldestDate
+    oldestDate :
 
-    : `${oldestDate} - ${newestDate}`
+    `${oldestDate} - ${newestDate}`
 
-const reportTitle =
+    const reportTitle =
 
-  uniqueOccurrences.size === 1
-
-    ?
+  uniqueOccurrences.size === 1 ?
 
     `${[
       ...uniqueOccurrences
-    ][0]} Training Performance Report`
-
-    :
+    ][0]} Training Performance Report` :
 
     'Training Combined Performance Report'
 
-
     const pdf =
   buildFederationReport({
-  
 
     reportTitle,
 
     reportPeriod:
       actualReportPeriod,
 
-       logoBase64:
+    logoBase64:
   logoBase64Loaded,
-         
-        filters,
 
-        
+    filters,
 
-        insights,
+    insights,
 
-        columns,
+    columns,
 
-        data,
+    data,
 
-        kpis: [
+    kpis: [
 
-          {
-            title:
+      {
+        title:
               'Athletes',
 
-            value:
+        value:
               totalAthletes,
 
-            color:
+        color:
               PDF_COLORS.primary
-          },
+      },
 
-          {
-            title:
+      {
+        title:
               'Sessions',
 
-            value:
+        value:
               totalSessions,
 
-            color:
+        color:
               PDF_COLORS.info
-          },
+      },
 
-          {
-            title:
+      {
+        title:
               'Attendance',
 
-            value:
+        value:
               `${attendancePercentage}%`,
 
-            color:
+        color:
               PDF_COLORS.secondary
-          },
+      },
 
-          {
-            title:
+      {
+        title:
               'Distance KM',
 
-            value:
+        value:
               totalDistance,
 
-            color:
+        color:
               PDF_COLORS.dark
-          }
+      }
 
-        ],
+    ],
 
-        charts: [
+    charts: [
 
-          {
-            image:
+      {
+        image:
               attendanceChart,
 
-            title:
+        title:
               'Attendance Trend',
 
-            x: 10,
+        x: 10,
 
-            y: 35,
+        y: 35,
 
-            width: 130,
+        width: 130,
 
-            height: 80
-          },
+        height: 80
+      },
 
-          {
-            image:
+      {
+        image:
               countyChart,
 
-            title:
+        title:
               'County Activity',
 
-            x: 150,
+        x: 150,
 
-            y: 35,
+        y: 35,
 
-            width: 130,
+        width: 130,
 
-            height: 80
-          },
+        height: 80
+      },
 
-          {
-            image:
+      {
+        image:
               statusChart,
 
-            title:
+        title:
               'Status Breakdown',
 
-            x: 10,
+        x: 10,
 
-            y: 120,
+        y: 120,
 
-            width: 120,
+        width: 120,
 
-            height: 80
-          },
+        height: 80
+      },
 
-          {
-            image:
+      {
+        image:
               loadChart,
 
-            title:
+        title:
               'Training Load',
 
-            x: 140,
+        x: 140,
 
-            y: 120,
+        y: 120,
 
-            width: 120,
+        width: 120,
 
-            height: 80
-          },
+        height: 80
+      },
 
-          {
-  image:
+      {
+        image:
     scopeChart,
 
-  title:
+        title:
     'Team vs Individual',
 
-  x: 10,
+        x: 10,
 
-  y: 170,
+        y: 170,
 
-  width: 100,
+        width: 100,
 
-  height: 45
-}
+        height: 45
+      }
 
-        ]
+    ]
 
-      })
+  })
 
     savePdf({
 
@@ -1925,14 +1785,9 @@ const reportTitle =
         'Training_Report'
 
     })
-
-  }
-  finally {
-
+  } finally {
     destroyPdfCharts()
-
   }
-
 }
 
 // =====================================================
@@ -1970,9 +1825,7 @@ export async function downloadPerformanceReportPdf({
   improvement = 0
 
 }) {
-
   try {
-
     const trendChart =
       await createPerformanceTrendChart({
 
@@ -2119,14 +1972,9 @@ export async function downloadPerformanceReportPdf({
         'Performance_Report'
 
     })
-
-  }
-  finally {
-
+  } finally {
     destroyPdfCharts()
-
   }
-
 }
 
 // =====================================================
@@ -2166,9 +2014,7 @@ export async function downloadParticipantsReportPdf({
   suspended = 0
 
 }) {
-
   try {
-
     const classificationChart =
       await createClassificationChart({
 
@@ -2340,14 +2186,9 @@ export async function downloadParticipantsReportPdf({
         'Participants_Report'
 
     })
-
-  }
-  finally {
-
+  } finally {
     destroyPdfCharts()
-
   }
-
 }
 
 // =====================================================
@@ -2383,9 +2224,7 @@ export async function downloadRaceResultsPdf({
   fastestTime = ''
 
 }) {
-
   try {
-
     const gapChart =
       await createRaceGapChart({
 
@@ -2504,16 +2343,10 @@ export async function downloadRaceResultsPdf({
         eventName
 
     })
-
-  }
-  finally {
-
+  } finally {
     destroyPdfCharts()
-
   }
-
 }
-
 
 export function addParticipantSummary({
 
@@ -2522,20 +2355,15 @@ export function addParticipantSummary({
   participants = []
 
 }) {
-
   if (
     !participants.length
   ) {
-
     return
-
   }
 
   addPageWithBackground(
-  pdf
-)
-
-
+    pdf
+  )
 
   pdf.setFontSize(
     18
@@ -2583,10 +2411,7 @@ export function addParticipantSummary({
 
     }
   )
-
 }
-
-
 
 // =====================================================
 // FEDERATION REPORT BUILDER
@@ -2617,7 +2442,6 @@ export function buildFederationReport({
   logoBase64 = null
 
 }) {
-
   const pdf =
     createPdf({
 
@@ -2671,43 +2495,39 @@ export function buildFederationReport({
 
   })
 
-  charts.forEach(
-    chart => {
+  for (const chart of charts) {
+    addChartImage({
 
-      addChartImage({
+      pdf,
 
-        pdf,
-
-        imageData:
+      imageData:
           chart.image,
 
-        x:
+      x:
           chart.x,
 
-        y:
+      y:
           chart.y,
 
-        width:
+      width:
           chart.width,
 
-        height:
+      height:
           chart.height,
 
-        title:
+      title:
           chart.title
 
-      })
-
-    }
-  )
+    })
+  }
 
   // ==========================================
   // TRAINING INTELLIGENCE PAGE
   // ==========================================
 
   addPageWithBackground(
-  pdf
-)
+    pdf
+  )
 
   pdf.setFontSize(
     18
@@ -2756,7 +2576,6 @@ export function buildFederationReport({
   if (
     insights.length
   ) {
-
     addInsightsSection({
 
       pdf,
@@ -2766,13 +2585,11 @@ export function buildFederationReport({
       startY: 100
 
     })
-
   }
 
   if (
     participantSummary.length
   ) {
-
     addParticipantSummary({
 
       pdf,
@@ -2781,7 +2598,6 @@ export function buildFederationReport({
         participantSummary
 
     })
-
   }
 
   // ==========================================
@@ -2789,8 +2605,8 @@ export function buildFederationReport({
   // ==========================================
 
   addPageWithBackground(
-  pdf
-)
+    pdf
+  )
 
   pdf.setFontSize(
     18
@@ -2811,13 +2627,9 @@ export function buildFederationReport({
 
   const detailTitle =
 
-    uniqueOccurrences.size === 1
+    uniqueOccurrences.size === 1 ?
 
-      ?
-
-      [...uniqueOccurrences][0]
-
-      :
+      [...uniqueOccurrences][0] :
 
       'Detailed Training Log'
 
@@ -2853,5 +2665,4 @@ export function buildFederationReport({
   )
 
   return pdf
-
 }

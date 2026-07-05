@@ -1,4 +1,4 @@
-﻿let events = []
+let events = []
 
 let filteredEvents = []
 
@@ -19,9 +19,7 @@ document.addEventListener(
 )
 
 async function initializeMasterEvents() {
-
   try {
-
     const modalElement =
       document.getElementById(
         'eventModal'
@@ -37,7 +35,7 @@ async function initializeMasterEvents() {
       new coreui.Modal(
         modalElement
       )
-   programModal =
+    programModal =
   new coreui.Modal(
     document.getElementById(
       'programModal'
@@ -55,22 +53,18 @@ async function initializeMasterEvents() {
     await loadEvents()
 
     await loadEventNameSuggestions()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
       error.message ||
       'Failed to initialize Event Master.'
     )
-
   }
-
 }
 
 function bindEvents() {
-document
+  document
   .getElementById(
     'btnSaveProgram'
   )
@@ -105,12 +99,10 @@ document
       'input',
       searchEvents
     )
-
 }
 
 window.managePrograms =
-async function(eventId) {
-
+async function (eventId) {
   const event =
     events.find(
       row =>
@@ -143,13 +135,11 @@ async function(eventId) {
   )
 
   programModal.show()
-
 }
 
 async function loadPrograms(
   eventId
 ) {
-
   const tbody =
     document.getElementById(
       'programTableBody'
@@ -179,10 +169,8 @@ async function loadPrograms(
     throw error
   }
 
-  data.forEach(
-    program => {
-
-      tbody.innerHTML += `
+  for (const program of data) {
+    tbody.innerHTML += `
         <tr>
 
           <td>
@@ -213,18 +201,14 @@ async function loadPrograms(
 </td>
         </tr>
       `
-    }
-  )
-
+  }
 }
 
-
 window.editProgram =
-function(
+function (
   programId,
   programName
 ) {
-
   document.getElementById(
     'programId'
   ).value =
@@ -234,11 +218,9 @@ function(
     'programName'
   ).value =
     programName
-
 }
 
 async function saveProgram() {
-
   const eventId =
     document.getElementById(
       'programEventId'
@@ -253,13 +235,11 @@ async function saveProgram() {
       .trim()
 
   if (!programName) {
-
     alert(
       'Program Name required'
     )
 
     return
-
   }
 
   const programId =
@@ -267,11 +247,10 @@ async function saveProgram() {
     'programId'
   ).value
 
-let error
+  let error
 
-if (programId) {
-
-  const result =
+  if (programId) {
+    const result =
     await window
       .supabaseClient
       .from(
@@ -288,12 +267,10 @@ if (programId) {
         programId
       )
 
-  error =
+    error =
     result.error
-
-} else {
-
-  const result =
+  } else {
+    const result =
     await window
       .supabaseClient
       .from(
@@ -309,42 +286,33 @@ if (programId) {
 
       })
 
-  error =
+    error =
     result.error
-
-}
-
-
-
-        
+  }
 
   if (error) {
-
     alert(
       error.message
     )
 
     return
-
   }
 
   document.getElementById(
     'programName'
   ).value = ''
-  
+
   document.getElementById(
-  'programId'
-).value = ''
+    'programId'
+  ).value = ''
 
   await loadPrograms(
     eventId
   )
-
 }
 
 window.deleteProgram =
-async function(programId) {
-
+async function (programId) {
   if (
     !confirm(
       'Delete this program?'
@@ -373,35 +341,28 @@ async function(programId) {
       )
 
   if (error) {
-
     alert(
       error.message
     )
 
     return
-
   }
 
   await loadPrograms(
     eventId
   )
-
 }
 
-
 function showError(message) {
-
   const errorBox =
     document.getElementById(
       'eventError'
     )
 
   if (!errorBox) {
-
     alert(message)
 
     return
-
   }
 
   errorBox.textContent =
@@ -410,11 +371,9 @@ function showError(message) {
   errorBox.classList.remove(
     'd-none'
   )
-
 }
 
 function clearError() {
-
   const errorBox =
     document.getElementById(
       'eventError'
@@ -429,11 +388,9 @@ function clearError() {
   errorBox.classList.add(
     'd-none'
   )
-
 }
 
 async function loadEventNameSuggestions() {
-
   const {
     data,
     error
@@ -475,27 +432,21 @@ async function loadEventNameSuggestions() {
       )
     ]
 
-  uniqueNames.forEach(
-    name => {
-
-      const option =
+  for (const name of uniqueNames) {
+    const option =
         document.createElement(
           'option'
         )
 
-      option.value = name
+    option.value = name
 
-      datalist.appendChild(
-        option
-      )
-
-    }
-  )
-
+    datalist.append(
+      option
+    )
+  }
 }
 
 async function loadEventCategories() {
-
   const select =
     document.getElementById(
       'eventCategoryId'
@@ -529,22 +480,17 @@ async function loadEventCategories() {
     throw error
   }
 
-  data.forEach(
-    category => {
-
-      select.innerHTML += `
+  for (const category of data) {
+    select.innerHTML += `
         <option
           value="${category.event_category_id}">
           ${category.category_name}
         </option>
       `
-    }
-  )
-
+  }
 }
 
 async function loadEventTypes() {
-
   const select =
     document.getElementById(
       'eventTypeId'
@@ -578,22 +524,17 @@ async function loadEventTypes() {
     throw error
   }
 
-  data.forEach(
-    type => {
-
-      select.innerHTML += `
+  for (const type of data) {
+    select.innerHTML += `
         <option
           value="${type.event_type_id}">
           ${type.event_type_name}
         </option>
       `
-    }
-  )
-
+  }
 }
 
 async function loadEventStatuses() {
-
   const select =
     document.getElementById(
       'eventStatusId'
@@ -616,56 +557,47 @@ async function loadEventStatuses() {
     await window
       .supabaseClient
       .from(
-  'event_master_status_master'
-)
+        'event_master_status_master'
+      )
 .select(`
   event_master_status_id,
   status_name,
   status_code
 `)
-      
 
   if (error) {
     throw error
   }
 
-  data.forEach(
-    status => {
-
-      if (
-  status.status_code
+  for (const status of data) {
+    if (
+      status.status_code
     ?.toUpperCase() ===
   'ACTIVE'
-) {
-
-  activeStatusId =
+    ) {
+      activeStatusId =
     status.event_master_status_id
+    }
 
-}
-
-      if (
-        status.status_code
+    if (
+      status.status_code
           ?.toUpperCase() ===
         'DEACTIVATED'
-      ) {
-
-        inactiveStatusId =
+    ) {
+      inactiveStatusId =
           status.event_master_status_id
+    }
 
-      }
-
-      select.innerHTML += `
+    select.innerHTML += `
         <option
           value="${status.event_master_status_id}">
           ${status.status_name}
         </option>
       `
-    }
-  )
-
+  }
 }
-async function loadEvents() {
 
+async function loadEvents() {
   const {
     data,
     error
@@ -703,11 +635,9 @@ async function loadEvents() {
     [...events]
 
   renderEvents()
-
 }
 
 function renderEvents() {
-
   const tbody =
     document.getElementById(
       'eventTableBody'
@@ -729,10 +659,8 @@ function renderEvents() {
       start + pageSize
     )
 
-  pageData.forEach(
-    event => {
-
-      tbody.innerHTML += `
+  for (const event of pageData) {
+    tbody.innerHTML += `
         <tr>
 
           <td>
@@ -741,26 +669,26 @@ function renderEvents() {
 
           <td>
             ${
-              event
+  event
                 .event_category_master
                 ?.category_name || ''
-            }
+}
           </td>
 
           <td>
             ${
-              event
+  event
                 .event_type_master
                 ?.event_type_name || ''
-            }
+}
           </td>
 
           <td>
             ${
-              event
+  event
                 .event_master_status_master
                 ?.status_name || ''
-            }
+}
           </td>
 
          <td class="text-center">
@@ -787,14 +715,12 @@ function renderEvents() {
 
         </tr>
       `
-    }
-  )
+  }
 
   renderPagination()
-
 }
-function searchEvents() {
 
+function searchEvents() {
   const search =
     document
       .getElementById(
@@ -810,17 +736,13 @@ function searchEvents() {
 
         event.event_name
           ?.toLowerCase()
-          .includes(search)
-
-        ||
+          .includes(search) ||
 
         event
           .event_category_master
           ?.category_name
           ?.toLowerCase()
-          .includes(search)
-
-        ||
+          .includes(search) ||
 
         event
           .event_type_master
@@ -832,11 +754,9 @@ function searchEvents() {
   currentPage = 1
 
   renderEvents()
-
 }
 
 function renderPagination() {
-
   const container =
     document.getElementById(
       'paginationContainer'
@@ -873,13 +793,12 @@ function renderPagination() {
     i <= totalPages;
     i++
   ) {
-
     container.innerHTML += `
       <li class="page-item ${
-        i === currentPage
-          ? 'active'
-          : ''
-      }">
+  i === currentPage ?
+    'active' :
+    ''
+}">
 
         <a
           class="page-link"
@@ -893,19 +812,15 @@ function renderPagination() {
       </li>
     `
   }
-
 }
 
 function goToPage(page) {
-
   currentPage = page
 
   renderEvents()
-
 }
 
 function validateEvent() {
-
   return Boolean(
 
     document
@@ -913,17 +828,13 @@ function validateEvent() {
         'eventName'
       )
       .value
-      .trim()
-
-    &&
+      .trim() &&
 
     document
       .getElementById(
         'eventCategoryId'
       )
-      .value
-
-    &&
+      .value &&
 
     document
       .getElementById(
@@ -932,11 +843,9 @@ function validateEvent() {
       .value
 
   )
-
 }
 
 function openNewEventModal() {
-
   clearError()
 
   clearEventForm()
@@ -949,11 +858,9 @@ function openNewEventModal() {
     .add('d-none')
 
   eventModal.show()
-
 }
 
 function clearEventForm() {
-
   document.getElementById(
     'eventId'
   ).value = ''
@@ -973,12 +880,10 @@ function clearEventForm() {
   document.getElementById(
     'eventStatusId'
   ).value = ''
-
 }
 
 window.editEvent =
-function(eventId) {
-
+function (eventId) {
   const event =
     events.find(
       row =>
@@ -1035,14 +940,12 @@ function(eventId) {
     .remove('d-none')
 
   eventModal.show()
-
 }
 
 window.deleteEvent =
-async function(
+async function (
   eventId
 ) {
-
   if (
     !confirm(
       'Delete this Event Master?'
@@ -1064,17 +967,14 @@ async function(
       )
 
   if (error) {
-
     showError(
       error.message
     )
 
     return
-
   }
 
   await loadEvents()
-
 }
 
 async function eventExists(
@@ -1082,7 +982,6 @@ async function eventExists(
   eventTypeId,
   excludeId = null
 ) {
-
   const {
     data,
     error
@@ -1115,27 +1014,22 @@ async function eventExists(
       )
 
   return rows.length > 0
-
 }
 
 async function saveEvent() {
-
   clearError()
 
   if (
     !validateEvent()
   ) {
-
     showError(
       'All fields are required.'
     )
 
     return
-
   }
 
   try {
-
     const eventId =
       document
         .getElementById(
@@ -1166,13 +1060,11 @@ async function saveEvent() {
       )
 
     if (exists) {
-
       showError(
         'Event Name and Event Type already exist.'
       )
 
       return
-
     }
 
     const payload = {
@@ -1193,7 +1085,6 @@ async function saveEvent() {
     }
 
     if (eventId) {
-
       payload.event_master_status_id =
         document
           .getElementById(
@@ -1218,9 +1109,7 @@ async function saveEvent() {
       if (error) {
         throw error
       }
-
     } else {
-
       payload.event_master_status_id =
         activeStatusId
 
@@ -1237,7 +1126,6 @@ async function saveEvent() {
       if (error) {
         throw error
       }
-
     }
 
     eventModal.hide()
@@ -1245,21 +1133,15 @@ async function saveEvent() {
     await loadEvents()
 
     await loadEventNameSuggestions()
-
   } catch (error) {
-
     console.error(error)
 
     showError(
       error.message ||
       'Failed to save Event Master.'
     )
-
   }
-
 }
-
-
 
 window.openNewEventModal =
   openNewEventModal

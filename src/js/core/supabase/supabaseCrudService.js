@@ -1,11 +1,11 @@
-﻿// =====================================================
+// =====================================================
 // SUPABASE CRUD SERVICE
 // =====================================================
 
 import {
   supabase
 }
-from './supabaseClient.js'
+  from './supabaseClient.js'
 
 export async function getRecords({
 
@@ -18,20 +18,17 @@ export async function getRecords({
   ascending = true
 
 }) {
-
   let query =
     window.supabaseClient
       .from(table)
       .select(select)
 
   if (orderBy) {
-
     query =
       query.order(
         orderBy,
         { ascending }
       )
-
   }
 
   const {
@@ -45,7 +42,6 @@ export async function getRecords({
   }
 
   return data || []
-
 }
 
 export async function getById({
@@ -59,7 +55,6 @@ export async function getById({
   select = '*'
 
 }) {
-
   const {
     data,
     error
@@ -78,7 +73,6 @@ export async function getById({
   }
 
   return data
-
 }
 
 export async function insertRecord({
@@ -88,7 +82,6 @@ export async function insertRecord({
   payload
 
 }) {
-
   const {
     data,
     error
@@ -103,7 +96,6 @@ export async function insertRecord({
   }
 
   return data
-
 }
 
 export async function updateRecord({
@@ -117,7 +109,6 @@ export async function updateRecord({
   payload
 
 }) {
-
   const {
     data,
     error
@@ -136,7 +127,6 @@ export async function updateRecord({
   }
 
   return data
-
 }
 
 export async function deleteRecord({
@@ -148,7 +138,6 @@ export async function deleteRecord({
   id
 
 }) {
-
   const {
     error
   } =
@@ -163,5 +152,4 @@ export async function deleteRecord({
   if (error) {
     throw error
   }
-
 }

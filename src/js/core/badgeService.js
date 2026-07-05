@@ -1,4 +1,3 @@
-﻿
 
 // =====================================================
 // BADGE SERVICE
@@ -94,13 +93,13 @@ export const STATUS_CONFIG = {
     color: 'warning'
   },
 
-ON_LEAVE: {
-  color: 'warning'
-},
+  ON_LEAVE: {
+    color: 'warning'
+  },
 
-TERMINATED: {
-  color: 'danger'
-},
+  TERMINATED: {
+    color: 'danger'
+  },
 
   DISBANDED: {
     color: 'danger'
@@ -167,7 +166,6 @@ TERMINATED: {
 export function getStatusConfig(
   statusCode
 ) {
-
   return (
     STATUS_CONFIG[
       String(
@@ -179,14 +177,12 @@ export function getStatusConfig(
       color: 'secondary'
     }
   )
-
 }
 
 export function getStatusBadge(
   statusName,
   statusCode = statusName
 ) {
-
   const config =
     getStatusConfig(
       statusCode
@@ -199,14 +195,11 @@ export function getStatusBadge(
       ${statusName || ''}
     </span>
   `
-
 }
-
 
 export function isActiveStatus(
   statusCode
 ) {
-
   return [
 
     'ACTIVE',
@@ -222,13 +215,11 @@ export function isActiveStatus(
       statusCode
     ).toUpperCase()
   )
-
 }
 
 export function isClosedStatus(
   statusCode
 ) {
-
   return [
 
     'COMPLETED',
@@ -245,139 +236,133 @@ export function isClosedStatus(
       statusCode
     ).toUpperCase()
   )
-
 }
-
 
 export function getAttendanceBadge(
   status
 ) {
-
   switch (
     String(status || '')
       .trim()
       .toUpperCase()
   ) {
-
-    case 'PRESENT':
+    case 'PRESENT': {
       return '<span class="badge bg-success">Present</span>'
+    }
 
-    case 'ABSENT':
+    case 'ABSENT': {
       return '<span class="badge bg-danger">Absent</span>'
+    }
 
-    case 'LATE':
+    case 'LATE': {
       return '<span class="badge bg-warning">Late</span>'
+    }
 
-    default:
+    default: {
       return status || ''
+    }
   }
-
 }
 
 export function getEventStatusBadge(
   status
 ) {
-
   switch (
     String(status || '')
       .trim()
       .toUpperCase()
   ) {
-
-    case 'OPEN':
+    case 'OPEN': {
       return '<span class="badge bg-primary">Open</span>'
+    }
 
-    case 'ONGOING':
+    case 'ONGOING': {
       return '<span class="badge bg-success">Ongoing</span>'
+    }
 
-    case 'COMPLETED':
+    case 'COMPLETED': {
       return '<span class="badge bg-dark">Completed</span>'
+    }
 
-    case 'CANCELLED':
+    case 'CANCELLED': {
       return '<span class="badge bg-danger">Cancelled</span>'
+    }
 
-    default:
+    default: {
       return status || ''
+    }
   }
-
 }
 
 export function getPerformanceBadge(
   value
 ) {
-
   return `
     <span class="badge bg-info">
       ${value || ''}
     </span>
   `
-
 }
 
 export function getRoleBadge(
   roleCode
 ) {
-
   switch (
     String(
       roleCode || ''
     ).toUpperCase()
   ) {
-
-    case 'PILOT':
+    case 'PILOT': {
       return `
         <span class="badge bg-primary">
           Pilot
         </span>
       `
+    }
 
-    case 'STOKER':
+    case 'STOKER': {
       return `
         <span class="badge bg-success">
           Stoker
         </span>
       `
+    }
 
-    default:
+    default: {
       return `
         <span class="badge bg-secondary">
           ${roleCode || ''}
         </span>
       `
+    }
   }
-
 }
 
 export function getActiveBadge(
   active
 ) {
-
-  return active
-    ? `
+  return active ?
+    `
       <span class="badge bg-success">
         Active
       </span>
+    ` :
     `
-    : `
       <span class="badge bg-secondary">
         Inactive
       </span>
     `
-
 }
 
 export function getRankingBadge(
   position
 ) {
-
   if (position === 1) {
-
     return `
       <span class="badge bg-warning">
         #1
       </span>
     `
-
   }
 
   return `
@@ -385,13 +370,11 @@ export function getRankingBadge(
       #${position}
     </span>
   `
-
 }
 
 export function getParticipantStatusBadge(
   status
 ) {
-
   const value =
     String(
       status || ''
@@ -402,58 +385,60 @@ export function getParticipantStatusBadge(
   switch (
     value
   ) {
-
-    case 'REGISTERED':
+    case 'REGISTERED': {
       return `
         <span class="badge bg-primary">
           Registered
         </span>
       `
+    }
 
-    case 'CONFIRMED':
+    case 'CONFIRMED': {
       return `
         <span class="badge bg-success">
           Confirmed
         </span>
       `
+    }
 
-    case 'ATTENDED':
+    case 'ATTENDED': {
       return `
         <span class="badge bg-info">
           Attended
         </span>
       `
+    }
 
-    case 'COMPLETED':
+    case 'COMPLETED': {
       return `
         <span class="badge bg-dark">
           Completed
         </span>
       `
+    }
 
-    case 'CANCELLED':
+    case 'CANCELLED': {
       return `
         <span class="badge bg-danger">
           Cancelled
         </span>
       `
+    }
 
-    default:
+    default: {
       return getGenericBadge(
         status
       )
-
+    }
   }
-
 }
 
 export function getGenericBadge(
   value,
 
   color =
-    'secondary'
+  'secondary'
 ) {
-
   return `
     <span
       class="badge bg-${color}"
@@ -461,7 +446,5 @@ export function getGenericBadge(
       ${value || ''}
     </span>
   `
-
 }
-
 

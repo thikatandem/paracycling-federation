@@ -1,7 +1,6 @@
-﻿/* global Chart */
+/* global Chart */
 
-const Chart =
-  window.Chart
+const { Chart } = window
 export const CHART_COLORS = {
 
   primary: '#198754',
@@ -20,9 +19,7 @@ export const CHART_COLORS = {
 
 export const PDF_CHARTS = []
 
-
 export function ensurePdfChartContainer() {
-
   let container =
     document.getElementById(
       'pdfChartContainer'
@@ -31,9 +28,7 @@ export function ensurePdfChartContainer() {
   if (
     container
   ) {
-
     return container
-
   }
 
   container =
@@ -53,17 +48,14 @@ export function ensurePdfChartContainer() {
   container.style.top =
     '-9999px'
 
-  document.body.appendChild(
+  document.body.append(
     container
   )
 
   return container
-
 }
 
-
 export function createChartCanvas() {
-
   ensurePdfChartContainer()
 
   const canvas =
@@ -79,19 +71,16 @@ export function createChartCanvas() {
     .getElementById(
       'pdfChartContainer'
     )
-    .appendChild(
+    .append(
       canvas
     )
 
   return canvas
-
 }
-
 
 async function exportChartImage(
   chart
 ) {
-
   await new Promise(
     resolve =>
       setTimeout(
@@ -104,7 +93,6 @@ async function exportChartImage(
 
   return chart
     .toBase64Image()
-
 }
 
 export async function createAttendanceChart({
@@ -114,7 +102,6 @@ export async function createAttendanceChart({
   attendance
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -158,14 +145,13 @@ export async function createAttendanceChart({
       }
     )
 
-PDF_CHARTS.push(
-  chart
-    )
+  PDF_CHARTS.push(
+    chart
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createCountyChart({
@@ -175,7 +161,6 @@ export async function createCountyChart({
   totals
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -217,16 +202,15 @@ export async function createCountyChart({
         }
 
       }
-      
-     )
-PDF_CHARTS.push(
-  chart
+
     )
+  PDF_CHARTS.push(
+    chart
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createStatusDonutChart({
@@ -240,7 +224,6 @@ export async function createStatusDonutChart({
   excused
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -289,15 +272,14 @@ export async function createStatusDonutChart({
         }
 
       }
-     )
-PDF_CHARTS.push(
-  chart
     )
+  PDF_CHARTS.push(
+    chart
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createPerformanceTrendChart({
@@ -307,7 +289,6 @@ export async function createPerformanceTrendChart({
   speeds
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -344,15 +325,14 @@ export async function createPerformanceTrendChart({
         }
 
       }
-     )
-PDF_CHARTS.push(
-  chart
     )
+  PDF_CHARTS.push(
+    chart
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createClassificationChart({
@@ -362,7 +342,6 @@ export async function createClassificationChart({
   counts
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -391,19 +370,16 @@ export async function createClassificationChart({
         }
 
       }
-   )
-
-PDF_CHARTS.push(
-  chart
     )
 
+  PDF_CHARTS.push(
+    chart
+  )
 
   return exportChartImage(
     chart
   )
-
 }
-
 
 export async function createTrainingLoadChart({
 
@@ -412,7 +388,6 @@ export async function createTrainingLoadChart({
   distances
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -476,15 +451,14 @@ export async function createTrainingLoadChart({
 
     )
 
-PDF_CHARTS.push(
-  chart
+  PDF_CHARTS.push(
+    chart
 
-    )
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createGenderDistributionChart({
@@ -494,7 +468,6 @@ export async function createGenderDistributionChart({
   female
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -543,17 +516,16 @@ export async function createGenderDistributionChart({
 
       }
 
-     )
-
-PDF_CHARTS.push(
-  chart
-
     )
+
+  PDF_CHARTS.push(
+    chart
+
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createTeamVsIndividualChart({
@@ -563,7 +535,6 @@ export async function createTeamVsIndividualChart({
   individual
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -614,15 +585,14 @@ export async function createTeamVsIndividualChart({
 
     )
 
-PDF_CHARTS.push(
-  chart
+  PDF_CHARTS.push(
+    chart
 
-    )
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createSpeedDistributionChart({
@@ -632,7 +602,6 @@ export async function createSpeedDistributionChart({
   values
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -684,17 +653,16 @@ export async function createSpeedDistributionChart({
         }
 
       }
-     )
-
-PDF_CHARTS.push(
-  chart
-
     )
+
+  PDF_CHARTS.push(
+    chart
+
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createRaceGapChart({
@@ -704,7 +672,6 @@ export async function createRaceGapChart({
   gaps
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -756,17 +723,16 @@ export async function createRaceGapChart({
         }
 
       }
-     )
-
-PDF_CHARTS.push(
-  chart
-
     )
+
+  PDF_CHARTS.push(
+    chart
+
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 export async function createMonthlyRegistrationChart({
@@ -776,7 +742,6 @@ export async function createMonthlyRegistrationChart({
   totals
 
 }) {
-
   const canvas =
     createChartCanvas()
 
@@ -837,16 +802,14 @@ export async function createMonthlyRegistrationChart({
       }
     )
 
-PDF_CHARTS.push(
-  chart
+  PDF_CHARTS.push(
+    chart
 
-
-    )
+  )
 
   return exportChartImage(
     chart
   )
-
 }
 
 // =====================================================
@@ -854,22 +817,14 @@ PDF_CHARTS.push(
 // =====================================================
 
 export function destroyPdfCharts() {
+  for (const chart of PDF_CHARTS) {
+    try {
+      chart.destroy()
+    } catch {
 
-  PDF_CHARTS.forEach(
-    chart => {
-
-      try {
-
-        chart.destroy()
-
-      }
-      catch {
-
-        //
-      }
-
+      //
     }
-  )
+  }
 
   PDF_CHARTS.length = 0
 
@@ -881,9 +836,6 @@ export function destroyPdfCharts() {
   if (
     container
   ) {
-
     container.innerHTML = ''
-
   }
-
 }

@@ -5,8 +5,6 @@
 /* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
-
 
 import {
   getValue,
@@ -57,7 +55,7 @@ import {
   bindPagination
 } from './core/paginationService.js'
 
-import { loadClassificationLookup,getMembershipStatusId } from './core/lookupService.js'
+import { loadClassificationLookup, getMembershipStatusId } from './core/lookupService.js'
 
 import {
   populateAthleteForm,
@@ -65,8 +63,6 @@ import {
 } from './core/athleteFormService.js'
 
 import { createPageState, setRows } from './core/pageStateService.js'
-
-
 
 const paginator =
   createPaginator()
@@ -82,10 +78,6 @@ const searchAthlete =
 
 const paginationInfo =
   document.getElementById('paginationInfo')
-
-
-
-
 
 // =====================================================
 // LOAD ATHLETES
@@ -128,55 +120,53 @@ async function loadAthletes() {
 
     setRows({
 
-  state,
+      state,
 
-  rows:
+      rows:
     data || []
 
-})
+    })
 
     renderAthletes()
   } catch (error) {
     console.error(error)
 
-   showError(
+    showError(
 
-  'athleteFormError',
+      'athleteFormError',
 
-  getFederationFriendlyError(
-    error
-  )
+      getFederationFriendlyError(
+        error
+      )
 
-)
+    )
   } finally {
     hideLoading()
   }
 }
 
-
 function renderAthleteRow(
   athlete
 ) {
-
   const actionButtons =
 
     buildActionButtons({
 
-     buttons: [
+      buttons: [
 
-  {
-    type: 'edit',
-    onClick:
+        {
+          type: 'edit',
+          onClick:
       `editAthlete('${athlete.athlete_id}')`
-  },
+        },
 
-  {
-    type: 'delete',
-    onClick:
+        {
+          type: 'delete',
+          onClick:
       `confirmDeleteAthlete('${athlete.athlete_id}')`
-  }
+        }
 
-]
+      ]
 
     })
 
@@ -185,67 +175,62 @@ function renderAthleteRow(
     <tr>
 
       ${buildTextCell(
-        athlete.first_name
-      )}
+    athlete.first_name
+  )}
 
       ${buildTextCell(
-        athlete.last_name
-      )}
+    athlete.last_name
+  )}
 
       ${buildTextCell(
-        athlete.gender
-      )}
+    athlete.gender
+  )}
 
       ${buildTextCell(
-        athlete.role
-      )}
+    athlete.role
+  )}
 
       ${buildTextCell(
-        athlete.county_master?.county_name
-      )}
+    athlete.county_master?.county_name
+  )}
 
       ${buildTextCell(
-        athlete.subcounty_master?.subcounty_name
-      )}
+    athlete.subcounty_master?.subcounty_name
+  )}
 
       ${buildTextCell(
-        athlete.town_master?.town_name
-      )}
+    athlete.town_master?.town_name
+  )}
 
       ${buildTextCell(
-        athlete.phone
-      )}
+    athlete.phone
+  )}
 
      ${buildStatusCell(
-  getStatusBadge(
-    athlete.membership_status_master?.status_name,
-    athlete.membership_status_master?.status_code
-  )
-)}
+    getStatusBadge(
+      athlete.membership_status_master?.status_name,
+      athlete.membership_status_master?.status_code
+    )
+  )}
 
       ${buildActionCell(
-        actionButtons
-      )}
+    actionButtons
+  )}
 
     </tr>
 
   `
-
 }
-
 
 // =====================================================
 // TABLE RENDERING
 // =====================================================
 
 function renderAthletes() {
-
   if (
     !athletesTableBody
   ) {
-
     return
-
   }
 
   renderEntityTable({
@@ -268,14 +253,12 @@ function renderAthletes() {
   })
 
   updatePagination()
-
 }
 // =====================================================
 // PAGINATION
 // =====================================================
 
 function updatePagination() {
-
   updatePaginationUi({
 
     paginator,
@@ -294,7 +277,6 @@ function updatePagination() {
       )
 
   })
-
 }
 // =====================================================
 // SEARCH
@@ -308,8 +290,7 @@ function searchAthletes() {
       .trim()
       .toLowerCase()
 
-  
-state.filteredRows =
+  state.filteredRows =
   searchCollection({
 
     data:
@@ -334,10 +315,9 @@ state.filteredRows =
 
   })
 
-
-resetPagination(
-  paginator
-)
+  resetPagination(
+    paginator
+  )
 
   renderAthletes()
 }
@@ -348,46 +328,45 @@ resetPagination(
 
 function clearAthleteForm() {
   clearMessage(
-  'athleteFormError'
-)
+    'athleteFormError'
+  )
 
- resetForm({
+  resetForm({
 
-  fields: [
+    fields: [
 
-    'athleteId',
-    'athleteCode',
-    'firstName',
-    'lastName',
-    'dob',
-    'gender',
-    'role',
-    'classificationId',
-    'countyId',
-    'subcountyId',
-    'townName',
-    'passportNo',
-    'nationalId',
-    'phone',
-    'email',
-    'emergencyContactName',
-    'emergencyContactPhone',
-    'registrationDate',
-    'status'
+      'athleteId',
+      'athleteCode',
+      'firstName',
+      'lastName',
+      'dob',
+      'gender',
+      'role',
+      'classificationId',
+      'countyId',
+      'subcountyId',
+      'townName',
+      'passportNo',
+      'nationalId',
+      'phone',
+      'email',
+      'emergencyContactName',
+      'emergencyContactPhone',
+      'registrationDate',
+      'status'
 
-  ],
+    ],
 
-  defaults: {
+    defaults: {
 
-    status: 'Active'
+      status: 'Active'
 
-  }
+    }
 
-})
+  })
 }
 
 function openNewAthleteModal() {
-
   openEntityModal({
 
     modalId:
@@ -403,7 +382,6 @@ function openNewAthleteModal() {
       clearAthleteForm
 
   })
-
 }
 
 // =====================================================
@@ -425,33 +403,32 @@ async function (
   }
 
   clearMessage(
-  'athleteFormError'
-)
+    'athleteFormError'
+  )
 
   document.getElementById(
     'athleteModalTitle'
   ).textContent =
     'Edit Athlete'
 
- populateAthleteForm(
-  athlete
-)
+  populateAthleteForm(
+    athlete
+  )
 
   setValue(
-  'status',
-  athlete.membership_status_master?.status_name || ''
-)
+    'status',
+    athlete.membership_status_master?.status_name || ''
+  )
 
   showModal(
-  'athleteModal'
-)
+    'athleteModal'
+  )
 }
 // =====================================================
 // VALIDATION
 // =====================================================
 
 function validateAthlete() {
-
   clearMessage(
     'athleteFormError'
   )
@@ -499,12 +476,7 @@ function validateAthlete() {
     )
 
   })
-
 }
-
-
-
-
 
 // =====================================================
 // SAVE ATHLETE
@@ -521,36 +493,32 @@ async function saveAthlete() {
     const athleteId =
       getValue('athleteId')
 
-  
-   const townName =
+    const townName =
   getValue(
     'townName'
   )
     .trim()
 
-let townId = await findOrCreateTown({
+    const townId = await findOrCreateTown({
 
-  subcountyId:
+      subcountyId:
     getValue(
       'subcountyId'
     ),
 
-  townName
+      townName
 
-})
-    
+    })
 
-
-
-   const payload =
+    const payload =
   buildAthletePayload({
     townId
   })
-const membershipStatusId =
+    const membershipStatusId =
   await getMembershipStatusId(
     getValue('status')
   )
-payload.membership_status_id =
+    payload.membership_status_id =
   membershipStatusId
     let error
 
@@ -579,8 +547,8 @@ payload.membership_status_id =
     }
 
     hideModal(
-  'athleteModal'
-)
+      'athleteModal'
+    )
 
     await loadAthletes()
   } catch (error) {
@@ -588,13 +556,13 @@ payload.membership_status_id =
 
     showError(
 
-  'athleteFormError',
+      'athleteFormError',
 
-  getFederationFriendlyError(
-    error
-  )
+      getFederationFriendlyError(
+        error
+      )
 
-)
+    )
   } finally {
     hideLoading()
   }
@@ -611,9 +579,9 @@ function (athleteId) {
     athleteId
   )
 
- showModal(
-  'deleteAthleteModal'
-)
+  showModal(
+    'deleteAthleteModal'
+  )
 }
 
 async function deleteAthlete() {
@@ -640,22 +608,22 @@ async function deleteAthlete() {
       throw error
     }
 
-   hideModal(
-  'deleteAthleteModal'
-)
+    hideModal(
+      'deleteAthleteModal'
+    )
     await loadAthletes()
   } catch (error) {
     console.error(error)
 
     showError(
 
-  'athleteFormError',
+      'athleteFormError',
 
-  getFederationFriendlyError(
-    error
-  )
+      getFederationFriendlyError(
+        error
+      )
 
-)
+    )
   } finally {
     hideLoading()
   }
@@ -701,16 +669,11 @@ document
     deleteAthlete
   )
 
-
-
-
-
 searchAthlete
   ?.addEventListener(
     'input',
     searchAthletes
   )
-
 
 document
   .getElementById(
@@ -719,18 +682,17 @@ document
   ?.addEventListener(
     'change',
     async event => {
-
       const countyId =
         event.target.value
 
       await loadSubcountySelect({
 
-  countyId,
+        countyId,
 
-  selectId:
+        selectId:
     'subcountyId'
 
-})
+      })
 
       setValue(
         'subcountyId',
@@ -742,15 +704,15 @@ document
         ''
       )
 
-     await loadTownDatalist({
+      await loadTownDatalist({
 
-  subcountyId:
+        subcountyId:
     null,
 
-  datalistId:
+        datalistId:
     'townList'
 
-})
+      })
     }
   )
 
@@ -761,7 +723,6 @@ document
   ?.addEventListener(
     'change',
     async event => {
-
       await loadTownDatalist({
 
         subcountyId:
@@ -771,11 +732,8 @@ document
           'townList'
 
       })
-
     }
   )
-
-
 
 // =====================================================
 // INITIALIZE
@@ -793,61 +751,60 @@ async function initializeAthletes() {
       return
     }
 
-await loadCountySelect({
+    await loadCountySelect({
 
-  selectId:
+      selectId:
     'countyId',
 
-  placeholder:
+      placeholder:
     'Select County'
 
-})
+    })
 
-await loadAllSubcounties()
+    await loadAllSubcounties()
 
-const classifications =
+    const classifications =
   await loadClassificationLookup()
 
-populateSelect({
+    populateSelect({
 
-  selectId:
+      selectId:
     'classificationId',
 
-  items:
+      items:
     classifications,
 
-  valueField:
+      valueField:
     'classification_id',
 
-  textFormatter:
+      textFormatter:
     classification =>
       `${classification.classification_code} - ${classification.description}`,
 
-  placeholder:
+      placeholder:
     'Select Classification'
 
-})
+    })
 
-await loadAthletes()
+    await loadAthletes()
 
-bindPagination({
+    bindPagination({
 
-  paginator,
+      paginator,
 
-  previousButtonId:
+      previousButtonId:
     'btnPreviousPage',
 
-  nextButtonId:
+      nextButtonId:
     'btnNextPage',
 
-  infoElementId:
+      infoElementId:
     'paginationInfo',
 
-  onChange:
+      onChange:
     renderAthletes
 
-})
-
+    })
   } catch (error) {
     console.error(error)
   }

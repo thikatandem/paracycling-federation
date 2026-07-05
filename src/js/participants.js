@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // EVENTS MODULE
 // ParaCycling Federation Management System
 // =====================================================
@@ -17,7 +17,7 @@ let eventPrograms = []
 let participants = []
 let participantStatuses = []
 
-let registrations = []
+const registrations = []
 
 let filteredRegistrations = []
 
@@ -31,12 +31,10 @@ let currentPage = 1
 
 const pageSize = 10
 
-
 function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(
       id
@@ -45,7 +43,6 @@ function setValue(
   if (
     element
   ) {
-
     element.value =
       value
   }
@@ -54,14 +51,12 @@ function setValue(
 function getValue(
   id
 ) {
-
   return (
     document.getElementById(
       id
     )?.value || ''
   )
 }
-
 
 const eventId =
   document.getElementById(
@@ -115,7 +110,6 @@ const btnExportPdf =
     'btnExportPdf'
   )
 
-
 document.addEventListener(
   'DOMContentLoaded',
   initializeParticipants
@@ -123,7 +117,6 @@ document.addEventListener(
 function showSuccess(
   message
 ) {
-
   const successBox =
     document.getElementById(
       'participantRegistrationSuccess'
@@ -132,7 +125,6 @@ function showSuccess(
   if (
     successBox
   ) {
-
     successBox.textContent =
       message
 
@@ -153,7 +145,6 @@ function showSuccess(
 function showError(
   message
 ) {
-
   const errorBox =
     document.getElementById(
       'participantRegistrationError'
@@ -162,7 +153,6 @@ function showError(
   if (
     errorBox
   ) {
-
     errorBox.textContent =
       message
 
@@ -180,25 +170,23 @@ function showError(
   }
 }
 
-
 function showDeleteConfirmation(
   participantInstanceId = null,
   participantInstanceIds = []
 ) {
-
   pendingDeleteIds =
-    participantInstanceId
-      ? [participantInstanceId]
-      : participantInstanceIds
+    participantInstanceId ?
+      [participantInstanceId] :
+      participantInstanceIds
 
   document.getElementById(
-  'deleteRegistrationMessage'
-).textContent =
-  pendingDeleteIds.length === 1
+    'deleteRegistrationMessage'
+  ).textContent =
+  pendingDeleteIds.length === 1 ?
 
-    ? 'Remove this participant from the selected event?'
+    'Remove this participant from the selected event?' :
 
-    : `WARNING: You are about to remove ${pendingDeleteIds.length} participants. This action cannot be undone.`
+    `WARNING: You are about to remove ${pendingDeleteIds.length} participants. This action cannot be undone.`
 
   coreui.Modal
     .getOrCreateInstance(
@@ -209,9 +197,7 @@ function showDeleteConfirmation(
     .show()
 }
 
-
 function toggleBulkDeleteButton() {
-
   const button =
     document.getElementById(
       'btnBulkDelete'
@@ -220,7 +206,6 @@ function toggleBulkDeleteButton() {
   if (
     !button
   ) {
-
     return
   }
 
@@ -228,55 +213,47 @@ function toggleBulkDeleteButton() {
     document.querySelectorAll(
       '.registration-check:checked'
     ).length
-button.classList.toggle(
-  'd-none',
-  checked === 0
-)
+  button.classList.toggle(
+    'd-none',
+    checked === 0
+  )
 
-const text =
+  const text =
   document.getElementById(
     'bulkDeleteText'
   )
 
-if (
-  text
-) {
-
-  text.textContent =
-    checked === 1
-      ? 'Remove 1 Selected Participant'
-      : `Remove ${checked} Selected Participants`
+  if (
+    text
+  ) {
+    text.textContent =
+    checked === 1 ?
+      'Remove 1 Selected Participant' :
+      `Remove ${checked} Selected Participants`
+  }
 }
-}
-
 
 async function initializeParticipants() {
-
   try {
-
     bindEvents()
 
     await loadEvents()
 
     await loadParticipantStatuses()
 
-await loadParticipantRegistry()
+    await loadParticipantRegistry()
 
-await loadRegistrations()
-
+    await loadRegistrations()
   } catch (
     error
   ) {
-
     console.error(
       error
     )
   }
 }
 
-
 function selectAllParticipants() {
-
   selectedParticipants =
     participants.map(
       participant =>
@@ -284,11 +261,9 @@ function selectAllParticipants() {
     )
 
   renderParticipants()
-
 }
 
 function bindEvents() {
-
   eventId
     ?.addEventListener(
       'change',
@@ -300,7 +275,7 @@ function bindEvents() {
       'change',
       handleOccurrenceChange
     )
-document
+  document
   .getElementById(
     'btnNewParticipantRegistration'
   )
@@ -308,7 +283,7 @@ document
     'click',
     newRegistration
   )
-document
+  document
   .getElementById(
     'btnSelectAllParticipants'
   )
@@ -317,7 +292,7 @@ document
     selectAllParticipants
   )
 
- document
+  document
   .getElementById(
     'searchParticipantRegistration'
   )
@@ -330,39 +305,38 @@ document
     'change',
     applyFilters
   )
-participantSearch
+  participantSearch
   ?.addEventListener(
     'input',
     renderParticipants
   )
 
-participantTypeFilter
+  participantTypeFilter
   ?.addEventListener(
     'change',
     () => {
-
       toggleCompositionBuilder()
 
       renderParticipants()
     }
   )
-programFilter
+  programFilter
   ?.addEventListener(
     'change',
     applyFilters
   )
-btnExportExcel
+  btnExportExcel
   ?.addEventListener(
     'click',
     exportExcel
   )
 
-btnExportPdf
+  btnExportPdf
   ?.addEventListener(
     'click',
     exportPdf
   )
-document
+  document
   .getElementById(
     'btnCreateComposition'
   )
@@ -371,7 +345,7 @@ document
     createComposition
   )
 
-document
+  document
   .getElementById(
     'btnSaveParticipantRegistration'
   )
@@ -389,8 +363,7 @@ document
     bulkStatusUpdate
   )
 
-
-document
+  document
   .getElementById(
     'btnConfirmDelete'
   )
@@ -399,7 +372,7 @@ document
     confirmDeleteRegistrations
   )
 
-document
+  document
   .getElementById(
     'btnBulkDelete'
   )
@@ -409,10 +382,7 @@ document
   )
 }
 
-
-
 async function loadEvents() {
-
   const {
     data,
     error
@@ -433,7 +403,6 @@ async function loadEvents() {
   if (
     error
   ) {
-
     throw error
   }
 
@@ -447,21 +416,17 @@ async function loadEvents() {
       </option>
     `
 
-  events.forEach(
-    event => {
-
-      eventId.innerHTML += `
+  for (const event of events) {
+    eventId.innerHTML += `
         <option
           value="${event.event_id}">
           ${event.event_name}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function handleEventChange() {
-
   const selectedEventId =
     eventId.value
 
@@ -479,9 +444,7 @@ async function handleEventChange() {
   clearOccurrenceDetails()
 }
 
-
 function toggleCompositionBuilder() {
-
   const builder =
     document.getElementById(
       'compositionBuilder'
@@ -496,14 +459,11 @@ function toggleCompositionBuilder() {
     participantTypeFilter.value ===
     'COMPOSITION'
   ) {
-
     builder?.classList.remove(
-  'd-none'
-)
+      'd-none'
+    )
 
-populateCompositionSelectors()
-
-    
+    populateCompositionSelectors()
 
     return
   }
@@ -512,14 +472,10 @@ populateCompositionSelectors()
     'd-none'
   )
 
-  
-
   renderParticipants()
 }
 
-
 function renderSelectedBundle() {
-
   const container =
     document.getElementById(
       'selectedParticipantsList'
@@ -528,39 +484,32 @@ function renderSelectedBundle() {
   if (
     !container
   ) {
-
     return
   }
 
   container.innerHTML = ''
 
-  selectedParticipants.forEach(
-    participantId => {
-
-      const participant =
+  for (const participantId of selectedParticipants) {
+    const participant =
         participants.find(
           row =>
             row.participant_ref_id ===
             participantId
         )
 
-      if (
-        participant
-      ) {
-
-        container.innerHTML += `
+    if (
+      participant
+    ) {
+      container.innerHTML += `
           <li>
             ${participant.display_name}
           </li>
         `
-      }
     }
-  )
+  }
 }
 
-
 async function populateCompositionSelectors() {
-
   const pilot =
     document.getElementById(
       'compositionPilotId'
@@ -575,7 +524,6 @@ async function populateCompositionSelectors() {
     !pilot ||
     !stoker
   ) {
-
     return
   }
 
@@ -612,48 +560,39 @@ async function populateCompositionSelectors() {
   if (
     error
   ) {
-
     throw error
   }
 
-  data.forEach(
-    athlete => {
-
-      const fullName =
+  for (const athlete of data) {
+    const fullName =
         `${athlete.first_name || ''} ${athlete.last_name || ''}`
 
-      if (
-        athlete.role?.toUpperCase() ===
+    if (
+      athlete.role?.toUpperCase() ===
         'PILOT'
-      ) {
-
-        pilot.innerHTML += `
+    ) {
+      pilot.innerHTML += `
           <option value="${athlete.athlete_id}">
             [PILOT] ${fullName}
           </option>
         `
-      }
+    }
 
-      if (
-        athlete.role?.toUpperCase() ===
+    if (
+      athlete.role?.toUpperCase() ===
         'STOKER'
-      ) {
-
-        stoker.innerHTML += `
+    ) {
+      stoker.innerHTML += `
           <option value="${athlete.athlete_id}">
             [STOKER] ${fullName}
           </option>
         `
-      }
     }
-  )
+  }
 }
 
-
 async function createComposition() {
-
   try {
-
     const pilotId =
       getValue(
         'compositionPilotId'
@@ -665,9 +604,9 @@ async function createComposition() {
       )
 
     const {
-  data: athletes,
-  error: athleteError
-} =
+      data: athletes,
+      error: athleteError
+    } =
   await window
     .supabaseClient
     .from(
@@ -687,14 +626,13 @@ async function createComposition() {
       )
     )
 
-if (
-  athleteError
-) {
+    if (
+      athleteError
+    ) {
+      throw athleteError
+    }
 
-  throw athleteError
-}
-
-const sortedAthletes =
+    const sortedAthletes =
   [...athletes]
     .sort(
       (
@@ -706,12 +644,12 @@ const sortedAthletes =
         )
     )
 
-const compositionName =
+    const compositionName =
   sortedAthletes
     .map(
       athlete =>
         athlete.first_name
-          .substring(
+          .slice(
             0,
             3
           )
@@ -719,17 +657,17 @@ const compositionName =
     .join(
       ''
     )
-const athleteAId =
+    const athleteAId =
   sortedAthletes[0]
     ?.athlete_id
 
-const athleteBId =
+    const athleteBId =
   sortedAthletes[1]
     ?.athlete_id
 
-const {
-  data: existingComposition
-} =
+    const {
+      data: existingComposition
+    } =
   await window
     .supabaseClient
     .from(
@@ -753,33 +691,29 @@ const {
     )
     .maybeSingle()
 
-
     if (
       !pilotId &&
       !stokerId
     ) {
-
       showError(
         'Select Pilot or Stoker'
       )
 
       return
     }
-let compositionTeamId
 
-if (
-  existingComposition
-) {
+    let compositionTeamId
 
-  compositionTeamId =
+    if (
+      existingComposition
+    ) {
+      compositionTeamId =
     existingComposition
       .composition_team_id
-
-} else {
-
-  const {
-    data: existingTeam
-  } =
+    } else {
+      const {
+        data: existingTeam
+      } =
     await window
       .supabaseClient
       .from(
@@ -794,20 +728,17 @@ if (
       )
       .maybeSingle()
 
-  if (
-    existingTeam
-  ) {
-
-    compositionTeamId =
+      if (
+        existingTeam
+      ) {
+        compositionTeamId =
       existingTeam
         .composition_team_id
-
-  } else {
-
-    const {
-      data: newTeam,
-      error: teamError
-    } =
+      } else {
+        const {
+          data: newTeam,
+          error: teamError
+        } =
       await window
         .supabaseClient
         .from(
@@ -820,22 +751,21 @@ if (
         .select()
         .single()
 
-    if (
-      teamError
-    ) {
+        if (
+          teamError
+        ) {
+          throw teamError
+        }
 
-      throw teamError
-    }
-
-    compositionTeamId =
+        compositionTeamId =
       newTeam
         .composition_team_id
-  }
-}
-    
-console.log(
-  'LOOKUP ACTIVE STATUS'
-)
+      }
+    }
+
+    console.log(
+      'LOOKUP ACTIVE STATUS'
+    )
     const {
       data: activeStatus,
       error: activeStatusError
@@ -857,15 +787,16 @@ console.log(
     if (
       activeStatusError
     ) {
-
       throw activeStatusError
-    }console.log(
-  'LOOKUP TEAM TYPE'
-)
-const {
-  data: teamType,
-  error: teamTypeError
-} =
+    }
+
+    console.log(
+      'LOOKUP TEAM TYPE'
+    )
+    const {
+      data: teamType,
+      error: teamTypeError
+    } =
   await window
     .supabaseClient
     .from(
@@ -880,18 +811,18 @@ const {
       'TEMPORARY'
     )
 
-console.log(
-  'TEAM TYPE LOOKUP',
-  teamType,
-  teamTypeError
-)
+    console.log(
+      'TEAM TYPE LOOKUP',
+      teamType,
+      teamTypeError
+    )
 
-if (
-  teamTypeError
-) {
+    if (
+      teamTypeError
+    ) {
+      throw teamTypeError
+    }
 
-  throw teamTypeError
-}
     const {
       error
     } =
@@ -902,22 +833,22 @@ if (
         )
         .insert({
 
-  composition_team_id:
+          composition_team_id:
     compositionTeamId,
 
-  athlete_a_id:
+          athlete_a_id:
     athleteAId,
 
-  athlete_b_id:
+          athlete_b_id:
     athleteBId,
 
-  pilot_id:
+          pilot_id:
     pilotId || null,
 
-  stoker_id:
+          stoker_id:
     stokerId || null,
 
-  team_type_id:
+          team_type_id:
   teamType?.[0]
     ?.team_type_id,
 
@@ -937,17 +868,16 @@ if (
 
         })
 
-   if (
-  error
-) {
+    if (
+      error
+    ) {
+      throw error
+    }
 
-  throw error
-}
-
-const {
-  data: compositionParticipantType,
-  error: participantTypeError
-} =
+    const {
+      data: compositionParticipantType,
+      error: participantTypeError
+    } =
   await window
     .supabaseClient
     .from(
@@ -962,34 +892,33 @@ const {
       'COMPOSITION'
     )
 
-console.log(
-  'PARTICIPANT TYPE LOOKUP',
-  compositionParticipantType,
-  participantTypeError
-)
+    console.log(
+      'PARTICIPANT TYPE LOOKUP',
+      compositionParticipantType,
+      participantTypeError
+    )
 
-const compositionParticipantTypeId =
+    const compositionParticipantTypeId =
   compositionParticipantType?.[0]
     ?.participant_type_id
 
-if (
-  !compositionParticipantTypeId
-) {
+    if (
+      !compositionParticipantTypeId
+    ) {
+      throw new Error(
+        'COMPOSITION participant type not found'
+      )
+    }
 
-  throw new Error(
-    'COMPOSITION participant type not found'
-  )
-}
-if (
-  participantTypeError
-) {
+    if (
+      participantTypeError
+    ) {
+      throw participantTypeError
+    }
 
-  throw participantTypeError
-}
-
-const {
-  error: registryError
-} =
+    const {
+      error: registryError
+    } =
   await window
     .supabaseClient
     .from(
@@ -1011,97 +940,90 @@ const {
 
     })
 
-if (
-  registryError
-) {
+    if (
+      registryError
+    ) {
+      throw registryError
+    }
 
-  throw registryError
-}
+    await loadParticipantRegistry()
 
-await loadParticipantRegistry()
-
-const newComposition =
+    const newComposition =
   participants.find(
     participant =>
 
       participant.source_id ===
-      compositionTeamId
-
-      &&
+      compositionTeamId &&
 
       participant
         .participant_type_master
         ?.participant_type_code ===
       'COMPOSITION'
   )
-console.log(
-  'FOUND COMPOSITION',
-  newComposition
-)
-if (
-  newComposition
-) {
-
-  selectedParticipants.push(
-    newComposition
+    console.log(
+      'FOUND COMPOSITION',
+      newComposition
+    )
+    if (
+      newComposition
+    ) {
+      selectedParticipants.push(
+        newComposition
       .participant_ref_id
-  )
-renderParticipants()
-  renderSelectedBundle()
+      )
+      renderParticipants()
+      renderSelectedBundle()
 
-  setValue(
-    'compositionPilotId',
-    ''
-  )
+      setValue(
+        'compositionPilotId',
+        ''
+      )
 
-  setValue(
-    'compositionStokerId',
-    ''
-  )
+      setValue(
+        'compositionStokerId',
+        ''
+      )
 
-  setValue(
-    'compositionTeamName',
-    ''
-  )
-}
+      setValue(
+        'compositionTeamName',
+        ''
+      )
+    }
 
-showSuccess(
-  'Composition Created'
-)
+    showSuccess(
+      'Composition Created'
+    )
 
-renderParticipants()
-
+    renderParticipants()
   } catch (
-  error
-) {
-
-  console.error(
-    'FULL ERROR',
     error
-  )
-
-  alert(
-    JSON.stringify(
-      error,
-      null,
-      2
+  ) {
+    console.error(
+      'FULL ERROR',
+      error
     )
-  )
 
-  showError(
-    JSON.stringify(
-      error,
-      null,
-      2
+    alert(
+      JSON.stringify(
+        error,
+        null,
+        2
+      )
     )
-  )
-}
+
+    showError(
+      JSON.stringify(
+        error,
+        null,
+        2
+      )
+    )
+  }
 }
 
 async function loadOccurrences(
   selectedEventId
 ) {
-
   const {
     data,
     error
@@ -1126,7 +1048,6 @@ async function loadOccurrences(
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1140,21 +1061,17 @@ async function loadOccurrences(
       </option>
     `
 
-  eventOccurrences.forEach(
-    occurrence => {
-
-      eventInstanceId.innerHTML += `
+  for (const occurrence of eventOccurrences) {
+    eventInstanceId.innerHTML += `
         <option
           value="${occurrence.event_instance_id}">
           ${occurrence.event_area}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function handleOccurrenceChange() {
-
   const occurrence =
     eventOccurrences.find(
       row =>
@@ -1165,7 +1082,6 @@ async function handleOccurrenceChange() {
   if (
     !occurrence
   ) {
-
     return
   }
 
@@ -1177,7 +1093,6 @@ async function handleOccurrenceChange() {
 }
 
 async function loadPrograms() {
-
   const {
     data,
     error
@@ -1202,7 +1117,6 @@ async function loadPrograms() {
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1216,23 +1130,19 @@ async function loadPrograms() {
       </option>
     `
 
-  eventPrograms.forEach(
-    program => {
-
-      programId.innerHTML += `
+  for (const program of eventPrograms) {
+    programId.innerHTML += `
         <option
           value="${program.program_id}">
           ${program.program_name}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function loadOccurrenceDetails(
   occurrenceId
 ) {
-
   const {
     data,
     error
@@ -1257,7 +1167,6 @@ async function loadOccurrenceDetails(
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1298,9 +1207,7 @@ async function loadOccurrenceDetails(
   )
 }
 
-
 function clearOccurrenceDetails() {
-
   setValue(
     'eventArea',
     ''
@@ -1338,7 +1245,6 @@ function clearOccurrenceDetails() {
 }
 
 async function loadParticipantRegistry() {
-
   const {
     data,
     error
@@ -1369,7 +1275,6 @@ async function loadParticipantRegistry() {
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1380,7 +1285,6 @@ async function loadParticipantRegistry() {
 }
 
 function renderParticipants() {
-
   availableParticipantsBody.innerHTML =
     ''
 
@@ -1393,10 +1297,9 @@ function renderParticipants() {
     participantTypeFilter
       ?.value || ''
 
-  participants
+  for (const participant of participants
     .filter(
       participant => {
-
         const nameMatch =
           participant.display_name
             ?.toLowerCase()
@@ -1405,15 +1308,14 @@ function renderParticipants() {
             )
 
         const typeMatch =
-  !typeFilter
-  ||
+  !typeFilter ||
   (
-    typeFilter === 'COMPOSITION'
-      ? participant
+    typeFilter === 'COMPOSITION' ?
+      participant
           .participant_type_master
           ?.participant_type_code ===
-        'ATHLETE'
-      : participant
+        'ATHLETE' :
+      participant
           .participant_type_master
           ?.participant_type_code ===
         typeFilter
@@ -1423,11 +1325,8 @@ function renderParticipants() {
           typeMatch
         )
       }
-    )
-    .forEach(
-    participant => {
-
-      availableParticipantsBody.innerHTML += `
+    )) {
+    availableParticipantsBody.innerHTML += `
         <tr>
 
           <td>
@@ -1437,12 +1336,12 @@ function renderParticipants() {
   class="participant-check"
   value="${participant.participant_ref_id}"
   ${
-    selectedParticipants.includes(
-      participant.participant_ref_id
-    )
-      ? 'checked'
-      : ''
-  }
+  selectedParticipants.includes(
+    participant.participant_ref_id
+  ) ?
+    'checked' :
+    ''
+}
   onchange="toggleParticipantSelection(this)"
 >
 
@@ -1450,10 +1349,10 @@ function renderParticipants() {
 
           <td>
   ${
-    participant
+  participant
       .participant_type_master
       ?.participant_type_name || ''
-  }
+}
 </td>
 
           <td>
@@ -1462,51 +1361,41 @@ function renderParticipants() {
 
         </tr>
       `
-    }
-  )
+  }
 }
 
 window.toggleParticipantSelection =
   function (
     checkbox
   ) {
-
     const participantId =
       checkbox.value
 
     if (
       checkbox.checked
     ) {
-
       if (
         !selectedParticipants.includes(
           participantId
         )
       ) {
-
         selectedParticipants.push(
           participantId
         )
 
-    renderSelectedBundle()
+        renderSelectedBundle()
       }
-
     } else {
-
       selectedParticipants =
         selectedParticipants.filter(
           id =>
             id !== participantId
         )
-renderSelectedBundle()
+      renderSelectedBundle()
     }
-
   }
 
-
-
 async function loadParticipantStatuses() {
-
   const {
     data,
     error
@@ -1514,8 +1403,8 @@ async function loadParticipantStatuses() {
     await window
       .supabaseClient
       .from(
-  'registration_status_master'
-)
+        'registration_status_master'
+      )
 .select(`
   registration_status_id,
   status_name,
@@ -1528,7 +1417,6 @@ async function loadParticipantStatuses() {
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1542,23 +1430,18 @@ async function loadParticipantStatuses() {
       </option>
     `
 
-  participantStatuses.forEach(
-    status => {
-
-      participantStatusId.innerHTML += `
+  for (const status of participantStatuses) {
+    participantStatusId.innerHTML += `
         <option
           value="${status.registration_status_id}">
           ${status.status_name}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function saveRegistration() {
-
   try {
-
     const occurrenceId =
       getValue(
         'eventInstanceId'
@@ -1574,23 +1457,21 @@ async function saveRegistration() {
         'participantStatusId'
       )
 
-const registeredStatus =
+    const registeredStatus =
   participantStatuses.find(
     status =>
       status.status_code ===
       'REGISTERED'
   )
 
-const participantInstanceId =
+    const participantInstanceId =
   getValue(
     'participantInstanceId'
   )
 
-
     if (
       !occurrenceId
     ) {
-
       showError(
         'Event Occurrence is required'
       )
@@ -1601,7 +1482,6 @@ const participantInstanceId =
     if (
       !selectedProgramId
     ) {
-
       showError(
         'Program is required'
       )
@@ -1610,16 +1490,15 @@ const participantInstanceId =
     }
 
     if (
-  participantInstanceId &&
+      participantInstanceId &&
   !participantStatus
-) {
+    ) {
+      showError(
+        'Participant Status is required'
+      )
 
-  showError(
-    'Participant Status is required'
-  )
-
-  return
-}
+      return
+    }
 
     const checkedParticipants =
   selectedParticipants.map(
@@ -1631,25 +1510,22 @@ const participantInstanceId =
     if (
       checkedParticipants.length === 0
     ) {
-
       showError(
         'Select at least one participant'
       )
 
       return
     }
-   
- 
-   if (
-  participantInstanceId
-) {
 
-  const selectedParticipant =
+    if (
+      participantInstanceId
+    ) {
+      const selectedParticipant =
     checkedParticipants[0]
 
-  const {
-    error
-  } =
+      const {
+        error
+      } =
     await window
       .supabaseClient
       .from(
@@ -1662,11 +1538,11 @@ const participantInstanceId =
 
         participant_ref_id:
           selectedParticipant.value,
-registration_status_id:
+        registration_status_id:
   participantStatus,
 
         program_id:
-          selectedProgramId,
+          selectedProgramId
 
       })
       .eq(
@@ -1674,33 +1550,33 @@ registration_status_id:
         participantInstanceId
       )
 
-  if (
-    error
-  ) {
+      if (
+        error
+      ) {
+        throw error
+      }
 
-    throw error
-  }
+      await loadRegistrations()
 
-  await loadRegistrations()
-
-  showSuccess(
-    'Registration Updated'
-  )
-const modalElement =
+      showSuccess(
+        'Registration Updated'
+      )
+      const modalElement =
   document.getElementById(
     'participantRegistrationModal'
   )
 
-const modal =
+      const modal =
   coreui.Modal.getOrCreateInstance(
     modalElement
   )
 
-modal.hide()
+      modal.hide()
 
-clearRegistrationForm()
-  return
-}
+      clearRegistrationForm()
+      return
+    }
+
     const duplicateParticipants =
   checkedParticipants.filter(
     checkbox =>
@@ -1711,14 +1587,10 @@ clearRegistrationForm()
           registration
             .event_instances
             ?.event_instance_id ===
-          occurrenceId
-
-          &&
+          occurrenceId &&
 
           registration.program_id ===
-          selectedProgramId
-
-          &&
+          selectedProgramId &&
 
           registration
             .participant_registry
@@ -1727,24 +1599,22 @@ clearRegistrationForm()
       )
   )
 
-if (
-  duplicateParticipants.length > 0 &&
+    if (
+      duplicateParticipants.length > 0 &&
   !getValue(
     'participantInstanceId'
   )
-) {
+    ) {
+      showError(
+        'Registration already exists'
+      )
 
-  showError(
-    'Registration already exists'
-  )
-
-  return
-}
+      return
+    }
 
     const rows =
       checkedParticipants.map(
         checkbox => {
-
           return {
 
             event_instance_id:
@@ -1782,7 +1652,6 @@ if (
     if (
       error
     ) {
-
       throw error
     }
 
@@ -1791,23 +1660,22 @@ if (
     showSuccess(
       'Participants Registered'
     )
-const modalElement =
+    const modalElement =
   document.getElementById(
     'participantRegistrationModal'
   )
 
-const modal =
+    const modal =
   coreui.Modal.getOrCreateInstance(
     modalElement
   )
 
-modal.hide()
+    modal.hide()
 
-clearRegistrationForm()
+    clearRegistrationForm()
   } catch (
     error
   ) {
-
     console.error(
       error
     )
@@ -1819,7 +1687,6 @@ clearRegistrationForm()
 }
 
 async function loadRegistrations() {
-
   const {
     data,
     error
@@ -1883,7 +1750,6 @@ async function loadRegistrations() {
   if (
     error
   ) {
-
     throw error
   }
 
@@ -1902,14 +1768,11 @@ async function loadRegistrations() {
   renderRegistrations()
 }
 
-
 function loadFilterOptions() {
-
   if (
     !occurrenceFilter ||
     !programFilter
   ) {
-
     return
   }
 
@@ -1933,16 +1796,13 @@ function loadFilterOptions() {
       )
     ]
 
-  occurrences.forEach(
-    occurrence => {
-
-      occurrenceFilter.innerHTML += `
+  for (const occurrence of occurrences) {
+    occurrenceFilter.innerHTML += `
         <option value="${occurrence}">
           ${occurrence}
         </option>
       `
-    }
-  )
+  }
 
   programFilter.innerHTML =
     `
@@ -1964,32 +1824,26 @@ function loadFilterOptions() {
       )
     ]
 
-  programs.forEach(
-    program => {
-
-      programFilter.innerHTML += `
+  for (const program of programs) {
+    programFilter.innerHTML += `
         <option value="${program}">
           ${program}
         </option>
       `
-    }
-  )
+  }
 }
 
 async function loadRegisteredParticipants(
   occurrenceId,
   programIdValue
 ) {
-
   const registered =
     participantRegistrations.filter(
       row =>
 
         row.event_instances
           ?.event_instance_id ===
-        occurrenceId
-
-        &&
+        occurrenceId &&
 
         row.program_id ===
         programIdValue
@@ -2002,19 +1856,15 @@ async function loadRegisteredParticipants(
     )
 
   renderParticipants()
-
 }
 
 function formatDate(
   value
 ) {
-
   if (
     !value
   ) {
-
     return ''
-
   }
 
   return new Date(
@@ -2027,12 +1877,9 @@ function formatDate(
       year: 'numeric'
     }
   )
-
 }
 
-
 function renderRegistrations() {
-
   const tbody =
     document.getElementById(
       'participantRegistrationTableBody'
@@ -2041,7 +1888,6 @@ function renderRegistrations() {
   if (
     !tbody
   ) {
-
     return
   }
 
@@ -2053,20 +1899,18 @@ function renderRegistrations() {
     currentPage - 1
   ) * pageSize
 
-const end =
+  const end =
   start + pageSize
 
-const pageData =
+  const pageData =
   filteredRegistrations.slice(
     start,
     end
   )
 
-const groupedData = {}
+  const groupedData = {}
 
-pageData.forEach(
-  registration => {
-
+  for (const registration of pageData) {
     const eventName =
       registration
         .event_instances
@@ -2089,7 +1933,6 @@ pageData.forEach(
     if (
       !groupedData[groupKey]
     ) {
-
       groupedData[groupKey] = {
         eventName,
         groupKey,
@@ -2105,13 +1948,10 @@ pageData.forEach(
         registration
       )
   }
-)
 
-Object.values(
-  groupedData
-).forEach(
-  group => {
-
+  for (const group of Object.values(
+    groupedData
+  )) {
     tbody.innerHTML += `
 
   <tr class="bundle-spacer">
@@ -2165,10 +2005,8 @@ Object.values(
 </tr>
 `
 
-group.registrations.forEach(
-      registration => {
-
-        tbody.innerHTML += `
+    for (const registration of group.registrations) {
+      tbody.innerHTML += `
 
           <tr>
 
@@ -2185,101 +2023,100 @@ group.registrations.forEach(
 
             <td>
               ${
-                registration
+  registration
                   .event_instances
                   ?.events
                   ?.event_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .event_instances
                   ?.subcounty_master
                   ?.subcounty_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .event_instances
                   ?.event_area || ''
-              }
+}
             </td>
 
             <td>
               ${
-               formatDate(
-  registration
+  formatDate(
+    registration
     .event_instances
     ?.start_date
-)
-              }
+  )
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .event_instances
                   ?.start_time || ''
-              }
+}
             </td>
 
             <td>
               ${
-                formatDate(
-  registration
+  formatDate(
+    registration
     .event_instances
     ?.end_date
-)
-              }
+  )
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .event_instances
                   ?.end_time || ''
-              }
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .event_programs
                   ?.program_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .participant_registry
                   ?.participant_type_master
                   ?.participant_type_name || ''
-              }
+}
             </td>
 
             <td>
               ${
-                registration
+  registration
                   .participant_registry
                   ?.display_name || ''
-              }
+}
             </td>
 
             <td>
 
 ${(() => {
-
-  const status =
+    const status =
     registration
       .registration_status_master
       ?.status_name || ''
 
-  const cssClass =
+    const cssClass =
     `status-${
       status
         .toLowerCase()
@@ -2289,15 +2126,14 @@ ${(() => {
         )
     }`
 
-  return `
+    return `
     <span
       class="badge ${cssClass}"
     >
       ${status}
     </span>
   `
-
-})()}
+  })()}
 
 </td>
 
@@ -2321,20 +2157,17 @@ ${(() => {
 
           </tr>
         `
-      }
-    )
+    }
   }
-)
- renderPagination()
-toggleBulkDeleteButton()
 
+  renderPagination()
+  toggleBulkDeleteButton()
 }
 
 window.editRegistration =
   async function (
     participantInstanceId
   ) {
-
     const registration =
       participantRegistrations.find(
         row =>
@@ -2345,7 +2178,6 @@ window.editRegistration =
     if (
       !registration
     ) {
-
       return
     }
 
@@ -2354,7 +2186,7 @@ window.editRegistration =
       registration.participant_instance_id
     )
 
-   const eventMaster =
+    const eventMaster =
   events.find(
     event =>
       event.event_id ===
@@ -2362,24 +2194,22 @@ window.editRegistration =
         .event_instances
         ?.event_id
   )
-if (
-  !eventMaster
-) {
+    if (
+      !eventMaster
+    ) {
+      return
+    }
 
-  return
-}
+    setValue(
+      'eventId',
+      eventMaster?.event_id || ''
+    )
 
-setValue(
-  'eventId',
-  eventMaster?.event_id || ''
-)
+    await loadOccurrences(
+      eventMaster.event_id
+    )
 
-await loadOccurrences(
-  eventMaster.event_id
-)
-
-await loadPrograms()
-
+    await loadPrograms()
 
     setValue(
       'eventInstanceId',
@@ -2398,25 +2228,24 @@ await loadPrograms()
     )
 
     await loadOccurrenceDetails(
-  registration.event_instances
+      registration.event_instances
     ?.event_instance_id
-)
+    )
 
-
-await loadRegisteredParticipants(
-  registration.event_instances
+    await loadRegisteredParticipants(
+      registration.event_instances
     ?.event_instance_id,
 
-  registration.program_id
-)
+      registration.program_id
+    )
 
-await restoreParticipant(
-  registration
+    await restoreParticipant(
+      registration
     .participant_registry
     ?.participant_ref_id
-)
+    )
 
-document
+    document
   .getElementById(
     'participantStatusCard'
   )
@@ -2424,33 +2253,26 @@ document
     'd-none'
   )
 
-
-const modal =
+    const modal =
   new coreui.Modal(
     document.getElementById(
       'participantRegistrationModal'
     )
   )
 
-modal.show()
-}
+    modal.show()
+  }
+
 async function restoreParticipant(
   participantRefId
 ) {
-
   selectedParticipants =
     [participantRefId]
 
   renderParticipants()
-
 }
 
-
-
-
-
 function newRegistration() {
-
   clearRegistrationForm()
 
   document
@@ -2469,21 +2291,19 @@ function newRegistration() {
     )
 
   modal.show()
-
 }
 
 function clearRegistrationForm() {
-
   setValue(
     'participantInstanceId',
     ''
   )
 
-selectedParticipants = []
+  selectedParticipants = []
 
-renderSelectedBundle()
+  renderSelectedBundle()
 
-renderParticipants()
+  renderParticipants()
 
   setValue(
     'eventId',
@@ -2540,34 +2360,28 @@ renderParticipants()
     ''
   )
 
-  document
+  for (const checkbox of document
     .querySelectorAll(
       '.participant-check'
-    )
-    .forEach(
-      checkbox =>
-        checkbox.checked =
+    )) {
+    checkbox.checked =
           false
-    )
+  }
 }
 
 function applyFilters() {
-
   filteredRegistrations =
     participantRegistrations.filter(
       registration => {
-
         const occurrenceMatch =
-          !occurrenceFilter.value
-          ||
+          !occurrenceFilter.value ||
           registration
             .event_instances
             ?.event_area ===
           occurrenceFilter.value
 
         const programMatch =
-          !programFilter.value
-          ||
+          !programFilter.value ||
           registration
             .event_programs
             ?.program_name ===
@@ -2585,9 +2399,7 @@ function applyFilters() {
   renderRegistrations()
 }
 
-
 function searchRegistrations() {
-
   const searchText =
     document
       .getElementById(
@@ -2599,7 +2411,6 @@ function searchRegistrations() {
   filteredRegistrations =
     participantRegistrations.filter(
       registration => {
-
         const eventName =
           registration
             .event_instances
@@ -2621,14 +2432,12 @@ function searchRegistrations() {
             .toLowerCase()
             .includes(
               searchText
-            )
-          ||
+            ) ||
           eventArea
             .toLowerCase()
             .includes(
               searchText
-            )
-          ||
+            ) ||
           participantName
             .toLowerCase()
             .includes(
@@ -2643,9 +2452,7 @@ function searchRegistrations() {
   renderRegistrations()
 }
 
-
 function updateSummaryCards() {
-
   const totalRegistrations =
     document.getElementById(
       'totalRegistrations'
@@ -2661,12 +2468,9 @@ function updateSummaryCards() {
       'totalAthletes'
     )
 
-  
-
   if (
     !totalRegistrations
   ) {
-
     return
   }
 
@@ -2691,13 +2495,9 @@ function updateSummaryCards() {
       'ATHLETE'
   ).length
 
- 
+  const countyCounts = {}
 
-const countyCounts = {}
-
-participantRegistrations.forEach(
-  row => {
-
+  for (const row of participantRegistrations) {
     const county =
       row.event_instances
         ?.subcounty_master
@@ -2707,16 +2507,14 @@ participantRegistrations.forEach(
     if (
       county
     ) {
-
       countyCounts[county] =
         (
           countyCounts[county] || 0
         ) + 1
     }
   }
-)
 
-const topCounty =
+  const topCounty =
   Object.entries(
     countyCounts
   )
@@ -2728,24 +2526,21 @@ const topCounty =
         b[1] - a[1]
     )[0]
 
-const topCountyCard =
+  const topCountyCard =
   document.getElementById(
     'topCounty'
   )
 
-if (
-  topCountyCard
-) {
-
-  topCountyCard.textContent =
+  if (
+    topCountyCard
+  ) {
+    topCountyCard.textContent =
     topCounty?.[0] || '-'
-}
+  }
 
-const programCounts = {}
+  const programCounts = {}
 
-participantRegistrations.forEach(
-  row => {
-
+  for (const row of participantRegistrations) {
     const program =
       row.event_programs
         ?.program_name
@@ -2753,16 +2548,14 @@ participantRegistrations.forEach(
     if (
       program
     ) {
-
       programCounts[program] =
         (
           programCounts[program] || 0
         ) + 1
     }
   }
-)
 
-const topProgram =
+  const topProgram =
   Object.entries(
     programCounts
   )
@@ -2774,19 +2567,19 @@ const topProgram =
         b[1] - a[1]
     )[0]
 
-const topProgramCard =
+  const topProgramCard =
   document.getElementById(
     'topProgram'
   )
 
-if (
-  topProgramCard
-) {
-
-  topProgramCard.textContent =
+  if (
+    topProgramCard
+  ) {
+    topProgramCard.textContent =
     topProgram?.[0] || '-'
-}
-const participated =
+  }
+
+  const participated =
   participantRegistrations.filter(
     row =>
       row.registration_status_master
@@ -2794,34 +2587,30 @@ const participated =
       'Participated'
   ).length
 
-const attendanceRate =
-  participantRegistrations.length
-    ? Math.round(
-        (
-          participated /
+  const attendanceRate =
+  participantRegistrations.length ?
+    Math.round(
+      (
+        participated /
           participantRegistrations.length
-        ) * 100
-      )
-    : 0
+      ) * 100
+    ) :
+    0
 
-const attendanceRateCard =
+  const attendanceRateCard =
   document.getElementById(
     'attendanceRate'
   )
 
-if (
-  attendanceRateCard
-) {
-
-  attendanceRateCard.textContent =
+  if (
+    attendanceRateCard
+  ) {
+    attendanceRateCard.textContent =
     `${attendanceRate}%`
+  }
 }
-
-}
-
 
 function renderPagination() {
-
   const container =
     document.getElementById(
       'paginationContainer'
@@ -2830,7 +2619,6 @@ function renderPagination() {
   if (
     !container
   ) {
-
     return
   }
 
@@ -2848,7 +2636,6 @@ function renderPagination() {
     page <= totalPages;
     page++
   ) {
-
     container.innerHTML += `
 
       <li class="page-item ${page === currentPage ? 'active' : ''}">
@@ -2871,20 +2658,16 @@ window.changePage =
   function (
     page
   ) {
-
     currentPage =
       page
 
     renderRegistrations()
   }
 
-
 function exportExcel() {
-
   const rows =
     participantRegistrations.map(
       registration => {
-
         return {
 
           event:
@@ -2926,12 +2709,10 @@ function exportExcel() {
 }
 
 function exportPdf() {
-
   window.print()
 }
 
 function bulkDeleteRegistrations() {
-
   const selectedIds =
     [
       ...document.querySelectorAll(
@@ -2944,7 +2725,6 @@ function bulkDeleteRegistrations() {
   if (
     selectedIds.length === 0
   ) {
-
     showError(
       'Please select at least one participant to remove.'
     )
@@ -2958,10 +2738,7 @@ function bulkDeleteRegistrations() {
   )
 }
 
-
-
 async function bulkStatusUpdate() {
-
   const selectedStatus =
     getValue(
       'participantStatusId'
@@ -2976,38 +2753,35 @@ async function bulkStatusUpdate() {
     getValue(
       'programId'
     )
- if (
-  !selectedStatus
-) {
+  if (
+    !selectedStatus
+  ) {
+    showError(
+      'Select Status'
+    )
 
-  showError(
-    'Select Status'
-  )
+    return
+  }
 
-  return
-}
+  if (
+    !occurrenceId
+  ) {
+    showError(
+      'Select Event Occurrence'
+    )
 
-if (
-  !occurrenceId
-) {
+    return
+  }
 
-  showError(
-    'Select Event Occurrence'
-  )
+  if (
+    !programIdValue
+  ) {
+    showError(
+      'Select Program'
+    )
 
-  return
-}
-
-if (
-  !programIdValue
-) {
-
-  showError(
-    'Select Program'
-  )
-
-  return
-}
+    return
+  }
 
   const checked =
     [
@@ -3019,7 +2793,6 @@ if (
   if (
     checked.length === 0
   ) {
-
     showError(
       'Select participants'
     )
@@ -3035,14 +2808,10 @@ if (
         registration
           .event_instances
           ?.event_instance_id ===
-        occurrenceId
-
-        &&
+        occurrenceId &&
 
         registration.program_id ===
-        programIdValue
-
-        &&
+        programIdValue &&
 
         checked.some(
           checkbox =>
@@ -3079,14 +2848,13 @@ if (
         programIdValue
       )
       .in(
-  'participant_instance_id',
-  participantInstanceIds
-)
+        'participant_instance_id',
+        participantInstanceIds
+      )
 
   if (
     error
   ) {
-
     throw error
   }
 
@@ -3098,9 +2866,7 @@ if (
 }
 
 async function confirmDeleteRegistrations() {
-
   try {
-
     const {
       error
     } =
@@ -3118,16 +2884,15 @@ async function confirmDeleteRegistrations() {
     if (
       error
     ) {
-
       throw error
     }
 
     await loadRegistrations()
 
     showSuccess(
-      pendingDeleteIds.length === 1
-        ? 'Participant removed from the event successfully.'
-        : `${pendingDeleteIds.length} participants removed from the event successfully.`
+      pendingDeleteIds.length === 1 ?
+        'Participant removed from the event successfully.' :
+        `${pendingDeleteIds.length} participants removed from the event successfully.`
     )
 
     coreui.Modal
@@ -3137,23 +2902,19 @@ async function confirmDeleteRegistrations() {
         )
       )
       .hide()
-
   } catch (
     error
   ) {
-
     showError(
       error.message
     )
   }
 }
 
-
 window.deleteRegistration =
   async function (
     participantInstanceId
   ) {
-
     showDeleteConfirmation(
       participantInstanceId
     )
@@ -3163,11 +2924,9 @@ window.selectBundle =
   function (
     groupKey
   ) {
-
     const registrations =
       participantRegistrations.filter(
         registration => {
-
           const eventName =
             registration
               .event_instances
@@ -3188,7 +2947,6 @@ window.selectBundle =
             `${eventName}|${occurrence}|${program}` ===
             groupKey
           )
-
         }
       )
 
@@ -3208,29 +2966,22 @@ window.selectBundle =
           checkbox.checked
       )
 
-    bundleCheckboxes.forEach(
-      checkbox => {
-
-        checkbox.checked =
+    for (const checkbox of bundleCheckboxes) {
+      checkbox.checked =
           !allSelected
-
-      }
-    )
+    }
 
     toggleBulkDeleteButton()
-
   }
 
 window.deleteBundle =
   function (
     groupKey
   ) {
-
     const ids =
       participantRegistrations
         .filter(
           registration => {
-
             const eventName =
               registration
                 .event_instances
@@ -3259,18 +3010,14 @@ window.deleteBundle =
               .participant_instance_id
         )
 
-   
-
-showDeleteConfirmation(
-  null,
-  ids
-)
-
+    showDeleteConfirmation(
+      null,
+      ids
+    )
   }
 
 window.toggleBulkDeleteButton =
   function () {
-
     const button =
       document.getElementById(
         'btnBulkDelete'
@@ -3279,7 +3026,6 @@ window.toggleBulkDeleteButton =
     if (
       !button
     ) {
-
       return
     }
 
