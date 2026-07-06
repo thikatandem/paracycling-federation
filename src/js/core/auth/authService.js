@@ -252,18 +252,18 @@ await getDb()
     throw roleError
   }
 
- const role = {
+  const role = {
 
-  user_role_id:
+    user_role_id:
     profile.user_role_id,
 
-  role_code:
+    role_code:
     roleCode,
 
-  role_name:
+    role_name:
     roleCode
 
-}
+  }
 
   setSession(
     session

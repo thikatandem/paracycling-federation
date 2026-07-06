@@ -1,52 +1,45 @@
-﻿import {
+import {
+  getRoleSidebar
+}
+  from '../rolePages/rolePageService.js'
+import {
+  renderSidebar
+}
+  from '../rolePages/sidebarRenderer.js'
+import {
+  initializeProfilePhotoUpload
+}
+  from '../profile/profilePhotoService.js'
+import {
   initializeProfileHeader
 }
-from './profileHeaderService.js'
+  from './profileHeaderService.js'
 
 import {
   requireAuthentication,
   preventBackNavigation
 }
-from './routeGuardService.js'
+  from './routeGuardService.js'
 
 import {
   initializeAuth,
   initializeAuthListener
 }
-from './authService.js'
+  from './authService.js'
 
 import {
   initializeSession
 }
-from './sessionService.js'
-
-
-import {
-  getRoleSidebar
-}
-from '../rolePages/rolePageService.js'
-
-import {
-  renderSidebar
-}
-from '../rolePages/sidebarRenderer.js'
-import {
-  initializeProfilePhotoUpload
-}
-from '../profile/profilePhotoService.js'
-
+  from './sessionService.js'
 
 let initialized =
   false
 
 export async function initializeAuthentication() {
-
   if (
     initialized
   ) {
-
     return
-
   }
 
   initialized =
@@ -68,19 +61,15 @@ export async function initializeAuthentication() {
   const sidebar =
   getRoleSidebar()
 
-if (
-  sidebar
-) {
-
-  renderSidebar(
+  if (
     sidebar
-  )
+  ) {
+    renderSidebar(
+      sidebar
+    )
+  }
 
-}
-
-initializeProfileHeader()
-
-
+  initializeProfileHeader()
 
   document
     .getElementById(
@@ -99,9 +88,6 @@ initializeProfileHeader()
   if (
     !isAuthPage
   ) {
-
     requireAuthentication()
-
   }
-
 }

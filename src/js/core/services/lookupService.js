@@ -4,6 +4,10 @@
 // =====================================================
 
 import {
+  getRecords
+}
+  from '../supabase/supabaseCrudService.js'
+import {
 
   get,
   clearSelect,
@@ -15,10 +19,6 @@ import {
 }
   from './domService.js'
 
-import {
-  getRecords
-}
-  from '../supabase/supabaseCrudService.js'
 // =====================================================
 // CACHE
 // =====================================================

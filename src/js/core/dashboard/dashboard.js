@@ -2,8 +2,7 @@ import {
   getCurrentRole,
   getCurrentProfile
 }
-from '../auth/authService.js'
-
+  from '../auth/authService.js'
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -11,7 +10,6 @@ document.addEventListener(
 )
 
 async function loadDashboard() {
-
   await loadAthletes()
 
   await loadTeams()
@@ -27,11 +25,9 @@ async function loadDashboard() {
   await loadDocuments()
 
   await loadStaff()
-
 }
 
 function isAthleteRole() {
-
   const role =
     getCurrentRole()
 
@@ -39,12 +35,10 @@ function isAthleteRole() {
     role?.role_code ===
     'ATHLETE'
   )
-
 }
 
-
 async function loadAthletes() {
-   const profile =
+  const profile =
     getCurrentProfile()
 
   let query =
@@ -60,19 +54,17 @@ async function loadAthletes() {
     profile &&
     profile.athlete_id
   ) {
-
     query =
       query.eq(
         'athlete_id',
         profile.athlete_id
       )
-
   }
 
-const {
-  count,
-  error
-} =
+  const {
+    count,
+    error
+  } =
   await query
 
   if (error) {
@@ -86,7 +78,6 @@ const {
 }
 
 async function loadTeams() {
-
   const profile =
     getCurrentProfile()
 
@@ -100,21 +91,13 @@ async function loadTeams() {
         head: true
       })
 
-  if (
-    isAthleteRole() &&
-    profile?.athlete_id
-  ) {
-
-    query =
-      query.eq(
-        'athlete_id',
-        profile.athlete_id
-      )
-
-  } else {
-
-    query =
-      window.supabaseClient
+  query = isAthleteRole() &&
+    profile?.athlete_id ?
+    query.eq(
+      'athlete_id',
+      profile.athlete_id
+    ) :
+    window.supabaseClient
         .from(
           'teams'
         )
@@ -122,8 +105,6 @@ async function loadTeams() {
           count: 'exact',
           head: true
         })
-
-  }
 
   const {
     count,
@@ -139,7 +120,6 @@ async function loadTeams() {
     'totalTeams'
   ).textContent =
     count || 0
-
 }
 
 async function loadEvents() {
@@ -162,7 +142,6 @@ async function loadEvents() {
 }
 
 async function loadTraining() {
-
   const profile =
     getCurrentProfile()
 
@@ -180,13 +159,11 @@ async function loadTraining() {
     isAthleteRole() &&
     profile?.athlete_id
   ) {
-
     query =
       query.eq(
         'athlete_id',
         profile.athlete_id
       )
-
   }
 
   const {
@@ -203,11 +180,9 @@ async function loadTraining() {
     'totalTraining'
   ).textContent =
     count || 0
-
 }
 
 async function loadPerformance() {
-
   const profile =
     getCurrentProfile()
 
@@ -221,18 +196,16 @@ async function loadPerformance() {
         head: true
       })
 
-    if (
+  if (
     isAthleteRole() &&
     profile &&
     profile.athlete_id
   ) {
-
     query =
       query.eq(
         'athlete_id',
         profile.athlete_id
       )
-
   }
 
   const {
@@ -242,11 +215,9 @@ async function loadPerformance() {
     await query
 
   if (error) {
-
     console.error(error)
 
     return
-
   }
 
   const element =
@@ -255,16 +226,12 @@ async function loadPerformance() {
     )
 
   if (element) {
-
     element.textContent =
       count || 0
-
   }
-
 }
 
 async function loadCompetition() {
-
   const profile =
     getCurrentProfile()
 
@@ -278,18 +245,16 @@ async function loadCompetition() {
         head: true
       })
 
-   if (
+  if (
     isAthleteRole() &&
     profile &&
     profile.athlete_id
   ) {
-
     query =
       query.eq(
         'athlete_id',
         profile.athlete_id
       )
-
   }
 
   const {
@@ -299,11 +264,9 @@ async function loadCompetition() {
     await query
 
   if (error) {
-
     console.error(error)
 
     return
-
   }
 
   const element =
@@ -312,16 +275,12 @@ async function loadCompetition() {
     )
 
   if (element) {
-
     element.textContent =
       count || 0
-
   }
-
 }
 
 async function loadDocuments() {
-
   const profile =
     getCurrentProfile()
 
@@ -339,13 +298,11 @@ async function loadDocuments() {
     isAthleteRole() &&
     profile?.athlete_id
   ) {
-
     query =
       query.eq(
         'athlete_id',
         profile.athlete_id
       )
-
   }
 
   const {
@@ -364,34 +321,26 @@ async function loadDocuments() {
     )
 
   if (element) {
-
     element.textContent =
       count || 0
-
   }
-
 }
 
 async function loadStaff() {
-
   if (
     isAthleteRole()
   ) {
-
     const element =
       document.getElementById(
         'totalStaff'
       )
 
     if (element) {
-
       element.textContent =
         '0'
-
     }
 
     return
-
   }
 
   const {
@@ -417,10 +366,7 @@ async function loadStaff() {
     )
 
   if (element) {
-
     element.textContent =
       count || 0
-
   }
-
 }

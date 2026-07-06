@@ -1,28 +1,26 @@
-﻿import {
+import {
   getCurrentProfile,
   getCurrentRole
 }
-from './core/auth/authService.js'
+  from '../auth/authService.js'
 
 import {
   initializeAuthentication
 }
-from './core/auth/authInitializer.js'
-
-import {
-  initializeProfilePhotoUpload
-}
-from './core/profile/profilePhotoService.js'
+  from '../auth/authInitializer.js'
 
 import {
   getDb
 }
-from './core/supabase/getDb.js'
+  from '../supabase/getDb.js'
+import {
+  initializeProfilePhotoUpload
+}
+  from './profilePhotoService.js'
 
 window.addEventListener(
   'unhandledrejection',
   event => {
-
     console.error(
       'FULL REJECTION',
       JSON.stringify(
@@ -35,7 +33,6 @@ window.addEventListener(
     console.error(
       event.reason
     )
-
   }
 )
 
@@ -45,15 +42,12 @@ document.addEventListener(
 )
 
 async function initializeProfile() {
-
   try {
-
     await initializeAuthentication()
 
     while (
       !getCurrentProfile()
     ) {
-
       await new Promise(
         resolve =>
           setTimeout(
@@ -61,18 +55,14 @@ async function initializeProfile() {
             100
           )
       )
-
     }
-
   } catch (error) {
-
     console.error(
       'initializeAuthentication',
       error
     )
 
     return
-
   }
 
   await loadProfileHeader()
@@ -173,51 +163,44 @@ async function initializeProfile() {
     ]
     of loaders
   ) {
-
     try {
-
       await loader()
-
     } catch (error) {
-
       console.error(
         name,
         error
       )
-
     }
-
   }
 
   initializeProfilePhotoUpload()
-
 }
 
 async function loadProfileHeader() {
-console.log(
-  'LOAD PROFILE HEADER',
-  getCurrentProfile()
-)
+  console.log(
+    'LOAD PROFILE HEADER',
+    getCurrentProfile()
+  )
 
-console.log(
-  'getCurrentProfile type',
-  typeof getCurrentProfile
-)
+  console.log(
+    'getCurrentProfile type',
+    typeof getCurrentProfile
+  )
 
-console.log(
-  'getCurrentRole type',
-  typeof getCurrentRole
-)
+  console.log(
+    'getCurrentRole type',
+    typeof getCurrentRole
+  )
 
-console.log(
-  'window.currentProfile',
-  window.currentProfile
-)
+  console.log(
+    'window.currentProfile',
+    window.currentProfile
+  )
 
-console.log(
-  'window.profile',
-  window.profile
-)
+  console.log(
+    'window.profile',
+    window.profile
+  )
   const profile =
     getCurrentProfile()
 
@@ -228,16 +211,14 @@ console.log(
   const role =
     getCurrentRole()
 
-    let lastLoginRecord =
+  let lastLoginRecord =
     null
 
   try {
-
     const {
       data,
       error
-    }
-    =
+    } =
       await getDb()
         .from(
           'login_history'
@@ -265,26 +246,19 @@ console.log(
     if (
       error
     ) {
-
       console.error(
         'login_history',
         error
       )
-
     } else {
-
       lastLoginRecord =
         data
-
     }
-
   } catch (error) {
-
     console.error(
       'login_history',
       error
     )
-
   }
 
   if (!profile) {
@@ -296,30 +270,26 @@ console.log(
     'profilePageFullName'
   )
 
-if (
-  profilePageFullName
-) {
-
-  profilePageFullName.textContent =
+  if (
+    profilePageFullName
+  ) {
+    profilePageFullName.textContent =
     profile.full_name || ''
-
-}
+  }
 
   const profilePageRole =
   document.getElementById(
     'profilePageRole'
   )
 
-if (
-  profilePageRole
-) {
-
-  profilePageRole.textContent =
+  if (
+    profilePageRole
+  ) {
+    profilePageRole.textContent =
     role?.role_name ||
     role?.role_code ||
     ''
-
-}
+  }
 
   const fullName =
     document.getElementById(
@@ -329,10 +299,8 @@ if (
   if (
     fullName
   ) {
-
     fullName.value =
       profile.full_name || ''
-
   }
 
   const email =
@@ -343,10 +311,8 @@ if (
   if (
     email
   ) {
-
     email.value =
       profile.email || ''
-
   }
 
   const roleCode =
@@ -357,12 +323,10 @@ if (
   if (
     roleCode
   ) {
-
     roleCode.value =
       role?.role_name ||
       role?.role_code ||
       ''
-
   }
 
   const lastLogin =
@@ -373,37 +337,29 @@ if (
   if (
     lastLogin
   ) {
-
     lastLogin.value =
       lastLoginRecord
         ?.login_time || ''
-
   }
 
- if (
-  profile.profile_photo_url
-) {
-
-  const profilePhoto =
+  if (
+    profile.profile_photo_url
+  ) {
+    const profilePhoto =
     document.getElementById(
       'profilePhoto'
     )
 
-  if (
-    profilePhoto
-  ) {
-
-    profilePhoto.src =
+    if (
+      profilePhoto
+    ) {
+      profilePhoto.src =
       profile.profile_photo_url
-
+    }
   }
-
-}
-
 }
 
 async function loadAthleteProfile() {
-
   const profile =
     getCurrentProfile()
 
@@ -442,14 +398,12 @@ async function loadAthleteProfile() {
     error ||
     !data
   ) {
-
     console.error(
       'loadAthleteProfile',
       error
     )
 
     return
-
   }
 
   setValue(
@@ -484,12 +438,10 @@ async function loadAthleteProfile() {
   if (
     membershipBadge
   ) {
-
     membershipBadge.textContent =
       data
         .membership_status_master
         ?.status_name || '-'
-
   }
 
   const classificationBadge =
@@ -500,7 +452,6 @@ async function loadAthleteProfile() {
   if (
     classificationBadge
   ) {
-
     classificationBadge.textContent =
       data
         .classification_master
@@ -509,12 +460,10 @@ async function loadAthleteProfile() {
         .classification_master
         ?.description ||
       '-'
-
   }
-
 }
-async function loadTeamSummary() {
 
+async function loadTeamSummary() {
   const profile =
     getCurrentProfile()
 
@@ -565,16 +514,12 @@ async function loadTeamSummary() {
   if (
     activeTeamBadge
   ) {
-
     activeTeamBadge.textContent =
       data.teams.team_code || '-'
-
   }
-
 }
 
 async function loadTrainingSummary() {
-
   const profile =
     getCurrentProfile()
 
@@ -609,16 +554,12 @@ async function loadTrainingSummary() {
   if (
     attendanceRate
   ) {
-
     attendanceRate.textContent =
       `${count || 0}`
-
   }
-
 }
 
 async function loadCompetitionSummary() {
-
   const profile =
     getCurrentProfile()
 
@@ -653,19 +594,15 @@ async function loadCompetitionSummary() {
   if (
     competitionTotal
   ) {
-
     competitionTotal.textContent =
       count || 0
-
   }
-
 }
 
 function setValue(
   id,
   value
 ) {
-
   const element =
     document.getElementById(
       id
@@ -677,11 +614,9 @@ function setValue(
 
   element.value =
     value || ''
-
-} 
+}
 
 async function loadRecentTraining() {
-
   const profile =
     getCurrentProfile()
 
@@ -700,9 +635,9 @@ async function loadRecentTraining() {
         'athlete_id'
       )
       .eq(
-  'athlete_id',
-  profile.athlete_id
-)
+        'athlete_id',
+        profile.athlete_id
+      )
       .maybeSingle()
 
   if (!athlete) {
@@ -751,7 +686,6 @@ async function loadRecentTraining() {
   tbody.innerHTML = ''
 
   for (const row of data || []) {
-
     tbody.innerHTML += `
       <tr>
 
@@ -774,11 +708,9 @@ async function loadRecentTraining() {
       </tr>
     `
   }
-
 }
 
 async function loadRecentResults() {
-
   const profile =
     getCurrentProfile()
 
@@ -797,9 +729,9 @@ async function loadRecentResults() {
         'athlete_id'
       )
      .eq(
-  'athlete_id',
-  profile.athlete_id
-)
+       'athlete_id',
+       profile.athlete_id
+     )
       .maybeSingle()
 
   if (!athlete) {
@@ -850,7 +782,6 @@ async function loadRecentResults() {
   tbody.innerHTML = ''
 
   for (const row of data || []) {
-
     tbody.innerHTML += `
       <tr>
 
@@ -873,11 +804,9 @@ async function loadRecentResults() {
       </tr>
     `
   }
-
 }
 
 async function loadRankingCard() {
-
   const profile =
     getCurrentProfile()
 
@@ -917,10 +846,8 @@ async function loadRankingCard() {
   if (
     currentRanking
   ) {
-
     currentRanking.textContent =
       data?.ranking_position || '-'
-
   }
 
   const rankingPoints =
@@ -931,20 +858,17 @@ async function loadRankingCard() {
   if (
     rankingPoints
   ) {
-
     rankingPoints.textContent =
       data?.ranking_points || 0
-
   }
 
   setValue(
     'rankingPointsSummary',
     data?.ranking_points || 0
   )
-
 }
-async function loadUpcomingEvents() {
 
+async function loadUpcomingEvents() {
   const {
     data,
     error
@@ -985,7 +909,6 @@ async function loadUpcomingEvents() {
   container.innerHTML = ''
 
   for (const event of data || []) {
-
     container.innerHTML += `
       <div class="border rounded p-2 mb-2">
 
@@ -1002,11 +925,9 @@ async function loadUpcomingEvents() {
       </div>
     `
   }
-
 }
 
 async function loadRecentActivity() {
-
   const profile =
     getCurrentProfile()
 
@@ -1057,7 +978,6 @@ async function loadRecentActivity() {
     const row
     of data || []
   ) {
-
     container.innerHTML += `
       <div class="border-bottom py-2">
 
@@ -1074,11 +994,9 @@ async function loadRecentActivity() {
       </div>
     `
   }
-
 }
 
 async function loadFederationSummary() {
-
   const profile =
     getCurrentProfile()
 
@@ -1104,9 +1022,9 @@ async function loadFederationSummary() {
         )
       `)
       .eq(
-  'athlete_id',
-  profile.athlete_id
-)
+        'athlete_id',
+        profile.athlete_id
+      )
       .maybeSingle()
 
   if (!athlete) {
@@ -1126,11 +1044,9 @@ async function loadFederationSummary() {
       .classification_master
       ?.description
   )
-
 }
 
 async function loadTrainingAnalytics() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -1207,54 +1123,47 @@ async function loadTrainingAnalytics() {
       ) :
       0
 
- const totalDistanceKm =
+  const totalDistanceKm =
   document.getElementById(
     'totalDistanceKm'
   )
 
-if (
-  totalDistanceKm
-) {
-
-  totalDistanceKm.textContent =
+  if (
+    totalDistanceKm
+  ) {
+    totalDistanceKm.textContent =
     totalDistance.toFixed(1)
+  }
 
-}
-
-const totalDurationHours =
+  const totalDurationHours =
   document.getElementById(
     'totalDurationHours'
   )
 
-if (
-  totalDurationHours
-) {
-
-  totalDurationHours.textContent =
+  if (
+    totalDurationHours
+  ) {
+    totalDurationHours.textContent =
     (
       totalMinutes /
       60
     ).toFixed(1)
+  }
 
-}
-
-const averageSpeed =
+  const averageSpeed =
   document.getElementById(
     'averageSpeed'
   )
 
-if (
-  averageSpeed
-) {
-
-  averageSpeed.textContent =
+  if (
+    averageSpeed
+  ) {
+    averageSpeed.textContent =
     avgSpeed.toFixed(1)
-
-}
+  }
 }
 
 async function getCurrentAthlete() {
-
   const profile =
     getCurrentProfile()
 
@@ -1266,11 +1175,9 @@ async function getCurrentAthlete() {
     athlete_id:
       profile.athlete_id
   }
-
 }
 
 async function loadTrainingHistory() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -1331,7 +1238,6 @@ async function loadTrainingHistory() {
     const row
     of data || []
   ) {
-
     tbody.innerHTML += `
       <tr>
 
@@ -1366,12 +1272,9 @@ async function loadTrainingHistory() {
       </tr>
     `
   }
-
 }
 
-
 async function loadCompetitionAnalytics() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -1404,7 +1307,7 @@ async function loadCompetitionAnalytics() {
   const rows =
     data || []
 
- const gold =
+  const gold =
   rows.filter(
     row =>
       (
@@ -1413,7 +1316,7 @@ async function loadCompetitionAnalytics() {
       'GOLD'
   ).length
 
-const silver =
+  const silver =
   rows.filter(
     row =>
       (
@@ -1422,7 +1325,7 @@ const silver =
       'SILVER'
   ).length
 
-const bronze =
+  const bronze =
   rows.filter(
     row =>
       (
@@ -1459,10 +1362,8 @@ const bronze =
   if (
     competitionTotal
   ) {
-
     competitionTotal.textContent =
       rows.length
-
   }
 
   const goldMedals =
@@ -1473,10 +1374,8 @@ const bronze =
   if (
     goldMedals
   ) {
-
     goldMedals.textContent =
       gold
-
   }
 
   const silverMedals =
@@ -1487,10 +1386,8 @@ const bronze =
   if (
     silverMedals
   ) {
-
     silverMedals.textContent =
       silver
-
   }
 
   const bronzeMedals =
@@ -1501,10 +1398,8 @@ const bronze =
   if (
     bronzeMedals
   ) {
-
     bronzeMedals.textContent =
       bronze
-
   }
 
   const podiumFinishes =
@@ -1515,10 +1410,8 @@ const bronze =
   if (
     podiumFinishes
   ) {
-
     podiumFinishes.textContent =
       podiums
-
   }
 
   const competitionPoints =
@@ -1529,15 +1422,12 @@ const bronze =
   if (
     competitionPoints
   ) {
-
     competitionPoints.textContent =
       points
-
   }
-
 }
-async function loadCompetitionHistory() {
 
+async function loadCompetitionHistory() {
   const athlete =
     await getCurrentAthlete()
 
@@ -1598,7 +1488,6 @@ async function loadCompetitionHistory() {
     const row
     of data || []
   ) {
-
     tbody.innerHTML += `
       <tr>
 
@@ -1608,10 +1497,10 @@ async function loadCompetitionHistory() {
 
         <td>
           ${
-            row.events?.event_name ||
+  row.events?.event_name ||
             row.event_instances?.event_area ||
             ''
-          }
+}
         </td>
 
         <td>
@@ -1629,10 +1518,9 @@ async function loadCompetitionHistory() {
       </tr>
     `
   }
-
 }
-async function loadRankingDashboard() {
 
+async function loadRankingDashboard() {
   const athlete =
     await getCurrentAthlete()
 
@@ -1673,11 +1561,9 @@ async function loadRankingDashboard() {
     'rankingPointsTotal'
   ).textContent =
     data?.ranking_points || 0
-
 }
 
 async function loadPerformanceAnalytics() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -1727,45 +1613,35 @@ async function loadPerformanceAnalytics() {
     )
 
   if (!rows.length) {
-
     if (
       averageHeartRateElement
     ) {
-
       averageHeartRateElement.textContent =
         '0'
-
     }
 
     if (
       averageCadenceElement
     ) {
-
       averageCadenceElement.textContent =
         '0'
-
     }
 
     if (
       averagePowerElement
     ) {
-
       averagePowerElement.textContent =
         '0'
-
     }
 
     if (
       bestSpeedElement
     ) {
-
       bestSpeedElement.textContent =
         '0.0'
-
     }
 
     return
-
   }
 
   const averageHeartRate =
@@ -1823,43 +1699,33 @@ async function loadPerformanceAnalytics() {
   if (
     averageHeartRateElement
   ) {
-
     averageHeartRateElement.textContent =
       averageHeartRate.toFixed(0)
-
   }
 
   if (
     averageCadenceElement
   ) {
-
     averageCadenceElement.textContent =
       averageCadence.toFixed(0)
-
   }
 
   if (
     averagePowerElement
   ) {
-
     averagePowerElement.textContent =
       averagePower.toFixed(0)
-
   }
 
   if (
     bestSpeedElement
   ) {
-
     bestSpeedElement.textContent =
       bestSpeed.toFixed(1)
-
   }
-
 }
 
 async function loadCurrentTeamDashboard() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -1928,11 +1794,9 @@ async function loadCurrentTeamDashboard() {
     'currentStoker',
     `${data.teams.stoker?.first_name || ''} ${data.teams.stoker?.last_name || ''}`
   )
-
 }
 
 async function loadDocuments() {
-
   const profile =
     getCurrentProfile()
 
@@ -1992,7 +1856,6 @@ async function loadDocuments() {
     const row
     of rows
   ) {
-
     tbody.innerHTML += `
       <tr>
 
@@ -2023,11 +1886,9 @@ async function loadDocuments() {
       </tr>
     `
   }
-
 }
 
 async function loadSettingsDashboard() {
-
   const profile =
     getCurrentProfile()
 
@@ -2054,10 +1915,9 @@ async function loadSettingsDashboard() {
     role?.role_code ||
     ''
   )
-
 }
-function initializeSettingsActions() {
 
+function initializeSettingsActions() {
   const uploader =
     document.getElementById(
       'profilePhotoUpload'
@@ -2070,16 +1930,12 @@ function initializeSettingsActions() {
     ?.addEventListener(
       'click',
       () => {
-
         uploader?.click()
-
       }
     )
-
 }
 
 async function loadMedicalDashboard() {
-
   const athlete =
     await getCurrentAthlete()
 
@@ -2156,14 +2012,12 @@ async function loadMedicalDashboard() {
   if (
     reviewBody
   ) {
-
     reviewBody.innerHTML = ''
 
     for (
       const review
       of records
     ) {
-
       reviewBody.innerHTML += `
         <tr>
 
@@ -2186,7 +2040,5 @@ async function loadMedicalDashboard() {
         </tr>
       `
     }
-
   }
-
 }

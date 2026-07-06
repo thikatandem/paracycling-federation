@@ -1,4 +1,4 @@
-﻿import {
+import {
   login
 }
   from "../auth/authService.js"
@@ -205,6 +205,7 @@ async function handleLogin(
       'Sign in'
   }
 }
+
 initializePasswordToggle()
 if (form) {
   form.addEventListener(
@@ -213,9 +214,7 @@ if (form) {
   )
 }
 
-
 function initializePasswordToggle() {
-
   const passwordField =
     document.getElementById(
       'password'
@@ -236,14 +235,11 @@ function initializePasswordToggle() {
   toggleButton.addEventListener(
     'click',
     () => {
-
       passwordField.type =
         passwordField.type ===
-        'password'
-          ? 'text'
-          : 'password'
-
+        'password' ?
+          'text' :
+          'password'
     }
   )
-
 }

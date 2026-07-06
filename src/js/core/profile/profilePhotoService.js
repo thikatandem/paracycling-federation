@@ -1,24 +1,23 @@
-﻿import {
+import {
   getCurrentProfile
 }
-from '../auth/authService.js'
+  from '../auth/authService.js'
 
 import {
   setProfile
 }
-from '../auth/authStateService.js'
+  from '../auth/authStateService.js'
 import {
   getDb
 }
-from '../supabase/getDb.js'
+  from '../supabase/getDb.js'
 
 import {
   logAuditEvent
 }
-from '../auth/auditService.js'
+  from '../auth/auditService.js'
 
 export function initializeProfilePhotoUpload() {
-
   const avatar =
     document.getElementById(
       'profileAvatar'
@@ -47,9 +46,7 @@ export function initializeProfilePhotoUpload() {
 
   const openUploader =
     () => {
-
       uploader.click()
-
     }
 
   profilePhoto
@@ -61,49 +58,37 @@ export function initializeProfilePhotoUpload() {
   uploader.addEventListener(
     'change',
     async event => {
-
       const file =
         event.target.files?.[0]
 
       if (!file) {
-
         return
-
       }
 
       try {
-
         await uploadProfilePhoto(
           file
         )
-
       } catch (error) {
-
         console.error(
           'Profile photo upload failed',
           error
         )
-
       }
-
     }
   )
-
 }
 
 export async function uploadProfilePhoto(
   file
 ) {
-
   const profile =
     getCurrentProfile()
 
   if (!profile) {
-
     throw new Error(
       'Profile not found.'
     )
-
   }
 
   const extension =
@@ -137,9 +122,7 @@ export async function uploadProfilePhoto(
   if (
     uploadError
   ) {
-
     throw uploadError
-
   }
 
   const {
@@ -193,9 +176,7 @@ export async function uploadProfilePhoto(
   if (
     documentError
   ) {
-
     throw documentError
-
   }
 
   const {
@@ -219,18 +200,17 @@ export async function uploadProfilePhoto(
   if (
     profileError
   ) {
-
     throw profileError
-
   }
-setProfile({
 
-  ...profile,
+  setProfile({
 
-  profile_photo_url:
+    ...profile,
+
+    profile_photo_url:
     photoUrl
 
-})
+  })
   await logAuditEvent({
 
     tableName:
@@ -254,13 +234,11 @@ setProfile({
   avatarRefresh(
     photoUrl
   )
-
 }
 
 function avatarRefresh(
   photoUrl
 ) {
-
   const navbarAvatar =
     document.getElementById(
       'profileAvatar'
@@ -279,28 +257,21 @@ function avatarRefresh(
   if (
     navbarAvatar
   ) {
-
     navbarAvatar.src =
       photoUrl
-
   }
 
   if (
     dropdownAvatar
   ) {
-
     dropdownAvatar.src =
       photoUrl
-
   }
 
   if (
     profilePhoto
   ) {
-
     profilePhoto.src =
       photoUrl
-
   }
-
 }

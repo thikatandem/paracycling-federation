@@ -1,6 +1,7 @@
 // =====================================================
 // STATUS SERVICE
 // =====================================================
+import { getStatusConfig } from './badgeService.js'
 
 export const STATUS_CONFIG = {
 

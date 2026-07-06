@@ -2,7 +2,7 @@
 // MODAL SERVICE
 // ParaCycling Federation Management System
 // =====================================================
-
+/* global coreui */
 const modalRegistry =
   new Map()
 

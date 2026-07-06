@@ -11,7 +11,6 @@ export function initializeProfileHeader() {
 
   const role =
     getCurrentRole()
-  
 
   const avatar =
   document.getElementById(
@@ -88,9 +87,7 @@ export function initializeProfileHeader() {
   initializeAccountMenu()
 }
 
-
 function initializeAccountMenu() {
-
   document
     .getElementById(
       'headerProfile'
@@ -98,12 +95,10 @@ function initializeAccountMenu() {
     ?.addEventListener(
       'click',
       event => {
-
         event.preventDefault()
 
         window.location.href =
          'federation/profile.html'
-
       }
     )
 
@@ -114,12 +109,10 @@ function initializeAccountMenu() {
     ?.addEventListener(
       'click',
       event => {
-
         event.preventDefault()
 
         window.location.href =
          'federation/profile.html#settingsTab'
-
       }
     )
 
@@ -130,14 +123,11 @@ function initializeAccountMenu() {
     ?.addEventListener(
       'click',
       event => {
-
         event.preventDefault()
 
         alert(
           'Session Lock not implemented yet.'
         )
-
       }
     )
-
 }
