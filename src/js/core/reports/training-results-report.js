@@ -4154,6 +4154,7 @@ function renderTrainingTable() {
         '-'
 
     html += `
+<tr>
         <td>${record.training_date || ''}</td>
 
 <td>${record.training_week || ''}</td>
@@ -4218,23 +4219,8 @@ function renderTrainingTable() {
 
 <td>${record.avg_speed_kmh ?? ''}</td>
 
-<td>
-  ${
-  record.attendance ?
-    'Present' :
-    'Absent'
-}
-</td>
 
-<td>
-  ${
-  record.indoor_session ?
-    'Yes' :
-    'No'
-}
-</td>
 
-<td>${record.notes || ''}</td>
       `
   }
 

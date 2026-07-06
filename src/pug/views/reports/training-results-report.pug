@@ -152,15 +152,20 @@ block view
             thead
               tr
                 th Date
-                th Event
+                th Week
+                th Day
+                th Name
+                th Area
                 th Program
                 th Participant
                 th County
-                th Session Type
-                th Distance KM
-                th Duration
-                th Avg Speed
-                th Attendance
+                th Town
+                th Session
+                th Start
+                th End
+                th KM
+                th Minutes
+                th Speed KM/H
 
             tbody(id='trainingResultsTableBody')
 
@@ -172,12 +177,17 @@ block view
 
           .col-md-6.text-end
 
-            button.btn.btn-outline-primary.me-2(type='button' id='btnPreviousTrainingPage')
+            button.btn.btn-outline-primary.me-2(
+              type='button'
+              id='btnPreviousTrainingPage'
+            )
               | Previous
 
-            button.btn.btn-outline-primary(type='button' id='btnNextTrainingPage')
+            button.btn.btn-outline-primary(
+              type='button'
+              id='btnNextTrainingPage'
+            )
               | Next
-
     .card.mb-4
 
       .card-header
