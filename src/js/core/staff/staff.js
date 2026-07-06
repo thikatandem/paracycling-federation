@@ -9,33 +9,33 @@ import {
   setText,
   resetForm,
   populateSelect
-} from './core/domService.js'
+} from '../services/domService.js'
 
 import {
   showPageLoader,
   hidePageLoader
-} from './core/uiService.js'
+} from '../services/uiService.js'
 
 import {
   clearMessage,
   showError,
   getFederationFriendlyError
-} from './core/errorService.js'
+} from '../services/errorService.js'
 
 import {
   showModal,
   hideModal,
   openEntityModal
-} from './core/modalService.js'
+} from '../services/modalService.js'
 
-import { searchNestedCollection } from './core/searchService.js'
+import { searchNestedCollection } from '../services/searchService.js'
 
 import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
   bindPagination
-} from './core/paginationService.js'
+} from '../services/paginationService.js'
 
 import {
   renderEntityTable,
@@ -43,14 +43,14 @@ import {
   buildActionCell,
   buildTextCell,
   buildStatusCell
-} from './core/tableRendererService.js'
+} from '../services/tableRendererService.js'
 
-import { getStatusBadge } from './core/badgeService.js'
+import { getStatusBadge } from '../services/badgeService.js'
 
 import {
   createPageState,
   setRows
-} from './core/pageStateService.js'
+} from '../services/pageStateService.js'
 
 import {
   loadRoleLookup,
@@ -61,7 +61,7 @@ import {
   loadDepartmentLookup,
   loadPositionLookupByDepartment
 }
-  from './core/lookupService.js'
+  from '../services/lookupService.js'
 
 import {
   loadCountrySelect,
@@ -72,7 +72,7 @@ import {
   populateLocationChain,
   wireCascade,
   resolveTownId
-} from './core/locationLookupService.js'
+} from '../services/locationLookupService.js'
 
 const paginator = createPaginator()
 const state = createPageState()

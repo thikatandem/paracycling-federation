@@ -1,3 +1,9 @@
+import {
+  getCurrentRole,
+  getCurrentProfile
+}
+from '../auth/authService.js'
+
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -5,20 +11,69 @@ document.addEventListener(
 )
 
 async function loadDashboard() {
+
   await loadAthletes()
+
   await loadTeams()
+
   await loadEvents()
+
   await loadTraining()
+
+  await loadPerformance()
+
+  await loadCompetition()
+
+  await loadDocuments()
+
+  await loadStaff()
+
 }
 
+function isAthleteRole() {
+
+  const role =
+    getCurrentRole()
+
+  return (
+    role?.role_code ===
+    'ATHLETE'
+  )
+
+}
+
+
 async function loadAthletes() {
-  const { count, error } =
-    await window.supabaseClient
+   const profile =
+    getCurrentProfile()
+
+  let query =
+    window.supabaseClient
       .from('athletes')
       .select('*', {
         count: 'exact',
         head: true
       })
+
+  if (
+    isAthleteRole() &&
+    profile &&
+    profile.athlete_id
+  ) {
+
+    query =
+      query.eq(
+        'athlete_id',
+        profile.athlete_id
+      )
+
+  }
+
+const {
+  count,
+  error
+} =
+  await query
 
   if (error) {
     console.error(error)
@@ -85,4 +140,185 @@ async function loadTraining() {
   document.getElementById(
     'totalTraining'
   ).textContent = count
+}
+
+
+async function loadPerformance() {
+
+  const profile =
+    getCurrentProfile()
+
+  let query =
+    window.supabaseClient
+      .from(
+        'performance'
+      )
+      .select('*', {
+        count: 'exact',
+        head: true
+      })
+
+    if (
+    isAthleteRole() &&
+    profile &&
+    profile.athlete_id
+  ) {
+
+    query =
+      query.eq(
+        'athlete_id',
+        profile.athlete_id
+      )
+
+  }
+
+  const {
+    count,
+    error
+  } =
+    await query
+
+  if (error) {
+
+    console.error(error)
+
+    return
+
+  }
+
+  const element =
+    document.getElementById(
+      'totalPerformance'
+    )
+
+  if (element) {
+
+    element.textContent =
+      count || 0
+
+  }
+
+}
+
+async function loadCompetition() {
+
+  const profile =
+    getCurrentProfile()
+
+  let query =
+    window.supabaseClient
+      .from(
+        'race_results'
+      )
+      .select('*', {
+        count: 'exact',
+        head: true
+      })
+
+   if (
+    isAthleteRole() &&
+    profile &&
+    profile.athlete_id
+  ) {
+
+    query =
+      query.eq(
+        'athlete_id',
+        profile.athlete_id
+      )
+
+  }
+
+  const {
+    count,
+    error
+  } =
+    await query
+
+  if (error) {
+
+    console.error(error)
+
+    return
+
+  }
+
+  const element =
+    document.getElementById(
+      'totalCompetitions'
+    )
+
+  if (element) {
+
+    element.textContent =
+      count || 0
+
+  }
+
+}
+
+async function loadDocuments() {
+
+  const {
+    count,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'documents'
+      )
+      .select('*', {
+        count: 'exact',
+        head: true
+      })
+
+  if (error) {
+    return
+  }
+
+  const element =
+    document.getElementById(
+      'totalDocuments'
+    )
+
+  if (element) {
+
+    element.textContent =
+      count || 0
+
+  }
+
+}
+
+async function loadStaff() {
+
+  const {
+    count,
+    error
+  } =
+    await window.supabaseClient
+      .from(
+        'staff_registry'
+      )
+      .select('*', {
+        count: 'exact',
+        head: true
+      })
+
+  if (error) {
+    return
+  }
+
+  const element =
+    document.getElementById(
+      'totalStaff'
+    )
+
+  if (element) {
+
+    element.textContent =
+      count || 0
+
+  }
+
 }

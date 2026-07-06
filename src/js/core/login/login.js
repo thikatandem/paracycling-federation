@@ -1,7 +1,7 @@
-import {
+﻿import {
   login
 }
-  from "./authService.js"
+  from "../auth/authService.js"
 
 const form =
   document.getElementById(
@@ -205,10 +205,45 @@ async function handleLogin(
       'Sign in'
   }
 }
-
+initializePasswordToggle()
 if (form) {
   form.addEventListener(
     'submit',
     handleLogin
   )
+}
+
+
+function initializePasswordToggle() {
+
+  const passwordField =
+    document.getElementById(
+      'password'
+    )
+
+  const toggleButton =
+    document.getElementById(
+      'togglePassword'
+    )
+
+  if (
+    !passwordField ||
+    !toggleButton
+  ) {
+    return
+  }
+
+  toggleButton.addEventListener(
+    'click',
+    () => {
+
+      passwordField.type =
+        passwordField.type ===
+        'password'
+          ? 'text'
+          : 'password'
+
+    }
+  )
+
 }

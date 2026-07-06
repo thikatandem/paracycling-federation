@@ -827,7 +827,7 @@ async function loadRecentResults() {
         athlete.athlete_id
       )
       .order(
-        'changed_at',
+        'created_at',
         {
           ascending: false
         }
@@ -901,7 +901,7 @@ async function loadRankingCard() {
         profile.athlete_id
       )
       .order(
-        'changed_at',
+        'created_at',
         {
           ascending: false
         }
@@ -1023,13 +1023,13 @@ async function loadRecentActivity() {
         'audit_log'
       )
       .select(`
-  action_type,
-  changed_at
-`)
+        action_type,
+        changed_at
+      `)
       .eq(
-  'changed_by',
-  profile.profile_id
-)
+        'changed_by',
+        profile.profile_id
+      )
       .order(
         'changed_at',
         {
@@ -1039,7 +1039,7 @@ async function loadRecentActivity() {
       .limit(10)
 
   if (error) {
-    return
+    throw error
   }
 
   const container =
@@ -1053,7 +1053,10 @@ async function loadRecentActivity() {
 
   container.innerHTML = ''
 
-  for (const row of data || []) {
+  for (
+    const row
+    of data || []
+  ) {
 
     container.innerHTML += `
       <div class="border-bottom py-2">
@@ -1204,24 +1207,50 @@ async function loadTrainingAnalytics() {
       ) :
       0
 
+ const totalDistanceKm =
   document.getElementById(
     'totalDistanceKm'
-  ).textContent =
+  )
+
+if (
+  totalDistanceKm
+) {
+
+  totalDistanceKm.textContent =
     totalDistance.toFixed(1)
 
+}
+
+const totalDurationHours =
   document.getElementById(
     'totalDurationHours'
-  ).textContent =
+  )
+
+if (
+  totalDurationHours
+) {
+
+  totalDurationHours.textContent =
     (
       totalMinutes /
       60
     ).toFixed(1)
 
+}
+
+const averageSpeed =
   document.getElementById(
     'averageSpeed'
-  ).textContent =
+  )
+
+if (
+  averageSpeed
+) {
+
+  averageSpeed.textContent =
     avgSpeed.toFixed(1)
 
+}
 }
 
 async function getCurrentAthlete() {
@@ -1233,23 +1262,10 @@ async function getCurrentAthlete() {
     return null
   }
 
-  const {
-    data
-  } =
-    await getDb()
-      .from(
-        'athletes'
-      )
-      .select(
-        'athlete_id'
-      )
-      .eq(
-  'athlete_id',
-  profile.athlete_id
-)
-      .maybeSingle()
-
-  return data
+  return {
+    athlete_id:
+      profile.athlete_id
+  }
 
 }
 
@@ -1388,27 +1404,32 @@ async function loadCompetitionAnalytics() {
   const rows =
     data || []
 
-  const gold =
-    rows.filter(
-      row =>
-        row.medal ===
-        'GOLD'
-    ).length
+ const gold =
+  rows.filter(
+    row =>
+      (
+        row.medal || ''
+      ).toUpperCase() ===
+      'GOLD'
+  ).length
 
-  const silver =
-    rows.filter(
-      row =>
-        row.medal ===
-        'SILVER'
-    ).length
+const silver =
+  rows.filter(
+    row =>
+      (
+        row.medal || ''
+      ).toUpperCase() ===
+      'SILVER'
+  ).length
 
-  const bronze =
-    rows.filter(
-      row =>
-        row.medal ===
-        'BRONZE'
-    ).length
-
+const bronze =
+  rows.filter(
+    row =>
+      (
+        row.medal || ''
+      ).toUpperCase() ===
+      'BRONZE'
+  ).length
   const podiums =
     rows.filter(
       row =>
@@ -1430,38 +1451,91 @@ async function loadCompetitionAnalytics() {
       0
     )
 
-  document.getElementById(
-    'competitionTotal'
-  ).textContent =
-    rows.length
+  const competitionTotal =
+    document.getElementById(
+      'competitionTotal'
+    )
 
-  document.getElementById(
-    'goldMedals'
-  ).textContent =
-    gold
+  if (
+    competitionTotal
+  ) {
 
-  document.getElementById(
-    'silverMedals'
-  ).textContent =
-    silver
+    competitionTotal.textContent =
+      rows.length
 
-  document.getElementById(
-    'bronzeMedals'
-  ).textContent =
-    bronze
+  }
 
-  document.getElementById(
-    'podiumFinishes'
-  ).textContent =
-    podiums
+  const goldMedals =
+    document.getElementById(
+      'goldMedals'
+    )
 
-  document.getElementById(
-    'competitionPoints'
-  ).textContent =
-    points
+  if (
+    goldMedals
+  ) {
+
+    goldMedals.textContent =
+      gold
+
+  }
+
+  const silverMedals =
+    document.getElementById(
+      'silverMedals'
+    )
+
+  if (
+    silverMedals
+  ) {
+
+    silverMedals.textContent =
+      silver
+
+  }
+
+  const bronzeMedals =
+    document.getElementById(
+      'bronzeMedals'
+    )
+
+  if (
+    bronzeMedals
+  ) {
+
+    bronzeMedals.textContent =
+      bronze
+
+  }
+
+  const podiumFinishes =
+    document.getElementById(
+      'podiumFinishes'
+    )
+
+  if (
+    podiumFinishes
+  ) {
+
+    podiumFinishes.textContent =
+      podiums
+
+  }
+
+  const competitionPoints =
+    document.getElementById(
+      'competitionPoints'
+    )
+
+  if (
+    competitionPoints
+  ) {
+
+    competitionPoints.textContent =
+      points
+
+  }
 
 }
-
 async function loadCompetitionHistory() {
 
   const athlete =
@@ -1480,10 +1554,14 @@ async function loadCompetitionHistory() {
         'race_results'
       )
       .select(`
-        result_date,
+        competition_date,
         position,
         points,
         medal,
+
+        events(
+          event_name
+        ),
 
         event_instances(
           event_area
@@ -1494,7 +1572,7 @@ async function loadCompetitionHistory() {
         athlete.athlete_id
       )
       .order(
-        'result_date',
+        'competition_date',
         {
           ascending: false
         }
@@ -1525,11 +1603,15 @@ async function loadCompetitionHistory() {
       <tr>
 
         <td>
-          ${row.result_date || ''}
+          ${row.competition_date || ''}
         </td>
 
         <td>
-          ${row.event_instances?.event_area || ''}
+          ${
+            row.events?.event_name ||
+            row.event_instances?.event_area ||
+            ''
+          }
         </td>
 
         <td>
@@ -1574,7 +1656,7 @@ async function loadRankingDashboard() {
         athlete.athlete_id
       )
       .order(
-        'changed_at',
+        'created_at',
         {
           ascending: false
         }
@@ -1612,8 +1694,8 @@ async function loadPerformanceAnalytics() {
       )
       .select(`
         avg_heart_rate,
-        avg_cadence,
-        avg_power,
+        avg_cadence_rpm,
+        avg_watts,
         avg_speed_kmh
       `)
       .eq(
@@ -1624,8 +1706,66 @@ async function loadPerformanceAnalytics() {
   const rows =
     data || []
 
+  const averageHeartRateElement =
+    document.getElementById(
+      'averageHeartRate'
+    )
+
+  const averageCadenceElement =
+    document.getElementById(
+      'averageCadence'
+    )
+
+  const averagePowerElement =
+    document.getElementById(
+      'averagePower'
+    )
+
+  const bestSpeedElement =
+    document.getElementById(
+      'bestSpeed'
+    )
+
   if (!rows.length) {
+
+    if (
+      averageHeartRateElement
+    ) {
+
+      averageHeartRateElement.textContent =
+        '0'
+
+    }
+
+    if (
+      averageCadenceElement
+    ) {
+
+      averageCadenceElement.textContent =
+        '0'
+
+    }
+
+    if (
+      averagePowerElement
+    ) {
+
+      averagePowerElement.textContent =
+        '0'
+
+    }
+
+    if (
+      bestSpeedElement
+    ) {
+
+      bestSpeedElement.textContent =
+        '0.0'
+
+    }
+
     return
+
   }
 
   const averageHeartRate =
@@ -1650,7 +1790,7 @@ async function loadPerformanceAnalytics() {
       ) =>
         sum +
         Number(
-          row.avg_cadence || 0
+          row.avg_cadence_rpm || 0
         ),
       0
     ) /
@@ -1664,7 +1804,7 @@ async function loadPerformanceAnalytics() {
       ) =>
         sum +
         Number(
-          row.avg_power || 0
+          row.avg_watts || 0
         ),
       0
     ) /
@@ -1680,25 +1820,41 @@ async function loadPerformanceAnalytics() {
       )
     )
 
-  document.getElementById(
-    'averageHeartRate'
-  ).textContent =
-    averageHeartRate.toFixed(0)
+  if (
+    averageHeartRateElement
+  ) {
 
-  document.getElementById(
-    'averageCadence'
-  ).textContent =
-    averageCadence.toFixed(0)
+    averageHeartRateElement.textContent =
+      averageHeartRate.toFixed(0)
 
-  document.getElementById(
-    'averagePower'
-  ).textContent =
-    averagePower.toFixed(0)
+  }
 
-  document.getElementById(
-    'bestSpeed'
-  ).textContent =
-    bestSpeed.toFixed(1)
+  if (
+    averageCadenceElement
+  ) {
+
+    averageCadenceElement.textContent =
+      averageCadence.toFixed(0)
+
+  }
+
+  if (
+    averagePowerElement
+  ) {
+
+    averagePowerElement.textContent =
+      averagePower.toFixed(0)
+
+  }
+
+  if (
+    bestSpeedElement
+  ) {
+
+    bestSpeedElement.textContent =
+      bestSpeed.toFixed(1)
+
+  }
 
 }
 

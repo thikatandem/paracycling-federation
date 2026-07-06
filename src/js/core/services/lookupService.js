@@ -18,7 +18,7 @@ import {
 import {
   getRecords
 }
-  from './supabase/supabaseCrudService.js'
+  from '../supabase/supabaseCrudService.js'
 // =====================================================
 // CACHE
 // =====================================================

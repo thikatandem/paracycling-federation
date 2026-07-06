@@ -5,7 +5,7 @@
 import {
   supabase
 }
-  from '../core/supabase/supabaseClient.js'
+  from '../supabase/supabaseClient.js'
 
 import {
   getValue,
@@ -15,19 +15,19 @@ import {
   replaceOptions,
   get
 }
-  from '../core/domService.js'
+  from '../services/domService.js'
 
 import {
   calculateAverage,
   calculateTotal,
   attendancePercentage
 }
-  from '../core/calculationService.js'
+  from '../services/calculationService.js'
 
 import {
   downloadCsv
 }
-  from '../core/export/csvExport.js'
+  from '../export/csvExport.js'
 
 import {
 
@@ -38,12 +38,12 @@ import {
   downloadTrainingReportPdf
 
 }
-  from '../core/export/exportService.js'
+  from '../export/exportService.js'
 
 import {
   getParticipantStatusBadge
 }
-  from '../core/badgeService.js'
+  from '../services/badgeService.js'
 
 // =====================================================
 // STATE

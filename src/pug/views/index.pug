@@ -49,6 +49,32 @@ block view
 
   .row.g-4.mb-4
 
+    .col-sm-6.col-xl-3
+      .card.text-white.bg-info
+        .card-body
+          .fs-4.fw-semibold#totalPerformance 0
+          div Performance Records
+
+    .col-sm-6.col-xl-3
+      .card.text-white.bg-secondary
+        .card-body
+          .fs-4.fw-semibold#totalCompetitions 0
+          div Competition Results
+
+    .col-sm-6.col-xl-3
+      .card.text-white.bg-dark
+        .card-body
+          .fs-4.fw-semibold#totalDocuments 0
+          div Documents
+
+    .col-sm-6.col-xl-3
+      .card.text-white.bg-primary
+        .card-body
+          .fs-4.fw-semibold#totalStaff 0
+          div Staff Members
+
+  .row.g-4.mb-4
+
     .col-lg-6
       .card
         .card-header Athlete Overview
@@ -104,5 +130,8 @@ block view
             tbody#latestAthletes
 
 block scripts
-  
-  script(src='js/dashboard.js')
+
+  script(
+    type='module'
+    src='js/core/dashboard/dashboard.js'
+  )

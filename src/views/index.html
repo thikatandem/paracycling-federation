@@ -437,6 +437,40 @@
             </div>
           </div>
           <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card text-white bg-info">
+                <div class="card-body">
+                  <div class="fs-4 fw-semibold" id="totalPerformance">0</div>
+                  <div>Performance Records</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card text-white bg-secondary">
+                <div class="card-body">
+                  <div class="fs-4 fw-semibold" id="totalCompetitions">0</div>
+                  <div>Competition Results</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card text-white bg-dark">
+                <div class="card-body">
+                  <div class="fs-4 fw-semibold" id="totalDocuments">0</div>
+                  <div>Documents</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card text-white bg-primary">
+                <div class="card-body">
+                  <div class="fs-4 fw-semibold" id="totalStaff">0</div>
+                  <div>Staff Members</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row g-4 mb-4">
             <div class="col-lg-6">
               <div class="card">
                 <div class="card-header">Athlete Overview</div>
@@ -554,7 +588,7 @@
 
       initializeAuthentication();
     </script>
-    <script src="js/dashboard.js"></script>
+    <script type="module" src="js/core/dashboard/dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">

@@ -1,4 +1,4 @@
-// =====================================================
+﻿// =====================================================
 // PDF EXPORT
 // ParaCycling Federation Management System
 // =====================================================
@@ -30,7 +30,7 @@ import {
   destroyPdfCharts
 
 }
-  from '../../reports/chartExport.js'
+  from '../reports/chartExport.js'
 import {
   EXPORT_CONFIG,
   buildFileName

@@ -11,9 +11,12 @@ import {
   setValue,
   populateSelect,
   resetForm
-} from './core/domService.js'
+} from '../services/domService.js'
 
-import { showLoading, hideLoading } from './core/uiService.js'
+import {
+  showLoading,
+  hideLoading
+} from '../services/uiService.js'
 
 import {
   renderEntityTable,
@@ -21,48 +24,62 @@ import {
   buildActionCell,
   buildTextCell,
   buildStatusCell
-} from './core/tableRendererService.js'
+} from '../services/tableRendererService.js'
 
 import {
   clearMessage,
   showSuccess,
   showError,
   getFederationFriendlyError
-} from './core/errorService.js'
-
-import { showModal, hideModal, openEntityModal } from './core/modalService.js'
-
-import { getStatusBadge } from './core/badgeService.js'
+} from '../services/errorService.js'
 
 import {
+  showModal,
+  hideModal,
+  openEntityModal
+} from '../services/modalService.js'
 
+import {
+  getStatusBadge
+} from '../services/badgeService.js'
+
+import {
   loadAllSubcounties,
   loadCountySelect,
   loadSubcountySelect,
   loadTownDatalist,
   findOrCreateTown
+} from '../services/locationLookupService.js'
 
-} from './core/locationLookupService.js'
+import {
+  searchCollection
+} from '../services/searchService.js'
 
-import { searchCollection } from './core/searchService.js'
-
-import { validateRequiredFields } from './core/validationService.js'
+import {
+  validateRequiredFields
+} from '../services/validationService.js'
 
 import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
   bindPagination
-} from './core/paginationService.js'
+} from '../services/paginationService.js'
 
-import { loadClassificationLookup, getMembershipStatusId } from './core/lookupService.js'
+import {
+  loadClassificationLookup,
+  getMembershipStatusId
+} from '../services/lookupService.js'
 
 import {
   populateAthleteForm,
   buildAthletePayload
-} from './core/athleteFormService.js'
+} from '../services/athleteFormService.js'
 
-import { createPageState, setRows } from './core/pageStateService.js'
+import {
+  createPageState,
+  setRows
+} from '../services/pageStateService.js'
 
 const paginator =
   createPaginator()
