@@ -674,7 +674,9 @@ function handleEventFilterChange() {
     filteredTrainingRecords.filter(
       record =>
 
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.event_instance_id ===
         occurrenceId
     )
@@ -751,16 +753,20 @@ function handleEventFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-      record.event_instances
-    ?.events
-    ?.event_id !==
-  eventId
-    ) {
-      continue
-    }
+    record
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_id !==
+    eventId
+) {
+    continue
+}
 
     const occurrence =
-        record.event_instances
+    record
+        .participant_instances
+        ?.event_instances
 
     if (
       occurrence?.event_instance_id
@@ -772,7 +778,9 @@ function handleEventFilterChange() {
     }
 
     const program =
-        record.event_programs
+    record
+        .participant_instances
+        ?.program_master
 
     if (
       program?.program_id
@@ -915,12 +923,16 @@ function handleOccurrenceFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-      record.event_instances
-    ?.event_instance_id ===
-  occurrenceId
-    ) {
+    record
+        .participant_instances
+        ?.event_instances
+        ?.event_instance_id ===
+    occurrenceId
+) {
       const program =
-          record.event_programs
+    record
+        .participant_instances
+        ?.program_master
 
       if (
         program?.program_id
@@ -977,36 +989,43 @@ function handleProgramFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-      eventId &&
-  record.event_instances
+  eventId &&
+  record
+    .participant_instances
+    ?.event_instances
     ?.events
     ?.event_id !==
   eventId
-    ) {
-      continue
-    }
+) {
+  continue
+}
 
     if (
-      occurrenceId &&
-  record.event_instances
+  occurrenceId &&
+  record
+    .participant_instances
+    ?.event_instances
     ?.event_instance_id !==
   occurrenceId
-    ) {
-      continue
-    }
-
+) {
+  continue
+}
     if (
-      programId &&
-        record.event_programs
-          ?.program_id !==
-        programId
-    ) {
-      continue
-    }
+  programId &&
+  record
+    .participant_instances
+    ?.program_master
+    ?.program_id !==
+  programId
+) {
+  continue
+}
 
-    const county =
-        record.event_instances
-          ?.county_master
+   const county =
+    record
+        .participant_instances
+        ?.event_instances
+        ?.county_master
 
     if (
       county?.county_id
@@ -1052,59 +1071,75 @@ async function loadTrainingRecords() {
       'training_log'
     )
 
-    .select(`
-  *,
-  participant_instances(
+   .select(`
+*,
+
+participant_instances(
+
     participant_instance_id,
+
+    participant_ref_id,
+
     participant_status_id,
 
-    participant_registry(
-      participant_ref_id,
-      display_name,
-      source_id,
-
-      participant_type_master(
-        participant_type_code
-      )
-    )
-  ),
-
-  event_instances(
-  event_instance_id,
-  event_area,
-  start_date,
-  end_date,
-  start_time,
-  end_time,
-
-  county_master(
-    county_id,
-    county_name
-  ),
-
-  town_master(
-    town_id,
-    town_name
-  ),
-
-  events(
-    event_id,
-    event_name
-  )
-),
-  event_programs(
     program_id,
-    program_name
-  ),
 
-  performance(
+    event_instance_id,
+
+    participant_registry(
+        participant_ref_id,
+        display_name,
+        source_id,
+
+        participant_type_master(
+            participant_type_code
+        )
+    ),
+
+    program_master(
+        program_id,
+        program_name
+    ),
+
+    event_instances(
+
+        event_instance_id,
+
+        event_area,
+
+        start_date,
+
+        end_date,
+
+        start_time,
+
+        end_time,
+
+        county_master(
+            county_id,
+            county_name
+        ),
+
+        town_master(
+            town_id,
+            town_name
+        ),
+
+        events(
+            event_id,
+            event_name
+        )
+    )
+),
+
+performance(
     performance_id,
     participant_instance_id,
     avg_speed_kmh,
     avg_watts,
     normalized_power,
     training_stress_score
-  )
+)
 `)
     .order(
       'training_date',
@@ -1165,10 +1200,11 @@ function applyTrainingFilters() {
     filteredTrainingRecords.filter(
       record =>
 
-        record.event_instances
-          ?.events
-          ?.event_id ===
-        eventId
+        record
+    .participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_id
     )
   }
 
@@ -1181,9 +1217,10 @@ function applyTrainingFilters() {
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
-          record.event_programs
-            ?.program_id ===
-          programId
+          record
+    .participant_instances
+    ?.program_master
+    ?.program_id
       )
   }
 
@@ -1196,10 +1233,11 @@ function applyTrainingFilters() {
     filteredTrainingRecords =
       filteredTrainingRecords.filter(
         record =>
-          record.event_instances
-            ?.county_master
-            ?.county_id ===
-          countyId
+          record
+    .participant_instances
+    ?.event_instances
+    ?.county_master
+    ?.county_id
       )
   }
 
@@ -1399,9 +1437,11 @@ function buildSummaryCards() {
     }
 
     const countyName =
-        record.event_instances
-          ?.county_master
-          ?.county_name
+    record
+        .participant_instances
+        ?.event_instances
+        ?.county_master
+        ?.county_name
 
     if (
       countyName
@@ -1515,10 +1555,11 @@ function buildProgramAnalysis() {
 
   for (const record of filteredTrainingRecords) {
     const programName =
-        record.event_programs
-          ?.program_name ||
-        'Unknown Program'
-
+    record
+        .participant_instances
+        ?.program_master
+        ?.program_name ||
+    'Unknown Program'
     if (
       !statistics[
           programName
@@ -1723,9 +1764,11 @@ function buildCountyAnalysis() {
 
   for (const record of filteredTrainingRecords) {
     const county =
-        record.event_instances
-          ?.county_master
-          ?.county_name ||
+    record
+        .participant_instances
+        ?.event_instances
+        ?.county_master
+        ?.county_name||
         'Unknown'
 
     if (
@@ -2026,18 +2069,21 @@ function buildEventAnalysis() {
 
   for (const record of filteredTrainingRecords) {
     const eventId =
-
-  record.event_instances
-    ?.events
-    ?.event_id
+    record
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_id
 
     const eventName =
   eventsLookup.find(
     e =>
       e.event_id ===
-record.event_instances
-  ?.events
-  ?.event_id
+record
+    .participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_id
 
   )?.event_name ||
   'Unknown Event'
@@ -2133,10 +2179,11 @@ async function viewEventTraining(
     const records =
       filteredTrainingRecords.filter(
         record =>
-          record.event_instances
-  ?.events
-  ?.event_id ===
-eventId
+         record
+    .participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_id
       )
 
     if (!records.length) {
@@ -2149,9 +2196,10 @@ eventId
 
     const eventName =
       records[0]
-        ?.event_instances
-        ?.events
-        ?.event_name
+    ?.participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_name
 
     const participants =
       new Set()
@@ -2181,9 +2229,10 @@ eventId
       )
 
       counties.add(
-        record.event_instances
-            ?.county_master
-            ?.county_name
+        record
+    .participant_instances
+    ?.event_instances
+    ?.county_master
       )
 
       distance +=
@@ -2419,20 +2468,25 @@ async function viewParticipantTraining(
       }
 
       events.add(
-        record.event_instances
-            ?.events
-            ?.event_name
+        record
+    .participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_name
       )
 
       programs.add(
-        record.event_programs
-            ?.program_name
-      )
+    record
+        .participant_instances
+        ?.program_master
+        ?.program_name
+)
 
       counties.add(
-        record.event_instances
-            ?.county_master
-            ?.county_name
+       record
+    .participant_instances
+    ?.event_instances
+    ?.county_master
       )
     }
 
@@ -3185,14 +3239,16 @@ function buildProgramEffectiveness() {
 
   for (const record of filteredTrainingRecords) {
     const programId =
-        record
-          ?.event_programs
-          ?.program_id
+    record
+      ?.participant_instances
+      ?.program_master
+      ?.program_id
 
-    const programName =
-        record
-          ?.event_programs
-          ?.program_name
+const programName =
+    record
+      ?.participant_instances
+      ?.program_master
+      ?.program_name
 
     if (
       !programId
@@ -3502,18 +3558,19 @@ async function viewProgramTraining(
   programId
 ) {
   try {
+
     const records =
       filteredTrainingRecords.filter(
         record =>
           record
-            ?.event_programs
+            ?.participant_instances
+            ?.program_master
             ?.program_id ===
           programId
       )
 
-    if (
-      !records.length
-    ) {
+    if (!records.length) {
+
       showError(
         'Program records not found'
       )
@@ -3523,7 +3580,8 @@ async function viewProgramTraining(
 
     const programName =
       records[0]
-        ?.event_programs
+        ?.participant_instances
+        ?.program_master
         ?.program_name ||
       'Unknown Program'
 
@@ -3551,86 +3609,77 @@ async function viewProgramTraining(
     let attendanceCount = 0
 
     for (const record of records) {
-      const participantRefId =
-          record
-            ?.participant_instances
-            ?.participant_registry
-            ?.participant_ref_id
 
-      if (
-        participantRefId
-      ) {
+      const participantRefId =
+        record
+          ?.participant_instances
+          ?.participant_registry
+          ?.participant_ref_id
+
+      if (participantRefId) {
         participants.add(
           participantRefId
         )
       }
 
       const eventName =
-          record
-            ?.event_instances
-            ?.events
-            ?.event_name
+        record
+          ?.participant_instances
+          ?.event_instances
+          ?.events
+          ?.event_name
 
-      if (
-        eventName
-      ) {
+      if (eventName) {
         events.add(
           eventName
         )
       }
 
       const countyName =
-          record
-            ?.event_instances
-            ?.county_master
-            ?.county_name
+        record
+          ?.participant_instances
+          ?.event_instances
+          ?.county_master
+          ?.county_name
 
-      if (
-        countyName
-      ) {
+      if (countyName) {
         counties.add(
           countyName
         )
       }
 
       totalDistance +=
-          Number(
-            record.distance_km || 0
-          )
+        Number(
+          record.distance_km || 0
+        )
 
       totalDuration +=
-          Number(
-            record.duration_minutes || 0
-          )
+        Number(
+          record.duration_minutes || 0
+        )
 
-      if (
-        record.attendance
-      ) {
+      if (record.attendance) {
         attendanceCount++
       }
 
       const speed =
-          Number(
-            record.avg_speed_kmh || 0
-          )
+        Number(
+          record.performance?.[0]
+            ?.avg_speed_kmh || 0
+        )
 
-      if (
-        speed > 0
-      ) {
+      if (speed > 0) {
         speeds.push(
           speed
         )
       }
 
       const performance =
-          record.performance?.[0]
+        record.performance?.[0]
 
-      if (
-        performance
-      ) {
-        if (
-          performance.avg_watts
-        ) {
+      if (performance) {
+
+        if (performance.avg_watts) {
           watts.push(
             Number(
               performance.avg_watts
@@ -3638,9 +3687,7 @@ async function viewProgramTraining(
           )
         }
 
-        if (
-          performance.normalized_power
-        ) {
+        if (performance.normalized_power) {
           powers.push(
             Number(
               performance.normalized_power
@@ -3648,9 +3695,7 @@ async function viewProgramTraining(
           )
         }
 
-        if (
-          performance.training_stress_score
-        ) {
+        if (performance.training_stress_score) {
           tssValues.push(
             Number(
               performance.training_stress_score
@@ -3658,6 +3703,7 @@ async function viewProgramTraining(
           )
         }
       }
+
     }
 
     const attendanceRate =
@@ -3670,137 +3716,63 @@ async function viewProgramTraining(
       'trainingInsightsContainer',
 
       `
-      <h4>
-        ${programName}
-      </h4>
+      <h4>${programName}</h4>
 
-      <table
-        class="
-          table
-          table-bordered
-        "
-      >
+      <table class="table table-bordered">
 
         <tr>
-          <th>
-            Sessions
-          </th>
-
-          <td>
-            ${records.length}
-          </td>
+          <th>Sessions</th>
+          <td>${records.length}</td>
         </tr>
 
         <tr>
-          <th>
-            Participants
-          </th>
-
-          <td>
-            ${participants.size}
-          </td>
+          <th>Participants</th>
+          <td>${participants.size}</td>
         </tr>
 
         <tr>
-          <th>
-            Events
-          </th>
-
-          <td>
-            ${events.size}
-          </td>
+          <th>Events</th>
+          <td>${events.size}</td>
         </tr>
 
         <tr>
-          <th>
-            Counties
-          </th>
-
-          <td>
-            ${counties.size}
-          </td>
+          <th>Counties</th>
+          <td>${counties.size}</td>
         </tr>
 
         <tr>
-          <th>
-            Distance KM
-          </th>
-
-          <td>
-            ${totalDistance.toFixed(
-    2
-  )}
-          </td>
+          <th>Distance KM</th>
+          <td>${totalDistance.toFixed(2)}</td>
         </tr>
 
         <tr>
-          <th>
-            Duration Minutes
-          </th>
-
-          <td>
-            ${totalDuration}
-          </td>
+          <th>Duration Minutes</th>
+          <td>${totalDuration}</td>
         </tr>
 
         <tr>
-          <th>
-            Attendance %
-          </th>
-
-          <td>
-            ${attendanceRate.toFixed(
-    1
-  )}%
-          </td>
+          <th>Attendance %</th>
+          <td>${attendanceRate.toFixed(1)}%</td>
         </tr>
 
         <tr>
-          <th>
-            Avg Speed
-          </th>
-
-          <td>
-            ${calculateAverage(
-    speeds
-  )}
-          </td>
+          <th>Average Speed</th>
+          <td>${calculateAverage(speeds)}</td>
         </tr>
 
         <tr>
-          <th>
-            Avg Watts
-          </th>
-
-          <td>
-            ${calculateAverage(
-    watts
-  )}
-          </td>
+          <th>Average Watts</th>
+          <td>${calculateAverage(watts)}</td>
         </tr>
 
         <tr>
-          <th>
-            Normalized Power
-          </th>
-
-          <td>
-            ${calculateAverage(
-    powers
-  )}
-          </td>
+          <th>Normalized Power</th>
+          <td>${calculateAverage(powers)}</td>
         </tr>
 
         <tr>
-          <th>
-            Avg TSS
-          </th>
-
-          <td>
-            ${calculateAverage(
-    tssValues
-  )}
-          </td>
+          <th>Training Stress Score</th>
+          <td>${calculateAverage(tssValues)}</td>
         </tr>
 
       </table>
@@ -3812,14 +3784,15 @@ async function viewProgramTraining(
         'trainingInsightsModal'
       )
     ).show()
+
   } catch (error) {
-    console.error(
-      error
-    )
+
+    console.error(error)
 
     showError(
       'Failed to load program intelligence'
     )
+
   }
 }
 
@@ -4128,28 +4101,29 @@ function renderTrainingTable() {
         '-'
 
     const eventName =
-
-        record
-          ?.event_instances
-          ?.events
-          ?.event_name ||
+    record
+        ?.participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_name ||
 
         '-'
 
     const programName =
 
-        record
-          ?.event_programs
-          ?.program_name ||
+    record
+      ?.participant_instances
+      ?.program_master
+      ?.program_name ||
 
-        '-'
+    '-'
 
     const countyName =
-
-        record
-          ?.event_instances
-          ?.county_master
-          ?.county_name ||
+    record
+        ?.participant_instances
+        ?.event_instances
+        ?.county_master
+        ?.county_name ||
 
         '-'
 
@@ -4163,23 +4137,29 @@ function renderTrainingTable() {
 
 <td>
   ${
-  record.event_instances
-      ?.events
-      ?.event_name || ''
+  record
+    .participant_instances
+    ?.event_instances
+    ?.events
+    ?.event_name || ''
 }
 </td>
 
 <td>
   ${
-  record.event_instances
-      ?.event_area || ''
+record
+    .participant_instances
+    ?.event_instances
+    ?.event_area || ''
 }
 </td>
 
 <td>
   ${
-  record.event_programs
-      ?.program_name || ''
+  record
+    .participant_instances
+    ?.program_master
+    ?.program_name || ''
 }
 </td>
 
@@ -4193,17 +4173,19 @@ function renderTrainingTable() {
 
 <td>
   ${
-  record.event_instances
-      ?.county_master
-      ?.county_name || ''
+  record
+    .participant_instances
+    ?.event_instances
+    ?.county_master || ''
 }
 </td>
 
 <td>
   ${
-  record.event_instances
-      ?.town_master
-      ?.town_name || ''
+  record
+    .participant_instances
+    ?.event_instances
+    ?.town_master || ''
 }
 </td>
 
@@ -4534,17 +4516,23 @@ function exportTrainingCsv() {
         record.training_day,
 
       event:
-        record.event_instances
-          ?.events
-          ?.event_name || '',
+    record
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_name || '',
 
       occurrence:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.event_area || '',
 
       program:
-        record.event_programs
-          ?.program_name || '',
+    record
+      .participant_instances
+      ?.program_master
+      ?.program_name || '',
 
       participant:
         record
@@ -4553,12 +4541,16 @@ function exportTrainingCsv() {
           ?.display_name || '',
 
       county:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.county_master
           ?.county_name || '',
 
       town:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.town_master
           ?.town_name || '',
 
@@ -4662,13 +4654,17 @@ function applyTrainingSearch() {
             ?.display_name || ''
 
         const event =
-          record.event_instances
-            ?.events
-            ?.event_name || ''
+    record
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_name || ''
 
         const program =
-          record.event_programs
-            ?.program_name || ''
+    record
+        .participant_instances
+        ?.program_master
+        ?.program_name || ''
 
         const sessionType =
           record.session_type || ''
@@ -4817,28 +4813,40 @@ async function exportTrainingExcel() {
         record.training_day,
 
       event:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.events
           ?.event_name || '',
 
       occurrence:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.event_area || '',
 
       occurrence_start_date:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.start_date || '',
 
       occurrence_end_date:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.end_date || '',
 
       occurrence_start_time:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.start_time || '',
 
       occurrence_end_time:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.end_time || '',
 
       program:
@@ -4859,12 +4867,16 @@ async function exportTrainingExcel() {
           ?.participant_type_code || '',
 
       county:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.county_master
           ?.county_name || '',
 
       town:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.town_master
           ?.town_name || '',
 
@@ -5092,7 +5104,9 @@ async function exportTrainingExcel() {
         filteredTrainingRecords.reduce(
           (acc, record) => {
             const event =
-              record.event_instances
+              record
+    .participant_instances
+    ?.event_instances
                 ?.events
                 ?.event_name ||
               'Unknown'
@@ -5371,12 +5385,16 @@ async function exportTrainingPdf() {
         record.training_day || '',
 
       event_name:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.events
           ?.event_name || '',
 
       occurrence:
-        record.event_instances
+       record
+    .participant_instances
+    ?.event_instances
           ?.event_area || '',
 
       program_name:
@@ -5390,12 +5408,16 @@ async function exportTrainingPdf() {
           ?.display_name || '',
 
       county_name:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.county_master
           ?.county_name || '',
 
       town_name:
-        record.event_instances
+        record
+    .participant_instances
+    ?.event_instances
           ?.town_master
           ?.town_name || '',
 

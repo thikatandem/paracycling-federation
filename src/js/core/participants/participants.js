@@ -242,6 +242,7 @@ async function initializeParticipants() {
     await loadParticipantStatuses()
 
     await loadParticipantRegistry()
+      loadPrograms()
 
     await loadRegistrations()
   } catch (
@@ -283,6 +284,17 @@ function bindEvents() {
     'click',
     newRegistration
   )
+
+document
+  .getElementById(
+    'btnFinishParticipantRegistration'
+  )
+  ?.addEventListener(
+    'click',
+    finishRegistration
+  )
+
+
   document
   .getElementById(
     'btnSelectAllParticipants'
@@ -507,6 +519,118 @@ function renderSelectedBundle() {
         `
     }
   }
+}
+
+
+function renderRegisteredBundle() {
+
+  const container =
+    document.getElementById(
+      'selectedParticipantsList'
+    )
+
+  if (
+    !container
+  ) {
+    return
+  }
+
+  const occurrenceId =
+    getValue(
+      'eventInstanceId'
+    )
+
+  if (
+    !occurrenceId
+  ) {
+
+    container.innerHTML = ''
+
+    return
+
+  }
+
+  const registrations =
+    participantRegistrations.filter(
+      row =>
+
+        row.event_instances
+          ?.event_instance_id ===
+        occurrenceId
+    )
+
+  const groupedPrograms = {}
+
+  for (const registration of registrations) {
+
+    const programName =
+
+      registration
+        .program_master
+        ?.program_name ||
+
+      'Unknown Program'
+
+    if (
+      !groupedPrograms[
+        programName
+      ]
+    ) {
+
+      groupedPrograms[
+        programName
+      ] = []
+
+    }
+
+    groupedPrograms[
+      programName
+    ].push(
+      registration
+    )
+
+  }
+
+  container.innerHTML = ''
+
+  for (const programName of Object.keys(
+    groupedPrograms
+  )) {
+
+    container.innerHTML += `
+
+      <li class="fw-bold mt-2">
+
+        ${programName}
+
+      </li>
+
+    `
+
+    for (
+      const registration of groupedPrograms[
+        programName
+      ]
+    ) {
+
+      container.innerHTML += `
+
+        <li class="ms-3">
+
+          ${
+            registration
+              .participant_registry
+              ?.display_name || ''
+          }
+
+        </li>
+
+      `
+
+    }
+
+  }
+
 }
 
 async function populateCompositionSelectors() {
@@ -1085,7 +1209,11 @@ async function handleOccurrenceChange() {
     return
   }
 
-  await loadPrograms()
+  await loadPrograms(
+    getValue(
+        'eventId'
+    )
+)
 
   await loadOccurrenceDetails(
     occurrence.event_instance_id
@@ -1093,51 +1221,60 @@ async function handleOccurrenceChange() {
 }
 
 async function loadPrograms() {
-  const {
-    data,
-    error
-  } =
+
+    const {
+
+        data,
+
+        error
+
+    } =
     await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .select(`
-        program_id,
-        program_name
-      `)
-      .eq(
-        'event_id',
-        eventId.value
-      )
-      .order(
-        'program_name'
-      )
+        .supabaseClient
+        .from(
+            'program_master'
+        )
+        .select(`
+            program_id,
+            program_name
+        `)
+        .eq(
+            'active',
+            true
+        )
+        .order(
+            'sort_order'
+        )
+        .order(
+            'program_name'
+        )
 
-  if (
-    error
-  ) {
-    throw error
-  }
+    if (error) {
 
-  eventPrograms =
-    data || []
+        throw error
 
-  programId.innerHTML =
-    `
-      <option value="">
-        Select Program
-      </option>
-    `
+    }
 
-  for (const program of eventPrograms) {
-    programId.innerHTML += `
-        <option
-          value="${program.program_id}">
-          ${program.program_name}
+    eventPrograms =
+        data || []
+
+    programId.innerHTML =
+        `
+        <option value="">
+            Select Program
         </option>
-      `
-  }
+        `
+
+    for (const program of eventPrograms) {
+
+        programId.innerHTML += `
+            <option
+                value="${program.program_id}">
+                ${program.program_name}
+            </option>
+        `
+    }
+
 }
 
 async function loadOccurrenceDetails(
@@ -1556,25 +1693,20 @@ async function saveRegistration() {
         throw error
       }
 
-      await loadRegistrations()
+            await loadRegistrations()
 
-      showSuccess(
-        'Registration Updated'
-      )
-      const modalElement =
-  document.getElementById(
-    'participantRegistrationModal'
-  )
+    await loadParticipantRegistry()
 
-      const modal =
-  coreui.Modal.getOrCreateInstance(
-    modalElement
-  )
+    renderRegisteredBundle()
 
-      modal.hide()
+    showSuccess(
+      'Participants Updated'
+    )
 
-      clearRegistrationForm()
-      return
+    renderParticipants()
+
+    return
+      
     }
 
     const duplicateParticipants =
@@ -1655,24 +1787,17 @@ async function saveRegistration() {
       throw error
     }
 
-    await loadRegistrations()
+            await loadRegistrations()
+
+    await loadParticipantRegistry()
+
+    renderRegisteredBundle()
 
     showSuccess(
       'Participants Registered'
     )
-    const modalElement =
-  document.getElementById(
-    'participantRegistrationModal'
-  )
 
-    const modal =
-  coreui.Modal.getOrCreateInstance(
-    modalElement
-  )
-
-    modal.hide()
-
-    clearRegistrationForm()
+    renderParticipants()
   } catch (
     error
   ) {
@@ -1686,6 +1811,51 @@ async function saveRegistration() {
   }
 }
 
+
+async function finishRegistration() {
+
+  try {
+
+    await loadRegistrations()
+
+    await loadParticipantRegistry()
+
+    renderRegisteredBundle()
+
+    selectedParticipants = []
+
+    renderParticipants()
+
+    showSuccess(
+      'All participant bundles have been saved successfully.'
+    )
+
+    const modal =
+      coreui.Modal.getOrCreateInstance(
+        document.getElementById(
+          'participantRegistrationModal'
+        )
+      )
+
+    modal.hide()
+
+    clearRegistrationForm()
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      error
+    )
+
+    showError(
+      error.message
+    )
+
+  }
+
+}
 async function loadRegistrations() {
   const {
     data,
@@ -1722,9 +1892,9 @@ async function loadRegistrations() {
           )
         ),
 
-        event_programs(
-          program_name
-        ),
+        program_master(
+    program_name
+),
 
         participant_registry(
   participant_ref_id,
@@ -1812,17 +1982,17 @@ function loadFilterOptions() {
     `
 
   const programs =
-    [
-      ...new Set(
-        participantRegistrations
-          .map(
-            row =>
-              row.event_programs
-                ?.program_name
-          )
-          .filter(Boolean)
+[
+  ...new Set(
+    participantRegistrations
+      .map(
+        row =>
+          row.program_master
+            ?.program_name
       )
-    ]
+      .filter(Boolean)
+  )
+]
 
   for (const program of programs) {
     programFilter.innerHTML += `
@@ -1923,9 +2093,10 @@ function renderRegistrations() {
         ?.event_area || ''
 
     const program =
-      registration
-        .event_programs
-        ?.program_name || ''
+
+    registration
+    .program_master
+    ?.program_name || ''
 
     const groupKey =
       `${eventName}|${occurrence}|${program}`
@@ -2209,7 +2380,11 @@ window.editRegistration =
       eventMaster.event_id
     )
 
-    await loadPrograms()
+   await loadPrograms(
+    registration
+        .event_instances
+        ?.event_id
+)
 
     setValue(
       'eventInstanceId',
@@ -2367,6 +2542,23 @@ function clearRegistrationForm() {
     checkbox.checked =
           false
   }
+
+  eventInstanceId.innerHTML =
+    `
+      <option value="">
+        Select Event Occurrence
+      </option>
+    `
+
+  programId.innerHTML =
+    `
+      <option value="">
+        Select Program
+      </option>
+    `
+
+  clearOccurrenceDetails()
+
 }
 
 function applyFilters() {
@@ -2374,18 +2566,24 @@ function applyFilters() {
     participantRegistrations.filter(
       registration => {
         const occurrenceMatch =
-          !occurrenceFilter.value ||
-          registration
-            .event_instances
-            ?.event_area ===
-          occurrenceFilter.value
+
+    !occurrenceFilter.value ||
+
+    registration
+        .event_instances
+        ?.event_area ===
+
+    occurrenceFilter.value
 
         const programMatch =
-          !programFilter.value ||
-          registration
-            .event_programs
-            ?.program_name ===
-          programFilter.value
+
+    !programFilter.value ||
+
+    registration
+        .program_master
+        ?.program_name ===
+
+    programFilter.value
 
         return (
           occurrenceMatch &&
@@ -2541,10 +2739,10 @@ function updateSummaryCards() {
   const programCounts = {}
 
   for (const row of participantRegistrations) {
-    const program =
-      row.event_programs
-        ?.program_name
+   const program =
 
+    row.program_master
+        ?.program_name
     if (
       program
     ) {
@@ -2682,9 +2880,9 @@ function exportExcel() {
               ?.event_area,
 
           program:
-            registration
-              .event_programs
-              ?.program_name,
+    registration
+        .program_master
+        ?.program_name,
 
           participant:
             registration
@@ -2994,9 +3192,10 @@ window.deleteBundle =
                 ?.event_area || ''
 
             const program =
-              registration
-                .event_programs
-                ?.program_name || ''
+
+    registration
+        .program_master
+        ?.program_name || ''
 
             return (
               `${eventName}|${occurrence}|${program}` ===

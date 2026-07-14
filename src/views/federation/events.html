@@ -406,11 +406,20 @@
                 <div class="card mb-4">
                   <div class="card-header d-flex justify-content-between align-items-center">
                     <strong>Event Occurrences</strong>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex align-items-center gap-2">
                       <button class="btn btn-primary" type="button" id="btnNewOccurrence">
                         <i class="fa fa-plus me-2"></i>
                         New Event Occurrence
                       </button>
+                      <button class="btn btn-outline-secondary" type="button" id="btnDownloadEventTemplate">
+                        <i class="fa fa-download me-2"></i>
+                        Sample CSV
+                      </button>
+                      <button class="btn btn-success" type="button" id="btnImportEvents">
+                        <i class="fa fa-upload me-2"></i>
+                        Import Events
+                      </button>
+                      <input type="file" id="eventImportFile" accept=".csv,.xlsx,.xls" hidden>
                     </div>
                   </div>
                   <div class="card-body">
@@ -599,6 +608,104 @@
               </div>
             </div>
           </div>
+          <div class="modal fade" id="eventImportPreviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    <i class="fa fa-upload me-2"></i>
+                    Event Import Preview
+                  </h5>
+                  <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mb-4">
+                    <div class="col-md-3">
+                      <div class="card text-bg-primary">
+                        <div class="card-body">
+                          <h6>Total Rows</h6>
+                          <h3 id="importTotalRows">0</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-bg-success">
+                        <div class="card-body">
+                          <h6>Valid</h6>
+                          <h3 id="importValidRows">0</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-bg-warning">
+                        <div class="card-body">
+                          <h6>Warnings</h6>
+                          <h3 id="importWarningRows">0</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-bg-danger">
+                        <div class="card-body">
+                          <h6>Errors</h6>
+                          <h3 id="importErrorRows">0</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                      <thead id="previewHeader"></thead>
+                      <tbody id="previewBody"></tbody>
+                    </table>
+                  </div>
+                  <hr>
+                  <h5>Errors</h5>
+                  <div id="importErrors"></div>
+                  <hr>
+                  <h5>Warnings</h5>
+                  <div id="importWarnings"></div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" type="button" data-coreui-dismiss="modal">
+                    <Cancel></Cancel>
+                  </button>
+                  <button class="btn btn-success" type="button" id="btnApproveImport">
+                    <Approve>Import</Approve>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal fade" id="eventImportSummaryModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title">
+                    <Import>Summary</Import>
+                  </h5>
+                  <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div id="importSummary"></div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-outline-primary" id="btnDownloadCsv">
+                    <CSV></CSV>
+                  </button>
+                  <button class="btn btn-outline-success" id="btnDownloadExcel">
+                    <Excel></Excel>
+                  </button>
+                  <button class="btn btn-outline-danger" id="btnDownloadPdf">
+                    <PDF></PDF>
+                  </button>
+                  <button class="btn btn-secondary" data-coreui-dismiss="modal">
+                    <Close></Close>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <footer class="footer px-4">
@@ -646,6 +753,6 @@
     <script src="js/supabase.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    <script src="js/core/events/events.js"></script>
+    <script type="module" src="js/core/events/events.js"></script>
   </body>
 </html>

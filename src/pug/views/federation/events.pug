@@ -13,14 +13,41 @@ block view
 
             strong Event Occurrences
 
-            .d-flex.gap-2
+            .d-flex.align-items-center.gap-2
 
               button.btn.btn-primary(
                 type='button'
                 id='btnNewOccurrence'
               )
+
                 i.fa.fa-plus.me-2
+
                 | New Event Occurrence
+
+              button.btn.btn-outline-secondary(
+                type='button'
+                id='btnDownloadEventTemplate'
+              )
+
+                i.fa.fa-download.me-2
+
+                | Sample CSV
+
+              button.btn.btn-success(
+                type='button'
+                id='btnImportEvents'
+              )
+
+                i.fa.fa-upload.me-2
+
+                | Import Events
+
+              input(
+                type='file'
+                id='eventImportFile'
+                accept='.csv,.xlsx,.xls'
+                hidden
+              )
 
           .card-body
 
@@ -355,7 +382,160 @@ block view
 
             i.fa.fa-trash.me-2
 
-            | Delete  
+            | Delete 
+
+  .modal.fade(
+    id='eventImportPreviewModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-fullscreen
+
+      .modal-content
+
+        .modal-header
+
+          h5.modal-title
+
+            i.fa.fa-upload.me-2
+
+            | Event Import Preview
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .row.mb-4
+
+            .col-md-3
+
+              .card.text-bg-primary
+
+                .card-body
+
+                  h6 Total Rows
+
+                  h3#importTotalRows 0
+
+            .col-md-3
+
+              .card.text-bg-success
+
+                .card-body
+
+                  h6 Valid
+
+                  h3#importValidRows 0
+
+            .col-md-3
+
+              .card.text-bg-warning
+
+                .card-body
+
+                  h6 Warnings
+
+                  h3#importWarningRows 0
+
+            .col-md-3
+
+              .card.text-bg-danger
+
+                .card-body
+
+                  h6 Errors
+
+                  h3#importErrorRows 0
+
+          .table-responsive
+
+            table.table.table-bordered.table-hover
+
+              thead#previewHeader
+
+              tbody#previewBody
+
+          hr
+
+          h5 Errors
+
+          div#importErrors
+
+          hr
+
+          h5 Warnings
+
+          div#importWarnings
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+            Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnApproveImport'
+          )
+
+            Approve Import
+
+  .modal.fade(
+    id='eventImportSummaryModal'
+    tabindex='-1'
+  )
+
+    .modal-dialog.modal-lg
+
+      .modal-content
+
+        .modal-header.bg-success.text-white
+
+          h5.modal-title
+
+            Import Summary
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          div#importSummary
+
+        .modal-footer
+
+          button.btn.btn-outline-primary(
+            id='btnDownloadCsv'
+          )
+
+            CSV
+
+          button.btn.btn-outline-success(
+            id='btnDownloadExcel'
+          )
+
+            Excel
+
+          button.btn.btn-outline-danger(
+            id='btnDownloadPdf'
+          )
+
+            PDF
+
+          button.btn.btn-secondary(
+            data-coreui-dismiss='modal'
+          )
+
+            Close 
 append pageScripts
 
-  script(src='js/core/events/events.js')
+  script(type='module' src='js/core/events/events.js')

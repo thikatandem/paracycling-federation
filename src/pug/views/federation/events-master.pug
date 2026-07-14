@@ -13,12 +13,25 @@ block view
 
             strong Event Master
 
-            button.btn.btn-primary(
-              type='button'
-              id='btnNewEvent'
-            )
-              i.fa.fa-plus.me-2
-              | New Event Master
+            .d-flex.gap-2
+
+              button.btn.btn-success(
+                type='button'
+                id='btnProgramMaster'
+              )
+
+                i.fa.fa-layer-group.me-2
+
+                | Program Master
+
+              button.btn.btn-primary(
+                type='button'
+                id='btnNewEvent'
+              )
+
+                i.fa.fa-plus.me-2
+
+                | New Event Master
 
           .card-body
 
@@ -153,7 +166,7 @@ block view
 
         .modal-header
 
-          h5.modal-title Event Programs
+          h5.modal-title Program Master
 
           button.btn-close(
             type='button'
@@ -162,53 +175,74 @@ block view
 
         .modal-body
 
-          input(
-            type='hidden'
-            id='programEventId'
-          )
-
-          input(
-            type='hidden'
-            id='programId'
-          )
+         
+  
           .row
 
-            .col-md-6.mb-3
+            .col-md-12.d-none
 
-              label.form-label Event Name
-
-              input.form-control(
-                id='programEventName'
-                readonly
+              input(
+                type='hidden'
+                id='programId'
               )
 
-            .col-md-6.mb-3
+            .col-md-2.mb-3
 
-              label.form-label Event Type
+              label.form-label Program Code
 
               input.form-control(
-                id='programEventType'
+                id='programCode'
                 readonly
+                placeholder='Auto'
               )
-
-          .row
-
-            .col-md-8.mb-3
+              
+            .col-md-5.mb-3
 
               label.form-label Program Name
 
               input.form-control(
                 id='programName'
-                placeholder='Example: 3 Day'
+                list='programNameSuggestions'
               )
 
-            .col-md-4.mb-3.d-flex.align-items-end
+              datalist#programNameSuggestions
+
+            .col-md-3.mb-3
+
+              label.form-label Duration (Days)
+
+              input.form-control(
+                type='number'
+                id='programDurationDays'
+                value='1'
+                min='1'
+              )
+
+
+          .row
+
+            .col-md-5.mb-3
+
+              label.form-label Interval
+
+              select.form-select(
+                id='programRecurrenceTypeId'
+              )
+
+                option(value='') Select Recurrence
+
+          .row
+
+            .col-md-12.mb-3
 
               button.btn.btn-success.w-100(
                 type='button'
                 id='btnSaveProgram'
               )
-                | Add Program
+                | Save Program
+
+
+                
 
           .table-responsive
 
@@ -217,10 +251,177 @@ block view
               thead
 
                 tr
-                  th Program Name
-                  th Actions
 
+                  th Code
+
+                  th Program
+
+                  th Duration
+
+                  th Status
+
+                  th Actions
               tbody#programTableBody
+
+          hr.my-4
+
+          #scheduleSection.d-none
+
+            h5.mb-3 Program Schedules
+
+            .card.border-primary.mb-4
+
+              .card-header.bg-primary.text-white
+
+                strong Selected Program
+
+          .card-body
+
+            .row
+
+              .col-md-3.mb-3
+
+                label.form-label Program
+
+                input.form-control(
+                  id='selectedProgramName'
+                  readonly
+                )
+
+              .col-md-2.mb-3
+
+                label.form-label Code
+
+                input.form-control(
+                  id='selectedProgramCode'
+                  readonly
+                )
+
+              .col-md-2.mb-3
+
+                label.form-label Duration
+
+                input.form-control(
+                  id='selectedProgramDuration'
+                  readonly
+                )
+
+              .col-md-3.mb-3
+
+                label.form-label Interval
+
+                input.form-control(
+                  id='selectedProgramInterval'
+                  readonly
+                )
+
+              .col-md-2.mb-3
+
+                label.form-label Status
+
+                input.form-control(
+                  id='selectedProgramStatus'
+                  readonly
+                )
+
+            input(
+              type='hidden'
+              id='scheduleId'
+            )
+
+            input(
+              type='hidden'
+              id='scheduleProgramId'
+            )
+
+          .row
+
+            .col-md-3.mb-3
+
+              label.form-label Start Date
+
+              input.form-control(
+                type='date'
+                id='scheduleStartDate'
+              )
+
+            .col-md-2.mb-3
+
+              label.form-label Day
+
+              input.form-control(
+                id='scheduleDay'
+                readonly
+              )
+
+            .col-md-3.mb-3
+
+              label.form-label End Date
+
+              input.form-control(
+                type='date'
+                id='scheduleEndDate'
+              )
+          .row
+
+            .col-md-6.mb-3
+
+              label.form-label Schedule Name
+
+              input.form-control(
+                id='scheduleName'
+                placeholder='Schedule Name'
+              )
+            .col-md-3.mb-3
+
+              label.form-label Start Time
+
+              input.form-control(
+                type='time'
+                id='scheduleStartTime'
+              )
+
+            .col-md-3.mb-3
+
+              label.form-label End Time
+
+              input.form-control(
+                type='time'
+                id='scheduleEndTime'
+              )
+            .col-md-3.mb-3.d-flex.align-items-end
+
+              button.btn.btn-success.w-100(
+                type='button'
+                id='btnSaveSchedule'
+              )
+
+                | Save Schedule
+              
+                  
+
+            .table-responsive.mt-4
+
+              table.table.table-striped.table-hover
+
+                thead
+
+                  tr
+
+                    th Schedule
+
+                    th Start
+
+                    th Day
+
+                    th End
+
+                    th Time
+
+                    th Status
+
+                    th Actions
+                tbody#scheduleTableBody
 
 append pageScripts
 

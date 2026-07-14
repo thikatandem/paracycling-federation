@@ -18,6 +18,8 @@ document.addEventListener(
   initializeMasterEvents
 )
 
+
+
 async function initializeMasterEvents() {
   try {
     const modalElement =
@@ -48,9 +50,13 @@ async function initializeMasterEvents() {
 
     await loadEventTypes()
 
+    await loadProgramRecurrenceTypes()
+
     await loadEventStatuses()
 
     await loadEvents()
+
+    await loadProgramNameSuggestions()
 
     await loadEventNameSuggestions()
   } catch (error) {
@@ -63,6 +69,637 @@ async function initializeMasterEvents() {
   }
 }
 
+async function loadProgramRecurrenceTypes() {
+
+    const select =
+        document.getElementById(
+            'programRecurrenceTypeId'
+        )
+
+    if (
+
+        !select
+
+    ) {
+
+        return
+
+    }
+
+    select.innerHTML = `
+
+        <option value="">
+
+            Select Recurrence
+
+        </option>
+
+    `
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'recurrence_type_master'
+            )
+            .select(`
+                recurrence_type_id,
+                recurrence_name,
+                sort_order
+            `)
+            .eq(
+                'active',
+                true
+            )
+            .order(
+                'sort_order'
+            )
+
+    if (
+
+        error
+
+    ) {
+
+        throw error
+
+    }
+
+    for (
+
+        const recurrence
+
+        of data || []
+
+    ) {
+
+        select.innerHTML += `
+
+            <option
+                value="${recurrence.recurrence_type_id}">
+
+                ${recurrence.recurrence_name}
+
+            </option>
+
+        `
+
+    }
+
+}
+
+
+async function loadProgramNameSuggestions() {
+
+    const datalist =
+        document.getElementById(
+            'programNameSuggestions'
+        )
+
+    if (!datalist) {
+
+        return
+
+    }
+
+    datalist.innerHTML = ''
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_master'
+            )
+            .select(
+                'program_name'
+            )
+            .order(
+                'program_name'
+            )
+
+    if (error) {
+
+        throw error
+
+    }
+
+    const names =
+        [
+
+            ...new Set(
+
+                (data || [])
+
+                    .map(
+
+                        program =>
+
+                            program.program_name
+
+                    )
+
+                    .filter(
+
+                        Boolean
+
+                    )
+
+            )
+
+        ]
+
+    for (
+
+        const name
+
+        of names
+
+    ) {
+
+        const option =
+            document.createElement(
+                'option'
+            )
+
+        option.value =
+            name
+
+        datalist.appendChild(
+            option
+        )
+
+    }
+
+}
+// =====================================================
+// CHECK DUPLICATE EVENT PROGRAM
+// =====================================================
+
+function clearProgramForm() {
+
+    document.getElementById(
+        'programId'
+    ).value = ''
+
+    document.getElementById(
+        'programCode'
+    ).value = ''
+
+    document.getElementById(
+        'programName'
+    ).value = ''
+
+    document.getElementById(
+        'programDurationDays'
+    ).value = 1
+
+    document.getElementById(
+        'programRecurrenceTypeId'
+    ).value = ''
+
+  clearScheduleForm()
+
+syncProgramSummary()
+
+
+}
+
+
+function syncProgramSummary() {
+
+    document
+        .getElementById(
+            'selectedProgramName'
+        )
+        .value =
+        document
+            .getElementById(
+                'programName'
+            )
+            .value
+
+    document
+        .getElementById(
+            'selectedProgramCode'
+        )
+        .value =
+
+        document
+            .getElementById(
+                'programCode'
+            )
+            .value ||
+
+        'Generated on Save'
+
+    const duration =
+
+        document
+            .getElementById(
+                'programDurationDays'
+            )
+            .value
+
+    document
+        .getElementById(
+            'selectedProgramDuration'
+        )
+        .value =
+
+        duration
+
+            ? `${duration} Day(s)`
+
+            : ''
+
+    const recurrence =
+
+        document
+            .getElementById(
+                'programRecurrenceTypeId'
+            )
+
+    document
+        .getElementById(
+            'selectedProgramInterval'
+        )
+        .value =
+
+        recurrence.options[
+            recurrence.selectedIndex
+        ]?.text ||
+
+        ''
+
+    document
+        .getElementById(
+            'selectedProgramStatus'
+        )
+        .value =
+
+        'New Program'
+
+}
+
+function normalizeProgramName(
+
+    value
+
+) {
+
+    return value
+
+        .toUpperCase()
+
+        .replace(
+
+            /\bDAYS\b/g,
+
+            'DAY'
+
+        )
+
+        .replace(
+
+            /\s+/g,
+
+            ''
+
+        )
+
+        .trim()
+
+}
+
+async function programExists(
+
+    programName,
+
+    excludeId = null
+
+) {
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_master'
+            )
+            .select(`
+                program_id,
+                program_name
+            `)
+
+    if (
+
+        error
+
+    ) {
+
+        throw error
+
+    }
+
+    const normalized =
+
+        normalizeProgramName(
+
+            programName
+
+        )
+
+    return (
+
+        data || []
+
+    ).some(
+
+        row =>
+
+            row.program_id !== excludeId &&
+
+            normalizeProgramName(
+
+                row.program_name
+
+            ) === normalized
+
+    )
+
+}
+
+
+async function saveProgram() {
+
+    clearError()
+
+    try {
+
+        const programId =
+
+            document
+                .getElementById(
+                    'programId'
+                )
+                .value
+
+        const programName =
+
+            document
+                .getElementById(
+                    'programName'
+                )
+                .value
+                .trim()
+
+        const exists =
+
+            await programExists(
+
+                programName,
+
+                programId
+
+            )
+
+        if (
+
+            exists
+
+        ) {
+
+            showError(
+
+                'Program already exists.'
+
+            )
+
+            return
+
+        }
+
+        const payload = {
+
+            program_name:
+
+                programName,
+
+            program_duration_days:
+
+                Number(
+
+                    document
+                        .getElementById(
+                            'programDurationDays'
+                        )
+                        .value
+
+                ),
+
+            recurrence_type_id:
+
+                document
+                    .getElementById(
+                        'programRecurrenceTypeId'
+                    )
+                    .value ||
+
+                null,
+
+            active: true
+
+        }
+
+        let error
+
+        if (
+
+            programId
+
+        ) {
+
+            const result =
+
+                await window
+                    .supabaseClient
+                    .from(
+                        'program_master'
+                    )
+                    .update(
+                        payload
+                    )
+                    .eq(
+                        'program_id',
+                        programId
+                    )
+
+            error =
+                result.error
+
+        }
+
+        else {
+
+            const result =
+
+                await window
+                    .supabaseClient
+                    .from(
+                        'program_master'
+                    )
+                    .insert(
+                        payload
+                    )
+
+            error =
+                result.error
+
+        }
+
+                if (
+
+            error
+
+        ) {
+
+            throw error
+
+        }
+
+        let savedProgramId =
+
+            programId
+
+        if (
+
+            !programId
+
+        ) {
+
+            const {
+
+                data
+
+            } =
+                await window
+                    .supabaseClient
+                    .from(
+                        'program_master'
+                    )
+                    .select(
+                        'program_id'
+                    )
+                    .eq(
+                        'program_name',
+                        programName
+                    )
+                    .single()
+
+            savedProgramId =
+                data.program_id
+
+        }
+
+        const hasSchedule =
+
+            document
+                .getElementById(
+                    'scheduleStartDate'
+                )
+                .value
+
+        if (
+
+            hasSchedule
+
+        ) {
+
+            document
+                .getElementById(
+                    'scheduleProgramId'
+                )
+                .value =
+                savedProgramId
+
+            await saveSchedule()
+
+        }
+
+       clearProgramForm()
+
+await loadPrograms()
+
+await loadProgramNameSuggestions()
+
+document
+    .getElementById(
+        'scheduleTableBody'
+    )
+    .innerHTML = ''
+
+document
+    .getElementById(
+        'scheduleSection'
+    )
+    .classList
+    .add(
+        'd-none'
+    )
+
+programModal.hide()
+
+showSuccess(
+
+    programId
+
+        ? 'Program updated successfully.'
+
+        : 'Program created successfully.'
+
+)
+
+    }
+
+    catch (
+
+        error
+
+    ) {
+
+        console.error(
+
+            error
+
+        )
+
+        showError(
+
+            error.message
+
+        )
+
+    }
+
+}
+
 function bindEvents() {
   document
   .getElementById(
@@ -72,6 +709,61 @@ function bindEvents() {
     'click',
     saveProgram
   )
+
+document
+    .getElementById(
+        'programName'
+    )
+    ?.addEventListener(
+        'input',
+        syncProgramSummary
+    )
+
+document
+    .getElementById(
+        'programDurationDays'
+    )
+    ?.addEventListener(
+        'input',
+        syncProgramSummary
+    )
+
+document
+    .getElementById(
+        'programRecurrenceTypeId'
+    )
+    ?.addEventListener(
+        'change',
+        syncProgramSummary
+    )
+
+document
+    .getElementById(
+        'scheduleStartDate'
+    )
+    ?.addEventListener(
+        'change',
+        updateScheduleDay
+    )
+
+
+document
+  .getElementById(
+    'btnProgramMaster'
+  )
+  ?.addEventListener(
+    'click',
+    openProgramMaster
+  )
+
+document
+.getElementById(
+    'btnSaveSchedule'
+)
+?.addEventListener(
+    'click',
+    saveSchedule
+)
 
   document
     .getElementById(
@@ -101,257 +793,1587 @@ function bindEvents() {
     )
 }
 
-window.managePrograms =
-async function (eventId) {
-  const event =
-    events.find(
-      row =>
-        row.event_id === eventId
-    )
 
-  if (!event) {
-    return
-  }
+async function openProgramMaster() {
 
-  document.getElementById(
-    'programEventId'
-  ).value =
-    event.event_id
+    clearError()
 
-  document.getElementById(
-    'programEventName'
-  ).value =
-    event.event_name
+    clearProgramForm()
 
-  document.getElementById(
-    'programEventType'
-  ).value =
-    event
-      .event_type_master
-      ?.event_type_name || ''
+    await loadPrograms()
 
-  await loadPrograms(
-    eventId
-  )
+    await loadProgramNameSuggestions()
 
-  programModal.show()
+    programModal.show()
 }
 
-async function loadPrograms(
-  eventId
-) {
-  const tbody =
-    document.getElementById(
-      'programTableBody'
-    )
 
-  tbody.innerHTML = ''
 
-  const {
-    data,
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .select('*')
-      .eq(
-        'event_id',
-        eventId
-      )
-      .order(
-        'program_name'
-      )
 
-  if (error) {
-    throw error
-  }
+async function loadPrograms(eventId) {
 
-  for (const program of data) {
+    const tbody =
+        document.getElementById(
+            'programTableBody'
+        )
+
+    tbody.innerHTML = ''
+
+    const {
+        data,
+        error
+    } =
+        await window
+            .supabaseClient
+            .from(
+    'program_master'
+)
+.select(`
+    program_id,
+    program_code,
+    program_name,
+    program_duration_days,
+    active
+`)
+.order(
+    'program_duration_days',
+    {
+        ascending: true
+    }
+)
+
+    if(error){
+
+        throw error
+
+    }
+
+    for (const program of data || []) {
+
     tbody.innerHTML += `
-        <tr>
 
-          <td>
-            ${program.program_name}
-          </td>
+<tr>
 
-         <td>
+<td>${program.program_code}</td>
 
-  <button
-    class="btn btn-sm btn-primary me-1"
-    onclick="editProgram(
-      '${program.program_id}',
-      '${program.program_name}'
-    )">
+<td>${program.program_name}</td>
 
-    Edit
+<td>${program.program_duration_days} Day(s)</td>
 
-  </button>
+<td>
 
-  <button
-    class="btn btn-sm btn-danger"
-    onclick="deleteProgram('${program.program_id}')">
-
-    Delete
-
-  </button>
+${program.active ? 'Active' : 'Inactive'}
 
 </td>
-        </tr>
-      `
-  }
+
+<td>
+
+<button
+class="btn btn-sm btn-primary me-1"
+onclick="editProgram('${program.program_id}')">
+
+Edit
+
+</button>
+
+<button
+class="btn btn-sm btn-info me-1"
+onclick="manageSchedules('${program.program_id}')">
+
+Schedules
+
+</button>
+
+<button
+class="btn btn-sm btn-danger"
+onclick="deleteProgram('${program.program_id}')">
+
+Delete
+
+</button>
+
+</td>
+
+</tr>
+
+`
+
+}
+
 }
 
 window.editProgram =
-function (
-  programId,
-  programName
-) {
-  document.getElementById(
-    'programId'
-  ).value =
+async function (
+
     programId
 
-  document.getElementById(
-    'programName'
-  ).value =
-    programName
+) 
+
+
+{
+
+    clearError()
+
+    try {
+
+        const {
+
+    data,
+
+    error
+
+} =
+    await window
+        .supabaseClient
+        .from(
+            'program_master'
+        )
+        .select(`
+            program_id,
+            program_code,
+            program_name,
+            program_duration_days,
+            recurrence_type_id,
+            active
+        `)
+        .eq(
+            'program_id',
+            programId
+        )
+        .single()
+        if (
+
+            error
+
+        ) {
+
+            throw error
+
+        }
+
+        document
+            .getElementById(
+                'programCode'
+            )
+            .value =
+            data.program_code
+        document
+    .getElementById(
+        'programId'
+    )
+    .value =
+    data.program_id
+
+        document
+            .getElementById(
+                'programName'
+            )
+            .value =
+            data.program_name
+
+        document
+            .getElementById(
+                'programDurationDays'
+            )
+            .value =
+            data.program_duration_days
+
+        document
+            .getElementById(
+                'programRecurrenceTypeId'
+            )
+            .value =
+            data.recurrence_type_id || ''
+syncProgramSummary()
+        await loadSelectedProgram(
+            programId
+        )
+
+        document
+            .getElementById(
+                'scheduleProgramId'
+            )
+            .value =
+            programId
+
+        await loadSchedules(
+            programId
+        )
+
+        document
+            .getElementById(
+                'scheduleSection'
+            )
+            .classList
+            .remove(
+                'd-none'
+            )
+programModal.show()
+    }
+
+    catch (
+
+        error
+
+    ) {
+
+        console.error(
+            error
+        )
+
+        showError(
+            error.message
+        )
+
+    }
+
 }
 
-async function saveProgram() {
-  const eventId =
-    document.getElementById(
-      'programEventId'
-    ).value
-
-  const programName =
-    document
-      .getElementById(
-        'programName'
-      )
-      .value
-      .trim()
-
-  if (!programName) {
-    alert(
-      'Program Name required'
-    )
-
-    return
-  }
-
-  const programId =
-  document.getElementById(
-    'programId'
-  ).value
-
-  let error
-
-  if (programId) {
-    const result =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .update({
-
-        program_name:
-          programName
-
-      })
-      .eq(
-        'program_id',
-        programId
-      )
-
-    error =
-    result.error
-  } else {
-    const result =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .insert({
-
-        event_id:
-          eventId,
-
-        program_name:
-          programName
-
-      })
-
-    error =
-    result.error
-  }
-
-  if (error) {
-    alert(
-      error.message
-    )
-
-    return
-  }
-
-  document.getElementById(
-    'programName'
-  ).value = ''
-
-  document.getElementById(
-    'programId'
-  ).value = ''
-
-  await loadPrograms(
-    eventId
-  )
-}
 
 window.deleteProgram =
-async function (programId) {
-  if (
-    !confirm(
-      'Delete this program?'
-    )
-  ) {
-    return
-  }
+async function (
 
-  const eventId =
-    document.getElementById(
-      'programEventId'
-    ).value
+    programId
 
-  const {
-    error
-  } =
-    await window
-      .supabaseClient
-      .from(
-        'event_programs'
-      )
-      .delete()
-      .eq(
-        'program_id',
-        programId
-      )
+) {
 
-  if (error) {
-    alert(
-      error.message
-    )
+    clearError()
 
-    return
-  }
+    try {
 
-  await loadPrograms(
-    eventId
-  )
+        const {
+
+            count,
+
+            error
+
+        } =
+            await window
+                .supabaseClient
+                .from(
+                    'program_schedules'
+                )
+                .select(
+                    '*',
+                    {
+                        count: 'exact',
+                        head: true
+                    }
+                )
+                .eq(
+                    'program_id',
+                    programId
+                )
+
+        if (
+
+            error
+
+        ) {
+
+            throw error
+
+        }
+
+        const message =
+
+            count > 0
+
+                ?
+
+                `This Program has ${count} schedule(s).\n\nDeleting this Program will also delete all of its Schedules.\n\nDo you want to continue?`
+
+                :
+
+                'Delete this Program?'
+
+        if (
+
+            !confirm(
+
+                message
+
+            )
+
+        ) {
+
+            return
+
+        }
+
+        const {
+
+            error: deleteError
+
+        } =
+            await window
+                .supabaseClient
+                .from(
+                    'program_master'
+                )
+                .delete()
+                .eq(
+                    'program_id',
+                    programId
+                )
+
+        if (
+
+            deleteError
+
+        ) {
+
+            throw deleteError
+
+        }
+
+        document
+            .getElementById(
+                'scheduleTableBody'
+            )
+            .innerHTML = ''
+
+        document
+            .getElementById(
+                'scheduleSection'
+            )
+            .classList
+            .add(
+                'd-none'
+            )
+
+        clearProgramForm()
+
+        await loadPrograms()
+
+        showSuccess(
+
+            'Program deleted successfully.'
+
+        )
+
+    }
+
+    catch (
+
+        error
+
+    ) {
+
+        console.error(
+
+            error
+
+        )
+
+        showError(
+
+            error.message ||
+
+            'Failed to delete Program.'
+
+        )
+
+    }
+
 }
+
+
+async function loadSelectedProgram(
+
+    programId
+
+) {
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_master'
+            )
+            .select(`
+    program_code,
+    program_name,
+    program_duration_days,
+    active,
+    recurrence_type_master(
+        recurrence_name
+    )
+`)
+            .eq(
+                'program_id',
+                programId
+            )
+            .single()
+
+    if (
+
+        error
+
+    ) {
+
+        throw error
+
+    }
+
+    document
+        .getElementById(
+            'selectedProgramName'
+        )
+        .value =
+        data.program_name
+
+    document
+        .getElementById(
+            'selectedProgramCode'
+        )
+        .value =
+        data.program_code
+
+document
+    .getElementById(
+        'selectedProgramDuration'
+    )
+    .value =
+        `${data.program_duration_days} Day(s)`
+
+document
+    .getElementById(
+        'selectedProgramInterval'
+    )
+    .value =
+        data
+            .recurrence_type_master
+            ?.recurrence_name || ''
+
+    document
+        .getElementById(
+            'selectedProgramStatus'
+        )
+        .value =
+        data.active
+            ? 'Active'
+            : 'Inactive'
+
+}
+
+
+// =====================================================
+// PROGRAM SCHEDULE MANAGEMENT
+// =====================================================
+
+window.manageSchedules =
+async function (
+
+    programId
+
+) {
+
+    clearError()
+
+    document
+        .getElementById(
+            'scheduleProgramId'
+        )
+        .value =
+        programId
+
+clearScheduleForm()
+    await loadSelectedProgram(
+
+        programId
+
+    )
+
+    document
+        .getElementById(
+            'scheduleId'
+        )
+        .value =
+        ''
+
+    
+
+    const scheduleTable =
+        document
+            .getElementById(
+                'scheduleTableBody'
+            )
+
+    if (
+
+        scheduleTable
+
+    ) {
+
+        scheduleTable.innerHTML = ''
+
+    }
+
+    await loadRecurrenceTypes()
+
+    await loadSchedules(
+
+        programId
+
+    )
+
+    document
+        .getElementById(
+            'scheduleSection'
+        )
+        .classList
+        .remove(
+            'd-none'
+        )
+
+}
+
+async function loadRecurrenceTypes() {
+
+    const select =
+        document.getElementById(
+            'recurrenceTypeId'
+        )
+
+    if (
+        !select
+    ) {
+
+        return
+
+    }
+
+    select.innerHTML = `
+        <option value="">
+            Select Recurrence Type
+        </option>
+    `
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'recurrence_type_master'
+            )
+            .select(`
+                recurrence_type_id,
+                recurrence_code,
+                recurrence_name,
+                recurrence_category,
+                sort_order
+            `)
+            .eq(
+                'active',
+                true
+            )
+            .order(
+                'sort_order',
+                {
+                    ascending: true
+                }
+            )
+
+    if (
+        error
+    ) {
+
+        throw error
+
+    }
+
+    for (
+        const recurrence
+        of data || []
+    ) {
+
+        select.innerHTML += `
+            <option
+                value="${recurrence.recurrence_type_id}">
+                ${recurrence.recurrence_name}
+            </option>
+        `
+
+    }
+
+}
+
+async function loadSchedules(
+    programId
+) {
+
+    const tbody =
+        document.getElementById(
+            'scheduleTableBody'
+        )
+
+    if (
+        !tbody
+    ) {
+
+        return
+
+    }
+
+    tbody.innerHTML = ''
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_schedules'
+            )
+            .select(`
+
+    program_schedule_id,
+
+    schedule_name,
+
+    schedule_start_date,
+
+    schedule_end_date,
+
+    start_time,
+
+    end_time,
+
+    active
+
+`)
+            
+            .eq(
+                'program_id',
+                programId
+            )
+            .eq(
+                'active',
+                true
+            )
+            .order(
+                'schedule_start_date',
+                {
+                    ascending: true
+                }
+            )
+
+    if (
+        error
+    ) {
+
+        throw error
+
+    }
+
+    if (
+        !data ||
+        data.length === 0
+    ) {
+
+        tbody.innerHTML = `
+            <tr>
+
+                <td
+                    colspan="7"
+                    class="text-center text-muted">
+
+                    No schedules defined.
+
+                </td>
+
+            </tr>
+        `
+
+        return
+
+    }
+
+   for (
+
+    const schedule
+
+    of data
+
+) {
+
+    const day =
+
+        new Date(
+
+            schedule.schedule_start_date
+
+        ).toLocaleDateString(
+
+            'en-US',
+
+            {
+
+                weekday: 'long'
+
+            }
+
+        )
+
+    tbody.innerHTML += `
+
+<tr>
+
+<td>
+
+${schedule.schedule_name}
+
+</td>
+
+<td>
+
+${schedule.schedule_start_date}
+
+</td>
+
+<td>
+
+${day}
+
+</td>
+
+<td>
+
+${schedule.schedule_end_date || ''}
+
+</td>
+
+<td>
+
+${schedule.start_time || ''}
+
+ -
+
+${schedule.end_time || ''}
+
+</td>
+
+<td>
+
+${schedule.active ? 'Active' : 'Inactive'}
+
+</td>
+
+<td>
+
+<button
+class="btn btn-sm btn-primary me-1"
+onclick="editSchedule('${schedule.program_schedule_id}')">
+
+Edit
+
+</button>
+
+</td>
+
+</tr>
+
+`
+
+}
+
+}
+
+function clearScheduleForm() {
+
+    document.getElementById(
+        'scheduleId'
+    ).value = ''
+    document
+    .getElementById(
+        'scheduleName'
+    )
+    .value = ''
+    document.getElementById(
+        'scheduleStartDate'
+    ).value = ''
+
+    document.getElementById(
+        'scheduleEndDate'
+    ).value = ''
+
+    document.getElementById(
+        'scheduleStartTime'
+    ).value = ''
+
+    document.getElementById(
+        'scheduleEndTime'
+    ).value = ''
+
+    document.getElementById(
+        'scheduleDay'
+    ).value = ''
+
+    
+
+}
+
+
+function updateScheduleDay() {
+
+    const startDate =
+
+        document
+            .getElementById(
+                'scheduleStartDate'
+            )
+            .value
+
+    document
+        .getElementById(
+            'scheduleDay'
+        )
+        .value = ''
+
+    if (
+
+        !startDate
+
+    ) {
+
+        return
+
+    }
+
+    const day =
+
+        new Date(
+
+            startDate
+
+        )
+
+        .toLocaleDateString(
+
+            'en-US',
+
+            {
+
+                weekday: 'long'
+
+            }
+
+        )
+
+    document
+        .getElementById(
+            'scheduleDay'
+        )
+        .value = day
+
+}
+
+
+function validateSchedule() {
+
+    const programId =
+
+        document
+            .getElementById(
+                'scheduleProgramId'
+            )
+            .value
+
+    const scheduleStartDate =
+
+        document
+            .getElementById(
+                'scheduleStartDate'
+            )
+            .value
+
+    const scheduleEndDate =
+
+        document
+            .getElementById(
+                'scheduleEndDate'
+            )
+            .value
+
+    const startTime =
+
+        document
+            .getElementById(
+                'scheduleStartTime'
+            )
+            .value
+
+    const endTime =
+
+        document
+            .getElementById(
+                'scheduleEndTime'
+            )
+            .value
+
+    if (
+
+        !programId
+
+    ) {
+
+        throw new Error(
+            'Program is required.'
+        )
+
+    }
+
+    if (
+
+        !scheduleStartDate
+
+    ) {
+
+        throw new Error(
+            'Start Date is required.'
+        )
+
+    }
+
+    if (
+
+        scheduleEndDate &&
+        scheduleEndDate < scheduleStartDate
+
+    ) {
+
+        throw new Error(
+            'End Date cannot be earlier than Start Date.'
+        )
+
+    }
+
+    if (
+
+        startTime &&
+        endTime &&
+        endTime <= startTime
+
+    ) {
+
+        throw new Error(
+            'End Time must be later than Start Time.'
+        )
+
+    }
+
+    return true
+
+}
+
+function buildSchedulePayload() {
+
+    validateSchedule()
+
+ return {
+
+    program_id:
+
+        document
+            .getElementById(
+                'scheduleProgramId'
+            )
+            .value,
+
+    schedule_name:
+
+        document
+            .getElementById(
+                'scheduleName'
+            )
+            .value
+            .trim(),
+
+    schedule_start_date:
+
+        document
+            .getElementById(
+                'scheduleStartDate'
+            )
+            .value,
+
+    schedule_end_date:
+
+        document
+            .getElementById(
+                'scheduleEndDate'
+            )
+            .value || null,
+
+    start_time:
+
+        document
+            .getElementById(
+                'scheduleStartTime'
+            )
+            .value || null,
+
+    end_time:
+
+        document
+            .getElementById(
+                'scheduleEndTime'
+            )
+            .value || null,
+
+    active: true
+
+}
+}
+// =====================================================
+// SCHEDULE VALIDATION
+// =====================================================
+
+
+
+// =====================================================
+// CHECK DUPLICATE SCHEDULE
+// =====================================================
+
+async function scheduleExists(
+
+    programId,
+
+    scheduleName,
+
+    excludeId = null
+
+) {
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_schedules'
+            )
+            .select(`
+                program_schedule_id
+            `)
+            .eq(
+                'program_id',
+                programId
+            )
+            .ilike(
+                'schedule_name',
+                scheduleName
+            )
+
+    if (
+        error
+    ) {
+
+        throw error
+
+    }
+
+    const duplicates =
+        (data || [])
+            .filter(
+
+                row =>
+
+                    row.program_schedule_id !==
+                    excludeId
+
+            )
+
+    return (
+
+        duplicates.length > 0
+
+    )
+
+}
+
+// =====================================================
+// SAVE / UPDATE PROGRAM SCHEDULE
+// =====================================================
+
+async function saveSchedule() {
+
+    clearError()
+
+    clearError()
+
+if (
+
+    !document
+        .getElementById(
+            'scheduleStartDate'
+        )
+        .value
+
+) {
+
+    return
+
+}
+
+validateSchedule()
+
+    try {
+
+        const scheduleId =
+            document.getElementById(
+                'scheduleId'
+            ).value
+
+        const programId =
+            document.getElementById(
+                'scheduleProgramId'
+            ).value
+
+        const scheduleName =
+            document.getElementById(
+                'scheduleName'
+            ).value
+            .trim()
+
+       
+
+        const exists =
+            await scheduleExists(
+
+                programId,
+
+                scheduleName,
+
+                scheduleId
+
+            )
+
+        if (
+            exists
+        ) {
+
+            showError(
+                'A schedule with this name already exists for this Program.'
+            )
+
+            return
+
+        }
+
+       const payload =
+    buildSchedulePayload()
+
+        let error
+
+        if (
+            scheduleId
+        ) {
+
+            const result =
+                await window
+                    .supabaseClient
+                    .from(
+                        'program_schedules'
+                    )
+                    .update(
+                        payload
+                    )
+                    .eq(
+                        'program_schedule_id',
+                        scheduleId
+                    )
+
+            error =
+                result.error
+
+        } else {
+
+            const result =
+                await window
+                    .supabaseClient
+                    .from(
+                        'program_schedules'
+                    )
+                    .insert(
+                        payload
+                    )
+
+            error =
+                result.error
+
+        }
+
+        if (
+            error
+        ) {
+
+            throw error
+
+        }
+
+        document
+    .getElementById(
+        'scheduleId'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleName'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleStartDate'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleEndDate'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleStartTime'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleEndTime'
+    )
+    .value = ''
+
+document
+    .getElementById(
+        'scheduleDay'
+    )
+    .value = ''
+
+await loadSchedules(
+    programId
+)
+
+        showSuccess(
+            scheduleId
+                ? 'Schedule updated successfully.'
+                : 'Schedule saved successfully.'
+        )
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            error
+        )
+
+        showError(
+
+            error.message ||
+
+            'Failed to save Program Schedule.'
+
+        )
+
+    }
+
+}
+
+
+// =====================================================
+// EDIT PROGRAM SCHEDULE
+// =====================================================
+
+window.editSchedule =
+async function (
+
+    scheduleId
+
+) {
+
+    clearError()
+
+    try {
+
+        const {
+
+            data,
+
+            error
+
+        } =
+            await window
+                .supabaseClient
+                .from(
+                    'program_schedules'
+                )
+                .select(`
+
+program_schedule_id,
+
+program_id,
+
+schedule_name,
+
+schedule_start_date,
+
+schedule_end_date,
+
+start_time,
+
+end_time,
+
+active
+
+`)
+                .eq(
+                    'program_schedule_id',
+                    scheduleId
+                )
+                .single()
+
+        if (
+            error
+        ) {
+
+            throw error
+
+        }
+
+        document.getElementById(
+    'scheduleId'
+).value =
+    data.program_schedule_id
+
+        document.getElementById(
+            'scheduleProgramId'
+        ).value =
+            data.program_id
+
+        
+
+        
+        document
+    .getElementById(
+        'scheduleName'
+    )
+    .value =
+    data.schedule_name || ''
+       
+
+        
+
+        document.getElementById(
+            'scheduleStartDate'
+        ).value =
+            data.schedule_start_date || ''
+       
+       updateScheduleDay()
+
+
+        document.getElementById(
+            'scheduleEndDate'
+        ).value =
+            data.schedule_end_date || ''
+
+        document.getElementById(
+            'scheduleStartTime'
+        ).value =
+            data.start_time || ''
+
+        document.getElementById(
+            'scheduleEndTime'
+        ).value =
+            data.end_time || ''
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            error
+        )
+
+        showError(
+
+            error.message ||
+
+            'Failed to load Schedule.'
+
+        )
+
+    }
+
+}
+
+// =====================================================
+// DELETE PROGRAM SCHEDULE
+// =====================================================
+
+window.deleteSchedule =
+async function (
+
+    scheduleId
+
+) {
+
+    clearError()
+
+    try {
+
+        if (
+
+            !confirm(
+
+                'Delete this Program Schedule?'
+
+            )
+
+        ) {
+
+            return
+
+        }
+
+        const programId =
+
+            document
+                .getElementById(
+                    'scheduleProgramId'
+                )
+                .value
+
+        const {
+
+            error
+
+        } =
+            await window
+                .supabaseClient
+                .from(
+                    'program_schedules'
+                )
+                .delete()
+                .eq(
+                    'program_schedule_id',
+                    scheduleId
+                )
+
+        if (
+
+            error
+
+        ) {
+
+            throw error
+
+        }
+
+        document
+            .getElementById(
+                'scheduleId'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleName'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleStartDate'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleEndDate'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleStartTime'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleEndTime'
+            )
+            .value = ''
+
+        document
+            .getElementById(
+                'scheduleDay'
+            )
+            .value = ''
+
+        await loadSchedules(
+
+            programId
+
+        )
+
+        showSuccess(
+
+            'Schedule deleted successfully.'
+
+        )
+
+    }
+
+    catch (
+
+        error
+
+    ) {
+
+        console.error(
+
+            error
+
+        )
+
+        showError(
+
+            error.message ||
+
+            'Failed to delete Schedule.'
+
+        )
+
+    }
+
+}
+
 
 function showError(message) {
   const errorBox =
@@ -597,6 +2619,85 @@ async function loadEventStatuses() {
   }
 }
 
+
+async function loadProgramMaster() {
+
+    const select =
+        document.getElementById(
+            'programId'
+        )
+
+    if (
+        !select
+    ) {
+
+        return
+
+    }
+
+    select.innerHTML = `
+        <option value="">
+            Select Program
+        </option>
+    `
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'program_master'
+            )
+            .select(`
+                program_id,
+                program_code,
+                program_name,
+                sort_order
+            `)
+            .eq(
+                'active',
+                true
+            )
+            .order(
+                'sort_order',
+                {
+                    ascending: true
+                }
+            )
+
+    if (
+        error
+    ) {
+
+        throw error
+
+    }
+
+    for (
+
+        const program
+
+        of data || []
+
+    ) {
+
+        select.innerHTML += `
+            <option
+                value="${program.program_id}">
+                ${program.program_code} - ${program.program_name}
+            </option>
+        `
+
+    }
+
+}
+
+
 async function loadEvents() {
   const {
     data,
@@ -699,11 +2800,7 @@ function renderEvents() {
     Edit
   </button>
 
-  <button
-    class="btn btn-sm btn-success me-1"
-    onclick="managePrograms('${event.event_id}')">
-    Programs
-  </button>
+  
 
   <button
     class="btn btn-sm btn-danger"
@@ -1133,6 +3230,7 @@ async function saveEvent() {
     await loadEvents()
 
     await loadEventNameSuggestions()
+
   } catch (error) {
     console.error(error)
 

@@ -7,6 +7,14 @@
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 
+import {
+
+  importEvents
+
+}
+
+from './eventImport.js'
+
 const PAGE_SIZE = 10
 
 let eventOccurrences = []
@@ -38,6 +46,31 @@ const btnNewOccurrence =
   document.getElementById(
     'btnNewOccurrence'
   )
+const btnImportEvents =
+  document.getElementById(
+    'btnImportEvents'
+  )
+
+const btnDownloadEventTemplate =
+  document.getElementById(
+    'btnDownloadEventTemplate'
+  )
+
+const eventImportFile =
+  document.getElementById(
+    'eventImportFile'
+  )
+
+const btnApproveImport =
+  document.getElementById(
+    'btnApproveImport'
+  )
+
+let pendingImport =
+  null
+let latestImportResult =
+  null
+
 const occurrenceTableBody =
   document.getElementById(
     'occurrenceTableBody'
@@ -747,9 +780,14 @@ async function buildOccurrencePayload() {
     town_id:
       townId,
 
-    organizer:
+        organizer:
       getValue(
         'organizer'
+      ),
+
+    notes:
+      getValue(
+        'notes'
       ),
 
     event_area:
@@ -1811,9 +1849,9 @@ async function (
     occurrence.organizer
   )
 
-  setValue(
-    'organizer',
-    occurrence.organizer
+    setValue(
+    'notes',
+    occurrence.notes
   )
 
   setValue(
@@ -1914,7 +1952,10 @@ function clearOccurrenceForm() {
     'organizer',
     ''
   )
-
+  setValue(
+    'notes',
+    ''
+  )
   setValue(
     'startDate',
     ''
@@ -1951,212 +1992,1039 @@ document
   .add(
     'd-none'
   )
+async function startEventImport(
+  file
+) {
+
+  try {
+
+    pendingImport =
+      await importEvents(
+        file
+      )
+
+    const preview =
+      pendingImport.preview
+
+    document.getElementById(
+      'importTotalRows'
+    ).textContent =
+      preview.totals.totalRows
+
+    document.getElementById(
+      'importValidRows'
+    ).textContent =
+      preview.totals.successfulRows
+
+    document.getElementById(
+      'importWarningRows'
+    ).textContent =
+      preview.totals.warningRows
+
+    document.getElementById(
+      'importErrorRows'
+    ).textContent =
+      preview.totals.errorRows
+
+    renderPreviewTable(
+      preview
+    )
+
+    renderPreviewErrors(
+      preview
+    )
+
+    renderPreviewWarnings(
+      preview
+    )
+
+    new coreui.Modal(
+
+      document.getElementById(
+
+        'eventImportPreviewModal'
+
+      )
+
+    ).show()
+
+    eventImportFile.value =
+      ''
+
+  }
+
+  catch (
+
+    error
+
+  ) {
+
+    console.error(
+
+      error
+
+    )
+
+    showError(
+
+      error.message
+
+    )
+
+  }
+
+}
+
+function renderPreviewTable(
+  preview
+) {
+
+  const header =
+    document.getElementById(
+      'previewHeader'
+    )
+
+  const body =
+    document.getElementById(
+      'previewBody'
+    )
+
+  if (
+    !header ||
+    !body
+  ) {
+    return
+  }
+
+  header.innerHTML = ''
+
+  body.innerHTML = ''
+
+  if (
+    !preview.rows?.length
+  ) {
+    return
+  }
+
+  const columns =
+    Object.keys(
+      preview.rows[0]
+    )
+
+  header.innerHTML = `
+    <tr>
+      ${
+        columns
+          .map(
+            column =>
+              `<th>${column}</th>`
+          )
+          .join('')
+      }
+    </tr>
+  `
+
+  for (
+    const row
+    of preview.rows
+  ) {
+
+    body.innerHTML += `
+      <tr>
+        ${
+          columns
+            .map(
+              column =>
+                `<td>${
+                  row[column] ??
+                  ''
+                }</td>`
+            )
+            .join('')
+        }
+      </tr>
+    `
+  }
+
+}
+
+
+function renderPreviewErrors(
+  preview
+) {
+
+  const container =
+    document.getElementById(
+      'importErrors'
+    )
+
+  if (
+    !container
+  ) {
+    return
+  }
+
+  container.innerHTML = ''
+
+  if (
+    !preview.errors?.length
+  ) {
+
+    container.innerHTML =
+      `
+        <div
+          class="alert alert-success"
+        >
+          No validation errors.
+        </div>
+      `
+
+    return
+
+  }
+
+  for (
+    const error
+    of preview.errors
+  ) {
+
+    container.innerHTML += `
+      <div
+        class="alert alert-danger mb-2"
+      >
+        ${error.message}
+      </div>
+    `
+
+  }
+
+}
+
+function renderPreviewWarnings(
+  preview
+) {
+
+  const container =
+    document.getElementById(
+      'importWarnings'
+    )
+
+  if (
+    !container
+  ) {
+    return
+  }
+
+  container.innerHTML = ''
+
+  if (
+    !preview.warnings?.length
+  ) {
+
+    container.innerHTML =
+      `
+        <div
+          class="alert alert-success"
+        >
+          No warnings.
+        </div>
+      `
+
+    return
+
+  }
+
+  for (
+    const warning
+    of preview.warnings
+  ) {
+
+    container.innerHTML += `
+      <div
+        class="alert alert-warning mb-2"
+      >
+        ${warning.message}
+      </div>
+    `
+
+  }
+
+}
+
+function renderImportSummary(
+  result
+) {
+
+  latestImportResult =
+    result
+
+  const summary =
+    document.getElementById(
+      'importSummary'
+    )
+
+  if (
+    !summary
+  ) {
+
+    return
+
+  }
+
+  const importSummary =
+
+    result.summary || {}
+
+  summary.innerHTML = `
+
+    <div class="row g-3">
+
+      <div class="col-md-3">
+
+        <div class="card text-bg-primary">
+
+          <div class="card-body text-center">
+
+            <h6>Total Rows</h6>
+
+            <h3>
+
+              ${importSummary.totalRows || 0}
+
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="col-md-3">
+
+        <div class="card text-bg-success">
+
+          <div class="card-body text-center">
+
+            <h6>Imported</h6>
+
+            <h3>
+
+              ${importSummary.importedRows || 0}
+
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="col-md-3">
+
+        <div class="card text-bg-warning">
+
+          <div class="card-body text-center">
+
+            <h6>Warnings</h6>
+
+            <h3>
+
+              ${importSummary.totalWarnings || 0}
+
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="col-md-3">
+
+        <div class="card text-bg-danger">
+
+          <div class="card-body text-center">
+
+            <h6>Errors</h6>
+
+            <h3>
+
+              ${importSummary.totalErrors || 0}
+
+            </h3>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <hr>
+
+    <div class="row">
+
+      <div class="col-md-6">
+
+        <table class="table table-sm">
+
+          <tbody>
+
+            <tr>
+
+              <th>Module</th>
+
+              <td>
+
+                ${importSummary.module || 'Events'}
+
+              </td>
+
+            </tr>
+
+            <tr>
+
+              <th>Source</th>
+
+              <td>
+
+                ${importSummary.source || '-'}
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="col-md-6">
+
+        <table class="table table-sm">
+
+          <tbody>
+
+            <tr>
+
+              <th>Started</th>
+
+              <td>
+
+                ${importSummary.startedAt || '-'}
+
+              </td>
+
+            </tr>
+
+            <tr>
+
+              <th>Completed</th>
+
+              <td>
+
+                ${importSummary.completedAt || '-'}
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  `
+
+  new coreui.Modal(
+
+    document.getElementById(
+
+      'eventImportSummaryModal'
+
+    )
+
+  ).show()
+
+}
+// =====================================================
+// DOWNLOAD EVENT TEMPLATE
+// =====================================================
+
+function downloadEventTemplate() {
+
+  const csv = [
+
+    'town_name,event_category_code,event_type_code,sponsor_code,organizer,start_date,start_time,end_date,end_time,notes',
+
+    'Eldoret,TRAIN,ROAD,SAF,Kenya Cycling Federation,2026-08-10,06:00,2026-08-10,18:00,National team endurance session'
+
+].join('\n')
+
+  const blob =
+
+    new Blob(
+
+      [
+
+        csv
+
+      ],
+
+      {
+
+        type:
+
+          'text/csv;charset=utf-8;'
+
+      }
+
+    )
+
+  const url =
+
+    URL.createObjectURL(
+
+      blob
+
+    )
+
+  const link =
+
+    document.createElement(
+
+      'a'
+
+    )
+
+  link.href =
+
+    url
+
+  link.download =
+
+    'Event_Import_Template.csv'
+
+  document.body.appendChild(
+
+    link
+
+  )
+
+  link.click()
+
+  document.body.removeChild(
+
+    link
+
+  )
+
+  URL.revokeObjectURL(
+
+    url
+
+  )
+
+}
 
 // =====================================================
 // PHASE 2 EVENT LISTENERS
 // =====================================================
 
-if (eventId) {
-  eventId.addEventListener(
-    'change',
-    handleEventSelection
-  )
-}
-
-if (countryId) {
-  countryId.addEventListener(
-    'change',
-    async () => {
-      await loadCountyOptions(
-        countryId.value
-      )
-
-      countyId.value = ''
-
-      subcountyId.innerHTML =
-        `
-          <option value="">
-            Select Subcounty
-          </option>
-        `
-
-      if (townSuggestions) {
-        townSuggestions.innerHTML = ''
-      }
-
-      setValue(
-        'townName',
-        ''
-      )
-
-      setValue(
-        'eventArea',
-        ''
-      )
-    }
-  )
-}
-
-if (countyId) {
-  countyId.addEventListener(
-    'change',
-    async () => {
-      await loadSubcounties(
-        countyId.value
-      )
-
-      if (townSuggestions) {
-        townSuggestions.innerHTML = ''
-      }
-
-      setValue(
-        'townName',
-        ''
-      )
-
-      setValue(
-        'eventArea',
-        ''
-      )
-    }
-  )
-}
-
-if (subcountyId) {
-  subcountyId.addEventListener(
-    'change',
-    async () => {
-      await loadTowns(
-        subcountyId.value
-      )
-
-      setValue(
-        'townName',
-        ''
-      )
-
-      setValue(
-        'eventArea',
-        ''
-      )
-    }
-  )
-}
-
-if (townName) {
-  townName.addEventListener(
-    'input',
-    generateEventArea
-  )
-}
-
 if (
-  btnSaveOccurrence
+
+  btnDownloadEventTemplate
+
 ) {
-  btnSaveOccurrence
+
+  btnDownloadEventTemplate
     .addEventListener(
+
       'click',
-      saveSame
+
+      downloadEventTemplate
+
     )
+
 }
 
 if (
-  btnSaveOccurrenceAsNew
+
+  btnImportEvents
+
 ) {
-  btnSaveOccurrenceAsNew
+
+  btnImportEvents
     .addEventListener(
+
       'click',
-      saveNew
-    )
-}
 
-if (
-  searchOccurrence
-) {
-  searchOccurrence
-    .addEventListener(
-      'input',
-      searchOccurrences
-    )
-}
-
-if (
-  btnNewOccurrence
-) {
-  btnNewOccurrence
-    .addEventListener(
-      'click',
       () => {
+
+        eventImportFile.click()
+
+      }
+
+    )
+
+}
+
+if (
+
+  eventImportFile
+
+) {
+
+  eventImportFile
+    .addEventListener(
+
+      'change',
+
+      async e => {
+
+        const file =
+          e.target.files[0]
+
+        if (
+
+          !file
+
+        ) {
+
+          return
+
+        }
+
+        await startEventImport(
+
+          file
+
+        )
+
+      }
+
+    )
+
+}
+
+if (
+
+  btnApproveImport
+
+) {
+
+  btnApproveImport
+    .addEventListener(
+
+      'click',
+
+      async () => {
+
+        const result =
+          await pendingImport
+            .approve()
+
+        coreui.Modal
+          .getInstance(
+
+            document.getElementById(
+
+              'eventImportPreviewModal'
+
+            )
+
+          )
+          ?.hide()
+
+        renderImportSummary(
+
+          result
+
+        )
+
+        await loadOccurrences()
+
+        pendingImport =
+          null
+
+      }
+
+    )
+
+}
+
+if (
+
+  eventId
+
+) {
+
+  eventId
+    .addEventListener(
+
+      'change',
+
+      handleEventSelection
+
+    )
+
+}
+
+if (
+
+  countryId
+
+) {
+
+  countryId
+    .addEventListener(
+
+      'change',
+
+      async () => {
+
+        await loadCountyOptions(
+
+          countryId.value
+
+        )
+
+        countyId.value =
+          ''
+
+        subcountyId.innerHTML =
+          `
+            <option value="">
+              Select Subcounty
+            </option>
+          `
+
+        if (
+
+          townSuggestions
+
+        ) {
+
+          townSuggestions.innerHTML =
+            ''
+
+        }
+
+        setValue(
+
+          'townName',
+
+          ''
+
+        )
+
+        setValue(
+
+          'eventArea',
+
+          ''
+
+        )
+
+      }
+
+    )
+
+}
+
+if (
+
+  countyId
+
+) {
+
+  countyId
+    .addEventListener(
+
+      'change',
+
+      async () => {
+
+        await loadSubcounties(
+
+          countyId.value
+
+        )
+
+        if (
+
+          townSuggestions
+
+        ) {
+
+          townSuggestions.innerHTML =
+            ''
+
+        }
+
+        setValue(
+
+          'townName',
+
+          ''
+
+        )
+
+        setValue(
+
+          'eventArea',
+
+          ''
+
+        )
+
+      }
+
+    )
+
+}
+
+if (
+
+  subcountyId
+
+) {
+
+  subcountyId
+    .addEventListener(
+
+      'change',
+
+      async () => {
+
+        await loadTowns(
+
+          subcountyId.value
+
+        )
+
+        setValue(
+
+          'townName',
+
+          ''
+
+        )
+
+        setValue(
+
+          'eventArea',
+
+          ''
+
+        )
+
+      }
+
+    )
+
+}
+
+if (
+
+  townName
+
+) {
+
+  townName
+    .addEventListener(
+
+      'input',
+
+      generateEventArea
+
+    )
+
+}
+
+if (
+
+  btnSaveOccurrence
+
+) {
+
+  btnSaveOccurrence
+    .addEventListener(
+
+      'click',
+
+      saveSame
+
+    )
+
+}
+
+if (
+
+  btnSaveOccurrenceAsNew
+
+) {
+
+  btnSaveOccurrenceAsNew
+    .addEventListener(
+
+      'click',
+
+      saveNew
+
+    )
+
+}
+
+if (
+
+  searchOccurrence
+
+) {
+
+  searchOccurrence
+    .addEventListener(
+
+      'input',
+
+      searchOccurrences
+
+    )
+
+}
+
+if (
+
+  btnNewOccurrence
+
+) {
+
+  btnNewOccurrence
+    .addEventListener(
+
+      'click',
+
+      () => {
+
         clearOccurrenceForm()
+
         btnSaveOccurrence
-  ?.classList
-  .add(
-    'd-none'
-  )
+          ?.classList
+          .add(
+
+            'd-none'
+
+          )
 
         btnSaveOccurrenceAsNew
-  ?.classList
-  .remove(
-    'd-none'
-  )
+          ?.classList
+          .remove(
+
+            'd-none'
+
+          )
 
         const modal =
+
           new coreui.Modal(
+
             document.getElementById(
+
               'occurrenceModal'
+
             )
+
           )
 
         modal.show()
+
       }
+
     )
+
 }
 
 document
   .getElementById(
+
     'btnConfirmDeleteOccurrence'
+
   )
   ?.addEventListener(
+
     'click',
+
     async () => {
+
       if (
+
         !pendingOccurrenceDeleteId
+
       ) {
+
         return
+
       }
 
       try {
+
         const {
+
           error
+
         } =
+
           await window
             .supabaseClient
             .from(
+
               'event_instances'
+
             )
             .delete()
             .eq(
+
               'event_instance_id',
+
               pendingOccurrenceDeleteId
+
             )
 
         if (
+
           error
+
         ) {
+
           throw error
+
         }
 
         await loadOccurrences()
 
         showSuccess(
+
           'Event Occurrence Deleted'
+
         )
+
       } catch (
+
         error
+
       ) {
+
         showError(
+
           error.message
+
         )
+
       }
 
       pendingOccurrenceDeleteId =
@@ -2164,10 +3032,129 @@ document
 
       coreui.Modal
         .getInstance(
+
           document.getElementById(
+
             'deleteOccurrenceModal'
+
           )
+
         )
         ?.hide()
+
     }
+
+  )
+document
+  .getElementById(
+    'btnDownloadCsv'
+  )
+  ?.addEventListener(
+
+    'click',
+
+    () => {
+
+      const file =
+
+        latestImportResult
+          ?.downloads
+          ?.csv
+
+      if (
+
+        !file
+
+      ) {
+
+        return
+
+      }
+
+      window.open(
+
+        file,
+
+        '_blank'
+
+      )
+
+    }
+
+  )
+
+document
+  .getElementById(
+    'btnDownloadExcel'
+  )
+  ?.addEventListener(
+
+    'click',
+
+    () => {
+
+      const file =
+
+        latestImportResult
+          ?.downloads
+          ?.excel
+
+      if (
+
+        !file
+
+      ) {
+
+        return
+
+      }
+
+      window.open(
+
+        file,
+
+        '_blank'
+
+      )
+
+    }
+
+  )
+
+document
+  .getElementById(
+    'btnDownloadPdf'
+  )
+  ?.addEventListener(
+
+    'click',
+
+    () => {
+
+      const file =
+
+        latestImportResult
+          ?.downloads
+          ?.pdf
+
+      if (
+
+        !file
+
+      ) {
+
+        return
+
+      }
+
+      window.open(
+
+        file,
+
+        '_blank'
+
+      )
+
+    }
+
   )

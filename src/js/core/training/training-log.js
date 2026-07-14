@@ -1,4 +1,4 @@
-/* global coreui */
+﻿/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 
@@ -514,62 +514,132 @@ async function loadTrainingEvents() {
 }
 
 async function loadPrograms(
-  eventId
+    occurrenceId = null
 ) {
-  const {
-    data,
-    error
-  } =
+
+    const select =
+        document.getElementById(
+            'programId'
+        )
+
+    if (
+        !occurrenceId
+    ) {
+
+        programs = []
+
+        select.innerHTML = `
+            <option value="">
+                Select Program
+            </option>
+        `
+
+        return
+
+    }
+
+    const {
+
+        data,
+
+        error
+
+    } =
     await db
-      .from(
-        'event_programs'
-      )
-      .select(`
-        program_id,
-        program_name
-      `)
-      .eq(
-        'event_id',
-        eventId
-      )
+        .from(
+            'participant_instances'
+        )
+        .select(`
+            program_id,
 
-  if (error) {
-    throw error
-  }
+            program_master(
+                program_id,
+                program_name,
+                sort_order
+            )
+        `)
+        .eq(
+            'event_instance_id',
+            occurrenceId
+        )
 
-  programs =
-    data || []
+    if (
+        error
+    ) {
 
-  const select =
-    document.getElementById(
-      'programId'
-    )
+        throw error
 
-  if (!select) {
-    return
-  }
+    }
 
-  select.innerHTML =
+    const uniquePrograms =
+        new Map()
+
+    for (
+        const row of
+        data || []
+    ) {
+
+        if (
+            row.program_master &&
+            !uniquePrograms.has(
+                row.program_id
+            )
+        ) {
+
+            uniquePrograms.set(
+                row.program_id,
+                {
+                    program_id:
+                        row.program_master.program_id,
+
+                    program_name:
+                        row.program_master.program_name,
+
+                    sort_order:
+                        row.program_master.sort_order ?? 9999
+                }
+            )
+
+        }
+
+    }
+
+    programs =
+        Array.from(
+            uniquePrograms.values()
+        )
+        .sort(
+            (
+                a,
+                b
+            ) =>
+
+                a.sort_order -
+                b.sort_order
+        )
+
+    select.innerHTML = `
+        <option value="">
+            Select Program
+        </option>
     `
-    <option value="">
-      Select Program
-    </option>
-    `
 
-  for (
-    const program
-    of programs
-  ) {
-    select.innerHTML += `
-      <option
-        value="${program.program_id}"
-      >
-        ${program.program_name}
-      </option>
-    `
-  }
+    for (
+        const program of
+        programs
+    ) {
+
+        select.innerHTML += `
+            <option
+                value="${program.program_id}"
+            >
+                ${program.program_name}
+            </option>
+        `
+
+    }
+
 }
-
 async function loadOccurrences(
   eventId
 ) {
@@ -597,7 +667,7 @@ async function loadOccurrences(
         county_id,
         subcounty_id,
         town_id,
-        program_id,
+        
 
         events(
           event_id,
@@ -654,125 +724,120 @@ async function loadOccurrences(
 
   for (const occurrence of occurrences) {
     select.innerHTML += `
-        <option
-          value="${occurrence.event_instance_id}"
-        >
-          ${occurrence.event_area}
-        </option>
-      `
+    <option
+        value="${occurrence.event_instance_id}"
+    >
+        ${occurrence.event_area} (${occurrence.start_date})
+    </option>
+`
   }
 }
 
 async function loadParticipants(
-  occurrenceId,
-  programId
-) {
-  const {
-    data,
-    error
-  } =
-    await db
-  .from(
-    'participant_instances'
-  )
-  .select(`
-  participant_instance_id,
-  participant_ref_id,
-  participant_status_id,
-
-  participant_registry(
-    participant_ref_id,
-    source_id,
-    display_name,
-
-    participant_type_master(
-      participant_type_code
-    )
-  ),
-
-  status_master(
-    status_id,
-    status_code,
-    status_name
-  )
-`)
-  .eq(
-    'event_instance_id',
-    occurrenceId
-  )
-  .eq(
-    'program_id',
+    occurrenceId,
     programId
-  )
+) {
 
-  if (error) {
-    throw error
-  }
+    const {
+        data,
+        error
+    } =
+    await db
+        .from(
+            'participant_instances'
+        )
+        .select(`
+            participant_instance_id,
+            participant_ref_id,
+            participant_status_id,
 
-  participants =
-    data || []
+            participant_registry(
+                participant_ref_id,
+                source_id,
+                display_name,
 
-  const select =
-    document.getElementById(
-      'participantId'
-    )
+                participant_type_master(
+                    participant_type_code
+                )
+            ),
 
-  if (!select) {
-    return
-  }
+            status_master(
+                status_id,
+                status_code,
+                status_name
+            )
+        `)
+        .eq(
+            'event_instance_id',
+            occurrenceId
+        )
+        .eq(
+            'program_id',
+            programId
+        )
 
-  select.innerHTML =
+    if (error) {
+        throw error
+    }
+
+    participants =
+        data || []
+
+    const select =
+        document.getElementById(
+            'participantId'
+        )
+
+    if (!select) {
+        return
+    }
+
+    select.innerHTML = `
+        <option value="">
+            Select Participant
+        </option>
     `
-    <option value="">
-      Select Participant
-    </option>
-    `
 
-  for (
-    const participant
-    of participants
-  ) {
     const selectedType =
-    document.querySelector(
-      'input[name="trainingType"]:checked'
-    )?.value
+        document.querySelector(
+            'input[name="trainingType"]:checked'
+        )?.value
 
-    const participantType =
-    participant
-      .participant_registry
-      ?.participant_type_master
-      ?.participant_type_code
+    for (const participant of participants) {
 
-    if (
-      selectedType ===
-    'TEAM' &&
-    participantType !==
-    'TEAM'
-    ) {
-      continue
+        const participantType =
+            participant
+                .participant_registry
+                ?.participant_type_master
+                ?.participant_type_code
+
+        if (
+            selectedType === 'TEAM' &&
+            participantType !== 'TEAM'
+        ) {
+            continue
+        }
+
+        if (
+            selectedType === 'INDIVIDUAL' &&
+            participantType !== 'ATHLETE'
+        ) {
+            continue
+        }
+
+        select.innerHTML += `
+            <option
+                value="${participant.participant_instance_id}"
+            >
+                ${
+                    participant
+                        .participant_registry
+                        ?.display_name || ''
+                }
+            </option>
+        `
     }
 
-    if (
-      selectedType ===
-    'INDIVIDUAL' &&
-    participantType !==
-    'ATHLETE'
-    ) {
-      continue
-    }
-
-    select.innerHTML += `
-    <option
-      value="${participant.participant_ref_id}"
-    >
-      ${
-  participant
-          .participant_registry
-          ?.display_name || ''
-}
-    </option>
-  `
-  }
 }
 
 async function loadSessionTypes() {
@@ -1029,6 +1094,8 @@ participant_instances(
 
   participant_instance_id,
 
+  participant_ref_id,
+
   program_id,
 
   event_instance_id,
@@ -1042,21 +1109,29 @@ participant_instances(
     )
   ),
 
-  event_programs(
+  program_master(
+
     program_id,
+
     program_name
-  ),
+
+),
 
   event_instances(
     event_instance_id,
     event_area,
 
     events(
-      event_name
-    )
-  )
+    event_id,
+    event_name
 )
+  )
+
+)
+
 `)
+
+
         .order(
           'training_date',
           {
@@ -1163,7 +1238,7 @@ function renderTrainingLogs() {
     const program =
       training
         .participant_instances
-        ?.event_programs
+        ?.program_master
         ?.program_name || ''
 
     const attendanceStatus =
@@ -1339,47 +1414,49 @@ function searchTrainingLogs() {
 
       trainingLogs.filter(
         training => {
-          return (
+        return (
 
-            (
-              training
-    .participant_instances
-    ?.participant_registry
-    ?.display_name || ''
-            )
-              .toLowerCase()
-              .includes(search) ||
-   (
-     training
-    .participant_instances
-    ?.event_instances
-    ?.events
-    ?.event_name || ''
-   )
-  .toLowerCase()
-  .includes(search) ||
+    (
+        training
+            .participant_instances
+            ?.participant_registry
+            ?.display_name || ''
+    )
+        .toLowerCase()
+        .includes(search) ||
 
-(
-  training
-    .participant_instances
-    ?.event_programs
-    ?.program_name || ''
+    (
+        training
+            .participant_instances
+            ?.event_instances
+            ?.events
+            ?.event_name || ''
+    )
+        .toLowerCase()
+        .includes(search) ||
+
+    (
+        training
+            .participant_instances
+            ?.program_master
+            ?.program_name || ''
+    )
+        .toLowerCase()
+        .includes(search) ||
+
+    (
+        training.session_type || ''
+    )
+        .toLowerCase()
+        .includes(search) ||
+
+    (
+        training.notes || ''
+    )
+        .toLowerCase()
+        .includes(search)
+
 )
-  .toLowerCase()
-  .includes(search) ||
-            (
-              training.session_type || ''
-            )
-              .toLowerCase()
-              .includes(search) ||
-
-            (
-              training.notes || ''
-            )
-              .toLowerCase()
-              .includes(search)
-
-          )
         }
       ) :
 
@@ -1638,17 +1715,17 @@ async function saveTraining() {
       return
     }
 
-    const participantId =
-      getValue(
+    const participantInstanceId =
+    getValue(
         'participantId'
-      )
+    )
 
-    const participant =
-      participants.find(
+const participant =
+    participants.find(
         p =>
-          p.participant_ref_id ===
-          participantId
-      )
+            p.participant_instance_id ===
+            participantInstanceId
+    )
 
     if (
       !participant
@@ -1762,27 +1839,20 @@ async function saveTraining() {
           'indoorSession'
         ) === 'true',
 
-      participant_id:
-        participantId,
+     participant_instance_id:
+    participantInstanceId,
 
-      participant_instance_id:
-  participant
-    ?.participant_instance_id || null,
+participant_id:
+    null,
 
-      event_id:
-  getValue(
-    'eventId'
-  ),
+event_id:
+    null,
 
-      event_instance_id:
-  getValue(
-    'eventInstanceId'
-  ) || null,
+event_instance_id:
+    null,
 
-      program_id:
-  getValue(
-    'programId'
-  ) || null,
+program_id:
+    null,
 
       team_id:
 
@@ -1987,14 +2057,21 @@ async function (
     training.training_day || ''
   )
 
-  setValue(
-    'eventId',
+ const eventId =
     training
-    .event_id
-  )
-  await loadOccurrences(
-    training.event_id
-  )
+        .participant_instances
+        ?.event_instances
+        ?.events
+        ?.event_id
+
+setValue(
+    'eventId',
+    eventId
+)
+
+await loadOccurrences(
+    eventId
+)
   const occurrence =
   occurrences.find(
     row =>
@@ -2004,17 +2081,26 @@ async function (
 
   setValue(
     'eventInstanceId',
-    training.event_instance_id || ''
-  )
 
+    training
+        .participant_instances
+        ?.event_instance_id || ''
+)
   await loadPrograms(
-    training.event_id
-  )
 
-  setValue(
+    training
+        .participant_instances
+        ?.event_instance_id
+
+)
+
+ setValue(
     'programId',
-    training.program_id || ''
-  )
+
+    training
+        .participant_instances
+        ?.program_id || ''
+)
 
   const participantType =
 
@@ -2037,9 +2123,16 @@ async function (
   }
 
   await loadParticipants(
-    training.event_instance_id,
-    training.program_id
-  )
+
+    training
+        .participant_instances
+        ?.event_instance_id,
+
+    training
+        .participant_instances
+        ?.program_id
+
+)
 
   if (occurrence) {
     setValue(
@@ -2070,8 +2163,8 @@ async function (
 
   setValue(
     'participantId',
-    training.participant_id
-  )
+    training.participant_instance_id
+)
 
   const resultId =
 
@@ -2316,16 +2409,14 @@ function wireEvents() {
           return
         }
 
-        // Program
+       
+// Event Area
 
-        if (
-          occurrence.program_id
-        ) {
-          setValue(
-            'programId',
-            occurrence.program_id
-          )
-        }
+setValue(
+    'eventArea',
+    occurrence.event_area || ''
+)
+      
 
         // Date & Time
 
@@ -2415,13 +2506,26 @@ function wireEvents() {
           'trainingWeek',
           `${month} Week ${week} ${date.getFullYear()}`
         )
+   // Programs
 
+await loadPrograms(
+    occurrenceId
+)
         // Participants
 
-        await loadParticipants(
-          occurrenceId,
-          occurrence.program_id
-        )
+        const selectedProgramId =
+  getValue(
+    'programId'
+  )
+
+if (
+  selectedProgramId
+) {
+  await loadParticipants(
+    occurrenceId,
+    selectedProgramId
+  )
+}
       }
     )
 
@@ -2571,14 +2675,9 @@ function wireEvents() {
           ''
         )
 
-        await Promise.all([
-          loadPrograms(
-            e.target.value
-          ),
-          loadOccurrences(
-            e.target.value
-          )
-        ])
+       await loadOccurrences(
+    e.target.value
+)
       }
     )
 

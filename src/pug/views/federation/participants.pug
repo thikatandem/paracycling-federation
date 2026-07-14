@@ -430,12 +430,17 @@ block view
           )
             | Bulk Status Update
 
-          button.btn.btn-primary(
+          button.btn.btn-success.me-2(
             type='button'
             id='btnSaveParticipantRegistration'
           )
-            | Save Registration
+            | Mini Save
 
+          button.btn.btn-primary(
+            type='button'
+            id='btnFinishParticipantRegistration'
+          )
+            | Finish Registration
   .modal.fade(
     id='deleteRegistrationModal'
     tabindex='-1'

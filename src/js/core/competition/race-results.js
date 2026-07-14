@@ -1,4 +1,4 @@
-/* global coreui */
+﻿/* global coreui */
 /* eslint camelcase: 0 */
 /* eslint-disable no-console */
 
@@ -425,46 +425,95 @@ async function loadCompetitionEvents() {
 }
 
 async function loadPrograms(
-  eventId
+  occurrenceId
 ) {
+  if (
+    !occurrenceId
+  ) {
+    programs = []
+
+    const select =
+      document.getElementById(
+        'programId'
+      )
+
+    if (
+      select
+    ) {
+      select.innerHTML =
+        `
+          <option value="">
+            Select Program
+          </option>
+        `
+    }
+
+    return
+  }
+
   const {
     data,
     error
   } =
     await db
       .from(
-        'event_programs'
+        'participant_instances'
       )
       .select(`
         program_id,
-        program_name
+
+        program_master(
+          program_id,
+          program_name
+        )
       `)
       .eq(
-        'event_id',
-        eventId
+        'event_instance_id',
+        occurrenceId
       )
 
-  if (error) {
+  if (
+    error
+  ) {
     throw error
   }
 
+  const uniquePrograms =
+    [
+      ...new Map(
+
+        (data || []).map(
+          row => [
+
+            row.program_id,
+
+            row.program_master
+
+          ]
+        )
+
+      ).values()
+    ]
+
   programs =
-    data || []
+    uniquePrograms
 
   const select =
     document.getElementById(
       'programId'
     )
 
-  if (!select) {
+  if (
+    !select
+  ) {
     return
   }
 
   select.innerHTML =
     `
-    <option value="">
-      Select Program
-    </option>
+      <option value="">
+        Select Program
+      </option>
     `
 
   for (
@@ -508,7 +557,7 @@ async function loadOccurrences(
         county_id,
         subcounty_id,
         town_id,
-        program_id,
+        
 
         events(
           event_id,
@@ -984,10 +1033,13 @@ async function loadcompetitionResults() {
               )
             ),
 
-            event_programs(
-              program_id,
-              program_name
-            ),
+            program_master(
+
+    program_id,
+
+    program_name
+
+),
 
             event_instances(
               event_instance_id,
@@ -1107,7 +1159,7 @@ function rendercompetitionResults() {
     const program =
     competitionResult
       .participant_instances
-      ?.event_programs
+      ?.program_master
       ?.program_name || ''
 
     const attendanceStatus =
@@ -1279,9 +1331,9 @@ function searchcompetitionResults() {
 
       (
         competitionResult
-          .participant_instances
-          ?.event_programs
-          ?.program_name || ''
+    .participant_instances
+    ?.program_master
+    ?.program_name || ''
       )
         .toLowerCase()
         .includes(search) ||
@@ -1543,6 +1595,7 @@ function validateTraining() {
 
 async function saveCompetitionResult() {
   try {
+
     if (
       !validateTraining()
     ) {
@@ -1555,39 +1608,11 @@ async function saveCompetitionResult() {
       )
 
     const participant =
-  participants.find(
-    p =>
-      p.participant_instance_id ===
-      participantId
-  )
-
-    const participantType =
-  participant
-    ?.participant_registry
-    ?.participant_type_master
-    ?.participant_type_code
-
-    const athleteId =
-
-  participantType ===
-  'ATHLETE' ?
-
-    participant
-      ?.participant_registry
-      ?.source_id :
-
-    null
-
-    const teamId =
-
-  participantType ===
-  'TEAM' ?
-
-    participant
-      ?.participant_registry
-      ?.source_id :
-
-    null
+      participants.find(
+        p =>
+          p.participant_instance_id ===
+          participantId
+      )
 
     if (
       !participant
@@ -1597,36 +1622,64 @@ async function saveCompetitionResult() {
       )
     }
 
+    const participantType =
+      participant
+        ?.participant_registry
+        ?.participant_type_master
+        ?.participant_type_code
+
+    const athleteId =
+
+      participantType ===
+      'ATHLETE' ?
+
+        participant
+          ?.participant_registry
+          ?.source_id :
+
+        null
+
+    const teamId =
+
+      participantType ===
+      'TEAM' ?
+
+        participant
+          ?.participant_registry
+          ?.source_id :
+
+        null
+
     const attendanceStatus =
-  attendanceStatuses.find(
-    row =>
-      row.attendance_status_id ===
-      getValue(
-        'attendanceStatusId'
+      attendanceStatuses.find(
+        row =>
+          row.attendance_status_id ===
+          getValue(
+            'attendanceStatusId'
+          )
       )
-  )
 
     const attendanceCode =
-  attendanceStatus
-    ?.status_code
-    ?.toUpperCase() || ''
+      attendanceStatus
+        ?.status_code
+        ?.toUpperCase() || ''
 
     const metricsAllowed =
 
-  attendanceCode !==
-  'ABSENT_WITH_APOLOGY' &&
+      attendanceCode !==
+      'ABSENT_WITH_APOLOGY' &&
 
-  attendanceCode !==
-  'ABSENT_WITHOUT_APOLOGY'
+      attendanceCode !==
+      'ABSENT_WITHOUT_APOLOGY'
 
     const occurrence =
-  occurrences.find(
-    row =>
-      row.event_instance_id ===
-      getValue(
-        'eventInstanceId'
+      occurrences.find(
+        row =>
+          row.event_instance_id ===
+          getValue(
+            'eventInstanceId'
+          )
       )
-  )
 
     if (
       !occurrence
@@ -1638,8 +1691,22 @@ async function saveCompetitionResult() {
 
     const payload = {
 
+      participant_instance_id:
+        participant.participant_instance_id,
+
+      participant_source_id:
+        participant
+          ?.participant_registry
+          ?.source_id || null,
+
+      athlete_id:
+        athleteId,
+
+      team_id:
+        teamId,
+
       town_id:
-  occurrence.town_id || null,
+        occurrence.town_id || null,
 
       competition_date:
         getValue(
@@ -1666,6 +1733,40 @@ async function saveCompetitionResult() {
           'endTime'
         ),
 
+      session_type:
+        getValue(
+          'sessionType'
+        ),
+
+      indoor_session:
+        getValue(
+          'indoorSession'
+        ) === 'true',
+
+      distance_km:
+
+        metricsAllowed ?
+
+          Number(
+            getValue(
+              'distanceKm'
+            )
+          ) :
+
+          null,
+
+      duration_minutes:
+
+        metricsAllowed ?
+
+          Number(
+            getValue(
+              'durationMinutes'
+            )
+          ) :
+
+          null,
+
       avg_speed_kmh:
 
         metricsAllowed ?
@@ -1678,113 +1779,43 @@ async function saveCompetitionResult() {
 
           null,
 
-      indoor_session:
-        getValue(
-          'indoorSession'
-        ) === 'true',
-
-      participant_id:
-  participant
-    ?.participant_registry
-    ?.participant_ref_id || null,
-
-      participant_instance_id:
-  participant
-    ?.participant_instance_id || null,
-
-      event_id:
-  getValue(
-    'eventId'
-  ),
-
-      event_instance_id:
-  getValue(
-    'eventInstanceId'
-  ),
-
-      program_id:
-  getValue(
-    'programId'
-  ),
-
-      team_id:
-  teamId,
-
-      athlete_id:
-  athleteId,
-
-      participant_source_id:
-
-  participant
-    ?.participant_registry
-    ?.source_id || null,
-
-      session_type:
-        getValue(
-          'sessionType'
-        ),
-
-      distance_km:
-
-  metricsAllowed ?
-
-    Number(
-      getValue(
-        'distanceKm'
-      )
-    ) :
-
-    null,
-
-      duration_minutes:
-
-  metricsAllowed ?
-
-    Number(
-      getValue(
-        'durationMinutes'
-      )
-    ) :
-
-    null,
+      max_speed_kmh:
+        Number(
+          getValue(
+            'maxSpeedKmh'
+          )
+        ) || null,
 
       position:
-  Number(
-    getValue(
-      'position'
-    )
-  ) || null,
+        Number(
+          getValue(
+            'position'
+          )
+        ) || null,
 
       points:
-  Number(
-    getValue(
-      'points'
-    )
-  ) || 0,
-
-      max_speed_kmh:
-  Number(
-    getValue(
-      'maxSpeedKmh'
-    )
-  ) || null,
+        Number(
+          getValue(
+            'points'
+          )
+        ) || 0,
 
       attendance: true,
 
       attendance_status_id:
-  getValue(
-    'attendanceStatusId'
-  ) || null,
+        getValue(
+          'attendanceStatusId'
+        ) || null,
 
       outcome_status_id:
 
-  metricsAllowed ?
+        metricsAllowed ?
 
-    getValue(
-      'outcomeStatusId'
-    ) || null :
+          getValue(
+            'outcomeStatusId'
+          ) || null :
 
-    null,
+          null,
 
       notes:
         getValue(
@@ -1798,26 +1829,12 @@ async function saveCompetitionResult() {
         'resultId'
       )
 
-    console.log(
-      'RACE RESULTS PAYLOAD'
-    )
-
-    console.table(
-      payload
-    )
-
-    console.log(
-      'PARTICIPANT'
-    )
-
-    console.log(
-      participant
-    )
     let error
 
     if (
       resultId
     ) {
+
       const response =
         await db
           .from(
@@ -1833,7 +1850,9 @@ async function saveCompetitionResult() {
 
       error =
         response.error
+
     } else {
+
       const response =
         await db
           .from(
@@ -1845,6 +1864,7 @@ async function saveCompetitionResult() {
 
       error =
         response.error
+
     }
 
     if (
@@ -1868,57 +1888,39 @@ async function saveCompetitionResult() {
     await loadcompetitionResults()
 
     showSuccess(
+
       resultId ?
+
         'Competition Result Updated' :
+
         'Competition Result Saved'
+
     )
+
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     console.error(
-      'RACE RESULT SAVE',
       error
-    )
-
-    console.log(
-      'MESSAGE',
-      error.message
-    )
-
-    console.log(
-      'DETAILS',
-      error.details
-    )
-
-    console.log(
-      'HINT',
-      error.hint
-    )
-
-    console.log(
-      'CODE',
-      error.code
     )
 
     showError(
       error.message ||
-  'Save failed'
+      'Save failed'
     )
+
   }
 }
-
 window.editCompetitionResult =
 async function (
   resultId
 ) {
+
   const competitionResult =
     competitionResults.find(
-      item =>
-        item.result_id ===
+      row =>
+        row.result_id ===
         resultId
     )
 
@@ -1930,90 +1932,99 @@ async function (
 
   clearError()
 
+  const bundle =
+    competitionResult
+      .participant_instances
+
+  if (
+    !bundle
+  ) {
+    showError(
+      'Participant bundle not found.'
+    )
+
+    return
+  }
+
+  const occurrenceId =
+    bundle.event_instance_id
+
+  const eventId =
+    bundle
+      ?.event_instances
+      ?.events
+      ?.event_id
+
   setValue(
     'resultId',
     competitionResult.result_id
   )
 
-  setValue(
-    'competitionDate',
-    competitionResult.competition_date
-  )
+  /*
+   * Rebuild hierarchy
+   */
 
   setValue(
     'eventId',
-    competitionResult.event_id
+    eventId || ''
   )
 
   await loadOccurrences(
-    competitionResult.event_id
+    eventId
   )
 
   setValue(
     'eventInstanceId',
-    competitionResult
-      .participant_instances
-      ?.event_instance_id || ''
+    occurrenceId
   )
 
   await loadPrograms(
-    competitionResult.event_id
+    occurrenceId
   )
 
   setValue(
     'programId',
-    competitionResult
-      .participant_instances
-      ?.program_id || ''
+    bundle.program_id
   )
 
   await loadParticipants(
-    competitionResult
-      .participant_instances
-      ?.event_instance_id,
-    competitionResult
-      .participant_instances
-      ?.program_id
+    occurrenceId,
+    bundle.program_id
   )
 
+  /*
+   * Participant Type
+   */
+
   const participantType =
-    competitionResult
-      .participant_instances
+    bundle
       ?.participant_registry
       ?.participant_type_master
       ?.participant_type_code
 
-  if (
+  document.getElementById(
     participantType === 'TEAM'
-  ) {
-    document.getElementById(
-      'competitionTypeTeam'
-    ).checked = true
-  } else {
-    document.getElementById(
-      'competitionTypeIndividual'
-    ).checked = true
-  }
+      ? 'competitionTypeTeam'
+      : 'competitionTypeIndividual'
+  ).checked = true
+
+  /*
+   * Bundle
+   */
 
   setValue(
     'participantId',
-    competitionResult
-    .participant_instance_id
+    bundle.participant_instance_id
   )
+
+  /*
+   * Occurrence Context
+   */
 
   setValue(
-    'attendanceStatusId',
-    competitionResult
-    .attendance_status_id || ''
+    'competitionDate',
+    competitionResult.competition_date
   )
-
-  setValue(
-    'outcomeStatusId',
-    competitionResult
-    .outcome_status_id || ''
-  )
-
-  applyAttendanceStatusRules()
 
   setValue(
     'startTime',
@@ -2026,26 +2037,58 @@ async function (
   )
 
   setValue(
-    'avgSpeedKmh',
-    competitionResult.avg_speed_kmh
+    'competitionWeek',
+    competitionResult.competition_week
   )
 
   setValue(
-    'indoorSession',
-    competitionResult.indoor_session ?
-      'true' :
-      'false'
+    'competitionDay',
+    competitionResult.competition_day
+  )
+
+  /*
+   * Status
+   */
+
+  setValue(
+    'attendanceStatusId',
+    competitionResult.attendance_status_id || ''
   )
 
   setValue(
-    'sessionType',
-    competitionResult.session_type
+    'outcomeStatusId',
+    competitionResult.outcome_status_id || ''
   )
+
+  applyAttendanceStatusRules()
+
+  /*
+   * Metrics
+   */
 
   setValue(
     'distanceKm',
     competitionResult.distance_km
   )
+
+  setValue(
+    'durationMinutes',
+    competitionResult.duration_minutes
+  )
+
+  setValue(
+    'avgSpeedKmh',
+    competitionResult.avg_speed_kmh
+  )
+
+  setValue(
+    'maxSpeedKmh',
+    competitionResult.max_speed_kmh
+  )
+
+  /*
+   * Result
+   */
 
   setValue(
     'position',
@@ -2063,30 +2106,22 @@ async function (
   )
 
   setValue(
-    'maxSpeedKmh',
-    competitionResult.max_speed_kmh
+    'sessionType',
+    competitionResult.session_type
   )
 
   setValue(
-    'competitionWeek',
-    competitionResult.competition_week
-  )
-
-  setValue(
-    'competitionDay',
-    competitionResult.competition_day
-  )
-
-  setValue(
-    'durationMinutes',
-    competitionResult.duration_minutes
+    'indoorSession',
+    competitionResult.indoor_session
+      ? 'true'
+      : 'false'
   )
 
   setValue(
     'attendance',
-    competitionResult.attendance ?
-      'true' :
-      'false'
+    competitionResult.attendance
+      ? 'true'
+      : 'false'
   )
 
   setValue(
@@ -2094,15 +2129,14 @@ async function (
     competitionResult.notes
   )
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'competitionResultModal'
-      )
+  new coreui.Modal(
+    document.getElementById(
+      'competitionResultModal'
     )
+  ).show()
 
-  modal.show()
 }
+
 
 window.confirmdeleteCompetitionResult =
 function (
@@ -2254,16 +2288,7 @@ function wireEvents() {
           return
         }
 
-        // Program
-
-        if (
-          occurrence.program_id
-        ) {
-          setValue(
-            'programId',
-            occurrence.program_id
-          )
-        }
+        
 
         // Date & Time
 
@@ -2353,7 +2378,9 @@ function wireEvents() {
           'competitionWeek',
           `${month} Week ${week} ${date.getFullYear()}`
         )
-
+await loadPrograms(
+  occurrenceId
+)
         // Participants
       }
     )
@@ -2504,14 +2531,9 @@ function wireEvents() {
           ''
         )
 
-        await Promise.all([
-          loadPrograms(
-            e.target.value
-          ),
-          loadOccurrences(
-            e.target.value
-          )
-        ])
+        await loadOccurrences(
+  e.target.value
+)
       }
     )
 
