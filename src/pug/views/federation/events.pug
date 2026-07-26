@@ -473,19 +473,19 @@ block view
 
         .modal-footer
 
+        .modal-footer
+
           button.btn.btn-secondary(
             type='button'
             data-coreui-dismiss='modal'
           )
-
-            Cancel
+            | Cancel
 
           button.btn.btn-success(
             type='button'
             id='btnApproveImport'
           )
-
-            Approve Import
+            | Approve Import
 
   .modal.fade(
     id='eventImportSummaryModal'
@@ -499,8 +499,7 @@ block view
         .modal-header.bg-success.text-white
 
           h5.modal-title
-
-            Import Summary
+            | Import Summary
 
           button.btn-close(
             type='button'
@@ -514,28 +513,28 @@ block view
         .modal-footer
 
           button.btn.btn-outline-primary(
+            type='button'
             id='btnDownloadCsv'
           )
-
-            CSV
+            | CSV
 
           button.btn.btn-outline-success(
+            type='button'
             id='btnDownloadExcel'
           )
-
-            Excel
+            | Excel
 
           button.btn.btn-outline-danger(
+            type='button'
             id='btnDownloadPdf'
           )
-
-            PDF
+            | PDF
 
           button.btn.btn-secondary(
+            type='button'
             data-coreui-dismiss='modal'
           )
-
-            Close 
+            | Close
 append pageScripts
 
   script(type='module' src='js/core/events/events.js')

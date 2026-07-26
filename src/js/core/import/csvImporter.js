@@ -275,4 +275,290 @@ function escapeCsvValue(
 }
 
 
+// =====================================================
+// REMOVE UTF-8 BOM
+// =====================================================
 
+function removeUtf8Bom(
+
+    text = ''
+
+) {
+
+    return String(
+
+        text ?? ''
+
+    ).replace(
+
+        /^\uFEFF/,
+
+        ''
+
+    )
+
+}
+
+// =====================================================
+// NORMALIZE LINE ENDINGS
+// =====================================================
+
+function normalizeLineEndings(
+
+    text = ''
+
+) {
+
+    return String(
+
+        text ?? ''
+
+    )
+
+        .replace(
+
+            /\r\n/g,
+
+            '\n'
+
+        )
+
+        .replace(
+
+            /\r/g,
+
+            '\n'
+
+        )
+
+}
+
+// =====================================================
+// SPLIT CSV LINES
+// =====================================================
+
+function splitCsvLines(
+
+    text = ''
+
+) {
+
+    const lines = []
+
+    let current = ''
+
+    let inQuotes = false
+
+    for (
+
+        let index = 0;
+
+        index < text.length;
+
+        index++
+
+    ) {
+
+        const character =
+
+            text[index]
+
+        if (
+
+            character === '"'
+
+        ) {
+
+            if (
+
+                inQuotes &&
+
+                text[index + 1] === '"'
+
+            ) {
+
+                current += '"'
+
+                index++
+
+                continue
+
+            }
+
+            inQuotes =
+
+                !inQuotes
+
+            current +=
+
+                character
+
+            continue
+
+        }
+
+        if (
+
+            character === '\n' &&
+
+            !inQuotes
+
+        ) {
+
+            lines.push(
+
+                current
+
+            )
+
+            current = ''
+
+            continue
+
+        }
+
+        current +=
+
+            character
+
+    }
+
+   if (
+
+    current.trim().length
+
+) {
+
+    lines.push(
+
+        current
+
+    )
+
+}
+
+    return lines
+
+}
+
+// =====================================================
+// PARSE CSV ROW
+// =====================================================
+
+function parseCsvRow(
+
+    row = '',
+
+    delimiter = ','
+
+) {
+
+    const values = []
+
+    let current = ''
+
+    let inQuotes = false
+
+    for (
+
+        let index = 0;
+
+        index < row.length;
+
+        index++
+
+    ) {
+
+        const character =
+
+            row[index]
+
+        if (
+
+            character === '"'
+
+        ) {
+
+            if (
+
+                inQuotes &&
+
+                row[index + 1] === '"'
+
+            ) {
+
+                current += '"'
+
+                index++
+
+                continue
+
+            }
+
+            inQuotes =
+
+                !inQuotes
+
+            continue
+
+        }
+
+        if (
+
+            character === delimiter &&
+
+            !inQuotes
+
+        ) {
+
+            values.push(
+
+                current
+
+            )
+
+            current = ''
+
+            continue
+
+        }
+
+        current +=
+
+            character
+
+    }
+
+    values.push(
+
+        current
+
+    )
+
+    return values
+
+}
+
+// =====================================================
+// ESCAPE QUOTES
+// =====================================================
+
+function escapeQuotes(
+
+    value = ''
+
+) {
+
+    return String(
+
+        value ?? ''
+
+    ).replace(
+
+        /"/g,
+
+        '""'
+
+    )
+
+}

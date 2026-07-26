@@ -334,90 +334,120 @@ export function validateNumber(
 // =====================================================
 
 export function validateDate(
-  value
+    value
 ) {
 
-  if (
+    if (
 
-    value === null ||
+        value === null ||
 
-    value === undefined ||
+        value === undefined ||
 
-    value === ''
+        value === ''
 
-  ) {
+    ) {
 
-    return {
+        return {
 
-      valid: true,
+            valid: true,
 
-      value: null,
+            value: null,
 
-      message: null
+            message: null
 
-    }
-
-  }
-
-  const regex =
-    /^\d{4}-\d{2}-\d{2}$/
-
-  if (
-
-    !regex.test(
-      value
-    )
-
-  ) {
-
-    return {
-
-      valid: false,
-
-      value: null,
-
-      message:
-        'Date must be in YYYY-MM-DD format.'
+        }
 
     }
 
-  }
+    const text =
 
-  const date =
-    new Date(
-      value
-    )
+        String(
 
-  if (
+            value
 
-    Number.isNaN(
-      date.getTime()
-    )
+        ).trim()
 
-  ) {
+    // ==========================================
+    // Already ISO
+    // ==========================================
 
-    return {
+    if (
 
-      valid: false,
+        /^\d{4}-\d{2}-\d{2}$/.test(
 
-      value: null,
+            text
 
-      message:
-        'Invalid date.'
+        )
+
+    ) {
+
+        return {
+
+            valid: true,
+
+            value: text,
+
+            message: null
+
+        }
 
     }
 
-  }
+    // ==========================================
+    // Excel / CSV (M/D/YYYY)
+    // ==========================================
 
-  return {
+    const usMatch =
 
-    valid: true,
+        text.match(
 
-    value,
+            /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
 
-    message: null
+        )
 
-  }
+    if (
+
+        usMatch
+
+    ) {
+
+        const [
+
+            ,
+
+            month,
+
+            day,
+
+            year
+
+        ] = usMatch
+
+        return {
+
+            valid: true,
+
+            value:
+
+                `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`,
+
+            message: null
+
+        }
+
+    }
+
+    return {
+
+        valid: false,
+
+        value: null,
+
+        message:
+
+            'Date must be in YYYY-MM-DD format.'
+
+    }
 
 }
 

@@ -256,13 +256,27 @@ function resolveForeignKeys(
 
                 )
 
-            record[
-                foreignKey.field
-            ] =
+            const resolvedId =
 
-                map.get(
-                    key
-                ) ?? null
+    map.get(
+
+        key
+
+    )
+
+if (
+
+    resolvedId
+
+) {
+
+    record[
+        foreignKey.field
+    ] =
+
+        resolvedId
+
+}
 
         }
 

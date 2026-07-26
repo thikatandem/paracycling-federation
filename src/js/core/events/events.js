@@ -2037,7 +2037,21 @@ async function startEventImport(
     renderPreviewWarnings(
       preview
     )
+if (
 
+    btnApproveImport
+
+) {
+
+    btnApproveImport.disabled = false
+
+    btnApproveImport.classList.remove(
+
+        'd-none'
+
+    )
+
+}
     new coreui.Modal(
 
       document.getElementById(
@@ -2106,10 +2120,8 @@ function renderPreviewTable(
     return
   }
 
-  const columns =
-    Object.keys(
-      preview.rows[0]
-    )
+ const columns =
+    preview.headers
 
   header.innerHTML = `
     <tr>
@@ -2125,26 +2137,42 @@ function renderPreviewTable(
   `
 
   for (
+
     const row
+
     of preview.rows
-  ) {
+
+) {
 
     body.innerHTML += `
-      <tr>
-        ${
-          columns
-            .map(
-              column =>
-                `<td>${
-                  row[column] ??
-                  ''
-                }</td>`
-            )
-            .join('')
-        }
-      </tr>
+
+        <tr>
+
+            ${
+
+                row
+
+                    .map(
+
+                        value =>
+
+                            `<td>${
+
+                                value ?? ''
+
+                            }</td>`
+
+                    )
+
+                    .join('')
+
+            }
+
+        </tr>
+
     `
-  }
+
+}
 
 }
 
@@ -2460,11 +2488,11 @@ function downloadEventTemplate() {
 
   const csv = [
 
-    'town_name,event_category_code,event_type_code,sponsor_code,organizer,start_date,start_time,end_date,end_time,notes',
+    'event_code,subcounty_code,town_name,sponsor_code,organizer,start_date,start_time,end_date,end_time,notes',
 
-    'Eldoret,TRAIN,ROAD,SAF,Kenya Cycling Federation,2026-08-10,06:00,2026-08-10,18:00,National team endurance session'
+    'EVT-000026,THIKA-TOWN-001,Kiganjo,SPN-000016,Kenya Cycling Federation,2026-08-10,06:00,2026-08-10,18:00,Regional Under 19 Trials'
 
-].join('\n')
+  ].join('\n')
 
   const blob =
 
@@ -2618,43 +2646,76 @@ if (
 
 ) {
 
-  btnApproveImport
-    .addEventListener(
+ btnApproveImport.addEventListener(
+    'click',
+    async () => {
 
-      'click',
+        try {
 
-      async () => {
+            btnApproveImport.disabled = true
 
-        const result =
-          await pendingImport
-            .approve()
+console.group(
+    'Approve Import'
+)
 
-        coreui.Modal
-          .getInstance(
+console.log(
+    'Pending Import:',
+    pendingImport
+)
 
-            document.getElementById(
+console.log(
+    'Approve:',
+    pendingImport?.approve
+)
 
-              'eventImportPreviewModal'
+console.log(
+    'Type:',
+    typeof pendingImport?.approve
+)
 
-            )
+console.groupEnd()
 
-          )
-          ?.hide()
+            const result =
+                await pendingImport.approve()
 
-        renderImportSummary(
+            coreui.Modal
+                .getInstance(
+                    document.getElementById(
+                        'eventImportPreviewModal'
+                    )
+                )
+                ?.hide()
 
-          result
+            renderImportSummary(result)
 
-        )
+            await loadOccurrences()
 
-        await loadOccurrences()
+            pendingImport = null
 
-        pendingImport =
-          null
+        }
 
-      }
+        catch (error) {
 
-    )
+    console.error(error.message)
+
+    console.error(error.details)
+
+    console.error(error.hint)
+
+    console.error(error.code)
+
+    console.error(error)
+
+}
+
+        finally {
+
+            btnApproveImport.disabled = false
+
+        }
+
+    }
+)
 
 }
 

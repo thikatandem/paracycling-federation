@@ -283,3 +283,20 @@ body {
   max-height: 120px;
 
 }
+
+.modal-content{
+height:100vh;
+display:flex;
+}
+
+.modal-body{
+overflow:auto;
+flex:1;
+}
+
+.modal-footer{
+position:sticky;
+bottom:0;
+background:white;
+z-index:10;
+}

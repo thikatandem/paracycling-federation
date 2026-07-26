@@ -179,94 +179,332 @@ export async function loadTowns(
 
 export async function findOrCreateTown({
 
-  subcountyId,
+    townName,
 
-  townName
+    subcountyId = null,
+
+    subcountyCode = null,
+
+    subcountyName = null
 
 }) {
-  const cleanedTown =
-    String(
-      townName || ''
-    ).trim()
 
-  if (
-    !subcountyId ||
-    !cleanedTown
-  ) {
-    return null
-  }
+    const cleanedTown =
 
-  const {
-    data: existingTown
-  } =
-    await window.supabaseClient
-      .from(
-        'town_master'
-      )
-      .select(
-        'town_id'
-      )
-      .eq(
-        'subcounty_id',
+        String(
+
+            townName || ''
+
+        ).trim()
+
+    if (
+
+        !cleanedTown
+
+    ) {
+
+        return {
+
+            found: false,
+
+            id: null,
+
+            code: null,
+
+            name: null,
+
+            record: null
+
+        }
+
+    }
+
+    // ==========================================
+    // Resolve Subcounty UUID
+    // ==========================================
+
+    let resolvedSubcountyId =
+
         subcountyId
-      )
-      .ilike(
-        'town_name',
-        cleanedTown
-      )
-      .maybeSingle()
 
-  if (existingTown) {
-    return existingTown.town_id
-  }
+    if (
 
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'town_master'
-      )
-      .insert({
+        !resolvedSubcountyId
 
-        subcounty_id:
-          subcountyId,
+    ) {
 
-        town_name:
-          cleanedTown
+        let query =
 
-      })
-      .select()
-      .single()
+            window.supabaseClient
 
-  if (error) {
-    throw error
-  }
+                .from(
 
-  return data.town_id
+                    'subcounty_master'
+
+                )
+
+                .select('*')
+
+        if (
+
+            subcountyCode
+
+        ) {
+
+            query =
+
+                query.eq(
+
+                    'subcounty_code',
+
+                    subcountyCode
+
+                )
+
+        }
+
+        else if (
+
+            subcountyName
+
+        ) {
+
+            query =
+
+                query.ilike(
+
+                    'subcounty_name',
+
+                    subcountyName
+
+                )
+
+        }
+
+        const {
+
+            data,
+
+            error
+
+        } =
+
+            await query
+
+                .maybeSingle()
+
+        if (
+
+            error ||
+
+            !data
+
+        ) {
+
+            return {
+
+                found: false,
+
+                id: null,
+
+                code: null,
+
+                name: null,
+
+                record: null
+
+            }
+
+        }
+
+        resolvedSubcountyId =
+
+            data.subcounty_id
+
+    }
+
+    // ==========================================
+    // Check whether Town already exists
+    // ==========================================
+
+    const {
+
+        data: existing,
+
+        error: existingError
+
+    } =
+
+        await window.supabaseClient
+
+            .from(
+
+                'town_master'
+
+            )
+
+            .select('*')
+
+            .eq(
+
+                'subcounty_id',
+
+                resolvedSubcountyId
+
+            )
+
+            .ilike(
+
+                'town_name',
+
+                cleanedTown
+
+            )
+
+            .maybeSingle()
+
+    if (
+
+        existingError
+
+    ) {
+
+        throw existingError
+
+    }
+
+    if (
+
+        existing
+
+    ) {
+
+        return {
+
+            found: true,
+
+            id:
+
+                existing.town_id,
+
+            code:
+
+                existing.town_code ?? null,
+
+            name:
+
+                existing.town_name,
+
+            record:
+
+                existing
+
+        }
+
+    }
+
+    // ==========================================
+    // Create Town
+    // ==========================================
+
+    const {
+
+        data,
+
+        error
+
+    } =
+
+        await window.supabaseClient
+
+            .from(
+
+                'town_master'
+
+            )
+
+            .insert({
+
+                subcounty_id:
+
+                    resolvedSubcountyId,
+
+                town_name:
+
+                    cleanedTown
+
+            })
+
+            .select()
+
+            .single()
+
+    if (
+
+        error
+
+    ) {
+
+        throw error
+
+    }
+
+    return {
+
+        found: true,
+
+        id:
+
+            data.town_id,
+
+        code:
+
+            data.town_code ?? null,
+
+        name:
+
+            data.town_name,
+
+        record:
+
+            data
+
+    }
+
 }
 
 export async function resolveTownId({
 
-  townId,
-
-  subcountyId,
-
-  townName
-
-}) {
-  if (townId) {
-    return townId
-  }
-
-  return findOrCreateTown({
+    townId,
 
     subcountyId,
 
     townName
 
-  })
+}) {
+
+    if (
+
+        townId
+
+    ) {
+
+        return townId
+
+    }
+
+    const town =
+
+        await findOrCreateTown({
+
+            subcountyId,
+
+            townName
+
+        })
+
+    return town.id
+
 }
 
 export async function loadAllSubcounties() {

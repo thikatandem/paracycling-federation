@@ -14,6 +14,8 @@
 //
 // =====================================================
 
+
+
 export const COMMIT_FIELDS = Object.freeze({
 
     COUNTRY_ID:
@@ -32,21 +34,7 @@ export const COMMIT_FIELDS = Object.freeze({
 
         'town_id',
 
-    EVENT_TYPE_ID:
-
-        'event_type_id',
-
-    EVENT_CATEGORY_ID:
-
-        'event_category_id',
-
-    STATUS_ID:
-
-        'status_id',
-
-    EVENT_MASTER_STATUS_ID:
-
-    'event_master_status_id',
+    
 
     SPONSOR_ID:
 
@@ -83,6 +71,14 @@ ACTIVE:
 //
 // =====================================================
 
+// =====================================================
+// BUILD COMMIT OBJECT
+//
+// Converts a Generated Object into a standardized
+// Commit Object containing ONLY database fields.
+//
+// =====================================================
+
 export function buildCommitObject(
 
     generatedObject = {}
@@ -92,6 +88,14 @@ export function buildCommitObject(
     return {
 
         ...generatedObject,
+
+        [COMMIT_FIELDS.EVENT_ID]:
+
+            generatedObject.event?.id ?? null,
+
+        [COMMIT_FIELDS.PROGRAM_ID]:
+
+            generatedObject.program?.id ?? null,
 
         [COMMIT_FIELDS.COUNTRY_ID]:
 
@@ -109,69 +113,10 @@ export function buildCommitObject(
 
             generatedObject.town?.id ?? null,
 
-        [COMMIT_FIELDS.EVENT_TYPE_ID]:
-
-            generatedObject.eventType?.id ?? null,
-
-        [COMMIT_FIELDS.EVENT_CATEGORY_ID]:
-
-            generatedObject.category?.id ?? null,
-
-        [COMMIT_FIELDS.STATUS_ID]:
-
-            generatedObject.status?.id ?? null,
-       [COMMIT_FIELDS.EVENT_MASTER_STATUS_ID]:
-
-    generatedObject.eventMasterStatus?.id ?? null,
-
         [COMMIT_FIELDS.SPONSOR_ID]:
 
-            generatedObject.sponsor?.id ?? null,
-   [COMMIT_FIELDS.PROGRAM_ID]:
+            generatedObject.sponsor?.id ?? null
 
-    generatedObject.program?.id ?? null,
-
-program:
-
-    generatedObject.program ?? null,
-
-sponsor:
-
-    generatedObject.sponsor ?? null,
-
-town:
-
-    generatedObject.town ?? null,
-
-subcounty:
-
-    generatedObject.subcounty ?? null,
-
-county:
-
-    generatedObject.county ?? null,
-
-country:
-
-    generatedObject.country ?? null,
-
-eventType:
-
-    generatedObject.eventType ?? null,
-
-category:
-
-    generatedObject.category ?? null,
-
-status:
-
-    generatedObject.status ?? null,
-
-eventMasterStatus:
-
-    generatedObject.eventMasterStatus ?? null
+    }
 
 }
-
-}
-

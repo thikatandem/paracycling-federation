@@ -85,26 +85,25 @@ const LOOKUPS = {
 
 },
 
- subcounties:{
+subcounties: {
 
-    table:'subcounty_master',
+    table: 'subcounty_master',
 
-    select:'*',
+    select: '*',
 
-    idField:'subcounty_id',
+    idField: 'subcounty_id',
 
-    codeField:null,
+    codeField: 'subcounty_code',
 
-    nameField:'subcounty_name',
+    nameField: 'subcounty_name',
 
-    activeField:null,
+    activeField: null,
 
-    orderBy:'subcounty_name',
+    orderBy: 'subcounty_name',
 
-    ascending:true
+    ascending: true
 
 },
-
   towns: {
 
     table: 'town_master',
@@ -412,6 +411,101 @@ export function clearAllLookupCaches() {
   )
 
 }
+
+export async function resolveEventCode(
+    eventCode
+) {
+
+    if (
+        !eventCode
+    ) {
+
+        return {
+
+            found: false,
+
+            id: null,
+
+            name: null,
+
+            code: null,
+
+            record: null
+
+        }
+
+    }
+
+    const {
+
+        data,
+
+        error
+
+    } =
+        await window
+            .supabaseClient
+            .from(
+                'events'
+            )
+            .select(`
+                event_id,
+                event_code,
+                event_name,
+                event_category_id,
+                event_type_id,
+                event_category_master(
+                    category_name
+                ),
+                event_type_master(
+                    event_type_name
+                )
+            `)
+            .ilike(
+                'event_code',
+                eventCode.trim()
+            )
+            .maybeSingle()
+
+    if (
+
+        error ||
+        !data
+
+    ) {
+
+        return {
+
+            found: false,
+
+            id: null,
+
+            name: null,
+
+            code: eventCode,
+
+            record: null
+
+        }
+
+    }
+
+    return {
+
+        found: true,
+
+        id: data.event_id,
+
+        name: data.event_name,
+
+        code: data.event_code,
+
+        record: data
+
+    }
+
+}
+
 
 // =====================================================
 // LOAD DICTIONARY
@@ -763,11 +857,76 @@ export async function resolveSubcounty(value) {
     )
 }
 
-export async function resolveTown(value) {
+export async function resolveTown(
+
+    townName,
+
+    subcountyId = null
+
+) {
+
+    if (
+
+        !townName
+
+    ) {
+
+        return buildResolverResult(
+
+            null,
+
+            LOOKUPS.towns
+
+        )
+
+    }
+
+    const towns =
+
+        await loadDictionary(
+
+            'towns'
+
+        )
+
+    const search =
+
+        normalizeLookupValue(
+
+            townName
+
+        )
+
+    const record =
+
+        towns.find(
+
+            town =>
+
+                normalizeLookupValue(
+
+                    town.town_name
+
+                ) === search &&
+
+                (
+
+                    !subcountyId ||
+
+                    town.subcounty_id === subcountyId
+
+                )
+
+        ) || null
+
     return buildResolverResult(
-        await resolveByName('towns', value),
+
+        record,
+
         LOOKUPS.towns
+
     )
+
 }
 
 export async function resolveProgram(value) {
@@ -942,6 +1101,72 @@ export async function resolveCategoryCode(
     )
 
 }
+export async function resolveCountryCode(
+
+    code
+
+) {
+
+    return buildResolverResult(
+
+        await resolveByCode(
+
+            'countries',
+
+            code
+
+        ),
+
+        LOOKUPS.countries
+
+    )
+
+}
+
+export async function resolveCountyCode(
+
+    code
+
+) {
+
+    return buildResolverResult(
+
+        await resolveByCode(
+
+            'counties',
+
+            code
+
+        ),
+
+        LOOKUPS.counties
+
+    )
+
+}
+
+export async function resolveSubcountyCode(
+
+    code
+
+) {
+
+    return buildResolverResult(
+
+        await resolveByCode(
+
+            'subcounties',
+
+            code
+
+        ),
+
+        LOOKUPS.subcounties
+
+    )
+
+}
+
 
 export async function resolveEventTypeCode(
 
@@ -1148,11 +1373,18 @@ export async function resolveParticipant(value) {
     )
 }
 
-export async function resolveEvent(value) {
-    return buildResolverResult(
-        await resolveByCode('events', value),
-        LOOKUPS.events
+export async function resolveEvent(
+
+    value
+
+) {
+
+    return resolveEventCode(
+
+        value
+
     )
+
 }
 
 export async function resolveOccurrence(value) {
@@ -1168,7 +1400,27 @@ export async function resolveSponsor(value) {
         LOOKUPS.sponsors
     )
 }
+export async function resolveSponsorCode(
 
+    sponsorCode
+
+) {
+
+    return buildResolverResult(
+
+        await resolveByCode(
+
+            'sponsors',
+
+            sponsorCode
+
+        ),
+
+        LOOKUPS.sponsors
+
+    )
+
+}
 // =====================================================
 // BUILD LOOKUP ERROR
 // =====================================================

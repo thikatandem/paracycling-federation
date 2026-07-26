@@ -331,17 +331,107 @@ errors,
 // Standard Import Object
 // =====================================================
 
+function normalizeExcelDate(
+
+    value
+
+) {
+
+    if (
+
+        value === null ||
+
+        value === undefined ||
+
+        value === ''
+
+    ) {
+
+        return value
+
+    }
+
+    const text =
+
+        String(
+
+            value
+
+        ).trim()
+
+    if (
+
+        /^\d{4}-\d{2}-\d{2}$/.test(
+
+            text
+
+        )
+
+    ) {
+
+        return text
+
+    }
+
+    const match =
+
+        text.match(
+
+            /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+
+        )
+
+    if (
+
+        !match
+
+    ) {
+
+        return text
+
+    }
+
+    const [
+
+        ,
+
+        month,
+
+        day,
+
+        year
+
+    ] = match
+
+    return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`
+
+}
+
 export function normalizeImport(
   rawImport = {}
 ) {
 
  const rows =
-  convertEmptyStrings(
-    trimValues(
-      rawImport.rows || []
-    )
-  )
 
+    convertEmptyStrings(
+
+        trimValues(
+
+            rawImport.rows || []
+
+        )
+
+    ).map(
+
+        row =>
+
+            row.map(
+
+                normalizeExcelDate
+
+            )
+
+    )
   return buildImportResult({
 
     source:
