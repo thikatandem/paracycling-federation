@@ -1,4 +1,12 @@
 import {
+  MAX_FAILED_ATTEMPTS
+} from '../services/constants.js'
+
+import {
+  getDb
+} from '../supabase/getDb.js'
+
+import {
   getProfile
 }
   from './authStateService.js'
@@ -9,10 +17,7 @@ import {
   from './auditService.js'
 
 const db =
-  window.supabaseClient
-
-const MAX_FAILED_ATTEMPTS =
-  5
+  getDb()
 
 /* ============================================================
    RECORD SECURITY EVENT
@@ -52,10 +57,6 @@ export async function recordSecurityEvent({
 
       })
   } catch (error) {
-    console.error(
-      'Security event failed',
-      error
-    )
   }
 }
 

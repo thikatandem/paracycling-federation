@@ -1,7 +1,10 @@
-﻿import {
-    supabase
+import {
+  getDb
 }
-from '../supabase/supabaseClient.js'
+  from '../supabase/getDb.js'
+
+const db =
+  getDb()
 
 // =====================================================
 // LOOKUP CACHE
@@ -35,7 +38,9 @@ const lookupCache = {
 
   categories: null,
 
-  eventTypes: null
+  eventTypes: null,
+
+  eventMasterStatuses: null
 
 }
 
@@ -65,7 +70,7 @@ const LOOKUPS = {
 
   },
 
- counties: {
+  counties: {
 
     table: 'county_master',
 
@@ -73,7 +78,7 @@ const LOOKUPS = {
 
     idField: 'county_id',
 
-    codeField:null,
+    codeField: null,
 
     nameField: 'county_name',
 
@@ -83,9 +88,9 @@ const LOOKUPS = {
 
     ascending: true
 
-},
+  },
 
-subcounties: {
+  subcounties: {
 
     table: 'subcounty_master',
 
@@ -103,7 +108,7 @@ subcounties: {
 
     ascending: true
 
-},
+  },
   towns: {
 
     table: 'town_master',
@@ -122,27 +127,27 @@ subcounties: {
 
     ascending: true
 
-},
+  },
 
- athletes:{
+  athletes: {
 
-    table:'athletes',
+    table: 'athletes',
 
-    select:'*',
+    select: '*',
 
-    idField:'athlete_id',
+    idField: 'athlete_id',
 
-    codeField:'athlete_code',
+    codeField: 'athlete_code',
 
-    nameField:null,
+    nameField: null,
 
-    activeField:null,
+    activeField: null,
 
-    orderBy:'athlete_code',
+    orderBy: 'athlete_code',
 
-    ascending:true
+    ascending: true
 
-},
+  },
   teams: {
 
     table: 'teams',
@@ -155,35 +160,35 @@ subcounties: {
 
     nameField: 'team_name',
 
-    activeField:null,
+    activeField: null,
 
-    orderBy:'team_name',
+    orderBy: 'team_name',
 
     ascending: true
 
-},
+  },
 
-participants:{
+  participants: {
 
-    table:'participant_registry',
+    table: 'participant_registry',
 
-    select:'*',
+    select: '*',
 
-    idField:'participant_ref_id',
+    idField: 'participant_ref_id',
 
-    codeField:null,
+    codeField: null,
 
-    nameField:'display_name',
+    nameField: 'display_name',
 
-    activeField:'is_active',
+    activeField: 'is_active',
 
-    orderBy:'display_name',
+    orderBy: 'display_name',
 
-    ascending:true
+    ascending: true
 
-},
+  },
 
-events: {
+  events: {
 
     table: 'events',
 
@@ -201,9 +206,9 @@ events: {
 
     ascending: true
 
-},
+  },
 
-programs: {
+  programs: {
 
     table: 'program_master',
 
@@ -221,9 +226,9 @@ programs: {
 
     ascending: true
 
-},
+  },
 
- occurrences: {
+  occurrences: {
 
     table: 'event_instances',
 
@@ -241,7 +246,7 @@ programs: {
 
     ascending: true
 
-},
+  },
   statuses: {
 
     table: 'status_master',
@@ -260,7 +265,7 @@ programs: {
 
     ascending: true
 
-},
+  },
 
   sponsors: {
 
@@ -274,13 +279,13 @@ programs: {
 
     nameField: 'sponsor_name',
 
-    activeField:null,
+    activeField: null,
 
     orderBy: 'sponsor_name',
 
     ascending: true
 
-},
+  },
 
   categories: {
 
@@ -300,9 +305,9 @@ programs: {
 
     ascending: true
 
-},
+  },
 
- eventTypes: {
+  eventTypes: {
 
     table: 'event_type_master',
 
@@ -320,9 +325,9 @@ programs: {
 
     ascending: true
 
-},
+  },
 
-eventMasterStatuses: {
+  eventMasterStatuses: {
 
     table:
 
@@ -356,97 +361,80 @@ eventMasterStatuses: {
 
         true
 
-}
+  }
 
 }
-
-
-
 
 function getCache(
   key
 ) {
-
   return lookupCache[
     key
   ] || null
-
 }
 
 function setCache(
   key,
   value
 ) {
-
   lookupCache[
     key
   ] = value
-
 }
 
 export function clearLookupCache(
   key
 ) {
-
   lookupCache[
     key
   ] = null
-
 }
 
 export function clearAllLookupCaches() {
-
   Object.keys(
     lookupCache
   ).forEach(
 
     key => {
-
       lookupCache[
         key
       ] = null
-
     }
 
   )
-
 }
 
 export async function resolveEventCode(
-    eventCode
+  eventCode
 ) {
+  if (
+    !eventCode
+  ) {
+    return {
 
-    if (
-        !eventCode
-    ) {
+      found: false,
 
-        return {
+      id: null,
 
-            found: false,
+      name: null,
 
-            id: null,
+      code: null,
 
-            name: null,
-
-            code: null,
-
-            record: null
-
-        }
+      record: null
 
     }
+  }
 
-    const {
+  const {
 
-        data,
+    data,
 
-        error
+    error
 
-    } =
-        await window
-            .supabaseClient
+  } =
+        await db
             .from(
-                'events'
+              'events'
             )
             .select(`
                 event_id,
@@ -462,50 +450,52 @@ export async function resolveEventCode(
                 )
             `)
             .ilike(
-                'event_code',
-                eventCode.trim()
+              'event_code',
+              eventCode.trim()
             )
             .maybeSingle()
 
-    if (
+  if (
 
-        error ||
+    error ||
         !data
 
-    ) {
-
-        return {
-
-            found: false,
-
-            id: null,
-
-            name: null,
-
-            code: eventCode,
-
-            record: null
-
-        }
-
-    }
-
+  ) {
     return {
 
-        found: true,
+      found: false,
 
-        id: data.event_id,
+      id: null,
 
-        name: data.event_name,
+      name: null,
 
-        code: data.event_code,
+      code: eventCode,
 
-        record: data
+      record: null
 
     }
+  }
 
+  return {
+
+    found: true,
+
+    id: data.event_id,
+
+    event_id: data.event_id,
+
+    event_category_id: data.event_category_id,
+
+    event_type_id: data.event_type_id,
+
+    name: data.event_name,
+
+    code: data.event_code,
+
+    record: data
+
+  }
 }
-
 
 // =====================================================
 // LOAD DICTIONARY
@@ -514,7 +504,6 @@ export async function resolveEventCode(
 async function loadDictionary(
   lookupKey
 ) {
-
   const cache =
     getCache(
       lookupKey
@@ -540,7 +529,7 @@ async function loadDictionary(
   }
 
   let query =
-    supabase
+    db
       .from(
         config.table
       )
@@ -551,19 +540,16 @@ async function loadDictionary(
   if (
     config.activeField
   ) {
-
     query =
       query.eq(
         config.activeField,
         true
       )
-
   }
 
   if (
     config.orderBy
   ) {
-
     query =
       query.order(
         config.orderBy,
@@ -572,7 +558,6 @@ async function loadDictionary(
             config.ascending
         }
       )
-
   }
 
   const {
@@ -589,15 +574,15 @@ async function loadDictionary(
 
   const dictionary = data ?? []
 
-setCache(
+  setCache(
 
     lookupKey,
 
     dictionary
 
-)
+  )
 
-return dictionary
+  return dictionary
 }
 
 // =====================================================
@@ -606,78 +591,72 @@ return dictionary
 
 async function resolveByName(
 
-    lookupKey,
+  lookupKey,
 
-    value
+  value
 
 ) {
+  if (
 
-    if (
-
-        value === null ||
+    value === null ||
 
         value === undefined ||
 
         value === ''
 
-    ) {
+  ) {
+    return null
+  }
 
-        return null
-
-    }
-
-    const config =
+  const config =
 
         LOOKUPS[
             lookupKey
         ]
 
-    if (
+  if (
 
-        !config ||
+    !config ||
 
         !config.nameField
 
-    ) {
+  ) {
+    return null
+  }
 
-        return null
-
-    }
-
-    const dictionary =
+  const dictionary =
 
         await loadDictionary(
 
-            lookupKey
+          lookupKey
 
         )
 
-    const search =
+  const search =
 
         normalizeLookupValue(
 
-            value
+          value
 
         )
 
-    return (
+  return (
 
-        dictionary.find(
+    dictionary.find(
 
-            record =>
+      record =>
 
-                normalizeLookupValue(
+        normalizeLookupValue(
 
-                    record[
+          record[
                         config.nameField
-                    ]
+          ]
 
-                ) === search
+        ) === search
 
-        ) || null
+    ) || null
 
-    )
-
+  )
 }
 // =====================================================
 // RESOLVE BY ID
@@ -690,7 +669,6 @@ async function resolveById(
   id
 
 ) {
-
   if (
 
     id === null ||
@@ -700,9 +678,7 @@ async function resolveById(
     id === ''
 
   ) {
-
     return null
-
   }
 
   const dictionary =
@@ -728,7 +704,6 @@ async function resolveById(
     ) || null
 
   )
-
 }
 // =====================================================
 // RESOLVE BY CODE
@@ -741,7 +716,6 @@ async function resolveByCode(
   code
 
 ) {
-
   if (
 
     code === null ||
@@ -751,9 +725,7 @@ async function resolveByCode(
     code === ''
 
   ) {
-
     return null
-
   }
 
   const config =
@@ -761,21 +733,19 @@ async function resolveByCode(
       lookupKey
     ]
 
- if (
+  if (
 
     !config ||
 
     !config.codeField
 
-) {
-
+  ) {
     throw new Error(
 
-        `Lookup '${lookupKey}' does not support code resolution.`
+      `Lookup '${lookupKey}' does not support code resolution.`
 
     )
-
-}
+  }
 
   const dictionary =
     await loadDictionary(
@@ -804,7 +774,6 @@ async function resolveByCode(
     ) || null
 
   )
-
 }
 
 // =====================================================
@@ -814,7 +783,6 @@ async function resolveByCode(
 function normalizeLookupValue(
   value
 ) {
-
   return String(
     value ?? ''
   )
@@ -827,7 +795,6 @@ function normalizeLookupValue(
     )
 
     .toLowerCase()
-
 }
 
 // =====================================================
@@ -837,81 +804,78 @@ function normalizeLookupValue(
 // ---------- MASTER LOOKUPS ----------
 
 export async function resolveCountry(value) {
-    return buildResolverResult(
-        await resolveByName('countries', value),
-        LOOKUPS.countries
-    )
+  return buildResolverResult(
+    await resolveByName('countries', value),
+    LOOKUPS.countries
+  )
 }
 
 export async function resolveCounty(value) {
-    return buildResolverResult(
-        await resolveByName('counties', value),
-        LOOKUPS.counties
-    )
+  return buildResolverResult(
+    await resolveByName('counties', value),
+    LOOKUPS.counties
+  )
 }
 
 export async function resolveSubcounty(value) {
-    return buildResolverResult(
-        await resolveByName('subcounties', value),
-        LOOKUPS.subcounties
-    )
+  return buildResolverResult(
+    await resolveByName('subcounties', value),
+    LOOKUPS.subcounties
+  )
 }
 
 export async function resolveTown(
 
-    townName,
+  townName,
 
-    subcountyId = null
+  subcountyId = null
 
 ) {
+  if (
 
-    if (
+    !townName
 
-        !townName
+  ) {
+    return buildResolverResult(
 
-    ) {
+      null,
 
-        return buildResolverResult(
+      LOOKUPS.towns
 
-            null,
+    )
+  }
 
-            LOOKUPS.towns
-
-        )
-
-    }
-
-    const towns =
+  const towns =
 
         await loadDictionary(
 
-            'towns'
+          'towns'
 
         )
 
-    const search =
+  const search =
 
         normalizeLookupValue(
 
-            townName
+          townName
 
         )
 
-    const record =
+  const record =
 
         towns.find(
 
-            town =>
+          town =>
 
-                normalizeLookupValue(
+            normalizeLookupValue(
 
-                    town.town_name
+              town.town_name
 
-                ) === search &&
+            ) === search &&
 
                 (
 
-                    !subcountyId ||
+                  !subcountyId ||
 
                     town.subcounty_id === subcountyId
 
@@ -919,161 +883,154 @@ export async function resolveTown(
 
         ) || null
 
-    return buildResolverResult(
+  return buildResolverResult(
 
-        record,
+    record,
 
-        LOOKUPS.towns
+    LOOKUPS.towns
 
-    )
-
+  )
 }
 
 export async function resolveProgram(value) {
-    return buildResolverResult(
-        await resolveByName('programs', value),
-        LOOKUPS.programs
-    )
+  return buildResolverResult(
+    await resolveByName('programs', value),
+    LOOKUPS.programs
+  )
 }
 
 export async function resolveStatus(value) {
-    return buildResolverResult(
-        await resolveByName('statuses', value),
-        LOOKUPS.statuses
-    )
+  return buildResolverResult(
+    await resolveByName('statuses', value),
+    LOOKUPS.statuses
+  )
+}
+
+export async function resolveStatusCode(
+  code
+) {
+  return buildResolverResult(
+    await resolveByCode('statuses', code),
+    LOOKUPS.statuses
+  )
 }
 
 export async function resolveCategory(value) {
-    return buildResolverResult(
-        await resolveByName('categories', value),
-        LOOKUPS.categories
-    )
+  return buildResolverResult(
+    await resolveByName('categories', value),
+    LOOKUPS.categories
+  )
 }
 
 export async function resolveEventType(value) {
-    return buildResolverResult(
-        await resolveByName('eventTypes', value),
-        LOOKUPS.eventTypes
-    )
+  return buildResolverResult(
+    await resolveByName('eventTypes', value),
+    LOOKUPS.eventTypes
+  )
 }
 
-
 export async function resolveCountryById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'countries',
 
-            'countries',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.countries
 
-        LOOKUPS.countries
-
-    )
-
+  )
 }
 
 export async function resolveCountyById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'counties',
 
-            'counties',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.counties
 
-        LOOKUPS.counties
-
-    )
-
+  )
 }
 
 export async function resolveSubcountyById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'subcounties',
 
-            'subcounties',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.subcounties
 
-        LOOKUPS.subcounties
-
-    )
-
+  )
 }
 
 export async function resolveTownById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'towns',
 
-            'towns',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.towns
 
-        LOOKUPS.towns
-
-    )
-
+  )
 }
-
 
 export function requireLookup(
 
-    lookup,
+  lookup,
 
-    value,
+  value,
 
-    label
+  label
 
 ) {
+  if (
 
-    if (
+    !lookup.found
 
-        !lookup.found
+  ) {
+    throw new Error(
 
-    ) {
-
-        throw new Error(
-
-            `${label} '${value}' does not exist.`
-
-        )
-
-    }
-
-    return lookup
-
-}
-export async function resolveProgramById(id) {
-
-    return buildResolverResult(
-
-        await resolveById(
-
-            'programs',
-
-            id
-
-        ),
-
-        LOOKUPS.programs
+      `${label} '${value}' does not exist.`
 
     )
+  }
 
+  return lookup
+}
+
+export async function resolveProgramById(id) {
+  return buildResolverResult(
+
+    await resolveById(
+
+      'programs',
+
+      id
+
+    ),
+
+    LOOKUPS.programs
+
+  )
 }
 
 // =====================================================
@@ -1082,188 +1039,170 @@ export async function resolveProgramById(id) {
 
 export async function resolveCategoryCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'categories',
 
-            'categories',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.categories
 
-        LOOKUPS.categories
-
-    )
-
+  )
 }
+
 export async function resolveCountryCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'countries',
 
-            'countries',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.countries
 
-        LOOKUPS.countries
-
-    )
-
+  )
 }
 
 export async function resolveCountyCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'counties',
 
-            'counties',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.counties
 
-        LOOKUPS.counties
-
-    )
-
+  )
 }
 
 export async function resolveSubcountyCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'subcounties',
 
-            'subcounties',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.subcounties
 
-        LOOKUPS.subcounties
-
-    )
-
+  )
 }
-
 
 export async function resolveEventTypeCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'eventTypes',
 
-            'eventTypes',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.eventTypes
 
-        LOOKUPS.eventTypes
-
-    )
-
+  )
 }
 
 export async function resolveEventMasterStatusCode(
 
-    code
+  code
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'eventMasterStatuses',
 
-            'eventMasterStatuses',
+      code
 
-            code
+    ),
 
-        ),
+    LOOKUPS.eventMasterStatuses
 
-        LOOKUPS.eventMasterStatuses
-
-    )
-
+  )
 }
 
 export async function resolveStatusById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'statuses',
 
-            'statuses',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.statuses
 
-        LOOKUPS.statuses
-
-    )
-
+  )
 }
 
 export async function resolveCategoryById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'categories',
 
-            'categories',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.categories
 
-        LOOKUPS.categories
-
-    )
-
+  )
 }
 
 export async function resolveEventTypeById(id) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveById(
 
-        await resolveById(
+      'eventTypes',
 
-            'eventTypes',
+      id
 
-            id
+    ),
 
-        ),
+    LOOKUPS.eventTypes
 
-        LOOKUPS.eventTypes
-
-    )
-
+  )
 }
 // =====================================================
 // BUILD RESOLVER RESULT
@@ -1271,155 +1210,496 @@ export async function resolveEventTypeById(id) {
 
 function buildResolverResult(
 
-    record,
+  record,
 
-    config
+  config
 
 ) {
+  if (
 
-    if (
+    !config
 
-        !config
+  ) {
+    throw new Error(
 
-    ) {
+      'Lookup configuration missing.'
 
-        throw new Error(
+    )
+  }
 
-            'Lookup configuration missing.'
+  if (
 
-        )
+    !record
 
-    }
-
-    if (
-
-        !record
-
-    ) {
-
-        return {
-
-            found: false,
-
-            id: null,
-
-            code: null,
-
-            name: null,
-
-            record: null
-
-        }
-
-    }
-
+  ) {
     return {
 
-        found: true,
+      found: false,
 
-        id:
+      id: null,
+
+      code: null,
+
+      name: null,
+
+      record: null
+
+    }
+  }
+
+  return {
+
+    found: true,
+
+    id:
 
             record[
                 config.idField
             ],
 
-        code:
+    code:
 
-            config.codeField
+            config.codeField ?
 
-                ? record[
+              record[
                     config.codeField
-                ]
+              ] :
 
-                : null,
+              null,
 
-        name:
+    name:
 
-            config.nameField
+            config.nameField ?
 
-                ? record[
+              record[
                     config.nameField
-                ]
+              ] :
 
-                : null,
+              null,
 
-        record
+    record
 
-    }
-
+  }
 }
-
 
 // ---------- BUSINESS ENTITIES ----------
 
 export async function resolveAthlete(value) {
-    return buildResolverResult(
-        await resolveByCode('athletes', value),
-        LOOKUPS.athletes
-    )
+  return buildResolverResult(
+    await resolveByCode('athletes', value),
+    LOOKUPS.athletes
+  )
 }
 
 export async function resolveTeam(value) {
-    return buildResolverResult(
-        await resolveByCode('teams', value),
-        LOOKUPS.teams
-    )
+  return buildResolverResult(
+    await resolveByCode('teams', value),
+    LOOKUPS.teams
+  )
 }
 
-export async function resolveParticipant(value) {
-    return buildResolverResult(
+async function loadParticipantTypeByCode(
+  participantTypeCode
+) {
+  const { data, error } =
+    await db
+      .from('participant_type_master')
+      .select('participant_type_id, participant_type_code')
+      .eq(
+        'participant_type_code',
+        String(participantTypeCode || '').trim().toUpperCase()
+      )
+      .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+async function resolveParticipantRegistryBySource(
+  participantTypeCode,
+  sourceId
+) {
+  const type =
+    await loadParticipantTypeByCode(
+      participantTypeCode
+    )
+
+  if (!type || !sourceId) {
+    return null
+  }
+
+  const { data, error } =
+    await db
+      .from('participant_registry')
+      .select('*')
+      .eq('participant_type_id', type.participant_type_id)
+      .eq('source_id', sourceId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+function enrichParticipantResult(
+  result,
+  participantTypeCode = null
+) {
+  if (!result.found) {
+    return result
+  }
+
+  const typeCode = participantTypeCode ?
+    String(participantTypeCode).trim().toUpperCase() :
+    null
+  const sourceId = result.record?.source_id ?? null
+
+  return {
+    ...result,
+    participant_ref_id: result.id,
+    participant_source_id: sourceId,
+    source_id: sourceId,
+    participant_type_code: typeCode,
+    athlete_id: typeCode === 'ATHLETE' ? sourceId : null,
+    team_id: typeCode === 'TEAM' ? sourceId : null
+  }
+}
+
+export async function resolveParticipant(
+  value,
+  participantCode = null
+) {
+  if (participantCode === null) {
+    return enrichParticipantResult(
+      buildResolverResult(
         await resolveByName('participants', value),
         LOOKUPS.participants
+      )
     )
+  }
+
+  const participantTypeCode =
+    String(value || '').trim().toUpperCase()
+  let source = null
+
+  if (participantTypeCode === 'ATHLETE') {
+    source = await resolveAthlete(participantCode)
+  } else if (participantTypeCode === 'TEAM') {
+    source = await resolveTeam(participantCode)
+  } else if (participantTypeCode === 'COMPOSITION') {
+    const byName = buildResolverResult(
+      await resolveByName('participants', participantCode),
+      LOOKUPS.participants
+    )
+
+    return enrichParticipantResult(
+      byName,
+      participantTypeCode
+    )
+  } else {
+    return buildResolverResult(null, LOOKUPS.participants)
+  }
+
+  if (!source.found) {
+    return buildResolverResult(null, LOOKUPS.participants)
+  }
+
+  const registry =
+    await resolveParticipantRegistryBySource(
+      participantTypeCode,
+      source.id
+    )
+
+  return enrichParticipantResult(
+    buildResolverResult(
+      registry,
+      LOOKUPS.participants
+    ),
+    participantTypeCode
+  )
 }
 
 export async function resolveEvent(
-
-    value
-
+  value
 ) {
-
-    return resolveEventCode(
-
-        value
-
-    )
-
+  return resolveEventCode(value)
 }
 
-export async function resolveOccurrence(value) {
-    return buildResolverResult(
-        await resolveByName('occurrences', value),
-        LOOKUPS.occurrences
+export async function resolveOccurrence(
+  value,
+  eventId = null
+) {
+  const occurrences =
+    await loadDictionary('occurrences')
+  const search = normalizeLookupValue(value)
+
+  const record = occurrences.find(
+    occurrence =>
+      normalizeLookupValue(occurrence.event_area) === search &&
+      (!eventId || occurrence.event_id === eventId)
+  ) || null
+
+  const result =
+    buildResolverResult(
+      record,
+      LOOKUPS.occurrences
     )
+
+  if (!result.found) {
+    return result
+  }
+
+  return {
+    ...result,
+    event_instance_id: result.id,
+    event_id: result.record?.event_id ?? null,
+    program_id: result.record?.program_id ?? null,
+    town_id: result.record?.town_id ?? null
+  }
+}
+
+export async function resolveProgramCode(
+  code
+) {
+  const result = buildResolverResult(
+    await resolveByCode('programs', code),
+    LOOKUPS.programs
+  )
+
+  return result.found ?
+    { ...result, program_id: result.id } :
+    result
+}
+
+export async function resolveParticipantRegistration(
+  eventInstanceId,
+  programId,
+  participantRefId
+) {
+  if (!eventInstanceId || !programId || !participantRefId) {
+    return {
+      found: false,
+      id: null,
+      participant_instance_id: null,
+      event_instance_id: eventInstanceId || null,
+      program_id: programId || null,
+      participant_ref_id: participantRefId || null,
+      record: null
+    }
+  }
+
+  const { data, error } =
+    await db
+      .from('participant_instances')
+      .select('*')
+      .eq('event_instance_id', eventInstanceId)
+      .eq('program_id', programId)
+      .eq('participant_ref_id', participantRefId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    return {
+      found: false,
+      id: null,
+      participant_instance_id: null,
+      event_instance_id: eventInstanceId,
+      program_id: programId,
+      participant_ref_id: participantRefId,
+      record: null
+    }
+  }
+
+  return {
+    found: true,
+    id: data.participant_instance_id,
+    participant_instance_id: data.participant_instance_id,
+    event_instance_id: data.event_instance_id,
+    program_id: data.program_id,
+    participant_ref_id: data.participant_ref_id,
+    record: data
+  }
+}
+
+export async function resolveParticipantInstance(
+  generated = {}
+) {
+  return resolveParticipantRegistration(
+    generated.event_instance_id || generated.occurrence?.id,
+    generated.program_id || generated.program?.id,
+    generated.participant_ref_id ||
+      generated.participant?.participant_ref_id ||
+      generated.participant?.id
+  )
+}
+
+export async function resolveRegistrationStatusCode(
+  code
+) {
+  const { data, error } =
+    await db
+      .from('registration_status_master')
+      .select('*')
+      .eq(
+        'status_code',
+        String(code || '').trim().toUpperCase()
+      )
+      .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    return {
+      found: false,
+      id: null,
+      code,
+      name: null,
+      record: null
+    }
+  }
+
+  return {
+    found: true,
+    id: data.registration_status_id,
+    registration_status_id: data.registration_status_id,
+    code: data.status_code,
+    name: data.status_name,
+    record: data
+  }
+}
+
+async function resolveActivityResultCode(
+  code
+) {
+  const normalizedCode =
+    String(code || '').trim().toUpperCase()
+
+  const { data: outcome, error: outcomeError } =
+    await db
+      .from('outcome_status_master')
+      .select('*')
+      .eq('status_code', normalizedCode)
+      .maybeSingle()
+
+  if (outcomeError) {
+    throw outcomeError
+  }
+
+  if (outcome) {
+    const participated =
+      normalizedCode !== 'DNS'
+
+    return {
+      found: true,
+      code: outcome.status_code,
+      name: outcome.status_name,
+      present: true,
+      attendance: true,
+      participated,
+      absent: false,
+      outcomeStatus: {
+        id: outcome.outcome_status_id,
+        record: outcome
+      },
+      attendanceStatus: null,
+      record: outcome
+    }
+  }
+
+  const { data: attendance, error: attendanceError } =
+    await db
+      .from('attendance_status_master')
+      .select('*')
+      .eq('status_code', normalizedCode)
+      .maybeSingle()
+
+  if (attendanceError) {
+    throw attendanceError
+  }
+
+  if (attendance) {
+    const absent =
+      normalizedCode.startsWith('ABSENT') ||
+      normalizedCode === 'EXCUSED'
+
+    return {
+      found: true,
+      code: attendance.status_code,
+      name: attendance.status_name,
+      present: !absent,
+      attendance: !absent,
+      participated: false,
+      absent,
+      outcomeStatus: null,
+      attendanceStatus: {
+        id: attendance.attendance_status_id,
+        record: attendance
+      },
+      record: attendance
+    }
+  }
+
+  return {
+    found: false,
+    code: normalizedCode,
+    name: null,
+    present: false,
+    attendance: false,
+    participated: false,
+    absent: false,
+    outcomeStatus: null,
+    attendanceStatus: null,
+    record: null
+  }
+}
+
+export async function resolveTrainingResultCode(code) {
+  return resolveActivityResultCode(code)
+}
+
+export async function resolveRaceResultCode(code) {
+  return resolveActivityResultCode(code)
 }
 
 export async function resolveSponsor(value) {
-    return buildResolverResult(
-        await resolveByCode('sponsors', value),
-        LOOKUPS.sponsors
-    )
+  return buildResolverResult(
+    await resolveByCode('sponsors', value),
+    LOOKUPS.sponsors
+  )
 }
+
 export async function resolveSponsorCode(
 
-    sponsorCode
+  sponsorCode
 
 ) {
+  return buildResolverResult(
 
-    return buildResolverResult(
+    await resolveByCode(
 
-        await resolveByCode(
+      'sponsors',
 
-            'sponsors',
+      sponsorCode
 
-            sponsorCode
+    ),
 
-        ),
+    LOOKUPS.sponsors
 
-        LOOKUPS.sponsors
-
-    )
-
+  )
 }
 // =====================================================
 // BUILD LOOKUP ERROR
@@ -1427,34 +1707,32 @@ export async function resolveSponsorCode(
 
 export function buildLookupError({
 
-    row = null,
+  row = null,
 
-    column = null,
+  column = null,
 
-    header = null,
+  header = null,
 
-    value = null,
+  value = null,
 
-    message = 'Lookup failed.'
+  message = 'Lookup failed.'
 
 } = {}) {
+  return {
 
-    return {
+    row,
 
-        row,
+    column,
 
-        column,
+    header,
 
-        header,
+    value,
 
-        value,
+    type: 'lookup',
 
-        type: 'lookup',
+    severity: 'error',
 
-        severity: 'error',
+    message
 
-        message
-
-    }
-
+  }
 }

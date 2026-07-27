@@ -4,9 +4,12 @@ import {
   from '../../auth/authStateService.js'
 
 import {
-  supabase
+  getDb
 }
-  from '../../supabase/supabaseClient.js'
+  from '../../supabase/getDb.js'
+
+const db =
+  getDb()
 
 export async function getCurrentAthlete() {
   const profile =
@@ -22,7 +25,7 @@ export async function getCurrentAthlete() {
     data,
     error
   } =
-    await supabase
+    await db
       .from(
         'athletes'
       )
@@ -63,7 +66,7 @@ export async function getCurrentAthleteTeamIds() {
     data,
     error
   } =
-    await supabase
+    await db
       .from(
         'team_members'
       )

@@ -1,0 +1,229 @@
+-
+  const nav = [
+    {
+      type: 'item',
+      href: 'index.html',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-speedometer.svg',
+      label: 'Dashboard'
+    },
+
+    { type: 'title', label: 'ParaCycling Federation' },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-user.svg',
+      label: 'Athletes',
+      items: [
+        {
+          href: 'federation/athletes.html',
+          label: 'Athlete Registry'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-people.svg',
+      label: 'Teams',
+      items: [
+        {
+          href: 'federation/teams.html',
+          label: 'Teams'
+        },
+        {
+          href: 'federation/composition-teams.html',
+          label: 'Composition Teams'
+        }
+      ]
+    },
+        {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-user-follow.svg',
+      label: 'Staff',
+      items: [
+        {
+          href: 'federation/staff.html',
+          label: 'Staff Registry'
+        },
+        {
+          href: 'federation/staff-assignments.html',
+          label: 'Assignments'
+        },
+        {
+          href: 'federation/staff-qualifications.html',
+          label: 'Qualifications'
+        },
+        {
+          href: 'federation/staff-certifications.html',
+          label: 'Certifications'
+        },
+        {
+          href: 'federation/staff-reviews.html',
+          label: 'Reviews'
+        }
+      ]
+    },
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-calendar.svg',
+      label: 'Events',
+      items: [
+        {
+          href: 'federation/events-master.html',
+          label: 'Events List'
+        },
+        {
+          href: 'federation/events.html',
+          label: 'Planned Events'
+        },
+        {
+          href: 'federation/event-report.html',
+          label: 'Event Report'
+        },
+        {
+          href: 'federation/participants.html',
+          label: 'Participants'
+        },
+        {
+          href: 'federation/participants-report.html',
+          label: 'Participation Report'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-bike.svg',
+      label: 'Training & Performance',
+      items: [
+        {
+          href: 'federation/training.html',
+          label: 'Training Log'
+        },
+        {
+          href: 'federation/performance.html',
+          label: 'Performance'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-speedometer.svg',
+      label: 'Reports',
+      items: [
+        {
+          href: 'reports/analytics-overview.html',
+          label: 'Overall Analytics'
+        },
+        {
+          href: 'reports/individual-performance-report.html',
+          label: 'Individual Reports'
+        },
+        {
+          href: 'reports/team-performance-report.html',
+          label: 'Team Reports'
+        },
+        {
+          href: 'reports/training-results-report.html',
+          label: 'Training Analytics'
+        },
+        {
+          href: 'federation/participants-report.html',
+          label: 'Participation Report'
+        },
+        {
+          href: 'federation/event-report.html',
+          label: 'Event Report'
+        },
+        {
+          href: 'reports/competition-rankings.html',
+          label: 'Competition Rankings'
+        }
+      ]
+    },
+
+    {
+      type: 'group',
+      icon: 'node_modules/@coreui/icons/svg/free/cil-star.svg',
+      label: 'Competition',
+      items: [
+        {
+          href: 'federation/race-results.html',
+          label: 'Race Results'
+        }
+      ]
+    }
+  ]
+
+mixin navItemIcon(item)
+  if item.icon
+    +inlineSvg(item.icon).nav-icon(class=item.iconClass)
+  else
+    span.nav-icon
+      span.nav-icon-bullet
+
+mixin navItem(item)
+  li.nav-item(class=item.itemClass)
+    a.nav-link(
+      href=item.href
+      class=item.linkClass
+      target=item.target
+    )
+      +navItemIcon(item)
+      | #{item.label}
+
+      if item.externalIcon
+        +inlineSvg('node_modules/@coreui/icons/svg/free/cil-external-link.svg').icon.icon-sm.ms-2
+
+      if item.badge
+        span.badge.badge-sm(
+          class=`bg-${item.badge.color}`
+        ).ms-auto
+          = item.badge.text
+
+mixin navGroup(group)
+  li.nav-group
+
+    a.nav-link.nav-group-toggle(href='#')
+
+      if group.icon
+        +inlineSvg(group.icon).nav-icon
+      else
+        span.nav-icon
+          span.nav-icon-bullet
+
+      | #{group.label}
+
+    ul.nav-group-items.compact
+
+      each item in group.items
+
+        if item.type === 'group'
+          +navGroup(item)
+        else
+          +navItem(item)
+
+ul.sidebar-nav(
+  data-coreui='navigation'
+  data-simplebar
+)
+
+  each item in nav
+
+    if item.type === 'item'
+
+      +navItem(item)
+
+    else if item.type === 'title'
+
+      li.nav-title
+        = item.label
+
+    else if item.type === 'group'
+
+      +navGroup(item)
+
+    else if item.type === 'divider'
+
+      li.nav-divider

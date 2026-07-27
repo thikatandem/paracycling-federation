@@ -39,18 +39,24 @@
     <link rel="stylesheet" href="css/vendors/simplebar.css">
     <!-- Main styles for this application-->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Warm up remote origins used by authenticated pages.-->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
+    <link rel="preconnect" href="https://ingbnzsiabtttijddenn.supabase.co" crossorigin="anonymous">
+    <link rel="dns-prefetch" href="https://ingbnzsiabtttijddenn.supabase.co">
+    <!-- Load Tom Select styles before body paint to avoid a late style/layout flash.-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <!-- We use those styles to show code examples, you should remove them in your application.-->
     <link href="css/examples.css" rel="stylesheet">
     <script src="js/config.js"></script>
     <script src="js/color-modes.js"></script>
   </head>
   <body>
-    <div class="sidebar sidebar-dark sidebar-fixed border-end d-none" id="sidebar">
+    <div class="sidebar sidebar-dark sidebar-fixed border-end" id="sidebar">
       <div class="sidebar-header border-bottom d-flex align-items-center justify-content-between px-3">
         <h5 class="mb-0 text-white">Thika Tandem</h5>
         <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"></button>
       </div>
-      <div id="roleSidebar">
+      <div id="roleSidebar" style="visibility: hidden">
         <ul class="sidebar-nav" data-coreui="navigation" data-simplebar>
           <li class="nav-item">
             <a class="nav-link" href="index.html">
@@ -199,15 +205,62 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="reports/training-results-report.html">
-                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
-                  Training Reports
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="federation/performance.html">
                   <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
                   Performance
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group">
+            <a class="nav-link nav-group-toggle" href="#">
+              <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path fill="var(--ci-primary-color, currentcolor)" d="M425.706 142.294A240 240 0 0 0 16 312v88h144v-32H48v-56c0-114.691 93.309-208 208-208s208 93.309 208 208v56H352v32h144v-88a238.43 238.43 0 0 0-70.294-169.706" class="ci-primary" />
+                <path fill="var(--ci-primary-color, currentcolor)" d="M80 264h32v32H80zm160-136h32v32h-32zm-104 40h32v32h-32zm264 96h32v32h-32zm-102.778 71.1 69.2-144.173-28.85-13.848-69.183 144.135a64.141 64.141 0 1 0 28.833 13.886M256 416a32 32 0 1 1 32-32 32.036 32.036 0 0 1-32 32" class="ci-primary" />
+              </svg>
+              Reports
+            </a>
+            <ul class="nav-group-items compact">
+              <li class="nav-item">
+                <a class="nav-link" href="reports/analytics-overview.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Overall Analytics
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/individual-performance-report.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Individual Reports
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/team-performance-report.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Team Reports
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/training-results-report.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Training Analytics
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/participants-report.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Participation Report
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/event-report.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Event Report
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="reports/competition-rankings.html">
+                  <span class="nav-icon"><span class="nav-icon-bullet"></span></span>
+                  Competition Rankings
                 </a>
               </li>
             </ul>
@@ -230,6 +283,35 @@
           </li>
         </ul>
       </div>
+      <script>
+        (() => {
+          const nav = document.getElementById("roleSidebar");
+
+          if (!nav) {
+            return;
+          }
+
+          window.__defaultRoleSidebarHtml = nav.innerHTML;
+
+          try {
+            const authCache = JSON.parse(sessionStorage.getItem("thika-tandem.auth-context.v1") || "null");
+
+            const shellCache = JSON.parse(sessionStorage.getItem("thika-tandem.sidebar-shell.v1") || "null");
+
+            if (authCache?.userId && shellCache?.userId === authCache.userId && typeof shellCache.html === "string" && shellCache.html.trim()) {
+              nav.innerHTML = shellCache.html;
+              nav.style.visibility = "visible";
+              return;
+            }
+
+            if (authCache?.userId && authCache?.role?.role_code && authCache.role.role_code !== "ATHLETE") {
+              nav.style.visibility = "visible";
+            }
+          } catch {
+            // Keep only the sidebar shell visible until auth resolves.
+          }
+        })();
+      </script>
       <div class="sidebar-footer border-top d-none d-md-flex">
         <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
       </div>
@@ -407,10 +489,6 @@
                   <div class="card-header d-flex justify-content-between align-items-center">
                     <strong>Event Master</strong>
                     <div class="d-flex gap-2">
-                      <button class="btn btn-success" type="button" id="btnProgramMaster">
-                        <i class="fa fa-layer-group me-2"></i>
-                        Program Master
-                      </button>
                       <button class="btn btn-primary" type="button" id="btnNewEvent">
                         <i class="fa fa-plus me-2"></i>
                         New Event Master
@@ -489,143 +567,6 @@
               </div>
             </div>
           </div>
-          <div class="modal fade" id="programModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Program Master</h5>
-                  <button class="btn-close" type="button" data-coreui-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="row">
-                    <div class="col-md-12 d-none">
-                      <input type="hidden" id="programId">
-                    </div>
-                    <div class="col-md-2 mb-3">
-                      <label class="form-label">Program Code</label>
-                      <input class="form-control" id="programCode" readonly placeholder="Auto">
-                    </div>
-                    <div class="col-md-5 mb-3">
-                      <label class="form-label">Program Name</label>
-                      <input class="form-control" id="programName" list="programNameSuggestions">
-                      <datalist id="programNameSuggestions"></datalist>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Duration (Days)</label>
-                      <input class="form-control" type="number" id="programDurationDays" value="1" min="1">
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-5 mb-3">
-                      <label class="form-label">Interval</label>
-                      <select class="form-select" id="programRecurrenceTypeId">
-                        <option value="">Select Recurrence</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12 mb-3">
-                      <button class="btn btn-success w-100" type="button" id="btnSaveProgram">Save Program</button>
-                    </div>
-                  </div>
-                  <div class="table-responsive">
-                    <table class="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>Code</th>
-                          <th>Program</th>
-                          <th>Duration</th>
-                          <th>Status</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody id="programTableBody"></tbody>
-                    </table>
-                  </div>
-                  <hr class="my-4">
-                  <div class="d-none" id="scheduleSection">
-                    <h5 class="mb-3">Program Schedules</h5>
-                    <div class="card border-primary mb-4">
-                      <div class="card-header bg-primary text-white"><strong>Selected Program</strong></div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3 mb-3">
-                        <label class="form-label">Program</label>
-                        <input class="form-control" id="selectedProgramName" readonly>
-                      </div>
-                      <div class="col-md-2 mb-3">
-                        <label class="form-label">Code</label>
-                        <input class="form-control" id="selectedProgramCode" readonly>
-                      </div>
-                      <div class="col-md-2 mb-3">
-                        <label class="form-label">Duration</label>
-                        <input class="form-control" id="selectedProgramDuration" readonly>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                        <label class="form-label">Interval</label>
-                        <input class="form-control" id="selectedProgramInterval" readonly>
-                      </div>
-                      <div class="col-md-2 mb-3">
-                        <label class="form-label">Status</label>
-                        <input class="form-control" id="selectedProgramStatus" readonly>
-                      </div>
-                    </div>
-                    <input type="hidden" id="scheduleId">
-                    <input type="hidden" id="scheduleProgramId">
-                  </div>
-                  <div class="row">
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Start Date</label>
-                      <input class="form-control" type="date" id="scheduleStartDate">
-                    </div>
-                    <div class="col-md-2 mb-3">
-                      <label class="form-label">Day</label>
-                      <input class="form-control" id="scheduleDay" readonly>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">End Date</label>
-                      <input class="form-control" type="date" id="scheduleEndDate">
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label">Schedule Name</label>
-                      <input class="form-control" id="scheduleName" placeholder="Schedule Name">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">Start Time</label>
-                      <input class="form-control" type="time" id="scheduleStartTime">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                      <label class="form-label">End Time</label>
-                      <input class="form-control" type="time" id="scheduleEndTime">
-                    </div>
-                    <div class="col-md-3 mb-3 d-flex align-items-end">
-                      <button class="btn btn-success w-100" type="button" id="btnSaveSchedule">Save Schedule</button>
-                    </div>
-                    <div class="table-responsive mt-4">
-                      <table class="table table-striped table-hover">
-                        <thead>
-                          <tr>
-                            <th>Schedule</th>
-                            <th>Start</th>
-                            <th>Day</th>
-                            <th>End</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody id="scheduleTableBody"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       <footer class="footer px-4">
@@ -652,9 +593,8 @@
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>
     <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
-    <!-- Supabase Library-->
+    <!-- Supabase browser library is loaded once. Application modules import js/supabase.js.-->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/supabase.js"></script>
     <script>
       const header = document.querySelector("header.header");
 
@@ -663,16 +603,62 @@
           header.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
         }
       });
+
+      // Keep normal HTML navigation, but warm the next internal page while
+      // the user is hovering/focusing its link. Browsers treat prefetch as
+      // low priority, so it does not block the current page.
+      (() => {
+        const prefetched = new Set();
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+        if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) {
+          return;
+        }
+
+        const prefetch = (target) => {
+          const anchor = target?.closest?.("a[href]");
+
+          if (!anchor) {
+            return;
+          }
+
+          let url;
+
+          try {
+            url = new URL(anchor.href, window.location.href);
+          } catch {
+            return;
+          }
+
+          if (url.origin !== window.location.origin || url.href === window.location.href || !url.pathname.endsWith(".html") || prefetched.has(url.href)) {
+            return;
+          }
+
+          prefetched.add(url.href);
+
+          const link = document.createElement("link");
+          link.rel = "prefetch";
+          link.href = url.href;
+          link.as = "document";
+          document.head.appendChild(link);
+        };
+
+        document.addEventListener("pointerover", (event) => prefetch(event.target), { passive: true });
+        document.addEventListener("focusin", (event) => prefetch(event.target));
+      })();
     </script>
     <script type="module">
       import { initializeAuthentication } from "/js/core/auth/authInitializer.js";
 
-      initializeAuthentication();
+      window.__authReady = initializeAuthentication();
+
+      try {
+        await window.__authReady;
+      } catch (error) {
+        console.error("Authentication initialization failed:", error);
+      }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-    <script src="js/core/events/events-master.js"></script>
+    <script type="module" src="js/core/events/events-master.js"></script>
   </body>
 </html>

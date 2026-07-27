@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // RACE RESULTS IMPORT
 // ParaCycling Federation Management System
 //
@@ -36,47 +36,44 @@
 // =====================================================
 
 import {
-
-    process,
-
-    commit,
-
-    finish
-
-}
-
-from '../import/importService.js'
+  resolveEventOccurrence as resolveSharedEventOccurrence,
+  resolveActivityProgram as resolveProgram,
+  resolveActivityParticipantRegistration as resolveParticipantRegistration,
+  verifyProgramRegistration
+} from '../import/activityImportResolverService.js'
 
 import {
 
-    buildPreview
+  process,
+
+  commit,
+
+  finish
 
 }
 
-from '../import/previewImporter.js'
+  from '../import/importService.js'
 
 import {
 
-    buildCommitObject
+  buildPreview
 
 }
 
-from '../import/importHelpers.js'
+  from '../import/previewImporter.js'
 
 import {
 
-    buildSummary,
+  buildSummary,
 
-    downloadFullPackage
+  downloadFullPackage
 
 }
 
-from '../import/importErrors.js'
-
-
+  from '../import/importErrors.js'
 
 import * as lookup
-from '../import/lookupResolver.js'
+  from '../import/lookupResolver.js'
 
 // =====================================================
 // RACE RESULT IMPORT FIELDS
@@ -84,55 +81,55 @@ from '../import/lookupResolver.js'
 
 const RACE_RESULT_IMPORT_FIELDS = Object.freeze({
 
-    EVENT_CODE:
+  EVENT_CODE:
         'event_code',
 
-    EVENT_AREA:
+  EVENT_AREA:
         'event_area',
 
-    PROGRAM_CODE:
+  PROGRAM_CODE:
         'program_code',
 
-    PARTICIPANT_TYPE_CODE:
+  PARTICIPANT_TYPE_CODE:
         'participant_type_code',
 
-    PARTICIPANT_CODE:
+  PARTICIPANT_CODE:
         'participant_code',
 
-    COMPETITION_DATE:
+  COMPETITION_DATE:
         'competition_date',
 
-    SESSION_TYPE:
+  SESSION_TYPE:
         'session_type',
 
-    RACE_RESULT_CODE:
+  RACE_RESULT_CODE:
         'race_result_code',
 
-    POSITION:
+  POSITION:
         'position',
 
-    FINISH_TIME:
+  FINISH_TIME:
         'finish_time',
 
-    DISTANCE_KM:
+  DISTANCE_KM:
         'distance_km',
 
-    START_TIME:
+  START_TIME:
         'start_time',
 
-    END_TIME:
+  END_TIME:
         'end_time',
 
-    AVG_SPEED_KMH:
+  AVG_SPEED_KMH:
         'avg_speed_kmh',
 
-    MAX_SPEED_KMH:
+  MAX_SPEED_KMH:
         'max_speed_kmh',
 
-    INDOOR_SESSION:
+  INDOOR_SESSION:
         'indoor_session',
 
-    NOTES:
+  NOTES:
         'notes'
 
 })
@@ -143,86 +140,81 @@ const RACE_RESULT_IMPORT_FIELDS = Object.freeze({
 
 export async function validateRaceResults(
 
-    importData = {},
+  importData = {},
+
+  validation
+
+) {
+  const result = {
+
+    ...importData,
+
+    success: true,
+
+    errors: [],
+
+    warnings: []
+
+  }
+
+  validateHeaders(
+
+    result,
 
     validation
 
-) {
+  )
 
-    const result = {
+  validateRequiredFields(
 
-        ...importData,
+    result,
 
-        success: true,
+    validation
 
-        errors: [],
+  )
 
-        warnings: []
+  validateRaceResult(
 
-    }
+    result,
 
-    validateHeaders(
+    validation
 
-        result,
+  )
 
-        validation
+  validatePosition(
 
-    )
+    result,
 
-    validateRequiredFields(
+    validation
 
-        result,
+  )
 
-        validation
+  validateFinishTime(
 
-    )
+    result,
 
-    validateRaceResult(
+    validation
 
-        result,
+  )
 
-        validation
+  validateDuplicateRows(
 
-    )
+    result
 
-    validatePosition(
+  )
 
-        result,
+  validateBusinessKeys(
 
-        validation
+    result
 
-    )
+  )
 
-    validateFinishTime(
-
-        result,
-
-        validation
-
-    )
-
-    validateDuplicateRows(
-
-        result
-
-    )
-
-    validateBusinessKeys(
-
-        result
-
-    )
-
-    result.success =
+  result.success =
 
         result.errors.length === 0
 
-    return result
-
+  return result
 }
-
-
-
 
 // =====================================================
 // HEADER VALIDATION
@@ -230,24 +222,22 @@ export async function validateRaceResults(
 
 function validateHeaders(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
+  validation.validateHeaders(
 
-    validation.validateHeaders(
+    result,
 
-        result,
+    Object.values(
 
-        Object.values(
-
-            RACE_RESULT_IMPORT_FIELDS
-
-        )
+      RACE_RESULT_IMPORT_FIELDS
 
     )
 
+  )
 }
 
 // =====================================================
@@ -256,38 +246,36 @@ function validateHeaders(
 
 function validateRequiredFields(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
+  validation.validateRequiredFields(
 
-    validation.validateRequiredFields(
+    result,
 
-        result,
+    [
 
-        [
+      RACE_RESULT_IMPORT_FIELDS.EVENT_CODE,
 
-            RACE_RESULT_IMPORT_FIELDS.EVENT_CODE,
+      RACE_RESULT_IMPORT_FIELDS.EVENT_AREA,
 
-            RACE_RESULT_IMPORT_FIELDS.EVENT_AREA,
+      RACE_RESULT_IMPORT_FIELDS.PROGRAM_CODE,
 
-            RACE_RESULT_IMPORT_FIELDS.PROGRAM_CODE,
+      RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
 
-            RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
+      RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_CODE,
 
-            RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_CODE,
+      RACE_RESULT_IMPORT_FIELDS.COMPETITION_DATE,
 
-            RACE_RESULT_IMPORT_FIELDS.COMPETITION_DATE,
+      RACE_RESULT_IMPORT_FIELDS.SESSION_TYPE,
 
-            RACE_RESULT_IMPORT_FIELDS.SESSION_TYPE,
+      RACE_RESULT_IMPORT_FIELDS.RACE_RESULT_CODE
 
-            RACE_RESULT_IMPORT_FIELDS.RACE_RESULT_CODE
+    ]
 
-        ]
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -296,36 +284,34 @@ function validateRequiredFields(
 
 function validateRaceResult(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
+  validation.validateCodeField(
 
-    validation.validateCodeField(
+    result,
 
-        result,
+    RACE_RESULT_IMPORT_FIELDS.RACE_RESULT_CODE,
 
-        RACE_RESULT_IMPORT_FIELDS.RACE_RESULT_CODE,
+    {
 
-        {
-
-            uppercase:
+      uppercase:
 
                 true,
 
-            allowSpaces:
+      allowSpaces:
 
                 false,
 
-            allowEmpty:
+      allowEmpty:
 
                 false
 
-        }
+    }
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -334,19 +320,17 @@ function validateRaceResult(
 
 function validatePosition(
 
-    result
+  result
 
 ) {
+  for (
 
-    for (
+    const row
 
-        const row
+    of result.rows
 
-        of result.rows
-
-    ) {
-
-        const value =
+  ) {
+    const value =
 
             row[
 
@@ -354,60 +338,54 @@ function validatePosition(
 
             ]
 
-        if (
+    if (
 
-            value === '' ||
+      value === '' ||
 
             value === null ||
 
             value === undefined
 
-        ) {
+    ) {
+      continue
+    }
 
-            continue
-
-        }
-
-        const position =
+    const position =
 
             Number(
 
-                value
+              value
 
             )
 
-        if (
+    if (
 
-            !Number.isInteger(
+      !Number.isInteger(
 
-                position
+        position
 
-            ) ||
+      ) ||
 
             position <= 0
 
-        ) {
+    ) {
+      result.errors.push({
 
-            result.errors.push({
-
-                rowNumber:
+        rowNumber:
 
                     row.rowNumber,
 
-                field:
+        field:
 
                     RACE_RESULT_IMPORT_FIELDS.POSITION,
 
-                message:
+        message:
 
                     'Position must be a positive whole number.'
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
 
 // =====================================================
@@ -416,78 +394,69 @@ function validatePosition(
 
 function validateFinishTime(
 
-    result
+  result
 
 ) {
-
-    const intervalPattern =
+  const intervalPattern =
 
         /^([0-9]{1,2}:)?[0-9]{1,2}:[0-9]{2}(\.[0-9]+)?$/
 
-    for (
+  for (
 
-        const row
+    const row
 
-        of result.rows
+    of result.rows
 
-    ) {
-
-        const value =
+  ) {
+    const value =
 
             (
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.FINISH_TIME
 
-                ] || ''
+              ] || ''
 
             )
 
             .trim()
 
-        if (
+    if (
 
-            !value
+      !value
 
-        ) {
+    ) {
+      continue
+    }
 
-            continue
+    if (
 
-        }
+      !intervalPattern.test(
 
-        if (
+        value
 
-            !intervalPattern.test(
+      )
 
-                value
+    ) {
+      result.errors.push({
 
-            )
-
-        ) {
-
-            result.errors.push({
-
-                rowNumber:
+        rowNumber:
 
                     row.rowNumber,
 
-                field:
+        field:
 
                     RACE_RESULT_IMPORT_FIELDS.FINISH_TIME,
 
-                message:
+        message:
 
                     'Finish Time must be HH:MM:SS or HH:MM:SS.mmm.'
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
-
 
 // =====================================================
 // DUPLICATE CSV ROW VALIDATION
@@ -495,79 +464,77 @@ function validateFinishTime(
 
 function validateDuplicateRows(
 
-    result
+  result
 
 ) {
-
-    const seen =
+  const seen =
 
         new Map()
 
-    for (
+  for (
 
-        const row
+    const row
 
-        of result.rows
+    of result.rows
 
-    ) {
-
-        const key =
+  ) {
+    const key =
 
             [
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.EVENT_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.EVENT_AREA
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PROGRAM_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.COMPETITION_DATE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.SESSION_TYPE
 
-                ]
+              ]
 
             ]
 
             .map(
 
-                value =>
+              value =>
 
-                    String(
+                String(
 
-                        value ?? ''
+                  value ?? ''
 
-                    )
+                )
 
                     .trim()
 
@@ -577,56 +544,48 @@ function validateDuplicateRows(
 
             .join(
 
-                '|'
+              '|'
 
             )
 
-        if (
+    if (
 
-            seen.has(
+      seen.has(
 
-                key
+        key
 
-            )
+      )
 
-        ) {
+    ) {
+      result.errors.push({
 
-            result.errors.push({
-
-                rowNumber:
+        rowNumber:
 
                     row.rowNumber,
 
-                field:
+        field:
 
                     null,
 
-                message:
+        message:
 
                     `Duplicate CSV row. First occurrence is row ${seen.get(
 
-                        key
+                      key
 
                     )}.`
 
-            })
+      })
+    } else {
+      seen.set(
 
-        }
+        key,
 
-        else {
+        row.rowNumber
 
-            seen.set(
-
-                key,
-
-                row.rowNumber
-
-            )
-
-        }
-
+      )
     }
-
+  }
 }
 
 // =====================================================
@@ -635,112 +594,105 @@ function validateDuplicateRows(
 
 function validateBusinessKeys(
 
-    result
+  result
 
 ) {
+  for (
 
-    for (
+    const row
 
-        const row
+    of result.rows
 
-        of result.rows
-
-    ) {
-
-        const businessKey =
+  ) {
+    const businessKey =
 
             [
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.EVENT_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.EVENT_AREA
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PROGRAM_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.PARTICIPANT_CODE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.COMPETITION_DATE
 
-                ],
+              ],
 
-                row[
+              row[
 
                     RACE_RESULT_IMPORT_FIELDS.SESSION_TYPE
 
-                ]
+              ]
 
             ]
 
-        const missing =
+    const missing =
 
             businessKey.some(
 
-                value =>
+              value =>
 
-                    value === null ||
+                value === null ||
 
                     value === undefined ||
 
                     String(
 
-                        value
+                      value
 
                     ).trim() === ''
 
             )
 
-        if (
+    if (
 
-            missing
+      missing
 
-        ) {
+    ) {
+      result.errors.push({
 
-            result.errors.push({
-
-                rowNumber:
+        rowNumber:
 
                     row.rowNumber,
 
-                field:
+        field:
 
                     null,
 
-                message:
+        message:
 
                     'Incomplete business key. Event, Occurrence, Program, Participant, Competition Date and Session Type are required.'
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
-
 
 // =====================================================
 // BUILD VALIDATION RESULT
@@ -748,38 +700,36 @@ function validateBusinessKeys(
 
 function buildValidationResult(
 
-    result
+  result
 
 ) {
-
-    result.success =
+  result.success =
 
         result.errors.length === 0
 
-    return {
+  return {
 
-        ...result,
+    ...result,
 
-        totalRows:
+    totalRows:
 
             result.rows.length,
 
-        validRows:
+    validRows:
 
             result.rows.length -
 
             result.errors.length,
 
-        invalidRows:
+    invalidRows:
 
             result.errors.length,
 
-        warningRows:
+    warningRows:
 
             result.warnings.length
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -788,7 +738,16 @@ function buildValidationResult(
 
 function addError(
 
-    result,
+  result,
+
+  rowNumber,
+
+  field,
+
+  message
+
+) {
+  result.errors.push({
 
     rowNumber,
 
@@ -796,18 +755,7 @@ function addError(
 
     message
 
-) {
-
-    result.errors.push({
-
-        rowNumber,
-
-        field,
-
-        message
-
-    })
-
+  })
 }
 
 // =====================================================
@@ -816,7 +764,16 @@ function addError(
 
 function addWarning(
 
-    result,
+  result,
+
+  rowNumber,
+
+  field,
+
+  message
+
+) {
+  result.warnings.push({
 
     rowNumber,
 
@@ -824,18 +781,7 @@ function addWarning(
 
     message
 
-) {
-
-    result.warnings.push({
-
-        rowNumber,
-
-        field,
-
-        message
-
-    })
-
+  })
 }
 
 // =====================================================
@@ -844,42 +790,38 @@ function addWarning(
 
 export async function resolveRaceResults(
 
-    validatedImport = {}
+  validatedImport = {}
 
 ) {
+  const resolvedRows = []
 
-    const resolvedRows = []
+  for (
 
-    for (
+    const participant
 
-        const participant
+    of validatedImport.rows || []
 
-        of validatedImport.rows || []
+  ) {
+    resolvedRows.push(
 
-    ) {
+      await resolveRaceResultRow(
 
-        resolvedRows.push(
+        participant
 
-            await resolveRaceResultRow(
+      )
 
-                participant
+    )
+  }
 
-            )
+  return {
 
-        )
+    ...validatedImport,
 
-    }
-
-    return {
-
-        ...validatedImport,
-
-        rows:
+    rows:
 
             resolvedRows
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -888,48 +830,46 @@ export async function resolveRaceResults(
 
 async function resolveRaceResultRow(
 
-    participant
+  participant
 
 ) {
+  await resolveSharedEventOccurrence(
+          participant,
+          resolveEvent,
+          resolveOccurrence
+        )
 
-    await resolveEventOccurrence(
+  await resolveParticipantChain(
 
-        participant
+    participant
 
-    )
+  )
 
-    await resolveParticipantChain(
-
-        participant
-
-    )
-
-    participant.generated =
+  participant.generated =
 
         buildGeneratedRaceResult(
 
-            participant
+          participant
 
         )
 
-    participant.commit =
+  participant.commit =
 
         buildRaceResultCommitObject(
 
-            participant
+          participant
 
         )
 
-    participant.record =
+  participant.record =
 
         buildRaceResultRecord(
 
-            participant
+          participant
 
         )
 
-    return participant
-
+  return participant
 }
 
 // =====================================================
@@ -938,36 +878,32 @@ async function resolveRaceResultRow(
 
 async function resolveEvent(
 
-    participant
+  participant
 
 ) {
-
-    const event =
+  const event =
 
         await lookup.resolveEventCode(
 
-            participant.event_code
+          participant.event_code
 
         )
 
-    if (
+  if (
 
-        !event ||
+    !event ||
 
         !event.found
 
-    ) {
+  ) {
+    throw new Error(
 
-        throw new Error(
+      `Event '${participant.event_code}' was not found.`
 
-            `Event '${participant.event_code}' was not found.`
+    )
+  }
 
-        )
-
-    }
-
-    return event
-
+  return event
 }
 
 // =====================================================
@@ -976,270 +912,65 @@ async function resolveEvent(
 
 async function resolveOccurrence(
 
-    participant
+  participant
 
 ) {
-
-    const occurrence =
+  const occurrence =
 
         await lookup.resolveOccurrence(
 
-            participant.event_area
+          participant.event_area,
+
+          participant.event.id || participant.event.event_id
 
         )
 
-    if (
+  if (
 
-        !occurrence ||
+    !occurrence ||
 
         !occurrence.found
 
-    ) {
+  ) {
+    throw new Error(
 
-        throw new Error(
+      `Event Occurrence '${participant.event_area}' was not found.`
 
-            `Event Occurrence '${participant.event_area}' was not found.`
+    )
+  }
 
-        )
-
-    }
-
-    return occurrence
-
+  return occurrence
 }
 
 // =====================================================
 // VERIFY OCCURRENCE BELONGS TO EVENT
 // =====================================================
 
-function verifyOccurrenceOwnership(
-
-    participant
-
-) {
-
-    if (
-
-        !participant.event ||
-
-        !participant.occurrence
-
-    ) {
-
-        return
-
-    }
-
-    if (
-
-        participant.occurrence.event_id !==
-
-        participant.event.event_id
-
-    ) {
-
-        throw new Error(
-
-            `Occurrence '${participant.event_area}' does not belong to Event '${participant.event_code}'.`
-
-        )
-
-    }
-
-}
 
 // =====================================================
 // RESOLVE EVENT + OCCURRENCE
 // =====================================================
-
-async function resolveEventOccurrence(
-
-    participant
-
-) {
-
-    participant.event =
-
-        await resolveEvent(
-
-            participant
-
-        )
-
-    participant.occurrence =
-
-        await resolveOccurrence(
-
-            participant
-
-        )
-
-    verifyOccurrenceOwnership(
-
-        participant
-
-    )
-
-    return participant
-
-}
 
 
 // =====================================================
 // RESOLVE PROGRAM
 // =====================================================
 
-async function resolveProgram(
-
-    participant
-
-) {
-
-    const program =
-
-        await lookup.resolveProgramCode(
-
-            participant.program_code
-
-        )
-
-    if (
-
-        !program ||
-
-        !program.found
-
-    ) {
-
-        throw new Error(
-
-            `Program '${participant.program_code}' was not found.`
-
-        )
-
-    }
-
-    return program
-
-}
 
 // =====================================================
 // RESOLVE PARTICIPANT
 // =====================================================
 
-async function resolveParticipant(
-
-    participant
-
-) {
-
-    const participantRecord =
-
-        await lookup.resolveParticipant(
-
-            participant.participant_type_code,
-
-            participant.participant_code
-
-        )
-
-    if (
-
-        !participantRecord ||
-
-        !participantRecord.found
-
-    ) {
-
-        throw new Error(
-
-            `Participant '${participant.participant_code}' was not found.`
-
-        )
-
-    }
-
-    return participantRecord
-
-}
 
 // =====================================================
 // RESOLVE PARTICIPANT REGISTRATION
 // =====================================================
 
-async function resolveParticipantRegistration(
-
-    participant
-
-) {
-
-    participant.participant =
-
-        await resolveParticipant(
-
-            participant
-
-        )
-
-    const registration =
-
-        await lookup.resolveParticipantRegistration(
-
-            participant.occurrence.event_instance_id,
-
-            participant.program.program_id,
-
-            participant.participant.participant_ref_id
-
-        )
-
-    if (
-
-        !registration ||
-
-        !registration.found
-
-    ) {
-
-        throw new Error(
-
-            `Participant '${participant.participant_code}' is not registered for Program '${participant.program_code}'.`
-
-        )
-
-    }
-
-    return registration
-
-}
 
 // =====================================================
 // VERIFY PROGRAM REGISTRATION
 // =====================================================
 
-function verifyProgramRegistration(
-
-    participant
-
-) {
-
-    if (
-
-        participant.registration.program_id !==
-
-        participant.program.program_id
-
-    ) {
-
-        throw new Error(
-
-            `Participant is not registered for Program '${participant.program_code}'.`
-
-        )
-
-    }
-
-}
 
 // =====================================================
 // RESOLVE RACE RESULT CODE
@@ -1247,36 +978,32 @@ function verifyProgramRegistration(
 
 async function resolveRaceResult(
 
-    participant
+  participant
 
 ) {
-
-    const result =
+  const result =
 
         await lookup.resolveRaceResultCode(
 
-            participant.race_result_code
+          participant.race_result_code
 
         )
 
-    if (
+  if (
 
-        !result ||
+    !result ||
 
         !result.found
 
-    ) {
+  ) {
+    throw new Error(
 
-        throw new Error(
+      `Race Result '${participant.race_result_code}' was not found.`
 
-            `Race Result '${participant.race_result_code}' was not found.`
+    )
+  }
 
-        )
-
-    }
-
-    return result
-
+  return result
 }
 
 // =====================================================
@@ -1285,44 +1012,41 @@ async function resolveRaceResult(
 
 async function resolveParticipantChain(
 
-    participant
+  participant
 
 ) {
-
-    participant.program =
+  participant.program =
 
         await resolveProgram(
 
-            participant
+          participant
 
         )
 
-    participant.registration =
+  participant.registration =
 
         await resolveParticipantRegistration(
 
-            participant
+          participant
 
         )
 
-    verifyProgramRegistration(
+  verifyProgramRegistration(
 
-        participant
+    participant
 
-    )
+  )
 
-    participant.raceResult =
+  participant.raceResult =
 
         await resolveRaceResult(
 
-            participant
+          participant
 
         )
 
-    return participant
-
+  return participant
 }
-
 
 // =====================================================
 // DERIVE RESULT STATUS
@@ -1330,15 +1054,14 @@ async function resolveParticipantChain(
 
 function deriveRaceResult(
 
-    participant
+  participant
 
 ) {
-
-    const result =
+  const result =
 
         participant.raceResult
 
-    return {
+  return {
 
     attendance:
 
@@ -1352,8 +1075,7 @@ function deriveRaceResult(
 
         result.outcomeStatus?.id ?? null
 
-}
-
+  }
 }
 
 // =====================================================
@@ -1362,55 +1084,52 @@ function deriveRaceResult(
 
 function buildGeneratedRaceResult(
 
-    participant
+  participant
 
 ) {
-
-    const derived =
+  const derived =
 
         deriveRaceResult(
 
-            participant
+          participant
 
         )
 
-    return {
+  return {
 
-        event:
+    event:
 
             participant.event,
 
-        occurrence:
+    occurrence:
 
             participant.occurrence,
 
-        program:
+    program:
 
             participant.program,
 
-        participant:
+    participant:
 
             participant.participant,
 
-        registration:
+    registration:
 
             participant.registration,
 
-        
-
-        event_id:
+    event_id:
 
     participant.event.event_id,
 
-        event_instance_id:
+    event_instance_id:
 
     participant.occurrence.event_instance_id,
 
-        participant_instance_id:
+    participant_instance_id:
 
     participant.registration.participant_instance_id,
 
-        participant_source_id:
+    participant_source_id:
 
     participant.participant.participant_source_id ??
 
@@ -1418,80 +1137,79 @@ function buildGeneratedRaceResult(
 
     null,
 
-        athlete_id:
+    athlete_id:
 
             participant.participant.athlete_id ?? null,
 
-        team_id:
+    team_id:
 
             participant.participant.team_id ?? null,
 
-        town_id:
+    town_id:
 
             participant.occurrence.town_id ?? null,
 
-        program_id:
+    program_id:
 
     participant.program.program_id,
 
-        competition_date:
+    competition_date:
 
             participant.competition_date,
 
-        session_type:
+    session_type:
 
             participant.session_type,
 
-        position:
+    position:
 
             participant.position ?? null,
 
-        finish_time:
+    finish_time:
 
             participant.finish_time ?? null,
 
-        distance_km:
+    distance_km:
 
             participant.distance_km ?? null,
 
-        avg_speed_kmh:
+    avg_speed_kmh:
 
             participant.avg_speed_kmh ?? null,
 
-        max_speed_kmh:
+    max_speed_kmh:
 
             participant.max_speed_kmh ?? null,
 
-        start_time:
+    start_time:
 
             participant.start_time ?? null,
 
-        end_time:
+    end_time:
 
             participant.end_time ?? null,
 
-        indoor_session:
+    indoor_session:
 
             participant.indoor_session ?? false,
 
-        notes:
+    notes:
 
             participant.notes ?? null,
 
-        attendance:
+    attendance:
 
             derived.attendance,
 
-        attendance_status_id:
+    attendance_status_id:
 
     derived.attendance_status_id,
 
-outcome_status_id:
+    outcome_status_id:
 
     derived.outcome_status_id
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1500,16 +1218,65 @@ outcome_status_id:
 
 function buildRaceResultCommitObject(
 
-    participant
+  participant
 
 ) {
+  const participantTypeCode =
+    String(participant.participant_type_code || '').trim().toUpperCase()
+  const sourceId = participant.participant.source_id ?? null
+  const derived = deriveRaceResult(participant)
 
-    return buildCommitObject(
+  return {
 
-        participant.generated
+    event_id: participant.event.event_id,
 
-    )
+    event_instance_id: participant.occurrence.event_instance_id,
 
+    participant_instance_id: participant.registration.participant_instance_id,
+
+    participant_id: null,
+
+    participant_source_id: sourceId,
+
+    athlete_id:
+      participantTypeCode === 'ATHLETE' ? sourceId : null,
+
+    team_id:
+      participantTypeCode === 'TEAM' ? sourceId : null,
+
+    town_id: participant.occurrence.town_id ?? null,
+
+    program_id: participant.program.program_id,
+
+    competition_date: participant.competition_date,
+
+    session_type: participant.session_type,
+
+    position: participant.position ?? null,
+
+    finish_time: participant.finish_time ?? null,
+
+    distance_km: participant.distance_km ?? null,
+
+    avg_speed_kmh: participant.avg_speed_kmh ?? null,
+
+    max_speed_kmh: participant.max_speed_kmh ?? null,
+
+    start_time: participant.start_time || null,
+
+    end_time: participant.end_time || null,
+
+    indoor_session: participant.indoor_session ?? false,
+
+    notes: participant.notes ?? null,
+
+    attendance: derived.attendance,
+
+    attendance_status_id: derived.attendance_status_id,
+
+    outcome_status_id: derived.outcome_status_id
+
+  }
 }
 
 // =====================================================
@@ -1518,42 +1285,40 @@ function buildRaceResultCommitObject(
 
 function buildRaceResultIdentity(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        eventCode:
+    eventCode:
 
             participant.event_code,
 
-        eventArea:
+    eventArea:
 
             participant.event_area,
 
-        programCode:
+    programCode:
 
             participant.program_code,
 
-        participantType:
+    participantType:
 
             participant.participant_type_code,
 
-        participantCode:
+    participantCode:
 
             participant.participant_code,
 
-        competitionDate:
+    competitionDate:
 
             participant.competition_date,
 
-        sessionType:
+    sessionType:
 
             participant.session_type
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1562,119 +1327,112 @@ function buildRaceResultIdentity(
 
 function buildRaceResultRecord(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        operation:
+    operation:
 
             null,
 
-        identity:
+    identity:
 
             buildRaceResultIdentity(
 
-                participant
+              participant
 
             ),
 
-        data:
+    data:
 
             participant.commit,
 
-        source:
+    source:
 
             participant.source,
 
-        resolved:
+    resolved:
 
             participant
 
-    }
-
+  }
 }
-
 
 export function buildRaceResultCommitPlan(
 
-    resolvedImport = {}
+  resolvedImport = {}
 
 ) {
+  return {
 
-    return {
+    stages: [
 
-        stages: [
+      {
 
-            {
-
-                name:
+        name:
 
                     'Race Results',
 
-                operations: [
+        operations: [
 
-                    {
+          {
 
-                        table:
+            table:
 
                             'race_results',
 
-                        operation:
+            operation:
 
-                            null,
+                            'upsert',
 
-                        keyField:
+            conflictColumn:
 
-                            'result_id',
+                            'event_instance_id,program_id,participant_instance_id,competition_date,session_type',
 
-                        records:
+            records:
 
                             resolvedImport.rows.map(
 
-                                row =>
+                              row =>
 
-                                    row.record.data
+                                row.record.data
 
                             ),
 
-                        options: {
+            options: {
 
-                            continueOnError:
+              continueOnError:
 
                                 false,
 
-                            returning:
+              returning:
 
                                 true
 
-                        }
-
-                    }
-
-                ]
-
             }
+
+          }
 
         ]
 
-    }
+      }
 
+    ]
+
+  }
 }
 
 export function buildRaceResultPreview(
 
-    resolvedImport = {}
+  resolvedImport = {}
 
 ) {
+  return buildPreview(
 
-    return buildPreview(
+    resolvedImport
 
-        resolvedImport
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -1683,16 +1441,14 @@ export function buildRaceResultPreview(
 
 export function buildRaceResultSummary(
 
-    committedImport = {}
+  committedImport = {}
 
 ) {
+  return buildSummary(
 
-    return buildSummary(
+    committedImport
 
-        committedImport
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -1701,16 +1457,14 @@ export function buildRaceResultSummary(
 
 export function downloadRaceResultPackage(
 
-    importResult = {}
+  importResult = {}
 
 ) {
+  return downloadFullPackage(
 
-    return downloadFullPackage(
+    importResult
 
-        importResult
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -1719,40 +1473,38 @@ export function downloadRaceResultPackage(
 
 export async function executeRaceResultImport(
 
-    resolvedImport = {}
+  resolvedImport = {}
 
 ) {
-
-    const commitPlan =
+  const commitPlan =
 
         buildRaceResultCommitPlan(
 
-            resolvedImport
+          resolvedImport
 
         )
 
-    const committedImport =
+  const committedImport =
 
         await commit(
 
-            commitPlan
+          commitPlan
 
         )
 
-    return {
+  return {
 
-        ...committedImport,
+    ...committedImport,
 
-        summary:
+    summary:
 
             buildRaceResultSummary(
 
-                committedImport
+              committedImport
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1761,40 +1513,38 @@ export async function executeRaceResultImport(
 
 export async function importRaceResults(
 
-    validatedImport = {}
+  validatedImport = {}
 
 ) {
-
-    const resolvedImport =
+  const resolvedImport =
 
         await resolveRaceResults(
 
-            validatedImport
+          validatedImport
 
         )
 
-    const preview =
+  const preview =
 
         buildRaceResultPreview(
 
-            resolvedImport
+          resolvedImport
 
         )
 
-    const committedImport =
+  const committedImport =
 
         await executeRaceResultImport(
 
-            resolvedImport
+          resolvedImport
 
         )
 
-    return finish({
+  return finish({
 
-        preview,
+    preview,
 
-        ...committedImport
+    ...committedImport
 
-    })
-
+  })
 }

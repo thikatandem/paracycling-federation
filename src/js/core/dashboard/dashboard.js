@@ -1,4 +1,8 @@
 import {
+  getDb
+} from '../supabase/getDb.js'
+
+import {
   getCurrentRole,
   getCurrentProfile
 }
@@ -10,21 +14,16 @@ document.addEventListener(
 )
 
 async function loadDashboard() {
-  await loadAthletes()
-
-  await loadTeams()
-
-  await loadEvents()
-
-  await loadTraining()
-
-  await loadPerformance()
-
-  await loadCompetition()
-
-  await loadDocuments()
-
-  await loadStaff()
+  await Promise.all([
+    loadAthletes(),
+    loadTeams(),
+    loadEvents(),
+    loadTraining(),
+    loadPerformance(),
+    loadCompetition(),
+    loadDocuments(),
+    loadStaff()
+  ])
 }
 
 function isAthleteRole() {
@@ -42,7 +41,7 @@ async function loadAthletes() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from('athletes')
       .select('*', {
         count: 'exact',
@@ -68,7 +67,6 @@ async function loadAthletes() {
   await query
 
   if (error) {
-    console.error(error)
     return
   }
 
@@ -82,7 +80,7 @@ async function loadTeams() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from(
         'team_members'
       )
@@ -97,7 +95,7 @@ async function loadTeams() {
       'athlete_id',
       profile.athlete_id
     ) :
-    window.supabaseClient
+    getDb()
         .from(
           'teams'
         )
@@ -124,7 +122,7 @@ async function loadTeams() {
 
 async function loadEvents() {
   const { count, error } =
-    await window.supabaseClient
+    await getDb()
       .from('events')
       .select('*', {
         count: 'exact',
@@ -132,7 +130,6 @@ async function loadEvents() {
       })
 
   if (error) {
-    console.error(error)
     return
   }
 
@@ -146,7 +143,7 @@ async function loadTraining() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from(
         'training_log'
       )
@@ -187,7 +184,7 @@ async function loadPerformance() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from(
         'performance'
       )
@@ -215,7 +212,6 @@ async function loadPerformance() {
     await query
 
   if (error) {
-    console.error(error)
 
     return
   }
@@ -236,7 +232,7 @@ async function loadCompetition() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from(
         'race_results'
       )
@@ -264,7 +260,6 @@ async function loadCompetition() {
     await query
 
   if (error) {
-    console.error(error)
 
     return
   }
@@ -285,7 +280,7 @@ async function loadDocuments() {
     getCurrentProfile()
 
   let query =
-    window.supabaseClient
+    getDb()
       .from(
         'documents'
       )
@@ -347,7 +342,7 @@ async function loadStaff() {
     count,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'staff_registry'
       )

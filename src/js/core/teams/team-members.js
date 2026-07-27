@@ -1,13 +1,115 @@
-/* global coreui */
-/* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
+import {
+  printCurrentView as printTable,
+  createLoadingStateSetter
+} from '../services/uiService.js'
 
+import {
+  createPaginationInfoUpdater
+} from '../services/paginationService.js'
+
+import {
+  calculateElapsedDateDuration as calculateDuration
+} from '../services/calculationService.js'
+
+/* eslint camelcase: 0 */
 /* ==========================================
    CONSTANTS
 ========================================== */
 
-const PAGE_SIZE = 10
+import {
+  createSortToggle,
+  createPageNavigator
+} from '../services/pageStateService.js'
+import {
+  getRoleBadge,
+  getActiveBadge
+} from '../services/badgeService.js'
+import {
+  get as $,
+  setText
+} from '../services/domService.js'
+import {
+  formatDateInputValue as formatDate
+} from '../services/formattingService.js'
+
+
+import {
+  showInlineError,
+  showInlineSuccess
+} from '../services/feedbackService.js'
+
+import {
+  PAGE_SIZE
+} from '../services/constants.js'
+
+import {
+  getDb
+} from '../supabase/getDb.js'
+
+
+
+import {
+  createModal
+} from '../services/modalService.js'
+const sortBy =
+  createSortToggle({
+    getField: () =>
+      currentSortField,
+    setField: value => {
+      currentSortField = value
+    },
+    getDirection: () =>
+      currentSortDirection,
+    setDirection: value => {
+      currentSortDirection = value
+    },
+    apply: applySorting
+  })
+
+const pageNavigator =
+  createPageNavigator({
+    getPage: () =>
+      currentPage,
+    setPage: value => {
+      currentPage = value
+    },
+    getTotalPages: () =>
+      Math.max(
+        1,
+        Math.ceil(
+          filteredTeamMembers.length /
+          PAGE_SIZE
+        )
+      ),
+    render: renderTable
+  })
+
+const previousPage =
+  pageNavigator.previous
+    .bind(pageNavigator)
+
+const nextPage =
+  pageNavigator.next
+    .bind(pageNavigator)
+
+const renderPagination =
+  createPaginationInfoUpdater({
+    getItemCount: () =>
+      filteredTeamMembers.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize:
+      PAGE_SIZE,
+    infoElementId:
+      'teamMemberPaginationInfo',
+    includeRecordCount:
+      true
+  })
+
+const showLoading =
+  createLoadingStateSetter(
+    'teamMemberLoading'
+  )
 
 /* ==========================================
    GLOBALS
@@ -36,39 +138,6 @@ let currentSortDirection =
 /* ==========================================
    DOM HELPERS
 ========================================== */
-
-const $ = id =>
-  document.getElementById(id)
-
-function showLoading(
-  show = true
-) {
-  const el =
-    $('teamMemberLoading')
-
-  if (!el) {
-    return
-  }
-
-  el.classList.toggle(
-    'd-none',
-    !show
-  )
-}
-
-function setText(
-  id,
-  value
-) {
-  const el = $(id)
-
-  if (!el) {
-    return
-  }
-
-  el.textContent =
-    value ?? ''
-}
 
 function clearCloseAssignmentForm() {
   setText(
@@ -115,132 +184,7 @@ function clearCloseAssignmentForm() {
    HELPERS
 ========================================== */
 
-function formatDate(
-  value
-) {
-  if (!value) {
-    return ''
-  }
 
-  return value
-}
-
-function calculateDuration(
-  startDate,
-  endDate
-) {
-  if (!startDate) {
-    return ''
-  }
-
-  const start =
-    new Date(
-      startDate
-    )
-
-  const end =
-    endDate ?
-      new Date(endDate) :
-      new Date()
-
-  const diffDays =
-    Math.floor(
-      (
-        end - start
-      ) /
-      (
-        1000 *
-        60 *
-        60 *
-        24
-      )
-    )
-
-  if (
-    diffDays < 30
-  ) {
-    return `${diffDays}d`
-  }
-
-  const months =
-    Math.floor(
-      diffDays / 30
-    )
-
-  if (
-    months < 12
-  ) {
-    return `${months}m`
-  }
-
-  const years =
-    Math.floor(
-      months / 12
-    )
-
-  const remainingMonths =
-    months % 12
-
-  return `${years}y ${remainingMonths}m`
-}
-
-function getRoleBadge(
-  roleCode
-) {
-  if (
-    roleCode ===
-    'PILOT'
-  ) {
-    return `
-      <span
-        class="badge bg-primary"
-      >
-        Pilot
-      </span>
-    `
-  }
-
-  if (
-    roleCode ===
-    'STOKER'
-  ) {
-    return `
-      <span
-        class="badge bg-success"
-      >
-        Stoker
-      </span>
-    `
-  }
-
-  return `
-    <span
-      class="badge bg-secondary"
-    >
-      ${roleCode || ''}
-    </span>
-  `
-}
-
-function getActiveBadge(
-  active
-) {
-  return active ?
-    `
-      <span
-        class="badge bg-success"
-      >
-        Active
-      </span>
-    ` :
-    `
-      <span
-        class="badge bg-secondary"
-      >
-        Inactive
-      </span>
-    `
-}
 
 /* ==========================================
    LOOKUPS
@@ -251,7 +195,7 @@ async function loadTeamsLookup() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('teams')
       .select(`
         team_id,
@@ -313,7 +257,7 @@ async function loadRolesLookup() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('role_master')
       .select(`
         role_id,
@@ -382,7 +326,7 @@ async function loadTeamMembers() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from(
           'team_members'
         )
@@ -425,11 +369,8 @@ async function loadTeamMembers() {
 
     updateSummaryCards()
   } catch (error) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message ||
       'Failed to load team members'
     )
@@ -625,28 +566,6 @@ function applyFilters() {
    SORTING
 ========================================== */
 
-function sortBy(
-  field
-) {
-  if (
-    currentSortField ===
-    field
-  ) {
-    currentSortDirection =
-      currentSortDirection ===
-      'asc' ?
-        'desc' :
-        'asc'
-  } else {
-    currentSortField =
-      field
-
-    currentSortDirection =
-      'asc'
-  }
-
-  applySorting()
-}
 
 function applySorting() {
   filteredTeamMembers.sort(
@@ -968,56 +887,6 @@ function renderTable() {
    PAGINATION
 ========================================== */
 
-function renderPagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredTeamMembers.length /
-        PAGE_SIZE
-      )
-    )
-
-  setText(
-    'teamMemberPaginationInfo',
-    `
-      Page ${currentPage}
-      of ${totalPages}
-      (
-      ${filteredTeamMembers.length}
-      records
-      )
-    `
-  )
-}
-
-function nextPage() {
-  const totalPages =
-    Math.ceil(
-      filteredTeamMembers.length /
-      PAGE_SIZE
-    )
-
-  if (
-    currentPage <
-    totalPages
-  ) {
-    currentPage++
-
-    renderTable()
-  }
-}
-
-function previousPage() {
-  if (
-    currentPage > 1
-  ) {
-    currentPage--
-
-    renderTable()
-  }
-}
-
 /* ==========================================
    HISTORY MODAL
 ========================================== */
@@ -1033,7 +902,7 @@ async function (
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from(
           'team_members'
         )
@@ -1181,9 +1050,8 @@ async function (
 
     historyModal.show()
   } catch (error) {
-    console.error(error)
 
-    alert(
+    showInlineError(
       error.message
     )
   } finally {
@@ -1241,12 +1109,12 @@ async function closeAssignment() {
     const {
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from(
           'team_members'
         )
         .update({
-          membership_status_master: false,
+          is_active: false,
           end_date: endDate,
           change_reason:
             `${reason} - ${remarks}`
@@ -1266,9 +1134,8 @@ async function closeAssignment() {
 
     applyFilters()
   } catch (error) {
-    console.error(error)
 
-    alert(
+    showInlineError(
       error.message
     )
   }
@@ -1315,22 +1182,19 @@ function exportCsv() {
       })
     )
 
-  console.table(rows)
 
-  alert(
+  showInlineSuccess(
     'CSV export phase complete'
   )
 }
 
 function exportExcel() {
-  alert(
+  showInlineSuccess(
     'Excel export phase complete'
   )
 }
 
-function printTable() {
-  window.print()
-}
+
 /* ==========================================
    EVENT WIRING
 ========================================== */
@@ -1433,14 +1297,10 @@ function wireEvents() {
 
 async function initialize() {
   historyModal =
-    new coreui.Modal(
-      $('teamMemberHistoryModal')
-    )
+    createModal('teamMemberHistoryModal')
 
   closeAssignmentModal =
-    new coreui.Modal(
-      $('closeAssignmentModal')
-    )
+    createModal('closeAssignmentModal')
 
   await loadTeamsLookup()
 

@@ -1,6 +1,8 @@
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
+import {
+  getDb,
+  hasDb
+} from '../supabase/getDb.js'
 
 import {
   get,
@@ -34,7 +36,8 @@ import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
-  bindPagination
+  bindPagination,
+  createPaginatorUiUpdater
 } from '../services/paginationService.js'
 
 import {
@@ -74,13 +77,25 @@ import {
   resolveTownId
 } from '../services/locationLookupService.js'
 
+import {
+  syncStaffAccessByStaffId
+} from './departmentAccessService.js'
+
+
 const paginator = createPaginator()
 const state = createPageState()
 
-let assignments = []
-let qualifications = []
-let certifications = []
-let reviews = []
+const updatePagination =
+  createPaginatorUiUpdater({
+    paginator,
+    infoElementId:
+      'teamPaginationInfo',
+    previousButtonId:
+      'btnPreviousTeamPage',
+    nextButtonId:
+      'btnNextTeamPage'
+  })
+
 
 /* ==========================================
    HELPERS
@@ -145,12 +160,15 @@ async function loadTeams() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from('staff_registry')
 .select(`
   *,
   role_master(
     role_name
+  ),
+  department_master(
+    department_name
   ),
 country_master(
   country_name
@@ -195,7 +213,6 @@ country_master(
 
     renderTeamsTable()
   } catch (error) {
-    console.error(error)
 
     showError(
       'teamFormError',
@@ -206,112 +223,6 @@ country_master(
   } finally {
     hidePageLoader()
   }
-}
-
-async function loadAssignments(
-  staffId
-) {
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_assignments'
-      )
-      .select(`
-        *,
-        role_master(
-          role_name
-        ),
-        teams(
-          team_name
-        )
-      `)
-      .eq(
-        'staff_id',
-        staffId
-      )
-
-  if (error) {
-    throw error
-  }
-
-  assignments =
-    data || []
-}
-
-async function loadQualifications(
-  staffId
-) {
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_qualifications'
-      )
-      .select(`
-        *
-      `)
-      .eq(
-        'staff_id',
-        staffId
-      )
-
-  if (error) {
-    throw error
-  }
-
-  qualifications =
-    data || []
-}
-
-function renderQualificationRow(
-  qualification
-) {
-  return `
-
-<tr>
-
-${buildTextCell(
-    qualification.qualification_name
-  )}
-
-${buildTextCell(
-    qualification.institution
-  )}
-
-${buildTextCell(
-    qualification.date_awarded
-  )}
-
-${buildTextCell(
-    qualification.expiry_date
-  )}
-
-</tr>
-
-`
-}
-
-function renderQualificationsTable() {
-  const tbody =
-    get(
-      'qualificationsTableBody'
-    )
-
-  if (!tbody) {
-    return
-  }
-
-  tbody.innerHTML =
-    qualifications
-      .map(
-        renderQualificationRow
-      )
-      .join('')
 }
 
 /* ==========================================
@@ -347,6 +258,8 @@ function applySearch() {
 
         'email',
 
+        'department_master.department_name',
+
         'role_master.role_name'
 
       ]
@@ -380,7 +293,7 @@ function renderTeamsTable() {
   state.filteredRows,
     paginator,
 
-    colspan: 8,
+    colspan: 9,
 
     emptyMessage:
       'No Staff found',
@@ -393,22 +306,6 @@ function renderTeamsTable() {
   updatePagination()
 }
 
-function updatePagination() {
-  updatePaginationUi({
-
-    paginator,
-
-    infoElement:
-      get('teamPaginationInfo'),
-
-    previousButton:
-      get('btnPreviousTeamPage'),
-
-    nextButton:
-      get('btnNextTeamPage')
-
-  })
-}
 
 /* ==========================================
    REFRESH
@@ -498,7 +395,6 @@ async function saveTeam() {
 
     await refreshTeams()
   } catch (error) {
-    console.error(error)
 
     showError(
       'teamFormError',
@@ -593,7 +489,7 @@ async function createStaff() {
     data: staff,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'staff_registry'
       )
@@ -667,7 +563,7 @@ async function createStaff() {
   const {
     error: profileError
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'staff_profiles'
       )
@@ -678,6 +574,10 @@ async function createStaff() {
   if (profileError) {
     throw profileError
   }
+
+  await syncStaffAccessByStaffId(
+    staff.staff_id
+  )
 }
 /* ==========================================
    UPDATE TEAM
@@ -770,7 +670,7 @@ async function updateStaff() {
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'staff_registry'
       )
@@ -841,7 +741,7 @@ async function updateStaff() {
   const {
     error: profileError
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'staff_profiles'
       )
@@ -856,84 +756,15 @@ async function updateStaff() {
   if (profileError) {
     throw profileError
   }
+
+  await syncStaffAccessByStaffId(
+    staffId
+  )
 }
 
 /* ==========================================
   REVIEWS
 ========================================== */
-async function loadReviews(
-  staffId
-) {
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_reviews'
-      )
-      .select(`
-        *
-      `)
-      .eq(
-        'staff_id',
-        staffId
-      )
-
-  if (error) {
-    throw error
-  }
-
-  reviews =
-    data || []
-}
-
-function renderReviewRow(
-  review
-) {
-  return `
-
-<tr>
-
-${buildTextCell(
-    review.review_date
-  )}
-
-${buildTextCell(
-    review.reviewer
-  )}
-
-${buildTextCell(
-    review.score
-  )}
-
-${buildTextCell(
-    review.comments
-  )}
-
-</tr>
-
-`
-}
-
-function renderReviewsTable() {
-  const tbody =
-    get(
-      'reviewsTableBody'
-    )
-
-  if (!tbody) {
-    return
-  }
-
-  tbody.innerHTML =
-    reviews
-      .map(
-        renderReviewRow
-      )
-      .join('')
-}
-
 /* ==========================================
    EDIT TEAM
 ========================================== */
@@ -1105,33 +936,7 @@ async function editStaff(
       'teamModal'
     )
 
-    await loadAssignments(
-      staffId
-    )
-
-    renderAssignmentsTable()
-
-    await loadQualifications(
-      staffId
-    )
-
-    renderQualificationsTable()
-
-    await loadCertifications(
-      staffId
-    )
-
-    renderCertificationsTable()
-
-    await loadReviews(
-      staffId
-    )
-
-    renderReviewsTable()
   } catch (error) {
-    console.error(
-      error
-    )
 
     showError(
       'teamFormError',
@@ -1195,6 +1000,16 @@ function renderStaffRow(
 
     })
 
+  const profileButton = `
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-primary me-1"
+      onclick="openStaffProfileAdmin('${staff.staff_id}')"
+    >
+      Profile
+    </button>
+  `
+
   return `
 
 <tr>
@@ -1205,6 +1020,10 @@ ${buildTextCell(
 
 ${buildTextCell(
     fullName
+  )}
+
+${buildTextCell(
+    staff.department_master?.department_name || ''
   )}
 
 ${buildTextCell(
@@ -1253,347 +1072,12 @@ ${buildStatusCell(
 
 
 ${buildActionCell(
-    actionButtons
+    `${profileButton}${actionButtons}`
   )}
 
 </tr>
 
 `
-}
-
-function renderAssignmentRow(
-  assignment
-) {
-  return `
-
-<tr>
-
-${buildTextCell(
-    assignment.role_master
-    ?.role_name || ''
-  )}
-
-${buildTextCell(
-    assignment.teams
-    ?.team_name || ''
-  )}
-
-${buildTextCell(
-    assignment.start_date || ''
-  )}
-
-${buildTextCell(
-    assignment.end_date || ''
-  )}
-
-${buildStatusCell(
-    getStatusBadge(
-      assignment.is_active ?
-        'Active' :
-        'Inactive',
-      assignment.is_active ?
-        'Active' :
-        'Inactive'
-    )
-  )}
-
-${buildTextCell(
-    assignment.assignment_reason || ''
-  )}
-
-</tr>
-
-`
-}
-
-function renderAssignmentsTable() {
-  const tbody =
-    get(
-      'assignmentsTableBody'
-    )
-
-  if (!tbody) {
-    return
-  }
-
-  tbody.innerHTML =
-    assignments
-      .map(
-        renderAssignmentRow
-      )
-      .join('')
-}
-
-/* ==========================================
-   ASSIGNMENT CRUD
-========================================== */
-
-async function createAssignment(
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_assignments'
-      )
-      .insert(
-        payload
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function updateAssignment(
-  assignmentId,
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_assignments'
-      )
-      .update(
-        payload
-      )
-      .eq(
-        'assignment_id',
-        assignmentId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function deleteAssignment(
-  assignmentId
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_assignments'
-      )
-      .delete()
-      .eq(
-        'assignment_id',
-        assignmentId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-/* ==========================================
-   QUALIFICATION CRUD
-========================================== */
-
-async function createQualification(
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_qualifications'
-      )
-      .insert(
-        payload
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function updateQualification(
-  qualificationId,
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_qualifications'
-      )
-      .update(
-        payload
-      )
-      .eq(
-        'qualification_id',
-        qualificationId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function deleteQualification(
-  qualificationId
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_qualifications'
-      )
-      .delete()
-      .eq(
-        'qualification_id',
-        qualificationId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-/* ==========================================
-   REVIEW CRUD
-========================================== */
-
-async function createReview(
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_reviews'
-      )
-      .insert(
-        payload
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function updateReview(
-  reviewId,
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_reviews'
-      )
-      .update(
-        payload
-      )
-      .eq(
-        'review_id',
-        reviewId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function deleteReview(
-  reviewId
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_reviews'
-      )
-      .delete()
-      .eq(
-        'review_id',
-        reviewId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-/* ==========================================
-   CERTIFICATION CRUD
-========================================== */
-
-async function createCertification(
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_certifications'
-      )
-      .insert(
-        payload
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function updateCertification(
-  certificationId,
-  payload
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_certifications'
-      )
-      .update(
-        payload
-      )
-      .eq(
-        'certification_id',
-        certificationId
-      )
-
-  if (error) {
-    throw error
-  }
-}
-
-async function deleteCertification(
-  certificationId
-) {
-  const {
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_certifications'
-      )
-      .delete()
-      .eq(
-        'certification_id',
-        certificationId
-      )
-
-  if (error) {
-    throw error
-  }
 }
 
 /* ==========================================
@@ -1614,7 +1098,7 @@ async function deleteStaff() {
     const {
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from(
           'staff_registry'
         )
@@ -1634,9 +1118,6 @@ async function deleteStaff() {
 
     await refreshTeams()
   } catch (error) {
-    console.error(
-      error
-    )
 
     showError(
       'teamFormError',
@@ -1705,79 +1186,6 @@ function wireEvents() {
 /* ==========================================
    CERTIFICATION
 ========================================== */
-async function loadCertifications(
-  staffId
-) {
-  const {
-    data,
-    error
-  } =
-    await window.supabaseClient
-      .from(
-        'staff_certifications'
-      )
-      .select(`
-        *
-      `)
-      .eq(
-        'staff_id',
-        staffId
-      )
-
-  if (error) {
-    throw error
-  }
-
-  certifications =
-    data || []
-}
-
-function renderCertificationRow(
-  certification
-) {
-  return `
-
-<tr>
-
-${buildTextCell(
-    certification.certification_name
-  )}
-
-${buildTextCell(
-    certification.issuing_body
-  )}
-
-${buildTextCell(
-    certification.issue_date
-  )}
-
-${buildTextCell(
-    certification.expiry_date
-  )}
-
-</tr>
-
-`
-}
-
-function renderCertificationsTable() {
-  const tbody =
-    get(
-      'certificationsTableBody'
-    )
-
-  if (!tbody) {
-    return
-  }
-
-  tbody.innerHTML =
-    certifications
-      .map(
-        renderCertificationRow
-      )
-      .join('')
-}
-
 async function loadLookups() {
   const genders =
     await loadGenderLookup()
@@ -1966,30 +1374,6 @@ async function loadLookups() {
   })
 }
 /* ==========================================
-   ERROR HANDLING
-========================================== */
-
-window.addEventListener(
-  'error',
-  event => {
-    console.error(
-      'Teams Module Error:',
-      event.error
-    )
-  }
-)
-
-window.addEventListener(
-  'unhandledrejection',
-  event => {
-    console.error(
-      'Unhandled Promise:',
-      event.reason
-    )
-  }
-)
-
-/* ==========================================
    GLOBAL FUNCTIONS
 ========================================== */
 
@@ -2009,11 +1393,8 @@ window.openAddTeamModal =
 async function initializeTeams() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Supabase client not found'
-      )
 
       return
     }
@@ -2041,14 +1422,7 @@ async function initializeTeams() {
     await loadLookups()
     await refreshTeams()
 
-    console.log(
-      'Teams module initialized'
-    )
   } catch (error) {
-    console.error(
-      'Initialization Error',
-      error
-    )
   }
 }
 

@@ -1,3 +1,7 @@
+import {
+  THEME_STORAGE_KEY
+} from './core/services/constants.js'
+
 /*!
 * Color mode toggler for CoreUI's docs (https://coreui.io/)
 * Copyright (c) 2026 creativeLabs Łukasz Holeczek
@@ -24,19 +28,17 @@
  */
 
 (() => {
-  const THEME = 'coreui-free-bootstrap-admin-template-theme'
-
   /**
    * Retrieves the stored theme preference from localStorage
    * @returns {string|null} Theme name ('light', 'dark', 'auto') or null
    */
-  const getStoredTheme = () => localStorage.getItem(THEME)
+  const getStoredTheme = () => localStorage.getItem(THEME_STORAGE_KEY)
 
   /**
    * Saves the theme preference to localStorage
    * @param {string} theme - Theme name ('light', 'dark', or 'auto')
    */
-  const setStoredTheme = theme => localStorage.setItem(THEME, theme)
+  const setStoredTheme = theme => localStorage.setItem(THEME_STORAGE_KEY, theme)
 
   /**
    * Determines the preferred theme based on stored preference or system setting

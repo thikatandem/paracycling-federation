@@ -1,53 +1,52 @@
-﻿// =====================================================
+// =====================================================
 // EVENT IMPORT
 // ParaCycling Federation Management System
 // =====================================================
 
 import {
 
-    process,
+  process,
 
-    commit,
-   
+  commit,
 
-    finish
+  finish
 
 } from '../import/importService.js'
 
 import {
 
-    buildPreview
+  buildPreview
 
 }
 
-from '../import/previewImporter.js'
+  from '../import/previewImporter.js'
 import {
 
-    COMMIT_FIELDS,
+  COMMIT_FIELDS,
 
-    buildCommitObject
-
-}
-
-from '../import/importHelpers.js'
-
-import {
-
-    buildSummary,
-
-    downloadFullPackage
+  buildCommitObject
 
 }
 
-from '../import/importErrors.js'
+  from '../import/importHelpers.js'
 
 import {
 
-    findOrCreateTown
+  buildSummary,
+
+  downloadFullPackage
 
 }
 
-from '../services/locationLookupService.js'
+  from '../import/importErrors.js'
+
+import {
+
+  findOrCreateTown
+
+}
+
+  from '../services/locationLookupService.js'
 // =====================================================
 // EVENT FIELD MAP
 //
@@ -60,36 +59,35 @@ from '../services/locationLookupService.js'
 
 const EVENT_FIELDS = Object.freeze({
 
-    EVENT_CODE:
+  EVENT_CODE:
     'event_code',
 
-    SPONSOR_CODE:
+  SPONSOR_CODE:
         'sponsor_code',
-   SUBCOUNTY_NAME:
+  SUBCOUNTY_NAME:
     'subcounty_code',
 
-    TOWN_NAME:
+  TOWN_NAME:
         'town_name',
 
-    ORGANIZER:
+  ORGANIZER:
         'organizer',
-    NOTES:
+  NOTES:
        'notes',
 
-    START_DATE:
+  START_DATE:
         'start_date',
 
-    END_DATE:
+  END_DATE:
         'end_date',
 
-    START_TIME:
+  START_TIME:
         'start_time',
 
-    END_TIME:
+  END_TIME:
         'end_time'
 
 })
-
 
 // =====================================================
 // GENERATED FIELDS
@@ -102,33 +100,31 @@ const EVENT_FIELDS = Object.freeze({
 
 const GENERATED_FIELDS = Object.freeze({
 
-    EVENT_CODE:
+  EVENT_CODE:
 
         'event_code',
 
-    EVENT_NAME:
+  EVENT_NAME:
 
         'event_name',
 
-    EVENT_AREA:
+  EVENT_AREA:
 
         'event_area',
 
-    COUNTRY_ID:
+  COUNTRY_ID:
 
         'country_id'
 
 })
 
-
-
 const IMPORT_FIELDS = Object.freeze({
 
-    EVENT_ID:
+  EVENT_ID:
 
         'event_id',
 
-    EVENT_CODE:
+  EVENT_CODE:
 
         'event_code'
 
@@ -140,20 +136,19 @@ const IMPORT_FIELDS = Object.freeze({
 
 const EVENT_TABLES = Object.freeze({
 
-    EVENTS:
+  EVENTS:
 
         'events',
 
-    OCCURRENCES:
+  OCCURRENCES:
 
         'event_instances',
 
-    SPONSORS:
+  SPONSORS:
 
         'event_sponsors'
 
 })
-
 
 // =====================================================
 // DEFAULT IMPORT OPTIONS
@@ -161,20 +156,13 @@ const EVENT_TABLES = Object.freeze({
 
 const DEFAULT_OPTIONS = Object.freeze({
 
-    chunkSize: 500,
+  chunkSize: 500,
 
-    ignoreDuplicates: false,
+  ignoreDuplicates: false,
 
-    returning: true
+  returning: true
 
 })
-
-
-
-
-
-
-
 
 // =====================================================
 // IMPORT EVENTS
@@ -199,141 +187,137 @@ const DEFAULT_OPTIONS = Object.freeze({
 
 export async function importEvents(
 
-    file
+  file
 
 ) {
-
-    const result =
+  const result =
 
         await process({
 
-            file,
+          file,
 
-            validator:
+          validator:
 
                 validateEvent,
 
-            resolver:
+          resolver:
 
                 resolveEvent,
 
-            commitPlanBuilder:
+          commitPlanBuilder:
 
                 buildCommitPlan
 
         })
 
-   const preview =
+  const preview =
 
     result.preview
 
-    return {
+  return {
 
-        stage:
+    stage:
 
             'preview',
 
-        preview,
+    preview,
 
-        approve:
+    approve:
 
             async () => {
-
-               const commitResult =
+              const commitResult =
 
     await commit(
 
-        result.commitPlan
+      result.commitPlan
 
     )
-                const finished =
+              const finished =
 
                     finish(
 
-                        commitResult
+                      commitResult
 
                     )
 
-                const report = {
+              const report = {
 
-                    module:
+                module:
 
                         'Events',
 
-                    source:
+                source:
 
                         result.raw?.source,
 
-                    startedAt:
+                startedAt:
 
                         finished.startedAt,
 
-                    completedAt:
+                completedAt:
 
                         finished.completedAt,
 
-                    summary: {
+                summary: {
 
-                        totalRows:
+                  totalRows:
 
                             result.normalized?.totalRows || 0,
 
-                        importedRows:
+                  importedRows:
 
                             finished.committed || 0,
 
-                        warningRows:
+                  warningRows:
 
                             result.resolved?.warnings?.length || 0,
 
-                        errorRows:
+                  errorRows:
 
                             finished.errors?.length || 0
 
-                    },
+                },
 
-                    warnings:
+                warnings:
 
                         result.resolved?.warnings || [],
 
-                    errors:
+                errors:
 
                         [
 
-                            ...(result.resolved?.errors || []),
+                          ...(result.resolved?.errors || []),
 
-                            ...(finished.errors || [])
+                          ...(finished.errors || [])
 
                         ]
 
-                }
+              }
 
-                return {
+              return {
 
-                    ...finished,
+                ...finished,
 
-                    summary:
+                summary:
 
                         buildSummary(
 
-                            report
+                          report
 
                         ),
 
-                    downloads:
+                downloads:
 
                         await downloadFullPackage(
 
-                            report
+                          report
 
                         )
 
-                }
-
+              }
             }
 
-    }
-
+  }
 }
 // =====================================================
 // EVENT VALIDATION
@@ -349,56 +333,54 @@ export async function importEvents(
 
 export async function validateEvent(
 
-    importData,
+  importData,
 
-    validation
+  validation
 
 ) {
+  const errors = []
 
-    const errors = []
+  validateRequiredFields(
 
-    validateRequiredFields(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateEventDates(
 
-    validateEventDates(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateDuplicateEvents(
 
-    validateDuplicateEvents(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  return {
 
-    return {
+    ...importData,
 
-        ...importData,
-
-        valid:
+    valid:
 
             errors.length === 0,
 
-        errors
+    errors
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -407,111 +389,103 @@ export async function validateEvent(
 
 function validateRequiredFields(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
+  for (
+
+    const [
+
+      index,
+
+      row
+
+    ]
+
+    of (
+
+      importData.objects || []
+
+    ).entries()
+
+  ) {
+    const requiredFields = [
+
+      [
+        EVENT_FIELDS.EVENT_CODE,
+        'Event Code'
+      ],
+
+      [
+        EVENT_FIELDS.SUBCOUNTY_NAME,
+        'Subcounty'
+      ],
+
+      [
+        EVENT_FIELDS.TOWN_NAME,
+        'Town'
+      ],
+
+      [
+        EVENT_FIELDS.START_DATE,
+        'Start Date'
+      ],
+
+      [
+        EVENT_FIELDS.END_DATE,
+        'End Date'
+      ]
+
+    ]
 
     for (
 
-        const [
+      const [
 
-            index,
+        field,
 
-            row
+        label
 
-        ]
+      ]
 
-        of (
-
-            importData.objects || []
-
-        ).entries()
+      of requiredFields
 
     ) {
-
-        const requiredFields = [
-
-    [
-        EVENT_FIELDS.EVENT_CODE,
-        'Event Code'
-    ],
-
-    [
-        EVENT_FIELDS.SUBCOUNTY_NAME,
-        'Subcounty'
-    ],
-
-    [
-        EVENT_FIELDS.TOWN_NAME,
-        'Town'
-    ],
-
-    [
-        EVENT_FIELDS.START_DATE,
-        'Start Date'
-    ],
-
-    [
-        EVENT_FIELDS.END_DATE,
-        'End Date'
-    ]
-
-]
-
-        for (
-
-            const [
-
-                field,
-
-                label
-
-            ]
-
-            of requiredFields
-
-        ) {
-
-            const result =
+      const result =
 
                 validation.validateRequired(
 
-                    row[field],
+                  row[field],
 
-                    label
+                  label
 
                 )
 
-            if (
+      if (
 
-                !result.valid
+        !result.valid
 
-            ) {
+      ) {
+        errors.push({
 
-                errors.push({
-
-                    row:
+          row:
 
                         index + 1,
 
-                    field,
+          field,
 
-                    message:
+          message:
 
                         result.message
 
-                })
-
-            }
-
-        }
-
+        })
+      }
     }
-
+  }
 }
 
 // =====================================================
@@ -520,136 +494,126 @@ function validateRequiredFields(
 
 function validateEventDates(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
+  for (
 
-    for (
+    const [
 
-        const [
+      index,
 
-            index,
+      row
 
-            row
+    ]
 
-        ]
+    of (
 
-        of (
+      importData.objects || []
 
-            importData.objects || []
+    ).entries()
 
-        ).entries()
-
-    ) {
-
-        const startDate =
+  ) {
+    const startDate =
 
             validation.validateDate(
 
-                row.start_date
+              row.start_date
 
             )
 
-        if (
+    if (
 
-            !startDate.valid
+      !startDate.valid
 
-        ) {
+    ) {
+      errors.push({
 
-            errors.push({
-
-                row:
+        row:
 
                     index + 1,
 
-                field:
+        field:
 
                     'start_date',
 
-                message:
+        message:
 
                     startDate.message
 
-            })
+      })
+    }
 
-        }
-
-        const endDate =
+    const endDate =
 
             validation.validateDate(
 
-                row.end_date
+              row.end_date
 
             )
 
-        if (
+    if (
 
-            !endDate.valid
+      !endDate.valid
 
-        ) {
+    ) {
+      errors.push({
 
-            errors.push({
-
-                row:
+        row:
 
                     index + 1,
 
-                field:
+        field:
 
                     'end_date',
 
-                message:
+        message:
 
                     endDate.message
 
-            })
+      })
+    }
 
-        }
+    if (
 
-        if (
-
-            row.start_date &&
+      row.start_date &&
 
             row.end_date &&
 
             new Date(
 
-                row.end_date
+              row.end_date
 
             ) <
 
             new Date(
 
-                row.start_date
+              row.start_date
 
             )
 
-        ) {
+    ) {
+      errors.push({
 
-            errors.push({
-
-                row:
+        row:
 
                     index + 1,
 
-                field:
+        field:
 
                     'end_date',
 
-                message:
+        message:
 
                     'End Date cannot be earlier than Start Date.'
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
 
 // =====================================================
@@ -658,42 +622,38 @@ function validateEventDates(
 
 function validateDuplicateEvents(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
-
-    const duplicates =
+  const duplicates =
 
         validation.validateDuplicates(
 
-            importData.objects || [],
+          importData.objects || [],
 
-           [
-    'event_code',
-    'town_name',
-    'start_date',
-    'start_time'
-]
+          [
+            'event_code',
+            'town_name',
+            'start_date',
+            'start_time'
+          ]
         )
 
-    if (
+  if (
 
-        !duplicates.valid
+    !duplicates.valid
 
-    ) {
+  ) {
+    errors.push(
 
-        errors.push(
+      ...(duplicates.value || [])
 
-            ...(duplicates.value || [])
-
-        )
-
-    }
-
+    )
+  }
 }
 
 // =====================================================
@@ -718,78 +678,76 @@ function validateDuplicateEvents(
 
 function validateLookupFields(
 
-    resolvedData,
+  resolvedData,
 
-    errors
-
-) {
-
-    for (
-
-        const [
-
-            index,
-
-            row
-
-        ]
-
-        of (
-
-            resolvedData.objects || []
-
-        ).entries()
-
-    ) {
-   validateLookup(
-
-    index,
-
-    row,
-
-    'subcounty',
-
-    'Subcounty',
-
-    errors
-
-)
-
-        validateLookup(
-
-    index,
-
-    row,
-
-    'town',
-
-    'Town',
-
-    errors
-
-)
-
-validateLookup(
-
-    index,
-
-    row,
-
-    'event',
-
-    'Event',
-
-    errors
-
-)
-
-if (
-
-    row.sponsor
+  errors
 
 ) {
+  for (
+
+    const [
+
+      index,
+
+      row
+
+    ]
+
+    of (
+
+      resolvedData.objects || []
+
+    ).entries()
+
+  ) {
+    validateLookup(
+
+      index,
+
+      row,
+
+      'subcounty',
+
+      'Subcounty',
+
+      errors
+
+    )
 
     validateLookup(
+
+      index,
+
+      row,
+
+      'town',
+
+      'Town',
+
+      errors
+
+    )
+
+    validateLookup(
+
+      index,
+
+      row,
+
+      'event',
+
+      'Event',
+
+      errors
+
+    )
+
+    if (
+
+      row.sponsor
+
+    ) {
+      validateLookup(
 
         index,
 
@@ -801,66 +759,56 @@ if (
 
         errors
 
-    )
-
-}
-
+      )
     }
+  }
 
-    return errors
-
+  return errors
 }
 
 function validateLookup(
 
-    rowIndex,
+  rowIndex,
 
-    row,
+  row,
 
-    property,
+  property,
 
-    label,
+  label,
 
-    errors
+  errors
 
 ) {
-
-    const lookup =
+  const lookup =
 
         row[
             property
         ]
 
-    if (
+  if (
 
-        lookup?.found
+    lookup?.found
 
-    ) {
+  ) {
+    return
+  }
 
-        return
+  errors.push({
 
-    }
-
-    errors.push({
-
-        row:
+    row:
 
             rowIndex + 1,
 
-        field:
+    field:
 
             property,
 
-        message:
+    message:
 
             `${label} was not found.`
 
-    })
-
+  })
 }
-
-
-
 
 // =====================================================
 // EVENT LOOKUP RESOLUTION
@@ -883,60 +831,55 @@ function validateLookup(
 
 export async function resolveEvent(
 
-    validatedData,
+  validatedData,
 
-    lookup
+  lookup
 
 ) {
+  const resolvedObjects = []
+  const commitObjects = []
 
-    const resolvedObjects = []
-const commitObjects = []
+  for (
 
-    for (
+    const importObject
 
-        const importObject
+    of validatedData.objects || []
 
-        of validatedData.objects || []
-
-    ) {
-
-        const resolvedObject =
+  ) {
+    const resolvedObject =
 
             await resolveImportObject(
 
-                importObject,
+              importObject,
 
-                lookup
+              lookup
 
             )
 
-       const generatedObject =
+    const generatedObject =
 
     generateDerivedFields(
 
-        resolvedObject
+      resolvedObject
 
     )
 
+    resolvedObjects.push(
+      resolvedObject
+    )
 
+    commitObjects.push(
 
-resolvedObjects.push(
-    resolvedObject
-)
-
-commitObjects.push(
-
-    buildCommitObject(
+      buildCommitObject(
 
         generatedObject
 
+      )
+
     )
+  }
 
-)
-
-    }
-
-    const resolvedData = {
+  const resolvedData = {
 
     ...validatedData,
 
@@ -946,34 +889,33 @@ commitObjects.push(
 
     commitObjects
 
-}
+  }
 
-    const errors = [
+  const errors = [
 
-        ...(validatedData.errors || [])
+    ...(validatedData.errors || [])
 
-    ]
+  ]
 
-    validateLookupFields(
+  validateLookupFields(
 
-        resolvedData,
+    resolvedData,
 
-        errors
+    errors
 
-    )
+  )
 
-    return {
+  return {
 
-        ...resolvedData,
+    ...resolvedData,
 
-        valid:
+    valid:
 
             errors.length === 0,
 
-        errors
+    errors
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -986,21 +928,19 @@ commitObjects.push(
 // =====================================================
 
 function emptyLookup() {
+  return {
 
-    return {
+    found: false,
 
-        found: false,
+    id: null,
 
-        id: null,
+    code: null,
 
-        code: null,
+    name: null,
 
-        name: null,
+    record: null
 
-        record: null
-
-    }
-
+  }
 }
 // =====================================================
 // RESOLVE IMPORT OBJECT
@@ -1012,136 +952,134 @@ function emptyLookup() {
 
 async function resolveImportObject(
 
-    importObject = {},
+  importObject = {},
 
-    lookup
+  lookup
 
 ) {
+  // ==========================================
+  // Resolve Event
+  // ==========================================
 
-    // ==========================================
-    // Resolve Event
-    // ==========================================
-
-    const event =
+  const event =
 
         await lookup.resolveEventCode(
 
-            importObject.event_code
+          importObject.event_code
 
         )
 
-    // ==========================================
-    // Resolve Sponsor
-    // ==========================================
+  // ==========================================
+  // Resolve Sponsor
+  // ==========================================
 
-    const sponsor =
+  const sponsor =
 
         await lookup.resolveSponsorCode(
 
-            importObject.sponsor_code
+          importObject.sponsor_code
 
         )
 
-    // ==========================================
-    // Resolve Subcounty
-    // ==========================================
+  // ==========================================
+  // Resolve Subcounty
+  // ==========================================
 
-    const subcountyValue =
+  const subcountyValue =
 
     importObject.subcounty_code
 
-const subcounty =
+  const subcounty =
 
-    subcountyValue?.includes('-')
+    subcountyValue?.includes('-') ?
 
-        ? await lookup.resolveSubcountyCode(
+      await lookup.resolveSubcountyCode(
 
-            subcountyValue
+        subcountyValue
 
-        )
+      ) :
 
-        : await lookup.resolveSubcounty(
+      await lookup.resolveSubcounty(
 
-            subcountyValue
+        subcountyValue
 
-        )
+      )
 
-    // ==========================================
-    // Resolve County
-    // ==========================================
+  // ==========================================
+  // Resolve County
+  // ==========================================
 
-    const county =
+  const county =
 
-        subcounty.found
+        subcounty.found ?
 
-            ? await lookup.resolveCountyById(
+          await lookup.resolveCountyById(
 
-                subcounty.record.county_id
+            subcounty.record.county_id
 
-            )
+          ) :
 
-            : emptyLookup()
+          emptyLookup()
 
-    // ==========================================
-    // Resolve Country
-    // ==========================================
+  // ==========================================
+  // Resolve Country
+  // ==========================================
 
-    const country =
+  const country =
 
-        county.found
+        county.found ?
 
-            ? await lookup.resolveCountryById(
+          await lookup.resolveCountryById(
 
-                county.record.country_id
+            county.record.country_id
 
-            )
+          ) :
 
-            : emptyLookup()
+          emptyLookup()
 
-    // ==========================================
-    // Resolve / Create Town
-    // ==========================================
+  // ==========================================
+  // Resolve / Create Town
+  // ==========================================
 
-    const town =
+  const town =
 
-    subcounty.found
+    subcounty.found ?
 
-        ? await findOrCreateTown({
+      await findOrCreateTown({
 
-            townName:
+        townName:
 
                 importObject.town_name,
 
-            subcountyId:
+        subcountyId:
 
                 subcounty.id
 
-        })
+      }) :
 
-        : emptyLookup()
+      emptyLookup()
 
-    // ==========================================
-    // Return Resolved Object
-    // ==========================================
+  // ==========================================
+  // Return Resolved Object
+  // ==========================================
 
-    return {
+  return {
 
-        ...importObject,
+    ...importObject,
 
-        event,
+    event,
 
-        sponsor,
+    sponsor,
 
-        subcounty,
+    subcounty,
 
-        county,
+    county,
 
-        country,
+    country,
 
-        town
+    town
 
-    }
-
+  }
 }
 // =====================================================
 // GENERATE DERIVED FIELDS
@@ -1159,31 +1097,30 @@ const subcounty =
 // =====================================================
 function generateDerivedFields(
 
-    resolvedObject = {}
+  resolvedObject = {}
 
 ) {
+  return {
 
-    return {
+    ...resolvedObject,
 
-        ...resolvedObject,
-
-        [GENERATED_FIELDS.COUNTRY_ID]:
+    [GENERATED_FIELDS.COUNTRY_ID]:
 
             resolvedObject.country?.id ?? null,
 
-        [GENERATED_FIELDS.EVENT_NAME]:
+    [GENERATED_FIELDS.EVENT_NAME]:
 
             resolvedObject.event
                 ?.record
                 ?.event_name || '',
 
-        [GENERATED_FIELDS.EVENT_AREA]:
+    [GENERATED_FIELDS.EVENT_AREA]:
 
             [
 
-                resolvedObject.town?.name,
+              resolvedObject.town?.name,
 
-                resolvedObject.event
+              resolvedObject.event
                     ?.record
                     ?.event_type_master
                     ?.event_type_name
@@ -1194,8 +1131,7 @@ function generateDerivedFields(
 
             .join(' ')
 
-    }
-
+  }
 }
 // =====================================================
 // BUILD COMMIT OBJECT
@@ -1205,10 +1141,6 @@ function generateDerivedFields(
 //
 // =====================================================
 
-
-
-
-
 // =====================================================
 // BUILD EVENT MASTER
 //
@@ -1217,8 +1149,6 @@ function generateDerivedFields(
 // events
 //
 // =====================================================
-
-
 
 // =====================================================
 // BUILD EVENT OCCURRENCES
@@ -1231,99 +1161,100 @@ function generateDerivedFields(
 
 function buildOccurrences(
 
-    resolvedData = {}
+  resolvedData = {}
 
 ) {
-
-   const records =
+  const records =
 
     extractOccurrences(
 
-        resolvedData.commitObjects ||
+      resolvedData.commitObjects ||
 
         resolvedData.objects ||
 
         []
 
     )
-    return {
+  return {
 
-        table:
+    table:
 
             EVENT_TABLES.OCCURRENCES,
 
-       operation:
+    operation:
 
     'upsert',
 
-records,
+    records,
 
-conflictColumn:
+    conflictColumn:
 
     'event_id,event_area,start_date,start_time',
 
-        options:
+    options:
 
             DEFAULT_OPTIONS,
 
-        identity: {
+    identity: {
 
-            collection:
+      collection:
 
                 'occurrences',
 
-            databaseKey:
+      databaseKey:
 
                 'event_instance_id',
 
-            businessKey(
+      businessKey(
 
-    record
+        record
 
-) {
+      ) {
+        if (
 
-    if (
+          record.event_instance_id
 
-        record.event_instance_id
-
-    ) {
-
-        return `INSTANCE:${
+        ) {
+          return `INSTANCE:${
             record.event_instance_id
-        }`
+          }`
+        }
 
-    }
+        return [
 
-    return [
-
-    record[
+          record[
         COMMIT_FIELDS.EVENT_ID
-    ],
+          ],
 
-    record[
+          record[
         COMMIT_FIELDS.TOWN_ID
-    ],
+          ],
 
-    record[
+          record[
         EVENT_FIELDS.START_DATE
-    ],
+          ],
 
-    record[
+          record[
         EVENT_FIELDS.START_TIME
-    ]
+          ]
 
-].join('|')
+        ].join('|')
+      }
+
+    },
+
+    foreignKeys: []
+
+  }
 }
 
-        },
-
-       foreignKeys: []
-
-    }
-
+function buildSponsors() {
+  return {
+    table: EVENT_TABLES.SPONSORS,
+    operation: 'insert',
+    records: []
+  }
 }
-
-
 
 // =====================================================
 // COLLECT OPERATIONS
@@ -1332,90 +1263,75 @@ conflictColumn:
 
 function collectOperations(
 
-    resolvedData = {}
+  resolvedData = {}
 
 ) {
-
-    return [
+  return [
 
     buildOccurrences(
 
-        resolvedData
+      resolvedData
 
     ),
 
     buildSponsors(
 
-        resolvedData
+      resolvedData
 
     )
 
-].filter(
+  ].filter(
 
-        operation =>
+    operation =>
 
-            operation.records.length > 0
+      operation.records.length > 0
 
-    )
-
+  )
 }
-
 
 export function buildCommitPlan(
 
-    resolvedData = {}
+  resolvedData = {}
 
 ) {
+  return {
 
-    return {
+    stages: [
 
-        stages: [
+      {
 
-           
-
-            {
-
-                name:
+        name:
 
                     'occurrences',
 
-               dependsOn: [],
+        dependsOn: [],
 
-                operations: [
+        operations: [
 
-                    buildOccurrences(
+          buildOccurrences(
 
-                        resolvedData
+            resolvedData
 
-                    )
-
-                ]
-
-            },
-
-            {
-
-                
-
-                dependsOn: [],
-
-                operations: [
-
-                   
-
-                ]
-
-            }
+          )
 
         ]
 
-    }
+      },
 
+      {
+
+        dependsOn: [],
+
+        operations: [
+
+        ]
+
+      }
+
+    ]
+
+  }
 }
-
-
-
-
 
 // =====================================================
 // EXTRACT OCCURRENCES
@@ -1424,103 +1340,91 @@ export function buildCommitPlan(
 
 function extractOccurrences(
 
-    objects = []
+  objects = []
 
 ) {
+  return objects.map(
 
-    return objects.map(
+    object => ({
 
-        object => ({
-
-            event_id:
+      event_id:
 
     object[
         COMMIT_FIELDS.EVENT_ID
     ],
 
-            
-
-            country_id:
+      country_id:
 
                 object[
                     COMMIT_FIELDS.COUNTRY_ID
                 ],
 
-            county_id:
+      county_id:
 
                 object[
                     COMMIT_FIELDS.COUNTY_ID
                 ],
 
-            subcounty_id:
+      subcounty_id:
 
                 object[
                     COMMIT_FIELDS.SUBCOUNTY_ID
                 ],
 
-            town_id:
+      town_id:
 
                 object[
                     COMMIT_FIELDS.TOWN_ID
                 ],
-            organizer:
+      organizer:
 
     object[
         EVENT_FIELDS.ORGANIZER
     ],
 
-notes:
+      notes:
 
     object[
         EVENT_FIELDS.NOTES
     ],
 
-event_area:
+      event_area:
 
                 object[
                     GENERATED_FIELDS.EVENT_AREA
                 ],
 
-            
-           
-            
-
-            sponsor_id:
+      sponsor_id:
 
                 object[
                     COMMIT_FIELDS.SPONSOR_ID
                 ],
 
-            start_date:
+      start_date:
 
     object[
         EVENT_FIELDS.START_DATE
     ],
 
-end_date:
+      end_date:
 
     object[
         EVENT_FIELDS.END_DATE
     ],
 
-
-start_time:
+      start_time:
 
     object[
         EVENT_FIELDS.START_TIME
     ] || '06:00',
 
-end_time:
+      end_time:
 
     object[
         EVENT_FIELDS.END_TIME
     ] || '18:00'
 
+    })
 
-
-
-        })
-
-    )
-
+  )
 }

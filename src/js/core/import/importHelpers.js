@@ -1,8 +1,7 @@
-﻿// =====================================================
+// =====================================================
 // IMPORT HELPERS
 // ParaCycling Federation Management System
 // =====================================================
-
 
 // =====================================================
 // COMMIT FIELD MAP
@@ -14,52 +13,47 @@
 //
 // =====================================================
 
-
-
 export const COMMIT_FIELDS = Object.freeze({
 
-    COUNTRY_ID:
+  COUNTRY_ID:
 
         'country_id',
 
-    COUNTY_ID:
+  COUNTY_ID:
 
         'county_id',
 
-    SUBCOUNTY_ID:
+  SUBCOUNTY_ID:
 
         'subcounty_id',
 
-    TOWN_ID:
+  TOWN_ID:
 
         'town_id',
 
-    
-
-    SPONSOR_ID:
+  SPONSOR_ID:
 
         'sponsor_id',
-   
-    PROGRAM_ID:
+
+  PROGRAM_ID:
     'program_id',
 
-EVENT_ID:
+  EVENT_ID:
     'event_id',
 
-EVENT_INSTANCE_ID:
+  EVENT_INSTANCE_ID:
     'event_instance_id',
 
-DISPLAY_ORDER:
+  DISPLAY_ORDER:
     'display_order',
 
-IS_REQUIRED:
+  IS_REQUIRED:
     'is_required',
 
-ACTIVE:
+  ACTIVE:
     'active'
 
 })
-
 
 // =====================================================
 // BUILD COMMIT OBJECT
@@ -81,42 +75,40 @@ ACTIVE:
 
 export function buildCommitObject(
 
-    generatedObject = {}
+  generatedObject = {}
 
 ) {
+  return {
 
-    return {
+    ...generatedObject,
 
-        ...generatedObject,
-
-        [COMMIT_FIELDS.EVENT_ID]:
+    [COMMIT_FIELDS.EVENT_ID]:
 
             generatedObject.event?.id ?? null,
 
-        [COMMIT_FIELDS.PROGRAM_ID]:
+    [COMMIT_FIELDS.PROGRAM_ID]:
 
             generatedObject.program?.id ?? null,
 
-        [COMMIT_FIELDS.COUNTRY_ID]:
+    [COMMIT_FIELDS.COUNTRY_ID]:
 
             generatedObject.country?.id ?? null,
 
-        [COMMIT_FIELDS.COUNTY_ID]:
+    [COMMIT_FIELDS.COUNTY_ID]:
 
             generatedObject.county?.id ?? null,
 
-        [COMMIT_FIELDS.SUBCOUNTY_ID]:
+    [COMMIT_FIELDS.SUBCOUNTY_ID]:
 
             generatedObject.subcounty?.id ?? null,
 
-        [COMMIT_FIELDS.TOWN_ID]:
+    [COMMIT_FIELDS.TOWN_ID]:
 
             generatedObject.town?.id ?? null,
 
-        [COMMIT_FIELDS.SPONSOR_ID]:
+    [COMMIT_FIELDS.SPONSOR_ID]:
 
             generatedObject.sponsor?.id ?? null
 
-    }
-
+  }
 }

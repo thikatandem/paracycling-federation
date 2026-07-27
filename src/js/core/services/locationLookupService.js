@@ -2,6 +2,10 @@
 // LOCATION LOOKUP SERVICE
 // =====================================================
 import {
+  getDb
+} from '../supabase/getDb.js'
+
+import {
 
   get,
 
@@ -16,7 +20,7 @@ export async function loadCountries() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'country_master'
       )
@@ -43,7 +47,7 @@ export async function loadCountiesByCountry(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'county_master'
       )
@@ -99,7 +103,7 @@ export async function loadCounties() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'county_master'
       )
@@ -126,7 +130,7 @@ export async function loadSubcounties(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'subcounty_master'
       )
@@ -157,7 +161,7 @@ export async function loadTowns(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'town_master'
       )
@@ -179,167 +183,154 @@ export async function loadTowns(
 
 export async function findOrCreateTown({
 
-    townName,
+  townName,
 
-    subcountyId = null,
+  subcountyId = null,
 
-    subcountyCode = null,
+  subcountyCode = null,
 
-    subcountyName = null
+  subcountyName = null
 
 }) {
-
-    const cleanedTown =
+  const cleanedTown =
 
         String(
 
-            townName || ''
+          townName || ''
 
         ).trim()
 
-    if (
+  if (
 
-        !cleanedTown
+    !cleanedTown
 
-    ) {
+  ) {
+    return {
 
-        return {
+      found: false,
 
-            found: false,
+      id: null,
 
-            id: null,
+      code: null,
 
-            code: null,
+      name: null,
 
-            name: null,
-
-            record: null
-
-        }
+      record: null
 
     }
+  }
 
-    // ==========================================
-    // Resolve Subcounty UUID
-    // ==========================================
+  // ==========================================
+  // Resolve Subcounty UUID
+  // ==========================================
 
-    let resolvedSubcountyId =
+  let resolvedSubcountyId =
 
         subcountyId
 
-    if (
+  if (
 
-        !resolvedSubcountyId
+    !resolvedSubcountyId
 
-    ) {
+  ) {
+    let query =
 
-        let query =
-
-            window.supabaseClient
+            getDb()
 
                 .from(
 
-                    'subcounty_master'
+                  'subcounty_master'
 
                 )
 
                 .select('*')
 
-        if (
+    if (
 
-            subcountyCode
+      subcountyCode
 
-        ) {
-
-            query =
+    ) {
+      query =
 
                 query.eq(
 
-                    'subcounty_code',
+                  'subcounty_code',
 
-                    subcountyCode
+                  subcountyCode
 
                 )
+    } else if (
 
-        }
+      subcountyName
 
-        else if (
-
-            subcountyName
-
-        ) {
-
-            query =
+    ) {
+      query =
 
                 query.ilike(
 
-                    'subcounty_name',
+                  'subcounty_name',
 
-                    subcountyName
+                  subcountyName
 
                 )
+    }
 
-        }
+    const {
 
-        const {
+      data,
 
-            data,
+      error
 
-            error
-
-        } =
+    } =
 
             await query
 
                 .maybeSingle()
 
-        if (
+    if (
 
-            error ||
+      error ||
 
             !data
 
-        ) {
+    ) {
+      return {
 
-            return {
+        found: false,
 
-                found: false,
+        id: null,
 
-                id: null,
+        code: null,
 
-                code: null,
+        name: null,
 
-                name: null,
+        record: null
 
-                record: null
-
-            }
-
-        }
-
-        resolvedSubcountyId =
-
-            data.subcounty_id
-
+      }
     }
 
-    // ==========================================
-    // Check whether Town already exists
-    // ==========================================
+    resolvedSubcountyId =
 
-    const {
+            data.subcounty_id
+  }
 
-        data: existing,
+  // ==========================================
+  // Check whether Town already exists
+  // ==========================================
 
-        error: existingError
+  const {
 
-    } =
+    data: existing,
 
-        await window.supabaseClient
+    error: existingError
+
+  } =
+
+        await getDb()
 
             .from(
 
-                'town_master'
+              'town_master'
 
             )
 
@@ -347,89 +338,85 @@ export async function findOrCreateTown({
 
             .eq(
 
-                'subcounty_id',
+              'subcounty_id',
 
-                resolvedSubcountyId
+              resolvedSubcountyId
 
             )
 
             .ilike(
 
-                'town_name',
+              'town_name',
 
-                cleanedTown
+              cleanedTown
 
             )
 
             .maybeSingle()
 
-    if (
+  if (
 
-        existingError
+    existingError
 
-    ) {
+  ) {
+    throw existingError
+  }
 
-        throw existingError
+  if (
 
-    }
+    existing
 
-    if (
+  ) {
+    return {
 
-        existing
+      found: true,
 
-    ) {
-
-        return {
-
-            found: true,
-
-            id:
+      id:
 
                 existing.town_id,
 
-            code:
+      code:
 
                 existing.town_code ?? null,
 
-            name:
+      name:
 
                 existing.town_name,
 
-            record:
+      record:
 
                 existing
 
-        }
-
     }
+  }
 
-    // ==========================================
-    // Create Town
-    // ==========================================
+  // ==========================================
+  // Create Town
+  // ==========================================
 
-    const {
+  const {
 
-        data,
+    data,
 
-        error
+    error
 
-    } =
+  } =
 
-        await window.supabaseClient
+        await getDb()
 
             .from(
 
-                'town_master'
+              'town_master'
 
             )
 
             .insert({
 
-                subcounty_id:
+              subcounty_id:
 
                     resolvedSubcountyId,
 
-                town_name:
+              town_name:
 
                     cleanedTown
 
@@ -439,72 +426,65 @@ export async function findOrCreateTown({
 
             .single()
 
-    if (
+  if (
 
-        error
+    error
 
-    ) {
+  ) {
+    throw error
+  }
 
-        throw error
+  return {
 
-    }
+    found: true,
 
-    return {
-
-        found: true,
-
-        id:
+    id:
 
             data.town_id,
 
-        code:
+    code:
 
             data.town_code ?? null,
 
-        name:
+    name:
 
             data.town_name,
 
-        record:
+    record:
 
             data
 
-    }
-
+  }
 }
 
 export async function resolveTownId({
 
-    townId,
+  townId,
 
-    subcountyId,
+  subcountyId,
 
-    townName
+  townName
 
 }) {
+  if (
 
-    if (
+    townId
 
-        townId
+  ) {
+    return townId
+  }
 
-    ) {
-
-        return townId
-
-    }
-
-    const town =
+  const town =
 
         await findOrCreateTown({
 
-            subcountyId,
+          subcountyId,
 
-            townName
+          townName
 
         })
 
-    return town.id
-
+  return town.id
 }
 
 export async function loadAllSubcounties() {
@@ -512,7 +492,7 @@ export async function loadAllSubcounties() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'subcounty_master'
       )
@@ -1054,4 +1034,80 @@ export function wireCascade({
       })
     }
   )
+}
+
+
+export function createLocationFormLoaders({
+  countySelectId = 'countyId',
+  subcountySelectId = 'subcountyId',
+  townListId = 'townList',
+  onCounties = null,
+  onSubcounties = null,
+  onTowns = null
+} = {}) {
+  async function loadCountyOptions() {
+    const data =
+      await loadCounties()
+
+    onCounties?.(data)
+
+    populateSelect({
+      selectId: countySelectId,
+      items: data,
+      valueField: 'county_id',
+      textField: 'county_name',
+      placeholder: 'Select County'
+    })
+
+    return data
+  }
+
+  async function loadSubcountyOptions(
+    countyId
+  ) {
+    const data =
+      await loadSubcounties(
+        countyId
+      )
+
+    onSubcounties?.(data)
+
+    populateSelect({
+      selectId: subcountySelectId,
+      items: data,
+      valueField: 'subcounty_id',
+      textField: 'subcounty_name',
+      placeholder: 'Select Subcounty'
+    })
+
+    return data
+  }
+
+  async function loadTownOptions(
+    subcountyId
+  ) {
+    const data =
+      await loadTowns(
+        subcountyId
+      )
+
+    onTowns?.(data)
+
+    populateDataList({
+      datalistId: townListId,
+      items: data,
+      valueField: 'town_name'
+    })
+
+    return data
+  }
+
+  return {
+    loadCounties:
+      loadCountyOptions,
+    loadSubcounties:
+      loadSubcountyOptions,
+    loadTowns:
+      loadTownOptions
+  }
 }

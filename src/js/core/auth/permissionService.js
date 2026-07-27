@@ -1,115 +1,45 @@
 import {
-  getDb
-}
-  from '../supabase/getDb.js'
-import {
-  getRole,
   getProfile,
+  getRole,
   getPermissions,
   setPermissions
-}
-  from './authStateService.js'
+} from './authStateService.js'
+
+import {
+  resolveEffectivePermissionCodes
+} from './accessResolutionService.js'
 
 /* ============================================================
-   LOAD ROLE PERMISSIONS
+   LOAD EFFECTIVE PERMISSIONS
+
+   Precedence:
+   1. Access role defaults (user_role_master -> role_permissions)
+   2. Department allow/deny overrides
+   3. Existing active user_permissions grants (legacy-compatible)
+   4. Profile allow/deny overrides
    ============================================================ */
 
 export async function loadPermissions() {
   const role =
     getRole()
+  const profile =
+    getProfile()
 
-  if (!role?.user_role_id) {
+  if (
+    !role?.user_role_id &&
+    !profile?.profile_id
+  ) {
     setPermissions([])
-
     return []
   }
 
-  const roleResult =
-   await getDb()
-      .from(
-        'role_permissions'
-      )
-      .select(`
-        permission_master(
-          permission_code
-        )
-      `)
-      .eq(
-        'user_role_id',
-        role.user_role_id
-      )
-
-  if (
-    roleResult.error
-  ) {
-    throw roleResult.error
-  }
-
-  const rolePermissions =
-    (
-      roleResult.data || []
-    )
-      .map(
-        item =>
-          item
-            ?.permission_master
-            ?.permission_code
-      )
-      .filter(Boolean)
-
-  const profileId =
-    getProfile()
-      ?.profile_id
-
-  let userPermissions =
-    []
-
-  if (profileId) {
-    const userResult =
-     await getDb()
-        .from(
-          'user_permissions'
-        )
-        .select(`
-          permission_master(
-            permission_code
-          )
-        `)
-        .eq(
-          'profile_id',
-          profileId
-        )
-        .eq(
-          'is_active',
-          true
-        )
-
-    if (
-      userResult.error
-    ) {
-      throw userResult.error
-    }
-
-    userPermissions =
-      (
-        userResult.data || []
-      )
-        .map(
-          item =>
-            item
-              ?.permission_master
-              ?.permission_code
-        )
-        .filter(Boolean)
-  }
-
   const permissions =
-    [
-      ...new Set([
-        ...rolePermissions,
-        ...userPermissions
-      ])
-    ]
+    await resolveEffectivePermissionCodes({
+      profileId:
+        profile?.profile_id || null,
+      fallbackUserRoleId:
+        role?.user_role_id || null
+    })
 
   setPermissions(
     permissions
@@ -117,40 +47,22 @@ export async function loadPermissions() {
 
   return permissions
 }
-/* ============================================================
-   RELOAD
-   ============================================================ */
 
 export async function reloadPermissions() {
   return loadPermissions()
 }
 
-/* ============================================================
-   GETTERS
-   ============================================================ */
-
 export function getCurrentPermissions() {
   return getPermissions()
 }
 
-/* ============================================================
-   SINGLE PERMISSION
-   ============================================================ */
-
 export function hasPermission(
   permissionCode
 ) {
-  const permissions =
-    getPermissions()
-
-  return permissions.includes(
+  return getPermissions().includes(
     permissionCode
   )
 }
-
-/* ============================================================
-   ANY
-   ============================================================ */
 
 export function hasAnyPermission(
   permissionCodes = []
@@ -160,15 +72,9 @@ export function hasAnyPermission(
 
   return permissionCodes.some(
     permission =>
-      permissions.includes(
-        permission
-      )
+      permissions.includes(permission)
   )
 }
-
-/* ============================================================
-   ALL
-   ============================================================ */
 
 export function hasAllPermissions(
   permissionCodes = []
@@ -178,46 +84,26 @@ export function hasAllPermissions(
 
   return permissionCodes.every(
     permission =>
-      permissions.includes(
-        permission
-      )
+      permissions.includes(permission)
   )
 }
-
-/* ============================================================
-   ROLE CHECK
-   ============================================================ */
 
 export function isRole(
   roleCode
 ) {
-  const role =
-    getRole()
-
   return (
-    role?.role_code ===
+    getRole()?.role_code ===
     roleCode
   )
 }
 
-/* ============================================================
-   ROLE GROUP
-   ============================================================ */
-
 export function isOneOfRoles(
   roleCodes = []
 ) {
-  const role =
-    getRole()
-
   return roleCodes.includes(
-    role?.role_code
+    getRole()?.role_code
   )
 }
-
-/* ============================================================
-   ADMIN CHECK
-   ============================================================ */
 
 export function isAdmin() {
   return isOneOfRoles([
@@ -225,10 +111,6 @@ export function isAdmin() {
     'FED_ADMIN'
   ])
 }
-
-/* ============================================================
-   SYS ADMIN CHECK
-   ============================================================ */
 
 export function isSystemAdmin() {
   return isRole(

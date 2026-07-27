@@ -14,6 +14,11 @@ import {
 }
   from './permissionService.js'
 
+import {
+  getDb
+}
+  from '../supabase/getDb.js'
+
 /* ============================================================
    REDIRECT
    ============================================================ */
@@ -83,8 +88,7 @@ export function preventBackNavigation() {
         const {
           data
         } =
-        await window
-          .supabaseClient
+        await getDb()
           .auth
           .getSession()
 

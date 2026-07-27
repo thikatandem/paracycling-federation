@@ -4,10 +4,15 @@
 // =====================================================
 
 import {
+  confirmAction
+} from './feedbackService.js'
+import {
   get,
   getValue,
   setValue,
   setChecked,
+  serializeForm,
+  populateForm,
   clearForm as clearDomForm
 }
   from './domService.js'
@@ -414,7 +419,7 @@ export function unlockForm(
 // CONFIRM NAVIGATION
 // =====================================================
 
-export function confirmUnsavedChanges(
+export async function confirmUnsavedChanges(
   formId
 ) {
   if (
@@ -425,11 +430,14 @@ export function confirmUnsavedChanges(
     return true
   }
 
-  return window.confirm(
-
-    'You have unsaved changes. Leave this page?'
-
-  )
+  return confirmAction({
+    title: 'Unsaved Changes',
+    message:
+      'You have unsaved changes. Leave this page?',
+    confirmText: 'Leave',
+    cancelText: 'Stay',
+    type: 'warning'
+  })
 }
 
 export function getFormValues(

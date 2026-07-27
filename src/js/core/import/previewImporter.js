@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // PREVIEW IMPORTER
 // ParaCycling Federation Management System
 // =====================================================
@@ -8,10 +8,9 @@
 // =====================================================
 
 export function buildPreview(
-    importResult = {}
+  importResult = {}
 ) {
-
-   const preview = {
+  const preview = {
 
     success:
         importResult.success ?? false,
@@ -34,20 +33,19 @@ export function buildPreview(
     warnings:
         importResult.warnings ?? []
 
-}
+  }
 
-preview.index =
+  preview.index =
     buildPreviewIndex(
-        preview
+      preview
     )
 
-preview.totals =
+  preview.totals =
     calculateTotals(
-        preview
+      preview
     )
 
-return preview
-
+  return preview
 }
 
 // =====================================================
@@ -55,37 +53,35 @@ return preview
 // =====================================================
 
 export function renderPreview(
-    preview = {}
+  preview = {}
 ) {
+  return {
 
-    return {
-
-        headers:
+    headers:
             preview.headers ?? [],
 
-        rows:
+    rows:
 
             (preview.rows || []).map(
 
-                (
-                    row,
-                    rowIndex
-                ) =>
+              (
+                row,
+                rowIndex
+              ) =>
 
-                    createPreviewRow(
+                createPreviewRow(
 
-                        row,
+                  row,
 
-                        rowIndex,
+                  rowIndex,
 
-                        preview
+                  preview
 
-                    )
+                )
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -93,13 +89,11 @@ export function renderPreview(
 // =====================================================
 
 export function showTotals(
-    preview = {}
+  preview = {}
 ) {
-
-    return calculateTotals(
-        preview
-    )
-
+  return calculateTotals(
+    preview
+  )
 }
 
 // =====================================================
@@ -107,31 +101,29 @@ export function showTotals(
 // =====================================================
 
 export function clearPreview() {
+  return {
 
-    return {
+    headers: [],
 
-        headers: [],
+    rows: [],
 
-        rows: [],
+    errors: [],
 
-        errors: [],
+    warnings: [],
 
-        warnings: [],
+    totals: {
 
-        totals: {
+      totalRows: 0,
 
-            totalRows: 0,
+      successfulRows: 0,
 
-            successfulRows: 0,
+      warningRows: 0,
 
-            warningRows: 0,
-
-            errorRows: 0
-
-        }
+      errorRows: 0
 
     }
 
+  }
 }
 
 // =====================================================
@@ -140,45 +132,43 @@ export function clearPreview() {
 
 function createPreviewRow(
 
-    row = [],
+  row = [],
 
-    rowIndex = 0,
+  rowIndex = 0,
 
-    preview = {}
+  preview = {}
 
 ) {
+  return {
 
-    return {
-
-        rowNumber:
+    rowNumber:
 
             rowIndex + 1,
 
-        cells:
+    cells:
 
             row.map(
 
-                (
-                    value,
-                    columnIndex
-                ) =>
+              (
+                value,
+                columnIndex
+              ) =>
 
-                    createCell(
+                createCell(
 
-                        value,
+                  value,
 
-                        rowIndex,
+                  rowIndex,
 
-                        columnIndex,
+                  columnIndex,
 
-                        preview
+                  preview
 
-                    )
+                )
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -187,34 +177,32 @@ function createPreviewRow(
 
 function createCell(
 
-    value,
+  value,
 
-    rowIndex,
+  rowIndex,
 
-    columnIndex,
+  columnIndex,
 
-    preview
+  preview
 
 ) {
+  return {
 
-    return {
+    value,
 
-        value,
-
-        className:
+    className:
 
             getCellClass(
 
-                rowIndex,
+              rowIndex,
 
-                columnIndex,
+              columnIndex,
 
-                preview
+              preview
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -222,44 +210,42 @@ function createCell(
 // =====================================================
 
 function calculateTotals(
-    preview = {}
+  preview = {}
 ) {
-
-    const errors =
+  const errors =
         preview.errors || []
 
-    const warnings =
+  const warnings =
         preview.warnings || []
 
-    const totalRows =
-        preview.rows
-            ? preview.rows.length
-            : 0
+  const totalRows =
+        preview.rows ?
+          preview.rows.length :
+          0
 
-    return {
+  return {
 
-        totalRows,
+    totalRows,
 
-        errorRows:
+    errorRows:
             errors.length,
 
-        warningRows:
+    warningRows:
             warnings.length,
 
-        successfulRows:
+    successfulRows:
 
             Math.max(
 
-                totalRows -
+              totalRows -
 
                 errors.length,
 
-                0
+              0
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -267,38 +253,36 @@ function calculateTotals(
 // =====================================================
 
 export function renderErrors(
-    preview = {}
+  preview = {}
 ) {
+  return (preview.errors || []).map(
 
-    return (preview.errors || []).map(
+    error => ({
 
-        error => ({
-
-            row:
+      row:
                 error.row,
 
-            column:
+      column:
                 error.column,
 
-            header:
+      header:
                 error.header,
 
-            value:
+      value:
                 error.value,
 
-            type:
+      type:
                 error.type,
 
-            severity:
+      severity:
                 error.severity,
 
-            message:
+      message:
                 error.message
 
-        })
+    })
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -306,38 +290,36 @@ export function renderErrors(
 // =====================================================
 
 export function renderWarnings(
-    preview = {}
+  preview = {}
 ) {
+  return (preview.warnings || []).map(
 
-    return (preview.warnings || []).map(
+    warning => ({
 
-        warning => ({
-
-            row:
+      row:
                 warning.row,
 
-            column:
+      column:
                 warning.column,
 
-            header:
+      header:
                 warning.header,
 
-            value:
+      value:
                 warning.value,
 
-            type:
+      type:
                 warning.type,
 
-            severity:
+      severity:
                 warning.severity,
 
-            message:
+      message:
                 warning.message
 
-        })
+    })
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -346,24 +328,22 @@ export function renderWarnings(
 
 export function highlightCells(
 
+  rowIndex,
+
+  columnIndex,
+
+  preview = {}
+
+) {
+  return getCellClass(
+
     rowIndex,
 
     columnIndex,
 
-    preview = {}
+    preview
 
-) {
-
-    return getCellClass(
-
-        rowIndex,
-
-        columnIndex,
-
-        preview
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -371,36 +351,32 @@ export function highlightCells(
 // =====================================================
 
 function buildPreviewIndex(
-    preview = {}
+  preview = {}
 ) {
-
-    const index =
+  const index =
         new Map()
 
     ;[
 
-        ...(preview.errors || []),
+    ...(preview.errors || []),
 
-        ...(preview.warnings || [])
+    ...(preview.warnings || [])
 
-    ].forEach(
+  ].forEach(
 
-        item => {
+    item => {
+      index.set(
 
-            index.set(
+        `${item.row}:${item.column}`,
 
-                `${item.row}:${item.column}`,
+        item
 
-                item
+      )
+    }
 
-            )
+  )
 
-        }
-
-    )
-
-    return index
-
+  return index
 }
 
 // =====================================================
@@ -409,47 +385,41 @@ function buildPreviewIndex(
 
 function getCellClass(
 
-    rowIndex,
+  rowIndex,
 
-    columnIndex,
+  columnIndex,
 
-    preview = {}
+  preview = {}
 
 ) {
-
-    const index =
+  const index =
 
         preview.index ||
 
         buildPreviewIndex(
-            preview
+          preview
         )
 
-    const item =
+  const item =
 
         index.get(
 
-            `${rowIndex + 1}:${columnIndex + 1}`
+          `${rowIndex + 1}:${columnIndex + 1}`
 
         )
 
-    if (
+  if (
 
-        !item
+    !item
 
-    ) {
+  ) {
+    return 'import-success'
+  }
 
-        return 'import-success'
+  return item.severity === 'error' ?
 
-    }
+    'import-error' :
 
-    return item.severity === 'error'
-
-        ? 'import-error'
-
-        : 'import-warning'
-
+    'import-warning'
 }
-
-
 

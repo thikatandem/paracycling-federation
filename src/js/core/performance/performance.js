@@ -2,15 +2,62 @@
 // PERFORMANCE MODULE
 // ParaCycling Federation Management System
 // =====================================================
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
+import {
+  createSimplePaginationUpdater } from '../services/paginationService.js'
+import { createLoadingController } from '../services/uiService.js'
+import { getInputValue as getValue,
+  setStringValue as setValue } from '../services/domService.js'
+import { showInlineError,
+  createFeedbackController } from '../services/feedbackService.js'
+import { PAGE_SIZE } from '../services/constants.js'
+import { getDb,
+  hasDb } from '../supabase/getDb.js'
+import { resolveParticipantContext } from '../participants/participantContextService.js'
+import { createModal,
+  createModalByElement,
+  hideModalByElement
+} from '../services/modalService.js'
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'performanceLoading'
+)
 
-const PAGE_SIZE = 10
+const performanceFeedback =
+  createFeedbackController({
+    containerId: 'performanceFormError',
+    errorOptions: {
+      sticky: true
+    }
+  })
+
+const showError =
+  performanceFeedback.error
+    .bind(performanceFeedback)
+
+const clearError =
+  performanceFeedback.clear
+    .bind(performanceFeedback)
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredPerformance.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 const db =
-  window.supabaseClient
+  getDb()
 
 let performanceRecords = []
 
@@ -28,6 +75,45 @@ let selectedParticipantId = null
 
 let selectedParticipantInstanceId = null
 let selectedAthleteId = null
+
+
+function resetSelectedParticipantContext() {
+  selectedTeamId = null
+  selectedParticipantId = null
+  selectedParticipantInstanceId = null
+  selectedAthleteId = null
+}
+
+async function applySelectedParticipantContext(source) {
+  const context = await resolveParticipantContext({
+    participantInstanceId: source.participant_instance_id || null,
+    participantId: source.participant_id || null,
+    athleteId: source.athlete_id || null,
+    teamId: source.team_id || null
+  })
+
+  selectedParticipantId = context.participantId
+  selectedParticipantInstanceId = context.participantInstanceId
+  selectedAthleteId = context.athleteId
+  selectedTeamId = context.teamId
+
+  setValue('teamId', selectedTeamId || '')
+  setValue('athleteId', selectedAthleteId || '')
+
+  const participantDisplay =
+    document.getElementById(
+      'participantDisplay'
+    )
+
+  if (participantDisplay) {
+    participantDisplay.value =
+      context.displayName ||
+      source.teams?.team_name ||
+      (source.athletes ?
+        `${source.athletes.first_name || ''} ${source.athletes.last_name || ''}`.trim() :
+        '')
+  }
+}
 const performanceLoading =
   document.getElementById(
     'performanceLoading'
@@ -52,12 +138,6 @@ const paginationInfo =
   document.getElementById(
     'paginationInfo'
   )
-function showLoading() {
-  performanceLoading
-    ?.classList.remove(
-      'd-none'
-    )
-}
 
 async function loadEvents() {
   const {
@@ -320,8 +400,7 @@ function populateSourceRecords() {
 }
 
 async function handleSourceChange() {
-  selectedTeamId = null
-  selectedParticipantId = null
+  resetSelectedParticipantContext()
 
   setValue(
     'sourceRecordId',
@@ -395,274 +474,99 @@ async function handleSourceChange() {
 }
 
 async function loadSourceRecordDetails() {
-  const sourceType =
-    getValue(
-      'sourceType'
-    )
+  const sourceType = getValue('sourceType')
+  const recordId = getValue('sourceRecordId')
 
-  const recordId =
-    getValue(
-      'sourceRecordId'
-    )
-
-  if (
-    !sourceType ||
-    !recordId
-  ) {
+  if (!sourceType || !recordId) {
     return
   }
 
   let source = null
 
-  if (
-    sourceType ===
-    'TRAINING'
-  ) {
-    const {
-      data,
-      error
-    } =
-  await db
-    .from('training_log')
-.select(`
-  training_id,
-  training_date,
-  participant_id,
-  participant_instance_id,
-  athlete_id,
-  team_id,
-  distance_km,
-  duration_minutes,
-  avg_speed_kmh,
+  if (sourceType === 'TRAINING') {
+    const { data, error } =
+      await db
+        .from('training_log')
+        .select(`
+          training_id,
+          training_date,
+          participant_id,
+          participant_instance_id,
+          event_instance_id,
+          program_id,
+          athlete_id,
+          team_id,
+          distance_km,
+          duration_minutes,
+          avg_speed_kmh,
+          teams(
+            team_name
+          ),
+          athletes(
+            first_name,
+            last_name
+          )
+        `)
+        .eq('training_id', recordId)
+        .single()
 
-  teams(
-    team_name
-  ),
-
-  athletes(
-    first_name,
-    last_name
-  )
-`)
-    .eq(
-      'training_id',
-      recordId
-    )
-    .single()
-
-    if (
-      error
-    ) {
+    if (error) {
       throw error
     }
 
     source = data
+    await applySelectedParticipantContext(source)
 
-    const participantDisplay =
-  document.getElementById(
-    'participantDisplay'
-  )
-
-    if (participantDisplay) {
-      participantDisplay.value =
-
-    source.team_id ?
-
-      source.teams?.team_name || '' :
-
-      (source.athlete_id ?
-
-        `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim() :
-
-        '')
-    }
-
-    selectedParticipantId =
-  source.participant_id || null
-
-    selectedTeamId =
-  source.team_id || null
-
-    selectedParticipantInstanceId =
-  source.participant_instance_id || null
-
-    selectedAthleteId =
-  source.athlete_id || null
-
-    setValue(
-      'performanceDate',
-      source.training_date
-    )
-
-    setValue(
-      'maxSpeedKmh',
-      ''
-    )
+    setValue('performanceDate', source.training_date)
+    setValue('maxSpeedKmh', '')
   } else {
-    const {
-      data,
-      error
-    } =
-    await db
-      .from('race_results')
-    .select(`
-      result_id,
-      participant_id,
-      participant_instance_id,
-      athlete_id,
-      competition_date,
-      team_id,
-      distance_km,
-      duration_minutes,
-      avg_speed_kmh,
-      max_speed_kmh,
+    const { data, error } =
+      await db
+        .from('race_results')
+        .select(`
+          result_id,
+          participant_id,
+          participant_instance_id,
+          event_instance_id,
+          program_id,
+          athlete_id,
+          competition_date,
+          team_id,
+          distance_km,
+          duration_minutes,
+          avg_speed_kmh,
+          max_speed_kmh,
+          teams(
+            team_name
+          ),
+          athletes(
+            first_name,
+            last_name
+          )
+        `)
+        .eq('result_id', recordId)
+        .single()
 
-      teams(
-        team_name
-      ),
-
-      athletes(
-        first_name,
-        last_name
-      )
-    `)
-    .eq(
-      'result_id',
-      recordId
-    )
-    .single()
-
-    if (
-      error
-    ) {
+    if (error) {
       throw error
     }
 
     source = data
-    const participantDisplay =
-  document.getElementById(
-    'participantDisplay'
-  )
+    await applySelectedParticipantContext(source)
 
-    if (participantDisplay) {
-      participantDisplay.value =
-
-    source.team_id ?
-
-      source.teams?.team_name || '' :
-
-      (source.athlete_id ?
-
-        `${source.athletes?.first_name || ''} ${source.athletes?.last_name || ''}`.trim() :
-
-        '')
-    }
-
-    selectedParticipantId =
-  source.participant_id || null
-
-    selectedTeamId =
-  source.team_id || null
-    selectedParticipantInstanceId =
-  source.participant_instance_id || null
-
-    selectedAthleteId =
-  source.athlete_id || null
-
-    setValue(
-      'teamId',
-      source.team_id || ''
-    )
-
-    setValue(
-      'athleteId',
-      source.athlete_id || ''
-    )
-
-    setValue(
-      'performanceDate',
-      source.competition_date
-    )
-
-    setValue(
-      'maxSpeedKmh',
-      source.max_speed_kmh || ''
-    )
+    setValue('performanceDate', source.competition_date)
+    setValue('maxSpeedKmh', source.max_speed_kmh || '')
   }
 
-  setValue(
-    'distanceKm',
-    source.distance_km || ''
-  )
-
-  setValue(
-    'durationMinutes',
-    source.duration_minutes || ''
-  )
-
-  setValue(
-    'avgSpeedKmh',
-    source.avg_speed_kmh || ''
-  )
+  setValue('distanceKm', source.distance_km || '')
+  setValue('durationMinutes', source.duration_minutes || '')
+  setValue('avgSpeedKmh', source.avg_speed_kmh || '')
 }
 
-function hideLoading() {
-  performanceLoading
-    ?.classList.add(
-      'd-none'
-    )
-}
 
-function showError(
-  message
-) {
-  if (
-    performanceFormError
-  ) {
-    performanceFormError.textContent =
-      message
-  }
-}
 
-function clearError() {
-  if (
-    performanceFormError
-  ) {
-    performanceFormError.textContent =
-      ''
-  }
-}
 
-function getValue(
-  id
-) {
-  const element =
-    document.getElementById(id)
 
-  return element ?
-    element.value :
-    ''
-}
-
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(id)
-
-  if (
-    !element
-  ) {
-    return
-  }
-
-  element.value =
-    value === null ||
-    value === undefined ?
-      '' :
-      String(value)
-}
 
 async function loadPerformance() {
   try {
@@ -726,11 +630,8 @@ async function loadPerformance() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       'Failed to load performance records'
     )
   } finally {
@@ -913,47 +814,6 @@ ${
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredPerformance.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
 
 function searchPerformance() {
   const search =
@@ -1013,9 +873,7 @@ function searchPerformance() {
 function clearPerformanceForm() {
   clearError()
 
-  selectedTeamId = null
-
-  selectedParticipantId = null
+  resetSelectedParticipantContext()
   const teamSelect =
   document.getElementById(
     'teamId'
@@ -1171,9 +1029,7 @@ function openNewPerformanceModal() {
   }
 
   const modal =
-    new coreui.Modal(
-      modalElement
-    )
+    createModalByElement(modalElement)
 
   modal.show()
 }
@@ -1218,11 +1074,10 @@ function validatePerformance() {
   }
 
   if (
-    !selectedParticipantId &&
-  !selectedTeamId
+    !selectedParticipantInstanceId
   ) {
     showError(
-      'Selected source record has no participant'
+      'Selected source record is not linked to a participant registration'
     )
 
     return false
@@ -1241,6 +1096,37 @@ function validatePerformance() {
   }
 
   return true
+}
+
+async function ensureUniquePerformanceSource(
+  performanceId,
+  payload
+) {
+  let query =
+    db
+      .from('performance')
+      .select('performance_id')
+
+  query = payload.source_type === 'TRAINING' ?
+    query.eq('training_id', payload.training_id) :
+    query.eq('result_id', payload.result_id)
+
+  if (performanceId) {
+    query = query.neq('performance_id', performanceId)
+  }
+
+  const { data, error } =
+    await query.limit(1)
+
+  if (error) {
+    throw error
+  }
+
+  if ((data || []).length > 0) {
+    throw new Error(
+      'Performance has already been recorded for the selected source record.'
+    )
+  }
 }
 
 async function savePerformance() {
@@ -1415,20 +1301,17 @@ async function savePerformance() {
     }
 
     if (
-      !payload.participant_id
-    ) {
-      throw new Error(
-        'Participant not selected'
-      )
-    }
-
-    if (
       !payload.participant_instance_id
     ) {
       throw new Error(
         'Participant instance is required.'
       )
     }
+
+    await ensureUniquePerformanceSource(
+      performanceId,
+      payload
+    )
 
     let error
 
@@ -1479,24 +1362,14 @@ async function savePerformance() {
         'performanceModal'
       )
 
-    const modal =
-      coreui.Modal.getInstance(
-        modalElement
-      )
-
-    if (
-      modal
-    ) {
-      modal.hide()
-    }
+    hideModalByElement(
+      modalElement
+    )
 
     await loadPerformance()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message ||
@@ -1531,8 +1404,17 @@ function (
   ).textContent =
     'Edit Performance'
 
+  selectedParticipantId =
+    performance.participant_id || null
+
+  selectedParticipantInstanceId =
+    performance.participant_instance_id || null
+
+  selectedAthleteId =
+    performance.athlete_id || null
+
   selectedTeamId =
-    performance.team_id
+    performance.team_id || null
 
   setValue(
     'performanceId',
@@ -1687,11 +1569,7 @@ function (
   ).readOnly = true
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'performanceModal'
-      )
-    )
+    createModal('performanceModal')
 
   modal.show()
 }
@@ -1706,11 +1584,7 @@ function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deletePerformanceModal'
-      )
-    )
+    createModal('deletePerformanceModal')
 
   modal.show()
 }
@@ -1758,26 +1632,16 @@ async function deletePerformance() {
         'deletePerformanceModal'
       )
 
-    const modal =
-      coreui.Modal.getInstance(
-        modalElement
-      )
-
-    if (
-      modal
-    ) {
-      modal.hide()
-    }
+    hideModalByElement(
+      modalElement
+    )
 
     await loadPerformance()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message ||
       'Delete failed'
     )
@@ -1950,11 +1814,8 @@ function wireEvents() {
 async function initializePerformance() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Database client not found'
-      )
 
       return
     }
@@ -1967,9 +1828,6 @@ async function initializePerformance() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
   }
 }
 

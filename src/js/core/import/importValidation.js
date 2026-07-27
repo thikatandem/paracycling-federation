@@ -1,8 +1,7 @@
-﻿// =====================================================
+// =====================================================
 // IMPORT VALIDATION
 // ParaCycling Federation Management System
 // =====================================================
-
 
 // =====================================================
 // VALIDATE HEADERS
@@ -12,7 +11,6 @@ export function validateHeaders(
   headers = [],
   requiredHeaders = []
 ) {
-
   const normalizedHeaders =
     headers.map(
       header =>
@@ -75,7 +73,6 @@ export function validateHeaders(
     duplicates
 
   }
-
 }
 
 // =====================================================
@@ -86,7 +83,6 @@ export function validateRequired(
   value,
   fieldName = 'Field'
 ) {
-
   if (
 
     value === null ||
@@ -94,7 +90,6 @@ export function validateRequired(
     value === undefined
 
   ) {
-
     return {
 
       valid: false,
@@ -105,7 +100,6 @@ export function validateRequired(
         `${fieldName} is required.`
 
     }
-
   }
 
   if (
@@ -116,7 +110,6 @@ export function validateRequired(
       .trim() === ''
 
   ) {
-
     return {
 
       valid: false,
@@ -127,7 +120,6 @@ export function validateRequired(
         `${fieldName} is required.`
 
     }
-
   }
 
   return {
@@ -139,7 +131,6 @@ export function validateRequired(
     message: null
 
   }
-
 }
 
 // =====================================================
@@ -165,7 +156,6 @@ export function validateNumber(
   } = {}
 
 ) {
-
   if (
 
     value === null ||
@@ -175,11 +165,9 @@ export function validateNumber(
     value === ''
 
   ) {
-
     if (
       required
     ) {
-
       return {
 
         valid: false,
@@ -190,7 +178,6 @@ export function validateNumber(
           'Number is required.'
 
       }
-
     }
 
     return {
@@ -202,7 +189,6 @@ export function validateNumber(
       message: null
 
     }
-
   }
 
   const number =
@@ -217,7 +203,6 @@ export function validateNumber(
     )
 
   ) {
-
     return {
 
       valid: false,
@@ -228,7 +213,6 @@ export function validateNumber(
         'Invalid number.'
 
     }
-
   }
 
   if (
@@ -240,7 +224,6 @@ export function validateNumber(
     )
 
   ) {
-
     return {
 
       valid: false,
@@ -251,7 +234,6 @@ export function validateNumber(
         'Whole numbers only.'
 
     }
-
   }
 
   if (
@@ -261,7 +243,6 @@ export function validateNumber(
     number < 0
 
   ) {
-
     return {
 
       valid: false,
@@ -272,7 +253,6 @@ export function validateNumber(
         'Negative numbers are not allowed.'
 
     }
-
   }
 
   if (
@@ -282,7 +262,6 @@ export function validateNumber(
     number < min
 
   ) {
-
     return {
 
       valid: false,
@@ -293,7 +272,6 @@ export function validateNumber(
         `Minimum value is ${min}.`
 
     }
-
   }
 
   if (
@@ -303,7 +281,6 @@ export function validateNumber(
     number > max
 
   ) {
-
     return {
 
       valid: false,
@@ -314,7 +291,6 @@ export function validateNumber(
         `Maximum value is ${max}.`
 
     }
-
   }
 
   return {
@@ -326,7 +302,6 @@ export function validateNumber(
     message: null
 
   }
-
 }
 
 // =====================================================
@@ -334,141 +309,17 @@ export function validateNumber(
 // =====================================================
 
 export function validateDate(
-    value
+  value
 ) {
+  if (
 
-    if (
-
-        value === null ||
+    value === null ||
 
         value === undefined ||
 
         value === ''
 
-    ) {
-
-        return {
-
-            valid: true,
-
-            value: null,
-
-            message: null
-
-        }
-
-    }
-
-    const text =
-
-        String(
-
-            value
-
-        ).trim()
-
-    // ==========================================
-    // Already ISO
-    // ==========================================
-
-    if (
-
-        /^\d{4}-\d{2}-\d{2}$/.test(
-
-            text
-
-        )
-
-    ) {
-
-        return {
-
-            valid: true,
-
-            value: text,
-
-            message: null
-
-        }
-
-    }
-
-    // ==========================================
-    // Excel / CSV (M/D/YYYY)
-    // ==========================================
-
-    const usMatch =
-
-        text.match(
-
-            /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
-
-        )
-
-    if (
-
-        usMatch
-
-    ) {
-
-        const [
-
-            ,
-
-            month,
-
-            day,
-
-            year
-
-        ] = usMatch
-
-        return {
-
-            valid: true,
-
-            value:
-
-                `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`,
-
-            message: null
-
-        }
-
-    }
-
-    return {
-
-        valid: false,
-
-        value: null,
-
-        message:
-
-            'Date must be in YYYY-MM-DD format.'
-
-    }
-
-}
-
-// =====================================================
-// VALIDATE TIME
-// =====================================================
-
-export function validateTime(
-  value
-) {
-
-  if (
-
-    value === null ||
-
-    value === undefined ||
-
-    value === ''
-
   ) {
-
     return {
 
       valid: true,
@@ -478,7 +329,120 @@ export function validateTime(
       message: null
 
     }
+  }
 
+  const text =
+
+        String(
+
+          value
+
+        ).trim()
+
+  // ==========================================
+  // Already ISO
+  // ==========================================
+
+  if (
+
+    /^\d{4}-\d{2}-\d{2}$/.test(
+
+      text
+
+    )
+
+  ) {
+    return {
+
+      valid: true,
+
+      value: text,
+
+      message: null
+
+    }
+  }
+
+  // ==========================================
+  // Excel / CSV (M/D/YYYY)
+  // ==========================================
+
+  const usMatch =
+
+        text.match(
+
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+
+        )
+
+  if (
+
+    usMatch
+
+  ) {
+    const [
+
+      ,
+
+      month,
+
+      day,
+
+      year
+
+    ] = usMatch
+
+    return {
+
+      valid: true,
+
+      value:
+
+                `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
+
+      message: null
+
+    }
+  }
+
+  return {
+
+    valid: false,
+
+    value: null,
+
+    message:
+
+            'Date must be in YYYY-MM-DD format.'
+
+  }
+}
+
+// =====================================================
+// VALIDATE TIME
+// =====================================================
+
+export function validateTime(
+  value
+) {
+  if (
+
+    value === null ||
+
+    value === undefined ||
+
+    value === ''
+
+  ) {
+    return {
+
+      valid: true,
+
+      value: null,
+
+      message: null
+
+    }
   }
 
   const regex =
@@ -491,7 +455,6 @@ export function validateTime(
     )
 
   ) {
-
     return {
 
       valid: false,
@@ -502,7 +465,6 @@ export function validateTime(
         'Time must be in HH:MM format.'
 
     }
-
   }
 
   return {
@@ -514,7 +476,6 @@ export function validateTime(
     message: null
 
   }
-
 }
 
 // =====================================================
@@ -524,7 +485,6 @@ export function validateTime(
 export function validateEmail(
   value
 ) {
-
   if (
 
     value === null ||
@@ -534,12 +494,10 @@ export function validateEmail(
     value === ''
 
   ) {
-
-    return buildValidationResult(
-      true,
-      null
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: null
+    })
   }
 
   const regex =
@@ -554,22 +512,20 @@ export function validateEmail(
     )
 
   ) {
-
-    return buildValidationResult(
-      false,
-      null,
-      'Invalid email address.'
-    )
-
+    return buildValidationResult({
+      valid: false,
+      value: null,
+      message: 'Invalid email address.'
+    })
   }
 
-  return buildValidationResult(
-    true,
-    String(
-      value
-    ).trim()
-  )
-
+  return buildValidationResult({
+    valid: true,
+    value:
+      String(
+        value
+      ).trim()
+  })
 }
 
 // =====================================================
@@ -579,7 +535,6 @@ export function validateEmail(
 export function validatePhone(
   value
 ) {
-
   if (
 
     value === null ||
@@ -589,12 +544,10 @@ export function validatePhone(
     value === ''
 
   ) {
-
-    return buildValidationResult(
-      true,
-      null
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: null
+    })
   }
 
   const phone =
@@ -623,20 +576,17 @@ export function validatePhone(
     )
 
   ) {
-
-    return buildValidationResult(
-      false,
-      null,
-      'Invalid phone number.'
-    )
-
+    return buildValidationResult({
+      valid: false,
+      value: null,
+      message: 'Invalid phone number.'
+    })
   }
 
-  return buildValidationResult(
-    true,
-    phone
-  )
-
+  return buildValidationResult({
+    valid: true,
+    value: phone
+  })
 }
 
 // =====================================================
@@ -656,7 +606,6 @@ export function validateLength(
   } = {}
 
 ) {
-
   const text =
     String(
       value ?? ''
@@ -667,17 +616,12 @@ export function validateLength(
     text.length < minimum
 
   ) {
-
-    return buildValidationResult(
-
-      false,
-
-      null,
-
-      `Minimum length is ${minimum}.`
-
-    )
-
+    return buildValidationResult({
+      valid: false,
+      value: null,
+      message:
+        `Minimum length is ${minimum}.`
+    })
   }
 
   if (
@@ -685,24 +629,18 @@ export function validateLength(
     text.length > maximum
 
   ) {
-
-    return buildValidationResult(
-
-      false,
-
-      null,
-
-      `Maximum length is ${maximum}.`
-
-    )
-
+    return buildValidationResult({
+      valid: false,
+      value: null,
+      message:
+        `Maximum length is ${maximum}.`
+    })
   }
 
-  return buildValidationResult(
-    true,
-    text
-  )
-
+  return buildValidationResult({
+    valid: true,
+    value: text
+  })
 }
 
 // =====================================================
@@ -716,10 +654,9 @@ export function validateRegex(
   regex,
 
   message =
-    'Invalid value.'
+  'Invalid value.'
 
 ) {
-
   if (
 
     value === null ||
@@ -729,12 +666,10 @@ export function validateRegex(
     value === ''
 
   ) {
-
-    return buildValidationResult(
-      true,
-      null
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: null
+    })
   }
 
   if (
@@ -746,20 +681,17 @@ export function validateRegex(
     )
 
   ) {
-
-    return buildValidationResult(
-      false,
-      null,
+    return buildValidationResult({
+      valid: false,
+      value: null,
       message
-    )
-
+    })
   }
 
-  return buildValidationResult(
-    true,
+  return buildValidationResult({
+    valid: true,
     value
-  )
-
+  })
 }
 
 // =====================================================
@@ -769,7 +701,6 @@ export function validateRegex(
 export function validateBoolean(
   value
 ) {
-
   if (
 
     value === null ||
@@ -779,12 +710,10 @@ export function validateBoolean(
     value === ''
 
   ) {
-
-    return buildValidationResult(
-      true,
-      null
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: null
+    })
   }
 
   const text =
@@ -811,12 +740,10 @@ export function validateBoolean(
     )
 
   ) {
-
-    return buildValidationResult(
-      true,
-      true
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: true
+    })
   }
 
   if (
@@ -834,73 +761,188 @@ export function validateBoolean(
     )
 
   ) {
-
-    return buildValidationResult(
-      true,
-      false
-    )
-
+    return buildValidationResult({
+      valid: true,
+      value: false
+    })
   }
 
-  return buildValidationResult(
-
-    false,
-
-    null,
-
-    'Invalid boolean value.'
-
-  )
-
+  return buildValidationResult({
+    valid: false,
+    value: null,
+    message:
+      'Invalid boolean value.'
+  })
 }
 
 // =====================================================
 // BUILD VALIDATION RESULT
 // =====================================================
 
-function buildValidationResult({
+export function buildValidationResult({
+
+  valid,
+
+  row = null,
+
+  column = null,
+
+  header = null,
+
+  value = null,
+
+  type = 'validation',
+
+  severity = valid ?
+    null :
+    'error',
+
+  message = null
+
+} = {}) {
+  return {
 
     valid,
 
-    row = null,
+    row,
 
-    column = null,
+    column,
 
-    header = null,
+    header,
 
-    value = null,
+    value,
 
-    type = 'validation',
+    type,
 
-    severity = valid
-        ? null
-        : 'error',
+    severity,
 
-    message = null
+    message
 
-} = {}) {
-
-    return {
-
-        valid,
-
-        row,
-
-        column,
-
-        header,
-
-        value,
-
-        type,
-
-        severity,
-
-        message
-
-    }
-
+  }
 }
+// =====================================================
+// VALIDATE REQUIRED FIELDS IN IMPORT ROWS
+// =====================================================
+
+export function validateRequiredFields(
+  result = {},
+  requiredFields = [],
+  {
+    rowsKey = 'rows',
+    errorsKey = 'errors',
+    rowNumberKey = 'rowNumber',
+    rowOffset = 1,
+    labels = {}
+  } = {}
+) {
+  const rows =
+    Array.isArray(
+      result[rowsKey]
+    ) ?
+      result[rowsKey] :
+      []
+
+  if (!Array.isArray(result[errorsKey])) {
+    result[errorsKey] = []
+  }
+
+  rows.forEach(
+    (
+      row,
+      index
+    ) => {
+      for (const field of requiredFields) {
+        const check =
+          validateRequired(
+            row?.[field],
+            labels[field] || field
+          )
+
+        if (!check.valid) {
+          result[errorsKey].push({
+            rowNumber:
+              row?.[rowNumberKey] ??
+              index + rowOffset,
+            field,
+            message:
+              check.message
+          })
+        }
+      }
+    }
+  )
+
+  return result
+}
+
+export function findDuplicateRows(
+  rows = [],
+  keys = [],
+  {
+    rowNumberKey = 'rowNumber',
+    rowOffset = 1,
+    caseSensitive = false,
+    ignoreEmpty = true,
+    trim = true
+  } = {}
+) {
+  const seen = new Map()
+  const duplicates = []
+
+  rows.forEach(
+    (
+      row,
+      index
+    ) => {
+      const values =
+        keys.map(
+          key =>
+            normalizeValue(
+              row?.[key],
+              {
+                trim,
+                caseSensitive
+              }
+            )
+        )
+
+      if (
+        ignoreEmpty &&
+        values.every(
+          value => value === ''
+        )
+      ) {
+        return
+      }
+
+      const compositeKey =
+        values.join('|')
+
+      const rowNumber =
+        row?.[rowNumberKey] ??
+        index + rowOffset
+
+      if (seen.has(compositeKey)) {
+        duplicates.push({
+          rowNumber,
+          duplicateOf:
+            seen.get(compositeKey),
+          key: compositeKey,
+          record: row
+        })
+        return
+      }
+
+      seen.set(
+        compositeKey,
+        rowNumber
+      )
+    }
+  )
+
+  return duplicates
+}
+
 // =====================================================
 // VALIDATE DUPLICATES
 // =====================================================
@@ -922,7 +964,6 @@ export function validateDuplicates(
   } = {}
 
 ) {
-
   const duplicates = []
 
   const seen = new Map()
@@ -936,13 +977,11 @@ export function validateDuplicates(
       rowIndex
 
     ) => {
-
       const compositeKey =
 
         keys.map(
 
           key => {
-
             let value =
 
               row[
@@ -956,9 +995,7 @@ export function validateDuplicates(
               value === undefined
 
             ) {
-
               value = ''
-
             }
 
             value =
@@ -969,10 +1006,8 @@ export function validateDuplicates(
             if (
               trim
             ) {
-
               value =
                 value.trim()
-
             }
 
             if (
@@ -980,14 +1015,11 @@ export function validateDuplicates(
               !caseSensitive
 
             ) {
-
               value =
                 value.toLowerCase()
-
             }
 
             return value
-
           }
 
         ).join(
@@ -1005,9 +1037,7 @@ export function validateDuplicates(
           ) === ''
 
       ) {
-
         return
-
       }
 
       if (
@@ -1017,7 +1047,6 @@ export function validateDuplicates(
         )
 
       ) {
-
         duplicates.push({
 
           row:
@@ -1039,11 +1068,7 @@ export function validateDuplicates(
             row
 
         })
-
-      }
-
-      else {
-
+      } else {
         seen.set(
 
           compositeKey,
@@ -1051,14 +1076,12 @@ export function validateDuplicates(
           rowIndex
 
         )
-
       }
-
     }
 
   )
 
- return buildValidationResult({
+  return buildValidationResult({
 
     valid:
 
@@ -1074,22 +1097,21 @@ export function validateDuplicates(
 
     severity:
 
-        duplicates.length
+        duplicates.length ?
 
-            ? 'error'
+          'error' :
 
-            : null,
+          null,
 
     message:
 
-        duplicates.length
+        duplicates.length ?
 
-            ? 'Duplicate records found.'
+          'Duplicate records found.' :
 
-            : null
+          null
 
-})
-
+  })
 }
 
 // =====================================================
@@ -1103,7 +1125,6 @@ function normalizeValue(
     caseSensitive = false
   } = {}
 ) {
-
   if (
 
     value === null ||
@@ -1111,9 +1132,7 @@ function normalizeValue(
     value === undefined
 
   ) {
-
     return ''
-
   }
 
   let normalized =
@@ -1124,10 +1143,8 @@ function normalizeValue(
   if (
     trim
   ) {
-
     normalized =
       normalized.trim()
-
   }
 
   if (
@@ -1135,12 +1152,9 @@ function normalizeValue(
     !caseSensitive
 
   ) {
-
     normalized =
       normalized.toLowerCase()
-
   }
 
   return normalized
-
 }

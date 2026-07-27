@@ -1,92 +1,94 @@
-﻿// =====================================================
+// =====================================================
 // IMPORT ERRORS
 // ParaCycling Federation Management System
 // =====================================================
 
-import {
-    exportCsv
-}
-from '../import/csvImporter.js'
+import { downloadCsv as downloadCsvFile } from '../export/csvExport.js'
+import { downloadExcel as downloadExcelFile } from '../export/excelExport.js'
+import { downloadPdf as downloadPdfFile } from '../export/pdfExport.js'
 
-
-
-
-
-
-
+const IMPORT_ISSUE_COLUMNS = [
+  { key: 'module', label: 'Module' },
+  { key: 'source', label: 'Source' },
+  { key: 'row', label: 'Row' },
+  { key: 'column', label: 'Column' },
+  { key: 'header', label: 'Header' },
+  { key: 'value', label: 'Value' },
+  { key: 'type', label: 'Type' },
+  { key: 'severity', label: 'Severity' },
+  { key: 'message', label: 'Message' }
+]
 
 // =====================================================
 // BUILD SUMMARY
 // =====================================================
 
 export function buildSummary(
-    report = {}
+  report = {}
 ) {
+  const summary = {
 
-    const summary = {
-
-        module:
+    module:
 
             report.module ?? null,
 
-        source:
+    source:
 
             report.source ?? null,
 
-        startedAt:
+    startedAt:
 
             report.startedAt ?? null,
 
-        completedAt:
+    completedAt:
 
             report.completedAt ?? null,
 
-        totalRows:
+    totalRows:
 
             report.summary?.totalRows ?? 0,
 
-        importedRows:
+    importedRows:
 
             report.summary?.importedRows ?? 0,
 
-        warningRows:
+    warningRows:
 
             report.summary?.warningRows ?? 0,
 
-        errorRows:
+    errorRows:
 
             report.summary?.errorRows ?? 0,
 
-        totalWarnings:
+    totalWarnings:
 
             (report.warnings || []).length,
 
-        totalErrors:
+    totalErrors:
 
             (report.errors || []).length
 
-    }
+  }
 
-    summary.bySeverity =
+  summary.bySeverity =
 
         groupBySeverity(
-            report
+          report
         )
 
-    summary.byType =
+  summary.byType =
 
         groupByType(
-            report
+          report
         )
 
-    summary.byRow =
+  summary.byRow =
 
         groupByRow(
-            report
+          report
         )
 
-    return summary
-
+  return summary
 }
 
 // =====================================================
@@ -94,31 +96,29 @@ export function buildSummary(
 // =====================================================
 
 export function buildMessage(
-    report = {}
+  report = {}
 ) {
-
-    const summary =
+  const summary =
 
         buildSummary(
-            report
+          report
         )
 
-    return [
+  return [
 
-        'Import completed.',
+    'Import completed.',
 
-        '',
+    '',
 
-        `Rows : ${summary.totalRows}`,
+    `Rows : ${summary.totalRows}`,
 
-        `Imported : ${summary.importedRows}`,
+    `Imported : ${summary.importedRows}`,
 
-        `Warnings : ${summary.totalWarnings}`,
+    `Warnings : ${summary.totalWarnings}`,
 
-        `Errors : ${summary.totalErrors}`
+    `Errors : ${summary.totalErrors}`
 
-    ].join('\n')
-
+  ].join('\n')
 }
 
 // =====================================================
@@ -126,95 +126,57 @@ export function buildMessage(
 // =====================================================
 
 export async function downloadCsv(
-    report = {}
+  report = {}
 ) {
+  const packageData = buildPackage(report)
 
-    return exportCsv(
-
-        buildPackage(
-            report
-        )
-
-    )
-
+  return downloadCsvFile({
+    data: packageData.flattened,
+    columns: IMPORT_ISSUE_COLUMNS,
+    reportName: `${report.module || 'Import'} Issues`
+  })
 }
-
-// =====================================================
-// DOWNLOAD EXCEL
-// =====================================================
 
 export async function downloadExcel(
-    report = {}
+  report = {}
 ) {
+  const packageData = buildPackage(report)
 
-    return exportExcel(
-
-        buildPackage(
-            report
-        )
-
-    )
-
+  return downloadExcelFile({
+    data: packageData.flattened,
+    columns: IMPORT_ISSUE_COLUMNS,
+    reportName: `${report.module || 'Import'} Issues`
+  })
 }
-
-// =====================================================
-// DOWNLOAD PDF
-// =====================================================
 
 export async function downloadPdf(
-    report = {}
+  report = {}
 ) {
+  const packageData = buildPackage(report)
 
-    return exportPdf(
-
-        buildPackage(
-            report
-        )
-
-    )
-
+  return downloadPdfFile({
+    data: packageData.flattened,
+    columns: IMPORT_ISSUE_COLUMNS,
+    reportName: `${report.module || 'Import'} Issues`,
+    summary: packageData.summary
+  })
 }
 
-// =====================================================
-// DOWNLOAD FULL PACKAGE
-// =====================================================
-
 export async function downloadFullPackage(
-    report = {}
+  report = {}
 ) {
+  const packageData = buildPackage(report)
 
-    const packageData =
+  const csv = await downloadCsv(report)
+  const excel = await downloadExcel(report)
+  const pdf = await downloadPdf(report)
 
-        buildPackage(
-            report
-        )
-
-    return {
-
-        package:
-
-            packageData,
-
-        csv:
-
-            await exportCsv(
-                packageData
-            ),
-
-        excel:
-
-            await exportExcel(
-                packageData
-            ),
-
-        pdf:
-
-            await exportPdf(
-                packageData
-            )
-
-    }
-
+  return {
+    package: packageData,
+    csv,
+    excel,
+    pdf
+  }
 }
 
 // =====================================================
@@ -222,47 +184,41 @@ export async function downloadFullPackage(
 // =====================================================
 
 function groupBySeverity(
-    report = {}
+  report = {}
 ) {
-
-    const groups = new Map()
+  const groups = new Map()
 
     ;[
 
-        ...(report.errors || []),
+    ...(report.errors || []),
 
-        ...(report.warnings || [])
+    ...(report.warnings || [])
 
-    ].forEach(
+  ].forEach(
 
-        item => {
-
-            const key =
+    item => {
+      const key =
                 item.severity || 'unknown'
 
-            if (
-                !groups.has(key)
-            ) {
+      if (
+        !groups.has(key)
+      ) {
+        groups.set(
+          key,
+          []
+        )
+      }
 
-                groups.set(
-                    key,
-                    []
-                )
-
-            }
-
-            groups
+      groups
                 .get(key)
                 .push(item)
+    }
 
-        }
+  )
 
-    )
-
-    return Object.fromEntries(
-        groups
-    )
-
+  return Object.fromEntries(
+    groups
+  )
 }
 
 // =====================================================
@@ -270,47 +226,41 @@ function groupBySeverity(
 // =====================================================
 
 function groupByType(
-    report = {}
+  report = {}
 ) {
-
-    const groups = new Map()
+  const groups = new Map()
 
     ;[
 
-        ...(report.errors || []),
+    ...(report.errors || []),
 
-        ...(report.warnings || [])
+    ...(report.warnings || [])
 
-    ].forEach(
+  ].forEach(
 
-        item => {
-
-            const key =
+    item => {
+      const key =
                 item.type || 'unknown'
 
-            if (
-                !groups.has(key)
-            ) {
+      if (
+        !groups.has(key)
+      ) {
+        groups.set(
+          key,
+          []
+        )
+      }
 
-                groups.set(
-                    key,
-                    []
-                )
-
-            }
-
-            groups
+      groups
                 .get(key)
                 .push(item)
+    }
 
-        }
+  )
 
-    )
-
-    return Object.fromEntries(
-        groups
-    )
-
+  return Object.fromEntries(
+    groups
+  )
 }
 
 // =====================================================
@@ -318,47 +268,41 @@ function groupByType(
 // =====================================================
 
 function groupByRow(
-    report = {}
+  report = {}
 ) {
-
-    const groups = new Map()
+  const groups = new Map()
 
     ;[
 
-        ...(report.errors || []),
+    ...(report.errors || []),
 
-        ...(report.warnings || [])
+    ...(report.warnings || [])
 
-    ].forEach(
+  ].forEach(
 
-        item => {
-
-            const key =
+    item => {
+      const key =
                 item.row ?? 0
 
-            if (
-                !groups.has(key)
-            ) {
+      if (
+        !groups.has(key)
+      ) {
+        groups.set(
+          key,
+          []
+        )
+      }
 
-                groups.set(
-                    key,
-                    []
-                )
-
-            }
-
-            groups
+      groups
                 .get(key)
                 .push(item)
+    }
 
-        }
+  )
 
-    )
-
-    return Object.fromEntries(
-        groups
-    )
-
+  return Object.fromEntries(
+    groups
+  )
 }
 
 // =====================================================
@@ -366,36 +310,34 @@ function groupByRow(
 // =====================================================
 
 function buildStatistics(
-    report = {}
+  report = {}
 ) {
-
-    const summary =
+  const summary =
         buildSummary(
-            report
+          report
         )
 
-    return {
+  return {
 
-        totalRows:
+    totalRows:
             summary.totalRows,
 
-        importedRows:
+    importedRows:
             summary.importedRows,
 
-        warningRows:
+    warningRows:
             summary.warningRows,
 
-        errorRows:
+    errorRows:
             summary.errorRows,
 
-        totalWarnings:
+    totalWarnings:
             summary.totalWarnings,
 
-        totalErrors:
+    totalErrors:
             summary.totalErrors
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -403,50 +345,48 @@ function buildStatistics(
 // =====================================================
 
 function flattenReport(
-    report = {}
+  report = {}
 ) {
+  return [
 
-    return [
+    ...(report.errors || []),
 
-        ...(report.errors || []),
+    ...(report.warnings || [])
 
-        ...(report.warnings || [])
+  ].map(
 
-    ].map(
+    item => ({
 
-        item => ({
-
-            module:
+      module:
                 report.module,
 
-            source:
+      source:
                 report.source,
 
-            row:
+      row:
                 item.row,
 
-            column:
+      column:
                 item.column,
 
-            header:
+      header:
                 item.header,
 
-            value:
+      value:
                 item.value,
 
-            type:
+      type:
                 item.type,
 
-            severity:
+      severity:
                 item.severity,
 
-            message:
+      message:
                 item.message
 
-        })
+    })
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -454,32 +394,30 @@ function flattenReport(
 // =====================================================
 
 function buildPackage(
-    report = {}
+  report = {}
 ) {
+  return {
 
-    return {
-
-        summary:
+    summary:
             buildSummary(
-                report
+              report
             ),
 
-        statistics:
+    statistics:
             buildStatistics(
-                report
+              report
             ),
 
-        errors:
+    errors:
             report.errors || [],
 
-        warnings:
+    warnings:
             report.warnings || [],
 
-        flattened:
+    flattened:
             flattenReport(
-                report
+              report
             )
 
-    }
-
+  }
 }

@@ -1,4 +1,4 @@
-﻿extends ../../_layout/default
+extends ../../_layout/default
 
 block view
 
@@ -21,6 +21,12 @@ block view
               | Add Certification
 
           .card-body
+
+            div.alert.d-none.mb-3(
+              id='certificationPageFeedback'
+              role='status'
+              aria-live='polite'
+            )
 
             div.d-none.text-center.mb-3(
               id='certificationLoading'
@@ -121,6 +127,7 @@ block view
 
               select.form-select(
                 id='certificationStaffId'
+                required
               )
 
             .col-md-6
@@ -129,6 +136,7 @@ block view
 
               input.form-control(
                 id='certificationName'
+                required
               )
 
             .col-md-6
@@ -157,8 +165,10 @@ block view
                 id='certificationExpiry'
               )
 
-          .mt-3.text-danger(
+          div.alert.d-none.mt-3(
             id='certificationFormError'
+            role='alert'
+            aria-live='assertive'
           )
 
         .modal-footer
@@ -223,5 +233,5 @@ block append pageScripts
 
   script(
     type='module'
-    src='js/core/staff/staff.js'
+    src='js/core/staff/staff-records.js'
   )

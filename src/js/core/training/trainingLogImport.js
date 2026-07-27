@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // TRAINING LOG IMPORT
 // ParaCycling Federation Management System
 //
@@ -22,96 +22,92 @@
 // =====================================================
 
 import {
-
-    process,
-
-    commit,
-
-    finish
-
-}
-
-from '../import/importService.js'
+  resolveEventOccurrence as resolveSharedEventOccurrence,
+  resolveActivityProgram as resolveProgram,
+  resolveActivityParticipantRegistration as resolveParticipantRegistration,
+  verifyProgramRegistration
+} from '../import/activityImportResolverService.js'
 
 import {
 
-    buildPreview
+  process,
+
+  commit,
+
+  finish
 
 }
 
-from '../import/previewImporter.js'
+  from '../import/importService.js'
 
 import {
 
-    COMMIT_FIELDS,
-
-    buildCommitObject
+  buildPreview
 
 }
 
-from '../import/importHelpers.js'
+  from '../import/previewImporter.js'
 
 import {
 
-    buildSummary,
+  buildSummary,
 
-    downloadFullPackage
+  downloadFullPackage
 
 }
 
-from '../import/importErrors.js'
+  from '../import/importErrors.js'
 
 import {
 
-    IMPORT_STATUS
+  IMPORT_STATUS
 
 }
 
-from '../import/importConstants.js'
-
+  from '../import/importConstants.js'
 
 import * as lookup
-from '../import/lookupResolver.js'
+  from '../import/lookupResolver.js'
 
 const TRAINING_IMPORT_FIELDS = Object.freeze({
 
-    EVENT_CODE:
+  EVENT_CODE:
         'event_code',
 
-    EVENT_AREA:
+  EVENT_AREA:
         'event_area',
 
-    PROGRAM_CODE:
+  PROGRAM_CODE:
         'program_code',
 
-    PARTICIPANT_TYPE_CODE:
+  PARTICIPANT_TYPE_CODE:
         'participant_type_code',
 
-    PARTICIPANT_CODE:
+  PARTICIPANT_CODE:
         'participant_code',
 
-    TRAINING_DATE:
+  TRAINING_DATE:
         'training_date',
 
-    SESSION_TYPE:
+  SESSION_TYPE:
         'session_type',
 
-    TRAINING_RESULT_CODE:
+  TRAINING_RESULT_CODE:
         'training_result_code',
 
-    DISTANCE_KM:
+  DISTANCE_KM:
         'distance_km',
 
-    START_TIME:
+  START_TIME:
         'start_time',
 
-    END_TIME:
+  END_TIME:
         'end_time',
 
-    INDOOR_SESSION:
+  INDOOR_SESSION:
         'indoor_session',
 
-    NOTES:
+  NOTES:
         'notes'
 
 })
@@ -122,66 +118,64 @@ const TRAINING_IMPORT_FIELDS = Object.freeze({
 
 export async function validateTrainingLogs(
 
-    importData = {},
+  importData = {},
+
+  validation
+
+) {
+  const result = {
+
+    ...importData,
+
+    success: true,
+
+    errors: [],
+
+    warnings: []
+
+  }
+
+  validateHeaders(
+
+    result,
 
     validation
 
-) {
+  )
 
-    const result = {
+  validateRequiredFields(
 
-        ...importData,
+    result,
 
-        success: true,
+    validation
 
-        errors: [],
+  )
 
-        warnings: []
+  validateTrainingResult(
 
-    }
+    result,
 
-    validateHeaders(
+    validation
 
-        result,
+  )
 
-        validation
+  validateDuplicateRows(
 
-    )
+    result
 
-    validateRequiredFields(
+  )
 
-        result,
+  validateBusinessKeys(
 
-        validation
+    result
 
-    )
+  )
 
-    validateTrainingResult(
-
-        result,
-
-        validation
-
-    )
-
-    validateDuplicateRows(
-
-        result
-
-    )
-
-    validateBusinessKeys(
-
-        result
-
-    )
-
-    result.success =
+  result.success =
 
         result.errors.length === 0
 
-    return result
-
+  return result
 }
 
 // =====================================================
@@ -190,92 +184,84 @@ export async function validateTrainingLogs(
 
 function validateHeaders(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
-
-    const headerResult =
+  const headerResult =
 
         validation.validateHeaders(
 
-            result.headers,
+          result.headers,
 
-            Object.values(
+          Object.values(
 
-                TRAINING_IMPORT_FIELDS
+            TRAINING_IMPORT_FIELDS
 
-            )
-
-        )
-
-    for (
-
-        const field
-
-        of headerResult.missing
-
-    ) {
-
-        addError(
-
-            result,
-
-            0,
-
-            field,
-
-            'Missing required header.'
+          )
 
         )
 
-    }
+  for (
 
-    for (
+    const field
 
-        const field
+    of headerResult.missing
 
-        of headerResult.duplicates
+  ) {
+    addError(
 
-    ) {
+      result,
 
-        addError(
+      0,
 
-            result,
+      field,
 
-            0,
+      'Missing required header.'
 
-            field,
+    )
+  }
 
-            'Duplicate header.'
+  for (
 
-        )
+    const field
 
-    }
+    of headerResult.duplicates
 
-    for (
+  ) {
+    addError(
 
-        const field
+      result,
 
-        of headerResult.unexpected
+      0,
 
-    ) {
+      field,
 
-        addWarning(
+      'Duplicate header.'
 
-            result,
+    )
+  }
 
-            0,
+  for (
 
-            field,
+    const field
 
-            'Unexpected header.'
+    of headerResult.unexpected
 
-        )
+  ) {
+    addWarning(
 
-    }
+      result,
 
+      0,
+
+      field,
+
+      'Unexpected header.'
+
+    )
+  }
 }
 
 // =====================================================
@@ -284,86 +270,78 @@ function validateHeaders(
 
 function validateRequiredFields(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
+  const required = [
 
-    const required = [
+    TRAINING_IMPORT_FIELDS.EVENT_CODE,
 
-        TRAINING_IMPORT_FIELDS.EVENT_CODE,
+    TRAINING_IMPORT_FIELDS.EVENT_AREA,
 
-        TRAINING_IMPORT_FIELDS.EVENT_AREA,
+    TRAINING_IMPORT_FIELDS.PROGRAM_CODE,
 
-        TRAINING_IMPORT_FIELDS.PROGRAM_CODE,
+    TRAINING_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
 
-        TRAINING_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
+    TRAINING_IMPORT_FIELDS.PARTICIPANT_CODE,
 
-        TRAINING_IMPORT_FIELDS.PARTICIPANT_CODE,
+    TRAINING_IMPORT_FIELDS.TRAINING_DATE,
 
-        TRAINING_IMPORT_FIELDS.TRAINING_DATE,
+    TRAINING_IMPORT_FIELDS.SESSION_TYPE,
 
-        TRAINING_IMPORT_FIELDS.SESSION_TYPE,
+    TRAINING_IMPORT_FIELDS.TRAINING_RESULT_CODE
 
-        TRAINING_IMPORT_FIELDS.TRAINING_RESULT_CODE
+  ]
 
-    ]
+  result.objects.forEach(
 
-    result.objects.forEach(
+    (
 
-        (
+      row,
 
-            row,
+      index
 
-            index
+    ) => {
+      for (
 
-        ) => {
+        const field
 
-            for (
+        of required
 
-                const field
-
-                of required
-
-            ) {
-
-                const check =
+      ) {
+        const check =
 
                     validation.validateRequired(
 
-                        row[field],
+                      row[field],
 
-                        field
-
-                    )
-
-                if (
-
-                    !check.valid
-
-                ) {
-
-                    addError(
-
-                        result,
-
-                        index + 2,
-
-                        field,
-
-                        check.message
+                      field
 
                     )
 
-                }
+        if (
 
-            }
+          !check.valid
 
+        ) {
+          addError(
+
+            result,
+
+            index + 2,
+
+            field,
+
+            check.message
+
+          )
         }
+      }
+    }
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -372,56 +350,50 @@ function validateRequiredFields(
 
 function validateTrainingResult(
 
-    result,
+  result,
 
-    validation
+  validation
 
 ) {
+  result.objects.forEach(
 
-    result.objects.forEach(
+    (
 
-        (
+      row,
 
-            row,
+      index
 
-            index
-
-        ) => {
-
-            const check =
+    ) => {
+      const check =
 
                 validation.validateRequired(
 
-                    row.training_result_code,
+                  row.training_result_code,
 
-                    'training_result_code'
-
-                )
-
-            if (
-
-                !check.valid
-
-            ) {
-
-                addError(
-
-                    result,
-
-                    index + 2,
-
-                    'training_result_code',
-
-                    check.message
+                  'training_result_code'
 
                 )
 
-            }
+      if (
 
-        }
+        !check.valid
 
-    )
+      ) {
+        addError(
 
+          result,
+
+          index + 2,
+
+          'training_result_code',
+
+          check.message
+
+        )
+      }
+    }
+
+  )
 }
 
 // =====================================================
@@ -430,84 +402,74 @@ function validateTrainingResult(
 
 function validateDuplicateRows(
 
-    result
+  result
 
 ) {
-
-    const seen =
+  const seen =
 
         new Set()
 
-    result.objects.forEach(
+  result.objects.forEach(
 
-        (
+    (
 
-            row,
+      row,
 
-            index
+      index
 
-        ) => {
+    ) => {
+      const key = [
 
-            const key = [
+        row.event_code,
 
-                row.event_code,
+        row.event_area,
 
-                row.event_area,
+        row.program_code,
 
-                row.program_code,
+        row.participant_type_code,
 
-                row.participant_type_code,
+        row.participant_code,
 
-                row.participant_code,
+        row.training_date,
 
-                row.training_date,
+        row.session_type
 
-                row.session_type
-
-            ]
+      ]
 
             .join('|')
 
             .toLowerCase()
 
-            if (
+      if (
 
-                seen.has(
+        seen.has(
 
-                    key
+          key
 
-                )
+        )
 
-            ) {
+      ) {
+        addError(
 
-                addError(
+          result,
 
-                    result,
+          index + 2,
 
-                    index + 2,
+          'duplicate',
 
-                    'duplicate',
+          'Duplicate training record found.'
 
-                    'Duplicate training record found.'
+        )
+      } else {
+        seen.add(
 
-                )
+          key
 
-            }
+        )
+      }
+    }
 
-            else {
-
-                seen.add(
-
-                    key
-
-                )
-
-            }
-
-        }
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -516,70 +478,64 @@ function validateDuplicateRows(
 
 function validateBusinessKeys(
 
-    result
+  result
 
 ) {
+  result.objects.forEach(
 
-    result.objects.forEach(
+    (
 
-        (
+      row,
 
-            row,
+      index
 
-            index
+    ) => {
+      const fields = [
 
-        ) => {
+        row.event_code,
 
-            const fields = [
+        row.event_area,
 
-                row.event_code,
+        row.program_code,
 
-                row.event_area,
+        row.participant_type_code,
 
-                row.program_code,
+        row.participant_code,
 
-                row.participant_type_code,
+        row.training_date,
 
-                row.participant_code,
+        row.session_type
 
-                row.training_date,
+      ]
 
-                row.session_type
+      if (
 
-            ]
+        fields.some(
 
-            if (
+          value =>
 
-                fields.some(
-
-                    value =>
-
-                        value === null ||
+            value === null ||
 
                         value === ''
 
-                )
+        )
 
-            ) {
+      ) {
+        addError(
 
-                addError(
+          result,
 
-                    result,
+          index + 2,
 
-                    index + 2,
+          'business_key',
 
-                    'business_key',
+          'Incomplete business key.'
 
-                    'Incomplete business key.'
+        )
+      }
+    }
 
-                )
-
-            }
-
-        }
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -587,6 +543,17 @@ function validateBusinessKeys(
 // =====================================================
 
 function buildValidationResult(
+
+  row,
+
+  field,
+
+  severity,
+
+  message
+
+) {
+  return {
 
     row,
 
@@ -596,20 +563,7 @@ function buildValidationResult(
 
     message
 
-) {
-
-    return {
-
-        row,
-
-        field,
-
-        severity,
-
-        message
-
-    }
-
+  }
 }
 // =====================================================
 // ADD ERROR
@@ -617,32 +571,30 @@ function buildValidationResult(
 
 function addError(
 
-    result,
+  result,
 
-    row,
+  row,
 
-    field,
+  field,
 
-    message
+  message
 
 ) {
+  result.errors.push(
 
-    result.errors.push(
+    buildValidationResult(
 
-        buildValidationResult(
+      row,
 
-            row,
+      field,
 
-            field,
+      'error',
 
-            'error',
-
-            message
-
-        )
+      message
 
     )
 
+  )
 }
 
 // =====================================================
@@ -651,32 +603,30 @@ function addError(
 
 function addWarning(
 
-    result,
+  result,
 
-    row,
+  row,
 
-    field,
+  field,
 
-    message
+  message
 
 ) {
+  result.warnings.push(
 
-    result.warnings.push(
+    buildValidationResult(
 
-        buildValidationResult(
+      row,
 
-            row,
+      field,
 
-            field,
+      'warning',
 
-            'warning',
-
-            message
-
-        )
+      message
 
     )
 
+  )
 }
 
 // =====================================================
@@ -685,42 +635,38 @@ function addWarning(
 
 export async function resolveTrainingLogs(
 
-    validatedImport = {}
+  validatedImport = {}
 
 ) {
+  const resolvedRows = []
 
-    const resolvedRows = []
+  for (
 
-    for (
+    const participant
 
-        const participant
+    of validatedImport.rows || []
 
-        of validatedImport.rows || []
+  ) {
+    resolvedRows.push(
 
-    ) {
+      await resolveTrainingRow(
 
-        resolvedRows.push(
+        participant
 
-            await resolveTrainingRow(
+      )
 
-                participant
+    )
+  }
 
-            )
+  return {
 
-        )
+    ...validatedImport,
 
-    }
-
-    return {
-
-        ...validatedImport,
-
-        rows:
+    rows:
 
             resolvedRows
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -729,71 +675,70 @@ export async function resolveTrainingLogs(
 
 async function resolveTrainingRow(
 
-    participant
+  participant
 
 ) {
+  await resolveSharedEventOccurrence(
+          participant,
+          resolveEvent,
+          resolveOccurrence
+        )
 
-    await resolveEventOccurrence(
-
-    participant
-
-)
-
-    participant.program =
+  participant.program =
 
         await resolveProgram(
 
-            participant
+          participant
 
         )
 
-    participant.registration =
+  participant.registration =
 
     await resolveParticipantRegistration(
 
-        participant
+      participant
 
     )
 
-verifyProgramRegistration(
+  verifyProgramRegistration(
 
     participant
 
-)
+  )
 
-participant.trainingResult =
+  participant.trainingResult =
 
     await resolveTrainingResult(
 
-        participant
+      participant
 
     )
 
-    participant.generated =
+  participant.generated =
 
     buildGeneratedTraining(
 
-        participant
+      participant
 
     )
 
-participant.commit =
+  participant.commit =
 
     buildTrainingCommitObject(
 
-        participant
+      participant
 
     )
 
-participant.record =
+  participant.record =
 
     buildTrainingRecord(
 
-        participant
+      participant
 
     )
 
-return participant
+  return participant
 }
 
 // =====================================================
@@ -802,16 +747,14 @@ return participant
 
 async function resolveEvent(
 
-    participant
+  participant
 
 ) {
+  return lookup.resolveEventCode(
 
-    return lookup.resolveEventCode(
+    participant.event_code
 
-        participant.event_code
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -820,221 +763,42 @@ async function resolveEvent(
 
 async function resolveOccurrence(
 
-    participant
+  participant
 
 ) {
+  return lookup.resolveOccurrence(
 
-    return lookup.resolveOccurrence(
+    participant.event_area,
 
-        participant.event_area
+    participant.event.id || participant.event.event_id
 
-    )
-
+  )
 }
 
 // =====================================================
 // VERIFY OCCURRENCE BELONGS TO EVENT
 // =====================================================
 
-function verifyOccurrenceOwnership(
-
-    participant
-
-) {
-
-    if (
-
-        !participant.event ||
-
-        !participant.occurrence
-
-    ) {
-
-        return
-
-    }
-
-    if (
-
-        participant.occurrence.event_id !==
-
-        participant.event.event_id
-
-    ) {
-
-        throw new Error(
-
-            `Occurrence '${participant.event_area}' does not belong to Event '${participant.event_code}'.`
-
-        )
-
-    }
-
-}
 
 // =====================================================
 // RESOLVE EVENT + OCCURRENCE
 // =====================================================
 
-async function resolveEventOccurrence(
-
-    participant
-
-) {
-
-    participant.event =
-
-        await resolveEvent(
-
-            participant
-
-        )
-
-    participant.occurrence =
-
-        await resolveOccurrence(
-
-            participant
-
-        )
-
-    verifyOccurrenceOwnership(
-
-        participant
-
-    )
-
-    return participant
-
-}
 
 // =====================================================
 // RESOLVE PROGRAM
 // =====================================================
 
-async function resolveProgram(
-
-    participant
-
-) {
-
-    const program =
-
-        await lookup.resolveProgramCode(
-
-            participant.program_code
-
-        )
-
-    if (
-
-        !program ||
-
-        !program.found
-
-    ) {
-
-        throw new Error(
-
-            `Program '${participant.program_code}' was not found.`
-
-        )
-
-    }
-
-    return program
-
-}
 
 // =====================================================
 // RESOLVE PARTICIPANT
 // =====================================================
 
-async function resolveParticipant(
-
-    participant
-
-) {
-
-    const participantRecord =
-
-        await lookup.resolveParticipant(
-
-            participant.participant_type_code,
-
-            participant.participant_code
-
-        )
-
-    if (
-
-        !participantRecord ||
-
-        !participantRecord.found
-
-    ) {
-
-        throw new Error(
-
-            `Participant '${participant.participant_code}' was not found.`
-
-        )
-
-    }
-
-    return participantRecord
-
-}
 
 // =====================================================
 // RESOLVE PARTICIPANT REGISTRATION
 // =====================================================
 
-async function resolveParticipantRegistration(
-
-    participant
-
-) {
-
-    participant.participant =
-
-        await resolveParticipant(
-
-            participant
-
-        )
-
-    const registration =
-
-        await lookup.resolveParticipantRegistration(
-
-            participant.occurrence.event_instance_id,
-
-            participant.program.program_id,
-
-            participant.participant.participant_ref_id
-
-        )
-
-    if (
-
-        !registration ||
-
-        !registration.found
-
-    ) {
-
-        throw new Error(
-
-            `Participant '${participant.participant_code}' is not registered for Program '${participant.program_code}'.`
-
-        )
-
-    }
-
-    return registration
-
-}
 
 // =====================================================
 // RESOLVE TRAINING RESULT
@@ -1042,151 +806,122 @@ async function resolveParticipantRegistration(
 
 async function resolveTrainingResult(
 
-    participant
+  participant
 
 ) {
-
-    const result =
+  const result =
 
         await lookup.resolveTrainingResultCode(
 
-            participant.training_result_code
+          participant.training_result_code
 
         )
 
-    if (
+  if (
 
-        !result ||
+    !result ||
 
         !result.found
 
-    ) {
+  ) {
+    throw new Error(
 
-        throw new Error(
+      `Training Result '${participant.training_result_code}' was not found.`
 
-            `Training Result '${participant.training_result_code}' was not found.`
+    )
+  }
 
-        )
-
-    }
-
-    return result
-
+  return result
 }
 
 // =====================================================
 // VERIFY PROGRAM REGISTRATION
 // =====================================================
 
-function verifyProgramRegistration(
-
-    participant
-
-) {
-
-    if (
-
-        participant.registration.program_id !==
-
-        participant.program.program_id
-
-    ) {
-
-        throw new Error(
-
-            `Participant is not registered for Program '${participant.program_code}'.`
-
-        )
-
-    }
-
-}
 // =====================================================
 // BUILD GENERATED TRAINING
 // =====================================================
 
 function buildGeneratedTraining(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        event:
+    event:
 
             participant.event,
 
-        occurrence:
+    occurrence:
 
             participant.occurrence,
 
-        program:
+    program:
 
             participant.program,
 
-        participant:
+    participant:
 
             participant.participant,
 
-        registration:
+    registration:
 
             participant.registration,
 
-        trainingResult:
+    trainingResult:
 
             participant.trainingResult,
 
-        event_id:
+    event_id:
 
             participant.event.id,
 
-        event_instance_id:
+    event_instance_id:
 
             participant.occurrence.id,
 
-        participant_instance_id:
+    participant_instance_id:
 
             participant.registration.id,
 
-        participant_ref_id:
+    participant_ref_id:
 
             participant.participant.id,
 
-        program_id:
+    program_id:
 
             participant.program.id,
 
-        training_date:
+    training_date:
 
             participant.training_date,
 
-        session_type:
+    session_type:
 
             participant.session_type,
 
-        distance_km:
+    distance_km:
 
             participant.distance_km ?? null,
 
-        start_time:
+    start_time:
 
             participant.start_time ?? null,
 
-        end_time:
+    end_time:
 
             participant.end_time ?? null,
 
-        indoor_session:
+    indoor_session:
 
             participant.indoor_session ?? false,
 
-        notes:
+    notes:
 
             participant.notes ?? null
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1195,16 +930,61 @@ function buildGeneratedTraining(
 
 function buildTrainingCommitObject(
 
-    participant
+  participant
 
 ) {
+  const participantTypeCode =
+    String(participant.participant_type_code || '').trim().toUpperCase()
+  const sourceId = participant.participant.source_id ?? null
+  const result = participant.trainingResult
 
-    return buildCommitObject(
+  return {
 
-        participant.generated
+    event_id: participant.event.id,
 
-    )
+    event_instance_id: participant.occurrence.id,
 
+    participant_instance_id: participant.registration.id,
+
+    participant_id: null,
+
+    program_id: participant.program.id,
+
+    athlete_id:
+      participantTypeCode === 'ATHLETE' ? sourceId : null,
+
+    team_id:
+      participantTypeCode === 'TEAM' ? sourceId : null,
+
+    town_id: participant.occurrence.town_id ?? null,
+
+    training_date: participant.training_date,
+
+    session_type: participant.session_type,
+
+    distance_km: participant.distance_km ?? null,
+
+    start_time: participant.start_time || null,
+
+    end_time: participant.end_time || null,
+
+    indoor_session: participant.indoor_session ?? false,
+
+    notes: participant.notes ?? null,
+
+    attendance: result.attendance,
+
+    attendance_status_id: result.attendanceStatus?.id ?? null,
+
+    outcome_status_id: result.outcomeStatus?.id ?? null,
+
+    present: result.present,
+
+    participated: result.participated,
+
+    absent: result.absent
+
+  }
 }
 
 // =====================================================
@@ -1213,42 +993,40 @@ function buildTrainingCommitObject(
 
 function buildTrainingIdentity(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        eventCode:
+    eventCode:
 
             participant.event_code,
 
-        eventArea:
+    eventArea:
 
             participant.event_area,
 
-        programCode:
+    programCode:
 
             participant.program_code,
 
-        participantType:
+    participantType:
 
             participant.participant_type_code,
 
-        participantCode:
+    participantCode:
 
             participant.participant_code,
 
-        trainingDate:
+    trainingDate:
 
             participant.training_date,
 
-        sessionType:
+    sessionType:
 
             participant.session_type
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1257,38 +1035,36 @@ function buildTrainingIdentity(
 
 function buildTrainingRecord(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        operation:
+    operation:
 
             null,
 
-        identity:
+    identity:
 
             buildTrainingIdentity(
 
-                participant
+              participant
 
             ),
 
-        data:
+    data:
 
             participant.commit,
 
-        source:
+    source:
 
             participant.source,
 
-        resolved:
+    resolved:
 
             participant
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1297,68 +1073,66 @@ function buildTrainingRecord(
 
 export function buildCommitPlan(
 
-    resolvedImport = {}
+  resolvedImport = {}
 
 ) {
+  return {
 
-    return {
+    stages: [
 
-        stages: [
+      {
 
-            {
-
-                name:
+        name:
 
                     'Training Logs',
 
-                operations: [
+        operations: [
 
-                    {
+          {
 
-                        table:
+            table:
 
                             'training_log',
 
-                        operation:
+            operation:
 
-                            null,
+                            'upsert',
 
-                        keyField:
+            conflictColumn:
 
-                            'training_id',
+                            'event_instance_id,program_id,participant_instance_id,training_date,session_type',
 
-                        records:
+            records:
 
                             resolvedImport.rows.map(
 
-                                row =>
+                              row =>
 
-                                    row.record.data
+                                row.record.data
 
                             ),
 
-                        options: {
+            options: {
 
-                            continueOnError:
+              continueOnError:
 
                                 false,
 
-                            returning:
+              returning:
 
                                 true
 
-                        }
-
-                    }
-
-                ]
-
             }
+
+          }
 
         ]
 
-    }
+      }
 
+    ]
+
+  }
 }
 
 // =====================================================
@@ -1367,16 +1141,14 @@ export function buildCommitPlan(
 
 export function buildTrainingPreview(
 
-    resolvedImport = {}
+  resolvedImport = {}
 
 ) {
+  return buildPreview(
 
-    return buildPreview(
+    resolvedImport
 
-        resolvedImport
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -1385,20 +1157,18 @@ export function buildTrainingPreview(
 
 export function buildTrainingSummary(
 
-    report = {}
+  report = {}
 
 ) {
+  return buildSummary({
 
-    return buildSummary({
-
-        module:
+    module:
 
             'Training Import',
 
-        ...report
+    ...report
 
-    })
-
+  })
 }
 // =====================================================
 // DOWNLOAD IMPORT PACKAGE
@@ -1406,20 +1176,18 @@ export function buildTrainingSummary(
 
 export async function downloadTrainingPackage(
 
-    report = {}
+  report = {}
 
 ) {
+  return downloadFullPackage({
 
-    return downloadFullPackage({
-
-        module:
+    module:
 
             'Training Import',
 
-        ...report
+    ...report
 
-    })
-
+  })
 }
 
 // =====================================================
@@ -1428,180 +1196,176 @@ export async function downloadTrainingPackage(
 
 export async function executeTrainingImport({
 
-    file
+  file
 
 }) {
-
-    const pipeline =
+  const pipeline =
 
         await process({
 
-            file,
+          file,
 
-            validator:
+          validator:
 
                 validateTrainingLogs,
 
-            resolver:
+          resolver:
 
                 resolveTrainingLogs,
 
-            commitPlanBuilder:
+          commitPlanBuilder:
 
                 buildCommitPlan
 
         })
 
-    if (
+  if (
 
-        !pipeline.validated.success
+    !pipeline.validated.success
 
-    ) {
+  ) {
+    return finish({
 
-        return finish({
-
-            success:
+      success:
 
                 false,
 
-            preview:
+      preview:
 
                 buildTrainingPreview(
 
-                    pipeline.validated
+                  pipeline.validated
 
                 ),
 
-            summary:
+      summary:
 
                 buildTrainingSummary({
 
-                    summary: {
+                  summary: {
 
-                        totalRows:
+                    totalRows:
 
                             pipeline.normalized.totalRows,
 
-                        importedRows:
+                    importedRows:
 
                             0,
 
-                        warningRows:
+                    warningRows:
 
                             pipeline.validated.warnings.length,
 
-                        errorRows:
+                    errorRows:
 
                             pipeline.validated.errors.length
 
-                    },
+                  },
 
-                    errors:
+                  errors:
 
                         pipeline.validated.errors,
 
-                    warnings:
+                  warnings:
 
                         pipeline.validated.warnings
 
                 })
 
-        })
+    })
+  }
 
-    }
-
-    const commitResult =
+  const commitResult =
 
         await commit(
 
-            pipeline.commitPlan
+          pipeline.commitPlan
 
         )
 
-    return finish({
+  return finish({
 
-        success:
+    success:
 
             commitResult.success,
 
-        preview:
+    preview:
 
             buildTrainingPreview(
 
-                pipeline.resolved
+              pipeline.resolved
 
             ),
 
-        summary:
+    summary:
 
             buildTrainingSummary({
 
-                summary: {
+              summary: {
 
-                    totalRows:
+                totalRows:
 
                         pipeline.normalized.totalRows,
 
-                    importedRows:
+                importedRows:
 
                         commitResult.committed,
 
-                    warningRows:
+                warningRows:
 
                         commitResult.errors.length,
 
-                    errorRows:
+                errorRows:
 
                         commitResult.failed
 
-                },
+              },
 
-                errors:
+              errors:
 
                     commitResult.errors,
 
-                warnings:
+              warnings:
 
                     []
 
             }),
 
-        download:
+    download:
 
             await downloadTrainingPackage({
 
-                summary: {
+              summary: {
 
-                    totalRows:
+                totalRows:
 
                         pipeline.normalized.totalRows,
 
-                    importedRows:
+                importedRows:
 
                         commitResult.committed,
 
-                    warningRows:
+                warningRows:
 
                         commitResult.errors.length,
 
-                    errorRows:
+                errorRows:
 
                         commitResult.failed
 
-                },
+              },
 
-                errors:
+              errors:
 
                     commitResult.errors,
 
-                warnings:
+              warnings:
 
                     []
 
             })
 
-    })
-
+  })
 }
 
 // =====================================================
@@ -1610,16 +1374,13 @@ export async function executeTrainingImport({
 
 export async function importTrainingLog(
 
-    file
+  file
 
 ) {
+  return executeTrainingImport({
 
-    return executeTrainingImport({
+    file
 
-        file
-
-    })
-
+  })
 }
-
 

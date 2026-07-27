@@ -53,10 +53,6 @@ export function setItem({
 
     return true
   } catch (error) {
-    console.error(
-      'Storage Error:',
-      error
-    )
 
     return false
   }

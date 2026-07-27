@@ -16,9 +16,10 @@ import {
 }
   from './exportConstants.js'
 
-const { ExcelJS } = window
-
-const { saveAs } = window
+import {
+  ensureExcelJs,
+  ensureFileSaver
+} from './exportDependencies.js'
 
 // =====================================================
 // SAVE TEMPLATE
@@ -31,6 +32,9 @@ async function saveTemplate({
   reportName
 
 }) {
+  const saveAs =
+    await ensureFileSaver()
+
   const buffer =
     await workbook.xlsx.writeBuffer()
 
@@ -296,6 +300,8 @@ export async function downloadImportTemplate({
   lookups = []
 
 }) {
+  await ensureExcelJs()
+
   const workbook =
     createWorkbook(
       reportName
@@ -346,6 +352,58 @@ export async function downloadImportTemplate({
     reportName:
       `${reportName}_Template`
 
+  })
+}
+
+export async function downloadTemplate(
+  template = {}
+) {
+  const headers = template.headers || []
+  const required = new Set(template.requiredColumns || [])
+
+  const columns = headers.map(
+    (header, index) => {
+      if (
+        typeof header === 'object' &&
+        header !== null
+      ) {
+        return {
+          key: header.key || `column_${index + 1}`,
+          label: header.label || header.title || header.key || `Column ${index + 1}`,
+          required: Boolean(header.required)
+        }
+      }
+
+      return {
+        key: String(header),
+        label: String(header),
+        required:
+          required.has(header) ||
+          required.has(index + 1)
+      }
+    }
+  )
+
+  const instructionPackage =
+    template.instructions || []
+
+  const instructions =
+    Array.isArray(instructionPackage) ?
+      instructionPackage :
+      (instructionPackage.instructions || [])
+
+  return downloadImportTemplate({
+    reportName: template.title || 'Import',
+    sheetName: template.worksheet || 'Import',
+    columns,
+    sampleRows: template.sampleRows || [],
+    instructions,
+    lookups: (template.lookupSheets || []).map(
+      lookup => ({
+        sheetName: lookup.sheetName || lookup.name || 'Lookup',
+        values: lookup.values || []
+      })
+    )
   })
 }
 

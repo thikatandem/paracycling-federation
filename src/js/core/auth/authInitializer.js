@@ -7,10 +7,6 @@ import {
 }
   from '../rolePages/sidebarRenderer.js'
 import {
-  initializeProfilePhotoUpload
-}
-  from '../profile/profilePhotoService.js'
-import {
   initializeProfileHeader
 }
   from './profileHeaderService.js'
@@ -23,7 +19,8 @@ import {
 
 import {
   initializeAuth,
-  initializeAuthListener
+  initializeAuthListener,
+  getCurrentUser
 }
   from './authService.js'
 
@@ -32,24 +29,79 @@ import {
 }
   from './sessionService.js'
 
+const SIDEBAR_SHELL_CACHE_KEY =
+  'thika-tandem.sidebar-shell.v1'
+
 let initialized =
   false
 
-export async function initializeAuthentication() {
+let initializationPromise =
+  null
+
+function revealSidebarNavigation() {
+  const container =
+    document.getElementById(
+      'roleSidebar'
+    )
+
+  if (container) {
+    container.style.visibility =
+      'visible'
+  }
+}
+
+function restoreDefaultSidebar() {
+  const container =
+    document.getElementById(
+      'roleSidebar'
+    )
+
+  const defaultHtml =
+    window.__defaultRoleSidebarHtml
+
   if (
-    initialized
+    container &&
+    typeof defaultHtml === 'string'
+  ) {
+    container.innerHTML =
+      defaultHtml
+  }
+}
+
+function cacheSidebarForCurrentUser() {
+  const container =
+    document.getElementById(
+      'roleSidebar'
+    )
+
+  const user =
+    getCurrentUser()
+
+  if (
+    !container ||
+    !user?.id
   ) {
     return
   }
 
-  initialized =
-    true
+  try {
+    sessionStorage.setItem(
+      SIDEBAR_SHELL_CACHE_KEY,
+      JSON.stringify({
+        userId:
+          user.id,
+        html:
+          container.innerHTML,
+        cachedAt:
+          Date.now()
+      })
+    )
+  } catch {
+    // Sidebar caching is a visual optimization only.
+  }
+}
 
-  console.log(
-    'supabase client:',
-    window.supabaseClient
-  )
-
+async function runInitialization() {
   await initializeAuth()
 
   initializeAuthListener()
@@ -59,26 +111,20 @@ export async function initializeAuthentication() {
   preventBackNavigation()
 
   const sidebar =
-  getRoleSidebar()
+    getRoleSidebar()
 
-  if (
-    sidebar
-  ) {
+  if (sidebar) {
     renderSidebar(
       sidebar
     )
+  } else {
+    restoreDefaultSidebar()
   }
 
-  initializeProfileHeader()
+  cacheSidebarForCurrentUser()
+  revealSidebarNavigation()
 
-  document
-    .getElementById(
-      'sidebar'
-    )
-    ?.classList
-    .remove(
-      'd-none'
-    )
+  initializeProfileHeader()
 
   const isAuthPage =
     window.location.pathname.includes(
@@ -89,5 +135,27 @@ export async function initializeAuthentication() {
     !isAuthPage
   ) {
     requireAuthentication()
+  }
+}
+
+export async function initializeAuthentication() {
+  if (initialized) {
+    return
+  }
+
+  if (initializationPromise) {
+    return initializationPromise
+  }
+
+  initializationPromise =
+    runInitialization()
+
+  try {
+    await initializationPromise
+    initialized =
+      true
+  } finally {
+    initializationPromise =
+      null
   }
 }

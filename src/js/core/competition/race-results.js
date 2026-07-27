@@ -1,11 +1,100 @@
-﻿/* global coreui */
-/* eslint camelcase: 0 */
-/* eslint-disable no-console */
+import {
+  getProgramsForOccurrence
+} from '../programs/programService.js'
 
-const PAGE_SIZE = 10
+/* eslint camelcase: 0 */
+import {
+  createLocationFormLoaders } from '../services/locationLookupService.js'
+import { createTrainingMetricCalculators } from '../services/calculationService.js'
+import { createSimplePaginationUpdater } from '../services/paginationService.js'
+import { createDualFeedbackController } from '../services/feedbackService.js'
+import { createLoadingController } from '../services/uiService.js'
+import { getInputValue as getValue,
+  setStringValue as setValue } from '../services/domService.js'
+import { PAGE_SIZE,
+  ERROR_TIMEOUT,
+  SUCCESS_TIMEOUT
+} from '../services/constants.js'
+import { getDb } from '../supabase/getDb.js'
+import { ensureUniqueActivityRecord } from '../services/activityRecordService.js'
+import { createModal,
+  showModal,
+  hideModal
+} from '../services/modalService.js'
+const {
+  loadCounties,
+  loadSubcounties,
+  loadTowns
+} = createLocationFormLoaders({
+  onCounties: data => {
+    counties = data
+  },
+  onSubcounties: data => {
+    subcounties = data
+  },
+  onTowns: data => {
+    towns = data
+  }
+})
+
+const {
+  calculateDuration,
+  calculateAverageSpeed
+} = createTrainingMetricCalculators({
+  getValue,
+  setValue
+})
+
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'competitionResultLoading'
+)
+
+const formFeedback =
+  createDualFeedbackController({
+    errorContainerId:
+      'competitionResultFormError',
+    successContainerId:
+      'trainingFormSuccess',
+    errorOptions: {
+      timeout: ERROR_TIMEOUT
+    },
+    successOptions: {
+      timeout: SUCCESS_TIMEOUT
+    }
+  })
+
+const showError =
+  formFeedback.error
+    .bind(formFeedback)
+
+const showSuccess =
+  formFeedback.success
+    .bind(formFeedback)
+
+const clearError =
+  formFeedback.clearError
+    .bind(formFeedback)
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredcompetitionResults.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 const db =
-  window.supabaseClient
+  getDb()
 
 let competitionResults = []
 
@@ -56,19 +145,7 @@ const paginationInfo =
     'paginationInfo'
   )
 
-function showLoading() {
-  competitionResultLoading
-    ?.classList.remove(
-      'd-none'
-    )
-}
 
-function hideLoading() {
-  competitionResultLoading
-    ?.classList.add(
-      'd-none'
-    )
-}
 
 async function loadAttendanceStatuses() {
   const {
@@ -174,174 +251,12 @@ async function loadOutcomeStatuses() {
   }
 }
 
-function showError(message) {
-  if (
-    !competitionResultFormError
-  ) {
-    return
-  }
 
-  competitionResultFormError.textContent =
-    message
 
-  competitionResultFormError.classList.remove(
-    'd-none'
-  )
 
-  setTimeout(
-    () => {
-      competitionResultFormError.classList.add(
-        'd-none'
-      )
-    },
-    5000
-  )
-}
 
-function showSuccess(message) {
-  const successBox =
-    document.getElementById(
-      'trainingFormSuccess'
-    )
 
-  if (
-    successBox
-  ) {
-    successBox.textContent =
-      message
 
-    successBox.classList.remove(
-      'd-none'
-    )
-
-    setTimeout(
-      () => {
-        successBox.classList.add(
-          'd-none'
-        )
-      },
-      3000
-    )
-  }
-}
-
-function clearError() {
-  if (
-    competitionResultFormError
-  ) {
-    competitionResultFormError.textContent = ''
-  }
-}
-
-function getValue(id) {
-  return (
-    document.getElementById(id)
-      ?.value || ''
-  )
-}
-
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(id)
-
-  if (!element) {
-    return
-  }
-
-  element.value =
-    value === null ||
-    value === undefined ?
-      '' :
-      String(value)
-}
-
-function calculateDuration() {
-  const start =
-    getValue(
-      'startTime'
-    )
-
-  const end =
-    getValue(
-      'endTime'
-    )
-
-  if (
-    !start ||
-    !end
-  ) {
-    return
-  }
-
-  const startDate =
-    new Date(
-      `1970-01-01T${start}`
-    )
-
-  const endDate =
-    new Date(
-      `1970-01-01T${end}`
-    )
-
-  const minutes =
-    Math.round(
-      (
-        endDate -
-        startDate
-      ) / 60000
-    )
-
-  if (
-    minutes >= 0
-  ) {
-    setValue(
-      'durationMinutes',
-      minutes
-    )
-
-    calculateAverageSpeed()
-  }
-}
-
-function calculateAverageSpeed() {
-  const distance =
-    Number(
-      getValue(
-        'distanceKm'
-      )
-    )
-
-  const duration =
-    Number(
-      getValue(
-        'durationMinutes'
-      )
-    )
-
-  if (
-    !distance ||
-    !duration
-  ) {
-    setValue(
-      'avgSpeedKmh',
-      ''
-    )
-
-    return
-  }
-
-  const speed =
-    distance /
-    (duration / 60)
-
-  setValue(
-    'avgSpeedKmh',
-    speed.toFixed(2)
-  )
-}
 
 async function loadCompetitionEvents() {
   const {
@@ -427,9 +342,7 @@ async function loadCompetitionEvents() {
 async function loadPrograms(
   occurrenceId
 ) {
-  if (
-    !occurrenceId
-  ) {
+  if (!occurrenceId) {
     programs = []
 
     const select =
@@ -437,9 +350,7 @@ async function loadPrograms(
         'programId'
       )
 
-    if (
-      select
-    ) {
+    if (select) {
       select.innerHTML =
         `
           <option value="">
@@ -451,61 +362,17 @@ async function loadPrograms(
     return
   }
 
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'participant_instances'
-      )
-      .select(`
-        program_id,
-
-        program_master(
-          program_id,
-          program_name
-        )
-      `)
-      .eq(
-        'event_instance_id',
-        occurrenceId
-      )
-
-  if (
-    error
-  ) {
-    throw error
-  }
-
-  const uniquePrograms =
-    [
-      ...new Map(
-
-        (data || []).map(
-          row => [
-
-            row.program_id,
-
-            row.program_master
-
-          ]
-        )
-
-      ).values()
-    ]
-
   programs =
-    uniquePrograms
+    await getProgramsForOccurrence(
+      occurrenceId
+    )
 
   const select =
     document.getElementById(
       'programId'
     )
 
-  if (
-    !select
-  ) {
+  if (!select) {
     return
   }
 
@@ -830,162 +697,8 @@ attendanceStatuses.find(
   }
 }
 
-async function loadCounties() {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'county_master'
-      )
-      .select(`
-        county_id,
-        county_name
-      `)
-      .order(
-        'county_name'
-      )
 
-  if (error) {
-    throw error
-  }
 
-  counties =
-    data || []
-
-  const select =
-    document.getElementById(
-      'countyId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-    <option value="">
-      Select County
-    </option>
-    `
-
-  for (const county of counties) {
-    select.innerHTML += `
-        <option
-          value="${county.county_id}"
-        >
-          ${county.county_name}
-        </option>
-      `
-  }
-}
-
-async function loadSubcounties(
-  countyId
-) {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'subcounty_master'
-      )
-      .select(`
-        subcounty_id,
-        subcounty_name
-      `)
-      .eq(
-        'county_id',
-        countyId
-      )
-      .order(
-        'subcounty_name'
-      )
-
-  if (error) {
-    throw error
-  }
-
-  subcounties =
-    data || []
-
-  const select =
-    document.getElementById(
-      'subcountyId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-    <option value="">
-      Select Subcounty
-    </option>
-    `
-
-  for (const subcounty of subcounties) {
-    select.innerHTML += `
-        <option
-          value="${subcounty.subcounty_id}"
-        >
-          ${subcounty.subcounty_name}
-        </option>
-      `
-  }
-}
-
-async function loadTowns(
-  subcountyId
-) {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'town_master'
-      )
-.select(`
-  town_id,
-  town_name,
-  subcounty_id
-`)
-.eq(
-  'subcounty_id',
-  subcountyId
-)
-.order(
-  'town_name'
-)
-
-  if (error) {
-    throw error
-  }
-
-  towns =
-    data || []
-
-  const datalist =
-    document.getElementById(
-      'townList'
-    )
-
-  if (!datalist) {
-    return
-  }
-
-  datalist.innerHTML = ''
-
-  for (const town of towns) {
-    datalist.innerHTML += `
-        <option value="${town.town_name}">
-      `
-  }
-}
 
 async function loadcompetitionResults() {
   try {
@@ -1070,9 +783,6 @@ async function loadcompetitionResults() {
 
     rendercompetitionResults()
   } catch (error) {
-    console.error(
-      error
-    )
 
     showError(
       'Failed to load competition results'
@@ -1084,7 +794,7 @@ async function loadcompetitionResults() {
 
 function rendercompetitionResults() {
   if (
-    !trainingTableBody
+    !competitionResultTableBody
   ) {
     return
   }
@@ -1103,13 +813,13 @@ function rendercompetitionResults() {
       end
     )
 
-  trainingTableBody.innerHTML =
+  competitionResultTableBody.innerHTML =
     ''
 
   if (
     pageRows.length === 0
   ) {
-    trainingTableBody.innerHTML =
+    competitionResultTableBody.innerHTML =
       `
       <tr>
         <td
@@ -1252,47 +962,6 @@ function rendercompetitionResults() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredcompetitionResults.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
 
 function searchcompetitionResults() {
   const search =
@@ -1472,11 +1141,7 @@ function openNewTrainingModal() {
   clearTrainingForm()
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'competitionResultModal'
-      )
-    )
+    createModal('competitionResultModal')
 
   modal.show()
 }
@@ -1491,6 +1156,30 @@ function validateTraining() {
   ) {
     showError(
       'Competition Date is required'
+    )
+
+    return false
+  }
+
+  if (
+    !getValue(
+      'eventId'
+    )
+  ) {
+    showError(
+      'Competition Event is required'
+    )
+
+    return false
+  }
+
+  if (
+    !getValue(
+      'eventInstanceId'
+    )
+  ) {
+    showError(
+      'Event Occurrence is required'
     )
 
     return false
@@ -1689,7 +1378,31 @@ async function saveCompetitionResult() {
       )
     }
 
+    const eventId =
+      getValue(
+        'eventId'
+      )
+
+    const eventInstanceId =
+      getValue(
+        'eventInstanceId'
+      )
+
+    const programId =
+      getValue(
+        'programId'
+      )
+
     const payload = {
+
+      event_id:
+        eventId,
+
+      event_instance_id:
+        eventInstanceId,
+
+      program_id:
+        programId,
 
       participant_instance_id:
         participant.participant_instance_id,
@@ -1724,14 +1437,18 @@ async function saveCompetitionResult() {
         ),
 
       start_time:
-        getValue(
-          'startTime'
-        ),
+        metricsAllowed ?
+          getValue(
+            'startTime'
+          ) || null :
+          null,
 
       end_time:
-        getValue(
-          'endTime'
-        ),
+        metricsAllowed ?
+          getValue(
+            'endTime'
+          ) || null :
+          null,
 
       session_type:
         getValue(
@@ -1800,7 +1517,8 @@ async function saveCompetitionResult() {
           )
         ) || 0,
 
-      attendance: true,
+      attendance:
+        metricsAllowed,
 
       attendance_status_id:
         getValue(
@@ -1828,6 +1546,18 @@ async function saveCompetitionResult() {
       getValue(
         'resultId'
       )
+
+    await ensureUniqueActivityRecord({
+      table: 'race_results',
+      idColumn: 'result_id',
+      currentId: resultId || null,
+      eventInstanceId,
+      programId,
+      participantInstanceId: participant.participant_instance_id,
+      dateColumn: 'competition_date',
+      dateValue: getValue('competitionDate'),
+      sessionType: getValue('sessionType')
+    })
 
     let error
 
@@ -1877,13 +1607,9 @@ async function saveCompetitionResult() {
       'rebuild_competition_rankings'
     )
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'competitionResultModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'competitionResultModal'
+    )
 
     await loadcompetitionResults()
 
@@ -1901,9 +1627,6 @@ async function saveCompetitionResult() {
     error
   ) {
 
-    console.error(
-      error
-    )
 
     showError(
       error.message ||
@@ -2129,11 +1852,7 @@ async function (
     competitionResult.notes
   )
 
-  new coreui.Modal(
-    document.getElementById(
-      'competitionResultModal'
-    )
-  ).show()
+  showModal('competitionResultModal')
 
 }
 
@@ -2148,11 +1867,7 @@ function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deleteCompetitionResultModal'
-      )
-    )
+    createModal('deleteCompetitionResultModal')
 
   modal.show()
 }
@@ -2225,21 +1940,14 @@ async function deleteCompetitionResult() {
       'rebuild_competition_rankings'
     )
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'deleteCompetitionResultModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'deleteCompetitionResultModal'
+    )
 
     await loadcompetitionResults()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -2710,9 +2418,6 @@ async function initializecompetitionResults() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message

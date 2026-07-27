@@ -62,7 +62,7 @@
     "css-prefix": "postcss --config build/postcss.config.mjs --replace \"dist/css/*.css\" \"!dist/css/*.min.css\"",
     "js": "npm-run-all --parallel js-compile* ",
     "js-compile": "cross-env babel src/js/ --out-dir dist/js/ --source-maps",
-    "js-lint": "eslint --cache --cache-location .cache/.eslintcache --report-unused-disable-directives",
+    "js-lint": "eslint --cache --cache-location .cache/.eslintcache",
     "localhost": "browser-sync start --server \"./dist\" --serveStatic \"./\" --files \"./dist/\"",
     "pug": "node build/pug.mjs",
     "serve": "serve dist",

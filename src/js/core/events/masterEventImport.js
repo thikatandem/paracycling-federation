@@ -1,80 +1,61 @@
-﻿// =====================================================
+// =====================================================
 // MASTER EVENT IMPORT
 // ParaCycling Federation Management System
 // =====================================================
 
 import {
 
-    process,
+  process,
 
-    commit,
+  commit,
 
-    finish
+  finish
 
 }
 
-from '../import/importService.js'
+  from '../import/importService.js'
 
 import {
 
-    begin
+  buildPreview
 
 }
 
-from '../import/commitImporter.js'
+  from '../import/previewImporter.js'
 
 import {
 
-    buildPreview
+  buildSummary,
+
+  downloadFullPackage
 
 }
 
-from '../import/previewImporter.js'
-
-import {
-
-    buildSummary,
-
-    downloadFullPackage
-
-}
-
-from '../import/importErrors.js'
-
-import {
-
-    buildCommitObject
-
-}
-
-from '../import/importHelpers.js'
+  from '../import/importErrors.js'
 
 import * as lookup
 
-from '../import/lookupResolver.js'
-
-
-
+  from '../import/lookupResolver.js'
 
 const MASTER_EVENT_FIELDS = Object.freeze({
 
-    EVENT_NAME:
+  EVENT_NAME:
 
         'event_name',
 
-    CATEGORY_CODE:
+  CATEGORY_CODE:
 
         'event_category_code',
 
-    TYPE_CODE:
+  TYPE_CODE:
 
         'event_type_code',
 
-    MASTER_STATUS_CODE:
+  MASTER_STATUS_CODE:
 
         'event_master_status_code',
 
-    NOTES:
+  NOTES:
 
         'notes'
 
@@ -86,64 +67,62 @@ const MASTER_EVENT_FIELDS = Object.freeze({
 
 export async function importMasterEvents(
 
-    file
+  file
 
 ) {
-
-    const pipeline =
+  const pipeline =
 
         await process({
 
-            file,
+          file,
 
-            validator:
+          validator:
 
                 validateMasterEvents,
 
-            resolver:
+          resolver:
 
                 resolveMasterEvents,
 
-            commitPlanBuilder:
+          commitPlanBuilder:
 
                 buildCommitPlan
 
         })
 
-    return {
+  return {
 
-        stage:
+    stage:
 
             'preview',
 
-        summary:
+    summary:
 
             pipeline.resolved.summary,
 
-        preview:
+    preview:
 
             pipeline.resolved.preview,
 
-        errors:
+    errors:
 
             pipeline.resolved.errors,
 
-        hasErrors:
+    hasErrors:
 
             pipeline.resolved.hasErrors,
 
-        approve:
+    approve:
 
             async () =>
 
-                approveMasterEvents(
+              approveMasterEvents(
 
-                    pipeline
+                pipeline
 
-                )
+              )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -152,69 +131,59 @@ export async function importMasterEvents(
 
 async function approveMasterEvents(
 
-    pipeline
+  pipeline
 
 ) {
-
-if (
+  if (
 
     pipeline.resolved.hasErrors
 
-) {
-
+  ) {
     throw new Error(
 
-        'Cannot commit while validation errors exist.'
+      'Cannot commit while validation errors exist.'
 
     )
+  }
 
-}
-    const context =
-
-        begin()
-
-    const committed =
+  const committed =
 
         await commit(
 
-            context,
-
-            pipeline.commitPlan
+          pipeline.commitPlan
 
         )
 
-    const finished =
+  const finished =
 
         finish(
 
-            committed
+          committed
 
         )
 
-    return {
+  return {
 
-        ...finished,
+    ...finished,
 
-        summary:
+    summary:
 
             buildSummary(
 
-                finished
+              finished
 
             ),
 
-        downloads:
+    downloads:
 
             await downloadFullPackage(
 
-                finished
+              finished
 
             )
 
-    }
-
+  }
 }
-
 
 // =====================================================
 // VALIDATE MASTER EVENTS
@@ -234,62 +203,60 @@ if (
 
 export async function validateMasterEvents(
 
-    importData,
+  importData,
 
-    validation
+  validation
 
 ) {
+  const errors = []
 
-    const errors = []
+  validateRequiredFields(
 
-    validateRequiredFields(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateEventNames(
 
-    validateEventNames(
+    importData,
 
-        importData,
+    errors
 
-        errors
+  )
 
-    )
+  validateCodeFormats(
 
-    validateCodeFormats(
+    importData,
 
-        importData,
+    errors
 
-        errors
+  )
 
-    )
+  validateDuplicateMasterEvents(
 
-    validateDuplicateMasterEvents(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  return {
 
-    return {
+    ...importData,
 
-        ...importData,
-
-        valid:
+    valid:
 
             errors.length === 0,
 
-        errors
+    errors
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -298,118 +265,110 @@ export async function validateMasterEvents(
 
 function validateRequiredFields(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
+  const requiredFields = [
 
-    const requiredFields = [
+    [
 
-        [
+      MASTER_EVENT_FIELDS.EVENT_NAME,
 
-            MASTER_EVENT_FIELDS.EVENT_NAME,
+      'Event Name'
 
-            'Event Name'
+    ],
 
-        ],
+    [
 
-        [
+      MASTER_EVENT_FIELDS.CATEGORY_CODE,
 
-            MASTER_EVENT_FIELDS.CATEGORY_CODE,
+      'Event Category Code'
 
-            'Event Category Code'
+    ],
 
-        ],
+    [
 
-        [
+      MASTER_EVENT_FIELDS.TYPE_CODE,
 
-            MASTER_EVENT_FIELDS.TYPE_CODE,
+      'Event Type Code'
 
-            'Event Type Code'
+    ],
 
-        ],
+    [
 
-        [
+      MASTER_EVENT_FIELDS.MASTER_STATUS_CODE,
 
-            MASTER_EVENT_FIELDS.MASTER_STATUS_CODE,
-
-            'Event Master Status Code'
-
-        ]
+      'Event Master Status Code'
 
     ]
 
+  ]
+
+  for (
+
+    const [
+
+      rowIndex,
+
+      row
+
+    ]
+
+    of (
+
+      importData.objects || []
+
+    ).entries()
+
+  ) {
     for (
 
-        const [
+      const [
 
-            rowIndex,
+        field,
 
-            row
+        label
 
-        ]
+      ]
 
-        of (
-
-            importData.objects || []
-
-        ).entries()
+      of requiredFields
 
     ) {
-
-        for (
-
-            const [
-
-                field,
-
-                label
-
-            ]
-
-            of requiredFields
-
-        ) {
-
-            const result =
+      const result =
 
                 validation.validateRequired(
 
-                    row[field],
+                  row[field],
 
-                    label
+                  label
 
                 )
 
-            if (
+      if (
 
-                !result.valid
+        !result.valid
 
-            ) {
+      ) {
+        errors.push({
 
-                errors.push({
-
-                    row:
+          row:
 
                         rowIndex + 1,
 
-                    field,
+          field,
 
-                    message:
+          message:
 
                         result.message
 
-                })
-
-            }
-
-        }
-
+        })
+      }
     }
-
+  }
 }
 
 // =====================================================
@@ -418,66 +377,60 @@ function validateRequiredFields(
 
 function validateEventNames(
 
-    importData,
+  importData,
 
-    errors
+  errors
 
 ) {
+  for (
 
-    for (
+    const [
 
-        const [
+      rowIndex,
 
-            rowIndex,
+      row
 
-            row
+    ]
 
-        ]
+    of (
 
-        of (
+      importData.objects || []
 
-            importData.objects || []
+    ).entries()
 
-        ).entries()
-
-    ) {
-
-        const name =
+  ) {
+    const name =
 
             String(
 
-                row.event_name ||
+              row.event_name ||
 
                 ''
 
             ).trim()
 
-        if (
+    if (
 
-            name.length < 3
+      name.length < 3
 
-        ) {
+    ) {
+      errors.push({
 
-            errors.push({
-
-                row:
+        row:
 
                     rowIndex + 1,
 
-                field:
+        field:
 
                     'event_name',
 
-                message:
+        message:
 
                     'Event Name must contain at least 3 characters.'
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
 
 // =====================================================
@@ -486,57 +439,54 @@ function validateEventNames(
 
 function validateCodeFormats(
 
-    importData,
+  importData,
 
-    errors
+  errors
 
 ) {
+  const codeFields = [
 
-    const codeFields = [
+    MASTER_EVENT_FIELDS.CATEGORY_CODE,
 
-        MASTER_EVENT_FIELDS.CATEGORY_CODE,
+    MASTER_EVENT_FIELDS.TYPE_CODE,
 
-        MASTER_EVENT_FIELDS.TYPE_CODE,
+    MASTER_EVENT_FIELDS.MASTER_STATUS_CODE
 
-        MASTER_EVENT_FIELDS.MASTER_STATUS_CODE
+  ]
 
-    ]
-
-    const pattern =
+  const pattern =
 
         /^[A-Z0-9_]+$/
 
+  for (
+
+    const [
+
+      rowIndex,
+
+      row
+
+    ]
+
+    of (
+
+      importData.objects || []
+
+    ).entries()
+
+  ) {
     for (
 
-        const [
+      const field
 
-            rowIndex,
-
-            row
-
-        ]
-
-        of (
-
-            importData.objects || []
-
-        ).entries()
+      of codeFields
 
     ) {
-
-        for (
-
-            const field
-
-            of codeFields
-
-        ) {
-
-            const value =
+      const value =
 
                 String(
 
-                    row[field] ||
+                  row[field] ||
 
                     ''
 
@@ -546,38 +496,33 @@ function validateCodeFormats(
 
                 .toUpperCase()
 
-            if (
+      if (
 
-                value &&
+        value &&
 
                 !pattern.test(
 
-                    value
+                  value
 
                 )
 
-            ) {
+      ) {
+        errors.push({
 
-                errors.push({
-
-                    row:
+          row:
 
                         rowIndex + 1,
 
-                    field,
+          field,
 
-                    message:
+          message:
 
                         `${field} contains invalid characters.`
 
-                })
-
-            }
-
-        }
-
+        })
+      }
     }
-
+  }
 }
 
 // =====================================================
@@ -586,44 +531,40 @@ function validateCodeFormats(
 
 function validateDuplicateMasterEvents(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
-
-    const duplicates =
+  const duplicates =
 
         validation.validateDuplicates(
 
-            importData.objects || [],
+          importData.objects || [],
 
-            [
+          [
 
-                MASTER_EVENT_FIELDS.EVENT_NAME,
+            MASTER_EVENT_FIELDS.EVENT_NAME,
 
-                MASTER_EVENT_FIELDS.TYPE_CODE
+            MASTER_EVENT_FIELDS.TYPE_CODE
 
-            ]
-
-        )
-
-    if (
-
-        !duplicates.valid
-
-    ) {
-
-        errors.push(
-
-            ...(duplicates.value || [])
+          ]
 
         )
 
-    }
+  if (
 
+    !duplicates.valid
+
+  ) {
+    errors.push(
+
+      ...(duplicates.value || [])
+
+    )
+  }
 }
 
 // =====================================================
@@ -632,28 +573,26 @@ function validateDuplicateMasterEvents(
 
 function normalizeEventName(
 
-    value
+  value
 
 ) {
+  return String(
 
-    return String(
-
-        value ||
+    value ||
 
         ''
 
-    )
+  )
 
         .trim()
 
         .replace(
 
-            /\s+/g,
+          /\s+/g,
 
-            ' '
+          ' '
 
         )
-
 }
 
 // =====================================================
@@ -662,33 +601,29 @@ function normalizeEventName(
 
 function normalizeCode(
 
-    value
+  value
 
 ) {
+  return String(
 
-    return String(
-
-        value ||
+    value ||
 
         ''
 
-    )
+  )
 
         .trim()
 
         .replace(
 
-            /\s+/g,
+          /\s+/g,
 
-            '_'
+          '_'
 
         )
 
         .toUpperCase()
-
 }
-
-
 
 // =====================================================
 // RESOLVE MASTER EVENTS
@@ -709,159 +644,150 @@ function normalizeCode(
 
 async function resolveMasterEvents(
 
-    validated
+  validated
 
 ) {
+  const resolved = []
 
-    const resolved = []
+  const errors = []
 
-    const errors = []
+  for (
 
-    for (
+    const [
 
-        const [
+      rowNumber,
 
-            rowNumber,
+      row
 
-            row
+    ]
 
-        ]
+    of (
 
-        of (
+      validated.objects || []
 
-            validated.objects || []
+    ).entries()
 
-        ).entries()
-
-    ) {
-
-        try {
-
-            const eventName =
+  ) {
+    try {
+      const eventName =
 
                 normalizeEventName(
 
-                    row.event_name
+                  row.event_name
 
                 )
 
-            const categoryCode =
+      const categoryCode =
 
                 normalizeCode(
 
-                    row.event_category_code
+                  row.event_category_code
 
                 )
 
-            const eventTypeCode =
+      const eventTypeCode =
 
                 normalizeCode(
 
-                    row.event_type_code
+                  row.event_type_code
 
                 )
 
-            const masterStatusCode =
+      const masterStatusCode =
 
                 normalizeCode(
 
-                    row.event_master_status_code
+                  row.event_master_status_code
 
                 )
 
-            const category =
+      const category =
 
                 requireLookup(
 
-                    await lookup.resolveCategoryCode(
+                  await lookup.resolveCategoryCode(
 
-                        categoryCode
+                    categoryCode
 
-                    ),
+                  ),
 
-                    categoryCode,
+                  categoryCode,
 
-                    'Event Category'
+                  'Event Category'
 
                 )
 
-            const eventType =
+      const eventType =
 
                 requireLookup(
 
-                    await lookup.resolveEventTypeCode(
+                  await lookup.resolveEventTypeCode(
 
-                        eventTypeCode
+                    eventTypeCode
 
-                    ),
+                  ),
 
-                    eventTypeCode,
+                  eventTypeCode,
 
-                    'Event Type'
+                  'Event Type'
 
                 )
 
-            const eventMasterStatus =
+      const eventMasterStatus =
 
                 requireLookup(
 
-                    await lookup.resolveEventMasterStatusCode(
+                  await lookup.resolveEventMasterStatusCode(
 
-                        masterStatusCode
+                    masterStatusCode
 
-                    ),
+                  ),
 
-                    masterStatusCode,
+                  masterStatusCode,
 
-                    'Event Master Status'
+                  'Event Master Status'
 
                 )
 
-           resolved.push(
+      resolved.push(
 
-    buildMasterEvent(
+        buildMasterEvent(
 
-        row,
+          row,
 
-        category,
+          category,
 
-        eventType,
+          eventType,
 
-        eventMasterStatus
+          eventMasterStatus
 
-    )
+        )
 
-)
+      )
+    } catch (
 
-        }
+      error
 
-        catch (
+    ) {
+      errors.push({
 
-            error
-
-        ) {
-
-            errors.push({
-
-                row:
+        row:
 
                     rowNumber + 1,
 
-                event:
+        event:
 
                     row.event_name,
 
-                message:
+        message:
 
                     error.message
 
-            })
-
-        }
-
+      })
     }
+  }
 
-   const result = {
+  const result = {
 
     rows:
 
@@ -869,20 +795,19 @@ async function resolveMasterEvents(
 
     errors
 
-}
+  }
 
-return {
+  return {
 
     ...result,
 
     ...formatPreview(
 
-        result
+      result
 
     )
 
-}
-
+  }
 }
 
 // =====================================================
@@ -891,32 +816,28 @@ return {
 
 function requireLookup(
 
-    lookupResult,
+  lookupResult,
 
-    code,
+  code,
 
-    label
+  label
 
 ) {
+  if (
 
-    if (
-
-        !lookupResult ||
+    !lookupResult ||
 
         !lookupResult.found
 
-    ) {
+  ) {
+    throw new Error(
 
-        throw new Error(
+      `${label} '${code}' does not exist.`
 
-            `${label} '${code}' does not exist.`
+    )
+  }
 
-        )
-
-    }
-
-    return lookupResult
-
+  return lookupResult
 }
 
 // =====================================================
@@ -925,48 +846,39 @@ function requireLookup(
 
 function buildMasterEvent(
 
-    row,
+  row,
 
-    category,
+  category,
 
-    eventType,
+  eventType,
 
-    eventMasterStatus
+  eventMasterStatus
 
 ) {
+  return {
 
-    return buildCommitObject({
-
-        event_name:
+    event_name:
 
             normalizeEventName(
 
-                row.event_name
+              row.event_name
 
             ),
 
-        notes:
+    event_category_id:
 
-            row.notes ?? null,
+            category.id,
 
-        category,
+    event_type_id:
 
-        eventType,
+            eventType.id,
 
-        eventMasterStatus,
+    event_master_status_id:
 
-        sourceRow:
+            eventMasterStatus.id
 
-            row
-
-    })
-
+  }
 }
-
-
-
-
-
 
 // =====================================================
 // BUILD COMMIT PLAN
@@ -974,102 +886,102 @@ function buildMasterEvent(
 
 function buildCommitPlan(
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return {
-
-        summary:
+    summary:
 
             buildImportSummary(
 
-                resolved
+              resolved
 
             ),
 
-        preview:
+    preview:
 
             buildPreviewRows(
 
-                resolved.rows
+              resolved.rows
 
             ),
 
-        stages: [
+    stages: [
 
-            {
+      {
 
-                name:
+        name:
 
                     'Event Master',
 
-                description:
+        description:
 
                     'Upsert Event Master records.',
 
-                operations: [
+        operations: [
 
-                    {
+          {
 
-                        table:
+            table:
 
                             'events',
 
-                        operation:
+            operation:
 
                             'upsert',
 
-                        records:
+            conflictColumn:
+
+                            'event_name,event_type_id',
+
+            records:
 
                             resolved.rows,
 
-                        identity: {
+            identity: {
 
-                            collection:
+              collection:
 
                                 'events',
 
-                            databaseKey:
+              databaseKey:
 
                                 'event_id',
 
-                            businessKey(
+              businessKey(
 
-                                record
+                record
 
-                            ) {
+              ) {
+                return [
 
-                                return [
+                  normalizeEventName(
 
-                                    normalizeEventName(
+                    record.event_name
 
-                                        record.event_name
+                  ).toLowerCase(),
 
-                                    ).toLowerCase(),
+                  record.event_type_id
 
-                                    record.event_type_id
+                ].join(
 
-                                ].join(
+                  '|'
 
-                                    '|'
-
-                                )
-
-                            }
-
-                        }
-
-                    }
-
-                ]
+                )
+              }
 
             }
 
+          }
+
         ]
 
-    }
+      }
 
+    ]
+
+  }
 }
 
 // =====================================================
@@ -1078,66 +990,63 @@ function buildCommitPlan(
 
 function buildPreviewRows(
 
-    rows = []
+  rows = []
 
 ) {
+  return rows.map(
 
-    return rows.map(
+    row => ({
 
-        row => ({
-
-            event_name:
+      event_name:
 
                 row.event_name,
 
-            event_category_code:
+      event_category_code:
 
                 row.category?.code ??
 
                 null,
 
-            event_category:
+      event_category:
 
                 row.category?.name ??
 
                 null,
 
-            event_type_code:
+      event_type_code:
 
                 row.eventType?.code ??
 
                 null,
 
-            event_type:
+      event_type:
 
                 row.eventType?.name ??
 
                 null,
 
-            event_master_status_code:
+      event_master_status_code:
 
                 row.eventMasterStatus?.code ??
 
                 null,
 
-            event_master_status:
+      event_master_status:
 
                 row.eventMasterStatus?.name ??
 
                 null,
 
-            notes:
+      notes:
 
                 row.notes ??
 
                 ''
 
-        })
+    })
 
-    )
-
+  )
 }
-
 
 // =====================================================
 // FORMAT PREVIEW
@@ -1145,44 +1054,41 @@ function buildPreviewRows(
 
 function formatPreview(
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return {
-
-        summary:
+    summary:
 
             buildImportSummary(
 
-                resolved
+              resolved
 
             ),
 
-        rows:
+    rows:
 
             buildPreviewRows(
 
-                resolved.rows
+              resolved.rows
 
             ),
 
-        errors:
+    errors:
 
             resolved.errors,
 
-        hasErrors:
+    hasErrors:
 
             hasErrors(
 
-                resolved
+              resolved
 
             )
 
-    }
-
+  }
 }
-
 
 // =====================================================
 // BUILD IMPORT SUMMARY
@@ -1190,32 +1096,30 @@ function formatPreview(
 
 function buildImportSummary(
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return {
-
-        totalRows:
+    totalRows:
 
             resolved.rows.length +
 
             resolved.errors.length,
 
-        validRows:
+    validRows:
 
             resolved.rows.length,
 
-        errorRows:
+    errorRows:
 
             resolved.errors.length,
 
-        warningRows:
+    warningRows:
 
             0
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1224,15 +1128,13 @@ function buildImportSummary(
 
 function hasErrors(
 
-    resolved
+  resolved
 
 ) {
+  return (
 
-    return (
+    resolved.errors?.length || 0
 
-        resolved.errors?.length || 0
-
-    ) > 0
-
+  ) > 0
 }
 

@@ -1,4 +1,8 @@
 import {
+  setFalsyEmptyValue as setValue
+} from '../services/domService.js'
+
+import {
   getCurrentProfile,
   getCurrentRole
 }
@@ -17,24 +21,6 @@ import {
   initializeProfilePhotoUpload
 }
   from './profilePhotoService.js'
-
-window.addEventListener(
-  'unhandledrejection',
-  event => {
-    console.error(
-      'FULL REJECTION',
-      JSON.stringify(
-        event.reason,
-        null,
-        2
-      )
-    )
-
-    console.error(
-      event.reason
-    )
-  }
-)
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -57,10 +43,6 @@ async function initializeProfile() {
       )
     }
   } catch (error) {
-    console.error(
-      'initializeAuthentication',
-      error
-    )
 
     return
   }
@@ -166,10 +148,6 @@ async function initializeProfile() {
     try {
       await loader()
     } catch (error) {
-      console.error(
-        name,
-        error
-      )
     }
   }
 
@@ -177,30 +155,10 @@ async function initializeProfile() {
 }
 
 async function loadProfileHeader() {
-  console.log(
-    'LOAD PROFILE HEADER',
-    getCurrentProfile()
-  )
 
-  console.log(
-    'getCurrentProfile type',
-    typeof getCurrentProfile
-  )
 
-  console.log(
-    'getCurrentRole type',
-    typeof getCurrentRole
-  )
 
-  console.log(
-    'window.currentProfile',
-    window.currentProfile
-  )
 
-  console.log(
-    'window.profile',
-    window.profile
-  )
   const profile =
     getCurrentProfile()
 
@@ -246,19 +204,11 @@ async function loadProfileHeader() {
     if (
       error
     ) {
-      console.error(
-        'login_history',
-        error
-      )
     } else {
       lastLoginRecord =
         data
     }
   } catch (error) {
-    console.error(
-      'login_history',
-      error
-    )
   }
 
   if (!profile) {
@@ -398,10 +348,6 @@ async function loadAthleteProfile() {
     error ||
     !data
   ) {
-    console.error(
-      'loadAthleteProfile',
-      error
-    )
 
     return
   }
@@ -599,22 +545,6 @@ async function loadCompetitionSummary() {
   }
 }
 
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(
-      id
-    )
-
-  if (!element) {
-    return
-  }
-
-  element.value =
-    value || ''
-}
 
 async function loadRecentTraining() {
   const profile =
@@ -1203,8 +1133,10 @@ async function loadTrainingHistory() {
           event_name
         ),
 
-        event_programs(
-          program_name
+        participant_instances(
+          program_master(
+            program_name
+          )
         )
       `)
       .eq(
@@ -1250,7 +1182,7 @@ async function loadTrainingHistory() {
         </td>
 
         <td>
-          ${row.event_programs?.program_name || ''}
+          ${row.participant_instances?.program_master?.program_name || ''}
         </td>
 
         <td>

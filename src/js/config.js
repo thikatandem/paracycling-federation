@@ -1,3 +1,7 @@
+import {
+  THEME_STORAGE_KEY
+} from './core/services/constants.js'
+
 /**
  * --------------------------------------------------------------------------
  * CoreUI Boostrap Admin Template config.js
@@ -19,10 +23,9 @@
  */
 
 (() => {
-  const THEME = 'coreui-free-bootstrap-admin-template-theme'
   const urlParams = new URLSearchParams(window.location.href.split('?')[1])
 
   if (urlParams.get('theme') && ['auto', 'dark', 'light'].includes(urlParams.get('theme'))) {
-    localStorage.setItem(THEME, urlParams.get('theme'))
+    localStorage.setItem(THEME_STORAGE_KEY, urlParams.get('theme'))
   }
 })()

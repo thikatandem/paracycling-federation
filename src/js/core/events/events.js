@@ -1,21 +1,59 @@
+import {
+  createNumberedPaginationRenderer
+} from '../services/paginationService.js'
+
+import {
+  getEventStatusBadge
+} from '../services/badgeService.js'
+
+import {
+  buildActionButtons,
+  buildActionCell,
+  buildStatusCell
+} from '../services/tableRendererService.js'
+
 // =====================================================
 // EVENTS MODULE
 // ParaCycling Federation Management System
 // =====================================================
 
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
-
 import {
+  createFeedbackController } from '../services/feedbackService.js'
+import { getInputValue as getValue,
+  setFalsyEmptyValue as setValue } from '../services/domService.js'
+import { PAGE_SIZE,
+  INFO_TIMEOUT
+} from '../services/constants.js'
+import { getDb,
+  hasDb } from '../supabase/getDb.js'
+import { importEvents } from './eventImport.js'
+import { createModal,
+  showModal,
+  hideModal
+} from '../services/modalService.js'
+const occurrenceFeedback =
+  createFeedbackController({
+    containerId: 'occurrenceError',
+    errorOptions: {
+      sticky: true
+    },
+    successOptions: {
+      timeout: INFO_TIMEOUT
+    }
+  })
 
-  importEvents
+const showError =
+  occurrenceFeedback.error
+    .bind(occurrenceFeedback)
 
-}
+const showSuccess =
+  occurrenceFeedback.success
+    .bind(occurrenceFeedback)
 
-from './eventImport.js'
-
-const PAGE_SIZE = 10
+const clearError =
+  occurrenceFeedback.clear
+    .bind(occurrenceFeedback)
 
 let eventOccurrences = []
 
@@ -156,106 +194,17 @@ const townSuggestions =
     'townSuggestions'
   )
 
-function getValue(id) {
-  return (
-    document.getElementById(id)
-      ?.value || ''
-  )
-}
 
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(id)
 
-  if (element) {
-    element.value =
-      value || ''
-  }
-}
 
-function showError(
-  message
-) {
-  if (
-    occurrenceError
-  ) {
-    occurrenceError
-      .textContent =
-      message
 
-    occurrenceError
-      .classList
-      .remove(
-        'd-none'
-      )
-  }
-}
-
-function clearError() {
-  if (
-    occurrenceError
-  ) {
-    occurrenceError
-      .textContent = ''
-
-    occurrenceError
-      .classList
-      .add(
-        'd-none'
-      )
-  }
-}
-
-function showSuccess(
-  message
-) {
-  if (
-    occurrenceError
-  ) {
-    occurrenceError.classList.remove(
-      'alert-danger'
-    )
-
-    occurrenceError.classList.add(
-      'alert-success'
-    )
-
-    occurrenceError.textContent =
-      message
-
-    occurrenceError.classList.remove(
-      'd-none'
-    )
-
-    setTimeout(
-      () => {
-        occurrenceError.classList.add(
-          'd-none'
-        )
-
-        occurrenceError.classList.remove(
-          'alert-success'
-        )
-
-        occurrenceError.classList.add(
-          'alert-danger'
-        )
-      },
-      4000
-    )
-  }
-}
 
 async function loadEvents() {
   const {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'events'
       )
@@ -274,9 +223,6 @@ async function loadEvents() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -314,8 +260,7 @@ async function loadSponsors() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'sponsor_master'
       )
@@ -325,9 +270,6 @@ async function loadSponsors() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -365,8 +307,7 @@ async function loadCountries() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'country_master'
       )
@@ -376,9 +317,6 @@ async function loadCountries() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -416,8 +354,7 @@ async function loadCounties() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'county_master'
       )
@@ -427,9 +364,6 @@ async function loadCounties() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -443,8 +377,7 @@ async function loadAllSubcounties() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'subcounty_master'
       )
@@ -454,9 +387,6 @@ async function loadAllSubcounties() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -470,8 +400,7 @@ async function loadStatuses() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'event_status_master'
       )
@@ -488,7 +417,6 @@ async function loadStatuses() {
       )
 
   if (error) {
-    console.error(error)
 
     return
   }
@@ -516,11 +444,8 @@ async function loadStatuses() {
 async function initializeEvents() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Supabase client not found'
-      )
 
       return
     }
@@ -541,9 +466,6 @@ async function initializeEvents() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
   }
 }
 
@@ -630,8 +552,7 @@ async function loadTowns(
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'town_master'
       )
@@ -645,9 +566,6 @@ async function loadTowns(
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -831,8 +749,7 @@ async function getOrCreateTown() {
   }
 
   const existing =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'town_master'
       )
@@ -859,8 +776,7 @@ async function getOrCreateTown() {
   }
 
   const inserted =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'town_master'
       )
@@ -1068,8 +984,7 @@ async function saveSame() {
     const {
       error
     } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'event_instances'
         )
@@ -1093,9 +1008,6 @@ async function saveSame() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -1184,8 +1096,7 @@ async function saveNew() {
   )
 
     const existing =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'event_instances'
     )
@@ -1227,8 +1138,7 @@ async function saveNew() {
       data,
       error
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'event_instances'
     )
@@ -1256,20 +1166,12 @@ async function saveNew() {
 
     clearOccurrenceForm()
 
-    const modal =
-      coreui.Modal.getInstance(
-        document.getElementById(
-          'occurrenceModal'
-        )
-      )
-
-    modal?.hide()
+    hideModal(
+      'occurrenceModal'
+    )
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -1287,8 +1189,7 @@ async function checkDependencies(
     count,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'participant_instances'
       )
@@ -1322,68 +1223,15 @@ async function deleteOccurrence(
       occurrenceId
     )
 
-  const confirmed =
-    pendingOccurrenceDeleteId =
-  occurrenceId
+  pendingOccurrenceDeleteId =
+    occurrenceId
 
   document.getElementById(
     'deleteOccurrenceMessage'
   ).textContent =
-  `This occurrence contains ${dependencyInfo.participantCount} participant registration(s).`
+    `This occurrence contains ${dependencyInfo.participantCount} participant registration(s).`
 
-  new coreui.Modal(
-    document.getElementById(
-      'deleteOccurrenceModal'
-    )
-  ).show()
-
-  return
-
-  try {
-    const {
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'event_instances'
-        )
-        .delete()
-        .eq(
-          'event_instance_id',
-          occurrenceId
-        )
-
-    if (error) {
-      throw error
-    }
-
-    eventOccurrences =
-      eventOccurrences.filter(
-        item =>
-          item.event_instance_id !==
-          occurrenceId
-      )
-
-    filteredOccurrences =
-      [...eventOccurrences]
-
-    renderOccurrences()
-
-    showSuccess(
-      'Event Occurrence Deleted'
-    )
-  } catch (
-    error
-  ) {
-    console.error(
-      error
-    )
-
-    showError(
-      error.message
-    )
-  }
+  showModal('deleteOccurrenceModal')
 }
 
 async function loadOccurrences() {
@@ -1391,8 +1239,7 @@ async function loadOccurrences() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'event_instances'
       )
@@ -1420,9 +1267,6 @@ async function loadOccurrences() {
       )
 
   if (error) {
-    console.error(
-      error
-    )
 
     return
   }
@@ -1539,94 +1383,30 @@ function renderOccurrences() {
             ${participantCount}
           </td>
 
-         <td>
-
-  ${(() => {
-    const status =
+         ${buildStatusCell(
+    getEventStatusBadge(
       occurrence
         .event_status_master
-        ?.status_name
-        ?.toUpperCase() || ''
+        ?.status_name || ''
+    )
+  )}
 
-    let badgeClass =
-      'bg-secondary'
-
-    if (
-      status.includes(
-        'CANCEL'
-      )
-    ) {
-      badgeClass =
-        'bg-danger'
-    } else if (
-      status.includes(
-        'OPEN'
-      )
-    ) {
-      badgeClass =
-        'bg-success'
-    } else if (
-      status.includes(
-        'ONGOING'
-      )
-    ) {
-      badgeClass =
-        'bg-success'
-    } else if (
-      status.includes(
-        'COMPLETED'
-      )
-    ) {
-      badgeClass =
-        'bg-warning text-dark'
-    } else if (
-      status.includes(
-        'PLANNED'
-      )
-    ) {
-      badgeClass =
-        'bg-primary'
-    } else if (
-      status.includes(
-        'RESCHEDULE'
-      )
-    ) {
-      badgeClass =
-        'bg-warning text-dark'
-    }
-
-    return `
-      <span
-        class="badge ${badgeClass}"
-      >
-        ${occurrence
-          .event_status_master
-          ?.status_name || ''}
-      </span>
-    `
-  })()}
-
-</td>
-
-          <td class="text-nowrap">
-
-            <button
-  class="btn btn-sm btn-primary me-1"
-  onclick="editOccurrence('${occurrence.event_instance_id}')"
->
-
-  Edit
-
-</button>
-
-<button
-  class="btn btn-sm btn-danger"
-  onclick="deleteOccurrence('${occurrence.event_instance_id}')"
->
-
-  Delete
-
-</button>
+          ${buildActionCell(
+    buildActionButtons({
+      buttons: [
+        {
+          type: 'edit',
+          onClick:
+            `editOccurrence('${occurrence.event_instance_id}')`
+        },
+        {
+          type: 'delete',
+          onClick:
+            `deleteOccurrence('${occurrence.event_instance_id}')`
+        }
+      ]
+    })
+  )}
 
           </td>
 
@@ -1644,57 +1424,22 @@ function renderOccurrences() {
   renderPagination()
 }
 
-function renderPagination() {
-  const container =
-    document.getElementById(
-      'paginationContainer'
-    )
+const renderPagination =
+  createNumberedPaginationRenderer({
+    getItemCount: () =>
+      filteredOccurrences.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize:
+      PAGE_SIZE,
+    containerId:
+      'paginationContainer',
+    handlerName:
+      'goToPage',
+    control:
+      'link'
+  })
 
-  if (
-    !container
-  ) {
-    return
-  }
-
-  container.innerHTML =
-    ''
-
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredOccurrences.length /
-        PAGE_SIZE
-      )
-    )
-
-  for (
-    let i = 1;
-    i <= totalPages;
-    i++
-  ) {
-    container.innerHTML += `
-
-      <li class="page-item ${
-  i === currentPage ?
-    'active' :
-    ''
-}">
-
-        <a
-          href="#"
-          class="page-link"
-          onclick="goToPage(${i})"
-        >
-
-          ${i}
-
-        </a>
-
-      </li>
-    `
-  }
-}
 
 window.goToPage =
 function (
@@ -1885,11 +1630,7 @@ async function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'occurrenceModal'
-      )
-    )
+    createModal('occurrenceModal')
 
   modal.show()
 }
@@ -2052,15 +1793,7 @@ if (
     )
 
 }
-    new coreui.Modal(
-
-      document.getElementById(
-
-        'eventImportPreviewModal'
-
-      )
-
-    ).show()
+    showModal('eventImportPreviewModal')
 
     eventImportFile.value =
       ''
@@ -2073,11 +1806,6 @@ if (
 
   ) {
 
-    console.error(
-
-      error
-
-    )
 
     showError(
 
@@ -2469,15 +2197,7 @@ function renderImportSummary(
 
   `
 
-  new coreui.Modal(
-
-    document.getElementById(
-
-      'eventImportSummaryModal'
-
-    )
-
-  ).show()
+  showModal('eventImportSummaryModal')
 
 }
 // =====================================================
@@ -2654,37 +2374,17 @@ if (
 
             btnApproveImport.disabled = true
 
-console.group(
-    'Approve Import'
-)
 
-console.log(
-    'Pending Import:',
-    pendingImport
-)
 
-console.log(
-    'Approve:',
-    pendingImport?.approve
-)
 
-console.log(
-    'Type:',
-    typeof pendingImport?.approve
-)
 
-console.groupEnd()
 
             const result =
                 await pendingImport.approve()
 
-            coreui.Modal
-                .getInstance(
-                    document.getElementById(
-                        'eventImportPreviewModal'
-                    )
-                )
-                ?.hide()
+            hideModal(
+      'eventImportPreviewModal'
+    )
 
             renderImportSummary(result)
 
@@ -2696,15 +2396,10 @@ console.groupEnd()
 
         catch (error) {
 
-    console.error(error.message)
 
-    console.error(error.details)
 
-    console.error(error.hint)
 
-    console.error(error.code)
 
-    console.error(error)
 
 }
 
@@ -2992,15 +2687,7 @@ if (
 
         const modal =
 
-          new coreui.Modal(
-
-            document.getElementById(
-
-              'occurrenceModal'
-
-            )
-
-          )
+          createModal('occurrenceModal')
 
         modal.show()
 
@@ -3040,8 +2727,7 @@ document
 
         } =
 
-          await window
-            .supabaseClient
+          await getDb()
             .from(
 
               'event_instances'
@@ -3091,17 +2777,9 @@ document
       pendingOccurrenceDeleteId =
         null
 
-      coreui.Modal
-        .getInstance(
-
-          document.getElementById(
-
-            'deleteOccurrenceModal'
-
-          )
-
-        )
-        ?.hide()
+      hideModal(
+      'deleteOccurrenceModal'
+    )
 
     }
 

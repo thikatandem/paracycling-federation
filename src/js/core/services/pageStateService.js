@@ -2,9 +2,13 @@
 // PAGE STATE SERVICE
 // =====================================================
 
+import {
+  PAGE_SIZE
+} from './constants.js'
+
 export function createPageState({
 
-  pageSize = 10
+  pageSize = PAGE_SIZE
 
 } = {}) {
   return {
@@ -211,3 +215,80 @@ export function getMetadata({
   )
 }
 
+
+
+export function createSortToggle({
+  getField,
+  setField,
+  getDirection,
+  setDirection,
+  apply
+} = {}) {
+  return function toggleSort(
+    field
+  ) {
+    if (getField() === field) {
+      setDirection(
+        getDirection() === 'asc' ?
+          'desc' :
+          'asc'
+      )
+    } else {
+      setField(field)
+      setDirection('asc')
+    }
+
+    apply?.()
+  }
+}
+
+export function createPageNavigator({
+  getPage,
+  setPage,
+  getTotalPages = null,
+  render
+} = {}) {
+  return {
+    previous() {
+      const page =
+        Number(
+          getPage?.() || 1
+        )
+
+      if (page > 1) {
+        setPage(
+          page - 1
+        )
+        render?.()
+      }
+    },
+
+    next(
+      totalPages =
+        getTotalPages?.()
+    ) {
+      const page =
+        Number(
+          getPage?.() || 1
+        )
+
+      const maximumPage =
+        Math.max(
+          1,
+          Number(
+            totalPages || 1
+          )
+        )
+
+      if (
+        page <
+        maximumPage
+      ) {
+        setPage(
+          page + 1
+        )
+        render?.()
+      }
+    }
+  }
+}

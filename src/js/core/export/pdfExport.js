@@ -27,6 +27,16 @@ import {
 
   createRaceGapChart,
 
+  createDistanceSpeedComparisonChart,
+
+  createMonthlyClassificationChart,
+
+  createTrainingLoadCompositeChart,
+
+  createEventAreaComparisonChart,
+
+  createGrowthComparisonChart,
+
   destroyPdfCharts
 
 }
@@ -37,22 +47,53 @@ import {
 }
   from './exportConstants.js'
 
-const {
-  jsPDF
-} = window.jspdf
+function getJsPdfConstructor() {
+  const constructor =
+    window.jspdf?.jsPDF ||
+    window.jsPDF
 
-const { autoTable } = window
+  if (typeof constructor !== 'function') {
+    throw new Error(
+      'jsPDF is not loaded. Ensure the jsPDF library is loaded before using PDF export.'
+    )
+  }
 
-console.log(
-  'window.autoTable',
-  window.autoTable
-)
+  return constructor
+}
+
+function runAutoTable(pdf, options) {
+  if (typeof pdf?.autoTable === 'function') {
+    return pdf.autoTable(options)
+  }
+
+  if (typeof window.autoTable === 'function') {
+    return window.autoTable(pdf, options)
+  }
+
+  const standalone =
+    window.jspdfAutoTable?.default ||
+    window.jspdfAutoTable?.autoTable
+
+  if (typeof standalone === 'function') {
+    return standalone(pdf, options)
+  }
+
+  throw new Error(
+    'jsPDF AutoTable is not loaded. Ensure the AutoTable plugin is loaded before using PDF export.'
+  )
+}
 
 const tandemLogo =
   '/assets/logo/tandem-logo.png'
 
 const tandemBackground =
   '/assets/shared/tandem-pdf.png'
+
+const REPORT_ORGANIZATION =
+  'THIKA TANDEM PARACYCLING CLUB'
+
+const REPORT_FOOTER =
+  'Thika Tandem ParaCycling Club'
 
 export const PDF_COLORS = {
 
@@ -68,6 +109,31 @@ export const PDF_COLORS = {
 
   danger: [220, 53, 69]
 
+}
+
+function setPdfTypography({
+
+  pdf,
+
+  size = 10,
+
+  style = 'normal',
+
+  color = PDF_COLORS.dark
+
+}) {
+  pdf.setFont(
+    'helvetica',
+    style
+  )
+
+  pdf.setFontSize(
+    size
+  )
+
+  pdf.setTextColor(
+    ...color
+  )
 }
 
 function imageToBase64(
@@ -143,7 +209,10 @@ export function createPdf({
   'a4'
 
 } = {}) {
-  return new jsPDF({
+  const JsPDF =
+    getJsPdfConstructor()
+
+  return new JsPDF({
 
     orientation,
     unit,
@@ -198,9 +267,12 @@ export function addKpiCard({
     255
   )
 
-  pdf.setFontSize(
-    10
-  )
+  setPdfTypography({
+    pdf,
+    size: 11,
+    style: 'bold',
+    color: [255, 255, 255]
+  })
 
   pdf.text(
     title,
@@ -208,9 +280,12 @@ export function addKpiCard({
     y + 10
   )
 
-  pdf.setFontSize(
-    18
-  )
+  setPdfTypography({
+    pdf,
+    size: 19,
+    style: 'bold',
+    color: [255, 255, 255]
+  })
 
   pdf.text(
     String(value),
@@ -218,11 +293,9 @@ export function addKpiCard({
     y + 22
   )
 
-  pdf.setTextColor(
-    0,
-    0,
-    0
-  )
+  setPdfTypography({
+    pdf
+  })
 }
 
 export function addKpiPage({
@@ -236,9 +309,11 @@ export function addKpiPage({
     pdf
   )
 
-  pdf.setFontSize(
-    18
-  )
+  setPdfTypography({
+    pdf,
+    size: 18,
+    style: 'bold'
+  })
 
   pdf.text(
     'Executive Performance Dashboard',
@@ -269,9 +344,10 @@ export function addKpiPage({
         card.color
     })
 
-    pdf.setFontSize(
-      8
-    )
+    setPdfTypography({
+      pdf,
+      size: 8
+    })
 
     const notes = {
 
@@ -384,6 +460,10 @@ export function addPageWithBackground(
 
     })
   }
+
+  setPdfTypography({
+    pdf
+  })
 }
 
 export function addCoverPage({
@@ -557,7 +637,11 @@ export function addReportContext({
     pdf
   )
 
-  pdf.setFontSize(20)
+  setPdfTypography({
+    pdf,
+    size: 20,
+    style: 'bold'
+  })
 
   pdf.text(
     'Report Context',
@@ -590,19 +674,25 @@ export function addReportContext({
       'F'
     )
 
-    pdf.setFontSize(10)
+    setPdfTypography({
+      pdf,
+      size: 10,
+      style: 'bold',
+      color: [255, 255, 255]
+    })
 
     pdf.text(
       key,
       x + 4,
       y + 8
     )
-    pdf.setTextColor(
-      255,
-      255,
-      255
-    )
-    pdf.setFontSize(14)
+
+    setPdfTypography({
+      pdf,
+      size: 14,
+      style: 'bold',
+      color: [255, 255, 255]
+    })
 
     pdf.text(
       String(
@@ -611,11 +701,10 @@ export function addReportContext({
       x + 4,
       y + 20
     )
-    pdf.setTextColor(
-      0,
-      0,
-      0
-    )
+
+    setPdfTypography({
+      pdf
+    })
     x += 70
 
     if (
@@ -645,13 +734,11 @@ export function addDashboardPage({
     pdf
   )
 
-  pdf.setFontSize(
-    20
-  )
-
-  pdf.setTextColor(
-    ...PDF_COLORS.dark
-  )
+  setPdfTypography({
+    pdf,
+    size: 20,
+    style: 'bold'
+  })
 
   pdf.text(
     title,
@@ -697,9 +784,11 @@ export function addChartImage({
   if (
     title
   ) {
-    pdf.setFontSize(
-      11
-    )
+    setPdfTypography({
+      pdf,
+      size: 12,
+      style: 'bold'
+    })
 
     pdf.text(
       title,
@@ -738,9 +827,11 @@ export function addInsightsSection({
   startY = 140
 
 }) {
-  pdf.setFontSize(
-    14
-  )
+  setPdfTypography({
+    pdf,
+    size: 14,
+    style: 'bold'
+  })
 
   pdf.text(
     'Key Insights',
@@ -752,9 +843,10 @@ export function addInsightsSection({
     startY + 10
 
   for (const insight of insights) {
-    pdf.setFontSize(
-      10
-    )
+    setPdfTypography({
+      pdf,
+      size: 10
+    })
 
     pdf.text(
 
@@ -927,11 +1019,15 @@ export function addReportHeader({
   reportSubtitle = ''
 
 }) {
-  pdf.setFontSize(18)
+  setPdfTypography({
+    pdf,
+    size: 18,
+    style: 'bold'
+  })
 
   pdf.text(
 
-    EXPORT_CONFIG.organization,
+    REPORT_ORGANIZATION,
 
     14,
 
@@ -939,7 +1035,11 @@ export function addReportHeader({
 
   )
 
-  pdf.setFontSize(14)
+  setPdfTypography({
+    pdf,
+    size: 14,
+    style: 'bold'
+  })
 
   pdf.text(
     reportTitle,
@@ -950,7 +1050,10 @@ export function addReportHeader({
   if (
     reportSubtitle
   ) {
-    pdf.setFontSize(10)
+    setPdfTypography({
+      pdf,
+      size: 10
+    })
 
     pdf.text(
       reportSubtitle,
@@ -969,7 +1072,7 @@ export function addGeneratedInfo({
   pdf,
 
   generatedBy =
-  EXPORT_CONFIG.generatedBy
+  'Thika Tandem'
 
 }) {
   const pageWidth =
@@ -978,7 +1081,10 @@ export function addGeneratedInfo({
   const now =
     new Date()
 
-  pdf.setFontSize(8)
+  setPdfTypography({
+    pdf,
+    size: 8
+  })
 
   pdf.text(
 
@@ -1025,7 +1131,11 @@ export function addFiltersSection({
     return y
   }
 
-  pdf.setFontSize(10)
+  setPdfTypography({
+    pdf,
+    size: 11,
+    style: 'bold'
+  })
 
   pdf.text(
     'Filters Applied',
@@ -1036,14 +1146,32 @@ export function addFiltersSection({
   y += 6
 
   for (const [key, value] of entries) {
+    const label = `${key}:`
+
+    setPdfTypography({
+      pdf,
+      size: 10,
+      style: 'bold'
+    })
+
     pdf.text(
-
-      `${key}: ${value}`,
-
+      label,
       18,
-
       y
+    )
 
+    const valueX =
+      20 + pdf.getTextWidth(label)
+
+    setPdfTypography({
+      pdf,
+      size: 10
+    })
+
+    pdf.text(
+      String(value),
+      valueX,
+      y
     )
 
     y += 5
@@ -1076,7 +1204,11 @@ export function addSummarySection({
     return startY
   }
 
-  pdf.setFontSize(10)
+  setPdfTypography({
+    pdf,
+    size: 11,
+    style: 'bold'
+  })
 
   pdf.text(
     'Summary',
@@ -1088,14 +1220,32 @@ export function addSummarySection({
     startY + 6
 
   for (const [key, value] of entries) {
+    const label = `${key}:`
+
+    setPdfTypography({
+      pdf,
+      size: 10,
+      style: 'bold'
+    })
+
     pdf.text(
-
-      `${key}: ${value}`,
-
+      label,
       18,
-
       y
+    )
 
+    const valueX =
+      20 + pdf.getTextWidth(label)
+
+    setPdfTypography({
+      pdf,
+      size: 10
+    })
+
+    pdf.text(
+      String(value),
+      valueX,
+      y
     )
 
     y += 5
@@ -1119,48 +1269,171 @@ export function addTable({
   startY = 50
 
 }) {
-  autoTable(
+  const columnStyles = {}
+
+  columns.forEach(
+    (
+      column,
+      index
+    ) => {
+      const label =
+        String(
+          column.label || ''
+        )
+          .toLowerCase()
+
+      let width = 24
+
+      if (
+        /participant|team|event|program|organizer|sponsor|area|county|town|classification/.test(
+          label
+        )
+      ) {
+        width = 34
+      } else if (
+        /date|time/.test(
+          label
+        )
+      ) {
+        width = 25
+      } else if (
+        /distance|duration|speed|attendance|status|score|position/.test(
+          label
+        )
+      ) {
+        width = 23
+      } else if (
+        /week|day|gold|silver|bronze|count|type/.test(
+          label
+        )
+      ) {
+        width = 19
+      }
+
+      columnStyles[index] = {
+        cellWidth:
+          width
+      }
+    }
+  )
+
+  runAutoTable(
     pdf,
     {
 
       startY,
 
       head: [
-
         columns.map(
           column =>
             column.label
         )
-
       ],
 
       body:
-
         data.map(
           row =>
-
             columns.map(
-              column =>
+              column => {
+                const value =
+                  row[
+                    column.key
+                  ]
 
-                row[
-                  column.key
-                ] ?? ''
+                if (
+                  value === null ||
+                  value === undefined
+                ) {
+                  return ''
+                }
+
+                if (
+                  typeof value === 'object'
+                ) {
+                  return ''
+                }
+
+                return String(
+                  value
+                )
+              }
             )
         ),
 
+      theme:
+        'grid',
+
+      margin: {
+        left: 10,
+        right: 10,
+        bottom: 15
+      },
+
       styles: {
-
+        font: 'helvetica',
+        fontStyle: 'normal',
+        textColor:
+          PDF_COLORS.dark,
         fontSize:
-          8
-
+          columns.length > 10 ?
+            7.5 :
+            8.5,
+        cellPadding: {
+          top: 1.8,
+          right: 1.8,
+          bottom: 1.8,
+          left: 1.8
+        },
+        overflow:
+          'linebreak',
+        valign:
+          'middle',
+        minCellHeight:
+          7,
+        lineWidth:
+          0.1,
+        lineColor:
+          [220, 225, 220]
       },
 
       headStyles: {
-
         fillColor:
-          [60, 120, 60]
+          [60, 120, 60],
+        textColor:
+          [255, 255, 255],
+        font: 'helvetica',
+        fontSize:
+          columns.length > 10 ?
+            8 :
+            9,
+        fontStyle:
+          'bold',
+        halign:
+          'center',
+        valign:
+          'middle'
+      },
 
-      }
+      alternateRowStyles: {
+        fillColor:
+          [248, 250, 248]
+      },
+
+      columnStyles,
+
+      showHead:
+        'everyPage',
+
+      rowPageBreak:
+        'avoid',
+
+      horizontalPageBreak:
+        columns.length > 10,
+
+      horizontalPageBreakRepeat:
+        columns.length > 10 ?
+          0 :
+          undefined
 
     }
   )
@@ -1211,7 +1484,7 @@ export function addFooter(
 
     pdf.text(
 
-      EXPORT_CONFIG.reportFooter,
+      REPORT_FOOTER,
 
       14,
 
@@ -1459,6 +1732,32 @@ export async function downloadTrainingReportPdf({
 
   reportPeriod,
 
+  reportTitle = '',
+
+  reportFileName = 'Training_Report',
+
+  dashboardTitle =
+    'Training Results Overview',
+
+  intelligenceTitle =
+    'Training Results Summary',
+
+  intelligenceLines = [
+    'Attendance shows participant engagement over the selected period.',
+    'County activity shows where training sessions were recorded.',
+    'Participation status shows attendance outcomes.',
+    'Training volume shows how activity changed over time.',
+    'Team and individual activity shows the session mix.'
+  ],
+
+  detailTitle = '',
+
+  comparisonPageTitle =
+    'Individual, Team and Monthly Comparisons',
+
+  loadPageTitle =
+    'Training Load, Event Area and Growth',
+
   filters = {},
 
   logoBase64 = null,
@@ -1498,7 +1797,26 @@ export async function downloadTrainingReportPdf({
 
   attendancePercentage = 0,
 
-  totalDistance = 0
+  totalDistance = 0,
+
+  comparisonLabels = [],
+  individualDistanceValues = [],
+  teamDistanceValues = [],
+  individualSpeedValues = [],
+  teamSpeedValues = [],
+  classificationLabels = [],
+  classificationDatasets = [],
+  loadLabels = [],
+  loadDistanceValues = [],
+  loadDurationValues = [],
+  loadTssValues = [],
+  areaLabels = [],
+  areaSessionValues = [],
+  areaDistanceValues = [],
+  growthLabels = [],
+  individualGrowthValues = [],
+  teamGrowthValues = [],
+  overallGrowthValues = []
 
 }) {
   try {
@@ -1574,6 +1892,50 @@ export async function downloadTrainingReportPdf({
 
       })
 
+
+    const comparisonChart =
+      comparisonLabels.length ?
+        await createDistanceSpeedComparisonChart({
+          labels: comparisonLabels,
+          individualDistance: individualDistanceValues,
+          teamDistance: teamDistanceValues,
+          individualSpeed: individualSpeedValues,
+          teamSpeed: teamSpeedValues
+        }) : null
+
+    const classificationChart =
+      classificationLabels.length && classificationDatasets.length ?
+        await createMonthlyClassificationChart({
+          labels: classificationLabels,
+          datasets: classificationDatasets
+        }) : null
+
+    const compositeLoadChart =
+      loadLabels.length ?
+        await createTrainingLoadCompositeChart({
+          labels: loadLabels,
+          distance: loadDistanceValues,
+          duration: loadDurationValues,
+          tss: loadTssValues
+        }) : null
+
+    const areaChart =
+      areaLabels.length ?
+        await createEventAreaComparisonChart({
+          labels: areaLabels,
+          sessions: areaSessionValues,
+          distance: areaDistanceValues
+        }) : null
+
+    const growthChart =
+      growthLabels.length ?
+        await createGrowthComparisonChart({
+          labels: growthLabels,
+          individual: individualGrowthValues,
+          team: teamGrowthValues,
+          overall: overallGrowthValues
+        }) : null
+
     const uniqueOccurrences =
 
   new Set(
@@ -1581,6 +1943,7 @@ export async function downloadTrainingReportPdf({
     data.map(
       row =>
 
+        row.event_area ||
         row.event_instances
           ?.event_area
     )
@@ -1614,20 +1977,33 @@ export async function downloadTrainingReportPdf({
 
     `${oldestDate} - ${newestDate}`
 
-    const reportTitle =
+    const resolvedReportTitle =
 
-  uniqueOccurrences.size === 1 ?
+  reportTitle ||
 
-    `${[
-      ...uniqueOccurrences
-    ][0]} Training Performance Report` :
+  (
+    uniqueOccurrences.size === 1 ?
 
-    'Training Combined Performance Report'
+      `${[
+        ...uniqueOccurrences
+      ][0]} Training Performance Report` :
+
+      'Training Combined Performance Report'
+  )
 
     const pdf =
   buildFederationReport({
 
-    reportTitle,
+    reportTitle:
+      resolvedReportTitle,
+
+    dashboardTitle,
+
+    intelligenceTitle,
+
+    intelligenceLines,
+
+    detailTitle,
 
     reportPeriod:
       actualReportPeriod,
@@ -1777,11 +2153,50 @@ export async function downloadTrainingReportPdf({
 
   })
 
+    if (comparisonChart || classificationChart) {
+      pdf.addPage()
+      addReportHeader({ pdf, reportTitle: comparisonPageTitle })
+      if (comparisonChart) {
+        pdf.addImage(comparisonChart, 'PNG', 10, 35, 132, 82)
+        pdf.setFontSize(9)
+        pdf.text('Distance and average speed comparison', 10, 31)
+      }
+      if (classificationChart) {
+        pdf.addImage(classificationChart, 'PNG', 150, 35, 132, 82)
+        pdf.setFontSize(9)
+        pdf.text('Sessions by month and event classification', 150, 31)
+      }
+    }
+
+    if (compositeLoadChart || areaChart || growthChart) {
+      pdf.addPage()
+      addReportHeader({ pdf, reportTitle: loadPageTitle })
+      if (compositeLoadChart) {
+        pdf.addImage(compositeLoadChart, 'PNG', 10, 35, 132, 76)
+        pdf.setFontSize(9)
+        pdf.text('Training load trend', 10, 31)
+      }
+      if (areaChart) {
+        pdf.addImage(areaChart, 'PNG', 150, 35, 132, 76)
+        pdf.setFontSize(9)
+        pdf.text('Event area comparison', 150, 31)
+      }
+      if (growthChart) {
+        pdf.addImage(growthChart, 'PNG', 10, 120, 272, 72)
+        pdf.setFontSize(9)
+        pdf.text('Cumulative individual, team and overall growth', 10, 116)
+      }
+    }
+
+    addFooter(pdf)
+
     savePdf({
 
       pdf,
 
       reportName:
+        reportFileName ||
+        resolvedReportTitle ||
         'Training_Report'
 
     })
@@ -2375,7 +2790,7 @@ export function addParticipantSummary({
     20
   )
 
-  autoTable(
+  runAutoTable(
     pdf,
     {
 
@@ -2422,6 +2837,22 @@ export function buildFederationReport({
   reportTitle,
 
   reportPeriod,
+
+  dashboardTitle =
+    'Training Results Overview',
+
+  intelligenceTitle =
+    'Training Results Summary',
+
+  intelligenceLines = [
+    'Attendance shows participant engagement over the selected period.',
+    'County activity shows where training sessions were recorded.',
+    'Participation status shows attendance outcomes.',
+    'Training volume shows how activity changed over time.',
+    'Team and individual activity shows the session mix.'
+  ],
+
+  detailTitle = '',
 
   filters = {},
 
@@ -2491,7 +2922,7 @@ export function buildFederationReport({
     pdf,
 
     title:
-      'Federation Analytics Dashboard'
+      dashboardTitle
 
   })
 
@@ -2529,49 +2960,47 @@ export function buildFederationReport({
     pdf
   )
 
-  pdf.setFontSize(
-    18
-  )
+  setPdfTypography({
+    pdf,
+    size: 18,
+    style: 'bold'
+  })
 
   pdf.text(
-    'Training Intelligence Summary',
+    intelligenceTitle,
     14,
     20
   )
 
-  pdf.setFontSize(
-    11
-  )
+  setPdfTypography({
+    pdf,
+    size: 11
+  })
 
-  pdf.text(
-    'Attendance trend indicates participant engagement.',
-    14,
-    40
-  )
+  const resolvedIntelligenceLines =
+    Array.isArray(
+      intelligenceLines
+    ) ?
+      intelligenceLines
+        .filter(Boolean)
+        .slice(0, 5) :
+      []
 
-  pdf.text(
-    'County activity highlights training concentration.',
-    14,
-    50
-  )
-
-  pdf.text(
-    'Status distribution reflects participation levels.',
-    14,
-    60
-  )
-
-  pdf.text(
-    'Training load shows volume progression.',
-    14,
-    70
-  )
-
-  pdf.text(
-    'Team vs Individual reflects session composition.',
-    14,
-    80
-  )
+  resolvedIntelligenceLines
+    .forEach(
+      (
+        line,
+        index
+      ) => {
+        pdf.text(
+          String(line),
+          14,
+          40 + (
+            index * 10
+          )
+        )
+      }
+    )
 
   if (
     insights.length
@@ -2608,9 +3037,11 @@ export function buildFederationReport({
     pdf
   )
 
-  pdf.setFontSize(
-    18
-  )
+  setPdfTypography({
+    pdf,
+    size: 18,
+    style: 'bold'
+  })
 
   const uniqueOccurrences =
 
@@ -2625,17 +3056,21 @@ export function buildFederationReport({
 
     )
 
-  const detailTitle =
+  const resolvedDetailTitle =
 
-    uniqueOccurrences.size === 1 ?
+    detailTitle ||
 
-      [...uniqueOccurrences][0] :
+    (
+      uniqueOccurrences.size === 1 ?
 
-      'Detailed Training Log'
+        [...uniqueOccurrences][0] :
+
+        'Training Records'
+    )
 
   pdf.text(
 
-    detailTitle,
+    resolvedDetailTitle,
 
     148.5,
 

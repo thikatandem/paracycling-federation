@@ -1,177 +1,123 @@
-// =====================================================
-// TABLE RENDERER SERVICE
-// =====================================================
+import {
+  PAGE_SIZE,
+  EMPTY_TABLE_MESSAGE
+} from './constants.js'
+
+export const TABLE_BUTTONS =
+  Object.freeze({
+    edit: {
+      label: 'Edit',
+      className:
+        'btn btn-sm btn-warning federation-action-button'
+    },
+    delete: {
+      label: 'Delete',
+      className:
+        'btn btn-sm btn-danger federation-action-button'
+    },
+    view: {
+      label: 'View',
+      className:
+        'btn btn-sm btn-info federation-action-button'
+    },
+    manage: {
+      label: 'Manage',
+      className:
+        'btn btn-sm btn-primary federation-action-button'
+    },
+    history: {
+      label: 'History',
+      className:
+        'btn btn-sm btn-info federation-action-button'
+    },
+    activate: {
+      label: 'Activate',
+      className:
+        'btn btn-sm btn-success federation-action-button'
+    },
+    deactivate: {
+      label: 'Deactivate',
+      className:
+        'btn btn-sm btn-secondary federation-action-button'
+    },
+    close: {
+      label: 'Close',
+      className:
+        'btn btn-sm btn-secondary federation-action-button'
+    }
+  })
 
 export function clearTable(
   tableBody
 ) {
   if (!tableBody) {
-    return
+    return false
   }
 
   tableBody.innerHTML = ''
+
+  return true
 }
 
 export function renderEmptyRow({
-
   tableBody,
-
   colspan = 1,
-
-  message =
-  'No records found'
-
+  message = EMPTY_TABLE_MESSAGE
 }) {
   if (!tableBody) {
-    return
+    return false
   }
 
   tableBody.innerHTML = `
     <tr>
       <td
         colspan="${colspan}"
-        class="text-center"
+        class="text-center text-muted py-4"
       >
         ${message}
       </td>
     </tr>
   `
+
+  return true
 }
 
 export function appendRow({
-
   tableBody,
-
   html = ''
-
 }) {
   if (!tableBody) {
-    return
+    return false
   }
 
-  tableBody.innerHTML +=
+  tableBody.insertAdjacentHTML(
+    'beforeend',
     html
-}
-
-function renderTeamRow(
-  team
-) {
-  const actionButtons =
-
-    buildActionButtons({
-
-      buttons: [
-
-        {
-          type: 'edit',
-          onClick:
-            `editTeam('${team.team_id}')`
-        },
-
-        {
-          type: 'delete',
-          onClick:
-            `confirmDeleteTeam('${team.team_id}')`
-        }
-
-      ]
-
-    })
-
-  return `
-
-<tr>
-
-${buildTextCell(
-    team.team_code
-  )}
-
-${buildTextCell(
-    team.team_name
-  )}
-
-${buildTextCell(
-    team.team_nickname
-  )}
-
-${buildTextCell(
-    `${team.pilot?.first_name || ''} ${team.pilot?.last_name || ''}`
-  )}
-
-${buildTextCell(
-    `${team.stoker?.first_name || ''} ${team.stoker?.last_name || ''}`
-  )}
-
-${buildTextCell(
-    team.current_effective_date
-  )}
-
-${buildTextCell(
-    team.status
-  )}
-
-${buildActionCell(
-    actionButtons
-  )}
-
-</tr>
-
-`
-}
-
-export function renderTable({
-
-  tableBody,
-
-  rows = [],
-
-  colspan = 1,
-
-  emptyMessage =
-  'No records found'
-
-}) {
-  clearTable(
-    tableBody
   )
 
-  if (
-    rows.length === 0
-  ) {
-    renderEmptyRow({
+  return true
+}
 
-      tableBody,
-
-      colspan,
-
-      message:
-        emptyMessage
-
-    })
-
-    return
+export function replaceTableBody({
+  tableBody,
+  html = ''
+}) {
+  if (!tableBody) {
+    return false
   }
 
-  for (const row of rows) {
-    appendRow({
+  tableBody.innerHTML = html
 
-      tableBody,
-
-      html: row
-
-    })
-  }
+  return true
 }
 
 export function buildTableRows({
-
   data = [],
-
   renderRow
-
 }) {
   if (
-    !Array.isArray(data)
+    !Array.isArray(data) ||
+    typeof renderRow !== 'function'
   ) {
     return []
   }
@@ -182,23 +128,43 @@ export function buildTableRows({
   )
 }
 
-export function renderPagedTable({
-
+export function renderTable({
   tableBody,
-
-  data = [],
-
-  page = 1,
-
-  pageSize = 10,
-
-  renderRow,
-
+  rows = [],
   colspan = 1,
+  emptyMessage = EMPTY_TABLE_MESSAGE
+}) {
+  clearTable(tableBody)
 
-  emptyMessage =
-  'No records found'
+  if (
+    !Array.isArray(rows) ||
+    rows.length === 0
+  ) {
+    return renderEmptyRow({
+      tableBody,
+      colspan,
+      message: emptyMessage
+    })
+  }
 
+  for (const row of rows) {
+    appendRow({
+      tableBody,
+      html: row
+    })
+  }
+
+  return true
+}
+
+export function renderPagedTable({
+  tableBody,
+  data = [],
+  page = 1,
+  pageSize = PAGE_SIZE,
+  renderRow,
+  colspan = 1,
+  emptyMessage = EMPTY_TABLE_MESSAGE
 }) {
   const start =
     (page - 1) *
@@ -206,235 +172,145 @@ export function renderPagedTable({
 
   const rows =
     buildTableRows({
-
       data:
         data.slice(
           start,
           start + pageSize
         ),
-
       renderRow
-
     })
 
-  renderTable({
-
+  return renderTable({
     tableBody,
-
     rows,
-
     colspan,
-
     emptyMessage
-
   })
 }
 
-export function replaceTableBody({
-
-  tableBody,
-
-  html
-
-}) {
-  if (!tableBody) {
-    return
-  }
-
-  tableBody.innerHTML =
-    html || ''
-}
-
-// =====================================================
-// FEDERATION TABLE RENDERER
-// =====================================================
-
 export function renderEntityTable({
-
   tableBody,
-
   data = [],
-
   rowRenderer,
-
   paginator = null,
-
   colspan = 1,
-
-  emptyMessage =
-  'No records found'
-
+  emptyMessage = EMPTY_TABLE_MESSAGE
 }) {
-  let renderData =
-    data
+  let renderData = data
 
   if (
-
     paginator &&
-
     typeof paginator.getPage ===
       'function'
-
   ) {
-    paginator.setData(
-      data
-    )
-
+    paginator.setData(data)
     renderData =
       paginator.getPage()
   }
 
   const rows =
-
     buildTableRows({
-
-      data:
-        renderData,
-
-      renderRow:
-        rowRenderer
-
+      data: renderData,
+      renderRow: rowRenderer
     })
 
   return renderTable({
-
     tableBody,
-
     rows,
-
     colspan,
-
     emptyMessage
-
   })
 }
 
-// =====================================================
-// ACTION BUTTONS
-// =====================================================
+export function buildActionButton({
+  type = 'view',
+  label = null,
+  onClick = '',
+  className = '',
+  disabled = false,
+  title = null
+} = {}) {
+  const config =
+    TABLE_BUTTONS[type] ||
+    TABLE_BUTTONS.view
+
+  const classes = [
+    config.className,
+    className
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return `
+    <button
+      type="button"
+      class="${classes}"
+      ${title ? `title="${title}"` : ''}
+      ${disabled ? 'disabled' : ''}
+      onclick="${onClick || ''}"
+    >
+      ${label || config.label}
+    </button>
+  `
+}
 
 export function buildActionButtons({
-
   buttons = []
-
-}) {
-  if (
-    !Array.isArray(buttons)
-  ) {
+} = {}) {
+  if (!Array.isArray(buttons)) {
     return ''
   }
 
   return buttons
-    .map(button => {
-      const config =
-        TABLE_BUTTONS[
-          button.type
-        ] || {}
-
-      return `
-        <button
-          type="button"
-          class="${config.className || ''}"
-          onclick="${button.onClick || ''}"
-        >
-          ${config.label || ''}
-        </button>
-      `
-    })
+    .map(
+      button =>
+        buildActionButton(button)
+    )
     .join('')
 }
 
-// =====================================================
-// CELL BUILDERS
-// =====================================================
-
 export function buildTextCell(
-  value
+  value,
+  className = ''
 ) {
   return `
-    <td>
+    <td class="${className}">
       ${value ?? ''}
     </td>
   `
 }
 
 export function buildNumberCell(
-  value
+  value,
+  className = ''
 ) {
   return `
-    <td
-      class="text-end"
-    >
+    <td class="text-end ${className}">
       ${value ?? ''}
     </td>
   `
 }
 
 export function buildStatusCell(
-  html
+  html,
+  className = ''
 ) {
   return `
-    <td>
+    <td class="federation-status-cell ${className}">
       ${html ?? ''}
     </td>
   `
 }
 
 export function buildActionCell(
-  buttons
+  buttons,
+  className = ''
 ) {
   return `
-  <td
-
-    class="
-      text-nowrap
-      text-center
-    "
-
-    style="
-      width: 140px;
-    "
-
-  >
-    ${buttons ?? ''}
-  </td>
-`
-}
-
-// =====================================================
-// BUTTONS
-// =====================================================
-
-export const TABLE_BUTTONS = {
-
-  edit: {
-    label: 'Edit',
-    className:
-      'btn btn-sm btn-warning me-1'
-  },
-
-  delete: {
-    label: 'Delete',
-    className:
-      'btn btn-sm btn-danger'
-  },
-
-  view: {
-    label: 'View',
-    className:
-      'btn btn-sm btn-info me-1'
-  },
-
-  activate: {
-    label: 'Activate',
-    className:
-      'btn btn-sm btn-success me-1'
-  },
-
-  deactivate: {
-    label: 'Deactivate',
-    className:
-      'btn btn-sm btn-secondary'
-  }
-
+    <td class="text-nowrap text-center federation-table-actions ${className}">
+      <div class="d-inline-flex flex-wrap gap-1 justify-content-center">
+        ${buttons ?? ''}
+      </div>
+    </td>
+  `
 }

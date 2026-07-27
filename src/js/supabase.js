@@ -1,22 +1,38 @@
-/* global supabase */
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+} from './core/services/appConfig.js'
+import {
+  installGlobalErrorHandling
+} from './core/services/feedbackService.js'
 
-const supabaseLib =
+installGlobalErrorHandling()
+
+const supabaseLibrary =
   window.supabase
 
-if (!supabaseLib) {
-  throw new Error(
-    'Supabase library not loaded. Check script order.'
+export const supabaseClient =
+  window.supabaseClient ||
+  (
+    supabaseLibrary ?
+      supabaseLibrary.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      ) :
+      null
   )
+
+if (
+  supabaseClient &&
+  !window.supabaseClient
+) {
+  window.supabaseClient =
+    supabaseClient
 }
 
-const SUPABASE_URL =
-  'https://ingbnzsiabtttijddenn.supabase.co'
+export {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+}
 
-const SUPABASE_ANON_KEY =
-  'sb_publishable_jaruEYItuMtUUgyQ_xfFMg_VH_ZWUsW'
-
-window.supabaseClient =
-  supabaseLib.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  )
+export default supabaseClient

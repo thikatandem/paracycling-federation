@@ -2,9 +2,11 @@
 // ATHLETES MODULE
 // ParaCycling Federation Management System
 // =====================================================
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
+import {
+  getDb,
+  hasDb
+} from '../supabase/getDb.js'
 
 import {
   getValue,
@@ -63,7 +65,8 @@ import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
-  bindPagination
+  bindPagination,
+  createPaginatorUiUpdater
 } from '../services/paginationService.js'
 
 import {
@@ -81,8 +84,20 @@ import {
   setRows
 } from '../services/pageStateService.js'
 
+
 const paginator =
   createPaginator()
+
+const updatePagination =
+  createPaginatorUiUpdater({
+    paginator,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 const state =
   createPageState()
@@ -105,7 +120,7 @@ async function loadAthletes() {
     showLoading()
 
     const { data, error } =
-      await window.supabaseClient
+      await getDb()
         .from('athletes')
         .select(`
   *,
@@ -146,7 +161,6 @@ async function loadAthletes() {
 
     renderAthletes()
   } catch (error) {
-    console.error(error)
 
     showError(
 
@@ -275,26 +289,6 @@ function renderAthletes() {
 // PAGINATION
 // =====================================================
 
-function updatePagination() {
-  updatePaginationUi({
-
-    paginator,
-
-    infoElement:
-      paginationInfo,
-
-    previousButton:
-      document.getElementById(
-        'btnPreviousPage'
-      ),
-
-    nextButton:
-      document.getElementById(
-        'btnNextPage'
-      )
-
-  })
-}
 // =====================================================
 // SEARCH
 // =====================================================
@@ -541,7 +535,7 @@ async function saveAthlete() {
 
     if (athleteId) {
       const result =
-        await window.supabaseClient
+        await getDb()
           .from('athletes')
           .update(payload)
           .eq(
@@ -552,7 +546,7 @@ async function saveAthlete() {
       error = result.error
     } else {
       const result =
-        await window.supabaseClient
+        await getDb()
           .from('athletes')
           .insert(payload)
 
@@ -569,7 +563,6 @@ async function saveAthlete() {
 
     await loadAthletes()
   } catch (error) {
-    console.error(error)
 
     showError(
 
@@ -613,7 +606,7 @@ async function deleteAthlete() {
     showLoading()
 
     const { error } =
-      await window.supabaseClient
+      await getDb()
         .from('athletes')
         .delete()
         .eq(
@@ -630,7 +623,6 @@ async function deleteAthlete() {
     )
     await loadAthletes()
   } catch (error) {
-    console.error(error)
 
     showError(
 
@@ -759,11 +751,8 @@ document
 async function initializeAthletes() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Supabase client not found'
-      )
 
       return
     }
@@ -823,7 +812,6 @@ async function initializeAthletes() {
 
     })
   } catch (error) {
-    console.error(error)
   }
 }
 

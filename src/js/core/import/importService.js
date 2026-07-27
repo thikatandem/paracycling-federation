@@ -1,4 +1,4 @@
-﻿import { readCsv } from './csvImporter.js'
+import { readCsv } from './csvImporter.js'
 import * as validation from './importValidation.js'
 import * as lookup from './lookupResolver.js'
 import * as preview from './previewImporter.js'
@@ -8,7 +8,6 @@ import { IMPORT_STATUS } from './importConstants.js'
 // IMPORT SERVICE
 // ParaCycling Federation Management System
 // =====================================================
-
 
 // =====================================================
 // NORMALIZATION ENGINE
@@ -22,7 +21,6 @@ import { IMPORT_STATUS } from './importConstants.js'
 //
 // =====================================================
 
-
 // =====================================================
 // TRIM VALUES
 // =====================================================
@@ -34,7 +32,6 @@ export function trimValues(
     row =>
       row.map(
         value => {
-
           if (
             value === null ||
             value === undefined
@@ -45,7 +42,6 @@ export function trimValues(
           return String(
             value
           ).trim()
-
         }
       )
   )
@@ -62,7 +58,6 @@ export function convertEmptyStrings(
     row =>
       row.map(
         value => {
-
           if (
             value === null ||
             value === undefined
@@ -75,10 +70,9 @@ export function convertEmptyStrings(
               value
             ).trim()
 
-          return trimmed === ''
-            ? null
-            : trimmed
-
+          return trimmed === '' ?
+            null :
+            trimmed
         }
       )
   )
@@ -116,7 +110,6 @@ export function padRows(
 ) {
   return rows.map(
     row => {
-
       const copy =
         [...row]
 
@@ -130,34 +123,30 @@ export function padRows(
       }
 
       return copy
-
     }
   )
 }
-
 
 // =====================================================
 // NORMALIZE ROWS
 // =====================================================
 
 export function normalizeRows(
-    rows = []
+  rows = []
 ) {
-
-    const columnCount =
+  const columnCount =
 
         getColumnCount(
-            rows
+          rows
         )
 
-    return padRows(
+  return padRows(
 
-        rows,
+    rows,
 
-        columnCount
+    columnCount
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -201,8 +190,6 @@ export function normalizeHeaders(
   )
 }
 
-
-
 // =====================================================
 // BUILD RECORD OBJECTS
 // =====================================================
@@ -218,7 +205,6 @@ export function buildObjects(
 
   return rows.map(
     row => {
-
       const record = {}
 
       normalized.forEach(
@@ -226,25 +212,18 @@ export function buildObjects(
           header,
           index
         ) => {
-
           record[
             header
           ] =
             row[index] ??
             null
-
         }
       )
 
       return record
-
     }
   )
 }
-
-
-
-
 
 // =====================================================
 // BUILD IMPORT RESULT
@@ -252,20 +231,19 @@ export function buildObjects(
 
 export function buildImportResult({
 
-    source,
+  source,
 
-    delimiter,
+  delimiter,
 
-    headers = [],
+  headers = [],
 
-    rows = [],
+  rows = [],
 
-    errors = [],
+  errors = [],
 
-    warnings = []
+  warnings = []
 
-} = {}){
-
+} = {}) {
   const normalizedRows =
     normalizeRows(
       rows
@@ -300,16 +278,15 @@ export function buildImportResult({
       normalizedRows.length,
 
     columnCount:
-  normalizedRows.length
-    ? normalizedRows[0].length
-    : headers.length,
+  normalizedRows.length ?
+    normalizedRows[0].length :
+    headers.length,
 
-errors,
+    errors,
 
     warnings
 
   }
-
 }
 // =====================================================
 // NORMALIZATION PIPELINE
@@ -333,103 +310,94 @@ errors,
 
 function normalizeExcelDate(
 
-    value
+  value
 
 ) {
+  if (
 
-    if (
-
-        value === null ||
+    value === null ||
 
         value === undefined ||
 
         value === ''
 
-    ) {
+  ) {
+    return value
+  }
 
-        return value
-
-    }
-
-    const text =
+  const text =
 
         String(
 
-            value
+          value
 
         ).trim()
 
-    if (
+  if (
 
-        /^\d{4}-\d{2}-\d{2}$/.test(
+    /^\d{4}-\d{2}-\d{2}$/.test(
 
-            text
+      text
 
-        )
+    )
 
-    ) {
+  ) {
+    return text
+  }
 
-        return text
-
-    }
-
-    const match =
+  const match =
 
         text.match(
 
-            /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
+          /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/
 
         )
 
-    if (
+  if (
 
-        !match
+    !match
 
-    ) {
+  ) {
+    return text
+  }
 
-        return text
+  const [
 
-    }
+    ,
 
-    const [
+    month,
 
-        ,
+    day,
 
-        month,
+    year
 
-        day,
+  ] = match
 
-        year
-
-    ] = match
-
-    return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`
-
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
 export function normalizeImport(
   rawImport = {}
 ) {
-
- const rows =
+  const rows =
 
     convertEmptyStrings(
 
-        trimValues(
+      trimValues(
 
-            rawImport.rows || []
+        rawImport.rows || []
 
-        )
+      )
 
     ).map(
 
-        row =>
+      row =>
 
-            row.map(
+        row.map(
 
-                normalizeExcelDate
+          normalizeExcelDate
 
-            )
+        )
 
     )
   return buildImportResult({
@@ -446,7 +414,6 @@ export function normalizeImport(
     rows
 
   })
-
 }
 
 // =====================================================
@@ -455,16 +422,14 @@ export function normalizeImport(
 
 export async function read(
 
-    file
+  file
 
 ) {
+  return readCsv(
 
-    return readCsv(
+    file
 
-        file
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -473,20 +438,18 @@ export async function read(
 
 export async function validate(
 
-    importData,
+  importData,
 
-    validator
+  validator
 
 ) {
+  return validator(
 
-    return validator(
+    importData,
 
-        importData,
+    validation
 
-        validation
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -495,20 +458,18 @@ export async function validate(
 
 export async function resolve(
 
-    validatedData,
+  validatedData,
 
-    resolver
+  resolver
 
 ) {
+  return resolver(
 
-    return resolver(
+    validatedData,
 
-        validatedData,
+    lookup
 
-        lookup
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -517,16 +478,14 @@ export async function resolve(
 
 export async function previewImport(
 
-    resolvedData
+  resolvedData
 
 ) {
+  return preview.buildPreview(
 
-    return preview.buildPreview(
+    resolvedData
 
-        resolvedData
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -535,28 +494,26 @@ export async function previewImport(
 
 export async function commit(
 
-    commitPlan
+  commitPlan
 
 ) {
-
-    const context =
+  const context =
 
         commitEngine.begin()
 
-    await commitEngine.commit(
+  await commitEngine.commit(
 
-        context,
+    context,
 
-        commitPlan
+    commitPlan
 
-    )
+  )
 
-    return commitEngine.finish(
+  return commitEngine.finish(
 
-        context
+    context
 
-    )
-
+  )
 }
 
 // =====================================================
@@ -565,24 +522,22 @@ export async function commit(
 
 export function finish(
 
-    result
+  result
 
 ) {
+  return {
 
-    return {
+    status:
 
-        status:
+            result.success ?
 
-            result.success
+              IMPORT_STATUS.FINISHED :
 
-                ? IMPORT_STATUS.FINISHED
+              IMPORT_STATUS.FAILED,
 
-                : IMPORT_STATUS.FAILED,
+    ...result
 
-        ...result
-
-    }
-
+  }
 }
 
 // =====================================================
@@ -592,88 +547,86 @@ export function finish(
 
 export async function process({
 
-    file,
+  file,
 
-    validator,
+  validator,
 
-    resolver,
+  resolver,
 
-    commitPlanBuilder
+  commitPlanBuilder
 
 }) {
-
-    const raw =
+  const raw =
 
         await read(
 
-            file
+          file
 
         )
 
-    const normalized =
+  const normalized =
 
         normalizeImport(
 
-            raw
+          raw
 
         )
 
-    const validated =
+  const validated =
 
         await validate(
 
-            normalized,
+          normalized,
 
-            validator
+          validator
 
         )
 
-    const resolved =
+  const resolved =
 
         await resolve(
 
-            validated,
+          validated,
 
-            resolver
+          resolver
 
         )
 
-    const previewModel =
+  const previewModel =
 
         await previewImport(
 
-            resolved
+          resolved
 
         )
 
-    return {
+  return {
 
-        raw,
+    raw,
 
-        normalized,
+    normalized,
 
-        validated,
+    validated,
 
-        resolved,
+    resolved,
 
-        preview:
+    preview:
 
             previewModel,
 
-        commitPlan:
+    commitPlan:
 
-            commitPlanBuilder
+            commitPlanBuilder ?
 
-                ? commitPlanBuilder(
+              commitPlanBuilder(
 
-                    resolved
+                resolved
 
-                  )
+              ) :
 
-                : null
+              null
 
-    }
-
+  }
 }
 // =====================================================
 // IMPORT ORCHESTRATOR

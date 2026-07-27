@@ -1,4 +1,4 @@
-﻿extends ../../_layout/default
+extends ../../_layout/default
 
 block view
 
@@ -22,24 +22,35 @@ block view
             .btn-list
 
               button.btn.btn-primary(
+                type='button'
                 id='btnRefreshParticipationReport'
               )
                 i.fa.fa-sync-alt.me-1
                 | Refresh
 
               button.btn.btn-success(
+                type='button'
                 id='btnExportParticipationCsv'
               )
                 i.fa.fa-file-csv.me-1
                 | CSV
 
               button.btn.btn-success(
+                type='button'
                 id='btnExportParticipationExcel'
               )
                 i.fa.fa-file-excel.me-1
                 | Excel
 
+              button.btn.btn-danger(
+                type='button'
+                id='btnExportParticipationPdf'
+              )
+                i.fa.fa-file-pdf.me-1
+                | PDF
+
               button.btn.btn-secondary(
+                type='button'
                 id='btnPrintParticipationReport'
               )
                 i.fa.fa-print.me-1
@@ -576,6 +587,29 @@ block view
 
                       small Classifications
 
-block append scripts
+append pageScripts
 
-  script(src='js/core/participants/participants-report.js')
+  script(
+    src='https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.2/dist/jspdf.plugin.autotable.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'
+  )
+
+  script(
+    type='module'
+    src='/js/core/participants/participants-report.js'
+  )

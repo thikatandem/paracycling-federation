@@ -1,4 +1,4 @@
-﻿.sidebar.sidebar-dark.sidebar-fixed.border-end.d-none#sidebar
+﻿.sidebar.sidebar-dark.sidebar-fixed.border-end#sidebar
 
   .sidebar-header.border-bottom.d-flex.align-items-center.justify-content-between.px-3
 
@@ -12,9 +12,51 @@
       onclick='coreui.Sidebar.getInstance(document.querySelector("#sidebar")).toggle()'
     )
 
-  #roleSidebar
+  #roleSidebar(style='visibility: hidden')
 
     include sidebar-nav
+
+  script.
+    (() => {
+      const nav = document.getElementById('roleSidebar')
+
+      if (!nav) {
+        return
+      }
+
+      window.__defaultRoleSidebarHtml = nav.innerHTML
+
+      try {
+        const authCache = JSON.parse(
+          sessionStorage.getItem('thika-tandem.auth-context.v1') || 'null'
+        )
+
+        const shellCache = JSON.parse(
+          sessionStorage.getItem('thika-tandem.sidebar-shell.v1') || 'null'
+        )
+
+        if (
+          authCache?.userId &&
+          shellCache?.userId === authCache.userId &&
+          typeof shellCache.html === 'string' &&
+          shellCache.html.trim()
+        ) {
+          nav.innerHTML = shellCache.html
+          nav.style.visibility = 'visible'
+          return
+        }
+
+        if (
+          authCache?.userId &&
+          authCache?.role?.role_code &&
+          authCache.role.role_code !== 'ATHLETE'
+        ) {
+          nav.style.visibility = 'visible'
+        }
+      } catch {
+        // Keep only the sidebar shell visible until auth resolves.
+      }
+    })()
 
   .sidebar-footer.border-top.d-none.d-md-flex
 

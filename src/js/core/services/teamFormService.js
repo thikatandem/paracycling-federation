@@ -1,8 +1,11 @@
 import {
   setValues,
   getValues
-}
-  from './domService.js'
+} from './domService.js'
+
+import {
+  buildTextCell
+} from './tableRendererService.js'
 
 export function populateTeamForm({
 
@@ -153,4 +156,51 @@ export function detectStokerChange(
     team.stoker_athlete_id !==
     selectedStoker
   )
+}
+
+
+export function validateTeamSelection({
+  pilotId,
+  stokerId,
+  effectiveDate
+} = {}) {
+  if (!pilotId) {
+    return 'Pilot is required'
+  }
+
+  if (!stokerId) {
+    return 'Stoker is required'
+  }
+
+  if (pilotId === stokerId) {
+    return 'Pilot and Stoker cannot be the same athlete'
+  }
+
+  if (!effectiveDate) {
+    return 'Effective Date is required'
+  }
+
+  return null
+}
+
+export function validateTeamForm({
+  pilotFieldId = 'pilotAthleteId',
+  stokerFieldId = 'stokerAthleteId',
+  effectiveDateFieldId = 'effectiveDate'
+} = {}) {
+  const values =
+    getValues([
+      pilotFieldId,
+      stokerFieldId,
+      effectiveDateFieldId
+    ])
+
+  return validateTeamSelection({
+    pilotId:
+      values[pilotFieldId],
+    stokerId:
+      values[stokerFieldId],
+    effectiveDate:
+      values[effectiveDateFieldId]
+  })
 }

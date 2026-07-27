@@ -7,9 +7,18 @@ import {
   get,
   show,
   hide,
-  setText,
   setHtml
 } from './domService.js'
+import {
+  showInlineMessage,
+  showInlineSuccess,
+  showInlineError,
+  showInlineWarning,
+  showInlineInfo,
+  clearInlineFeedback,
+  createFeedbackController,
+  confirmAction
+} from './feedbackService.js'
 
 // =====================================================
 // LOADING
@@ -45,10 +54,6 @@ export function hideLoading(
   return true
 }
 
-// =====================================================
-// PAGE LOADER
-// =====================================================
-
 export function showPageLoader() {
   document.body.classList.add(
     'loading'
@@ -61,133 +66,173 @@ export function hidePageLoader() {
   )
 }
 
-// =====================================================
-// INTERNAL MESSAGE ENGINE
-// =====================================================
+export function setLoadingState(
+  elementOrId,
+  visible = true
+) {
+  const element =
+    typeof elementOrId === 'string' ?
+      get(elementOrId) :
+      elementOrId
 
-function showMessage({
-  containerId,
-  message,
-  alertClass,
-  timeout
-}) {
-  const container =
-    get(containerId)
-
-  if (!container) {
+  if (!element) {
     return false
   }
 
-  container.className =
-    `alert ${alertClass}`
-
-  container.textContent =
-    message
-
-  container.classList.remove(
-    'd-none'
+  element.classList.toggle(
+    'd-none',
+    !visible
   )
-
-  if (
-    timeout > 0
-  ) {
-    setTimeout(
-      () =>
-        clearMessage(
-          containerId
-        ),
-      timeout
-    )
-  }
 
   return true
 }
 
+export function createLoadingStateSetter(
+  elementOrId
+) {
+  return (
+    visible = true
+  ) =>
+    setLoadingState(
+      elementOrId,
+      visible
+    )
+}
+
+export function createLoadingController(
+  elementOrId
+) {
+  return {
+    show() {
+      return setLoadingState(
+        elementOrId,
+        true
+      )
+    },
+
+    hide() {
+      return setLoadingState(
+        elementOrId,
+        false
+      )
+    },
+
+    set(
+      visible = true
+    ) {
+      return setLoadingState(
+        elementOrId,
+        visible
+      )
+    }
+  }
+}
+
+export function createAsyncRefresher(
+  ...loaders
+) {
+  return async function refreshAll() {
+    await Promise.all(
+      loaders.map(
+        loader =>
+          loader()
+      )
+    )
+  }
+}
+
 // =====================================================
-// TOASTS
+// INLINE FEEDBACK
 // =====================================================
 
 export function toastSuccess(
-  message
+  message,
+  options = {}
 ) {
-  console.log(
-    `✅ ${message}`
+  return showInlineSuccess(
+    message,
+    options
   )
 }
 
 export function toastError(
-  message
+  message,
+  options = {}
 ) {
-  console.error(
-    `❌ ${message}`
+  return showInlineError(
+    message,
+    options
   )
 }
 
 export function toastWarning(
-  message
+  message,
+  options = {}
 ) {
-  console.warn(
-    `⚠️ ${message}`
+  return showInlineWarning(
+    message,
+    options
   )
 }
 
 export function toastInfo(
-  message
+  message,
+  options = {}
 ) {
-  console.info(
-    `ℹ️ ${message}`
+  return showInlineInfo(
+    message,
+    options
   )
 }
-
-// =====================================================
-// CONFIRMATIONS
-// =====================================================
-
-export function confirmDelete(
-  itemName =
-  'record'
-) {
-  return window.confirm(
-    `Delete this ${itemName}?`
-  )
-}
-
-// =====================================================
-// NOTIFICATIONS
-// =====================================================
 
 export function notify({
   type = 'info',
-  message = ''
-}) {
-  switch (type) {
-    case 'success': {
-      toastSuccess(
-        message
-      )
-      break
+  message = '',
+  containerId = null,
+  timeout = null,
+  sticky = false
+} = {}) {
+  return showInlineMessage(
+    message,
+    {
+      type,
+      containerId,
+      timeout,
+      sticky
     }
+  )
+}
 
-    case 'error': {
-      toastError(
-        message
-      )
-      break
-    }
+export async function confirmDelete(
+  itemName = 'record'
+) {
+  return confirmAction({
+    title: 'Confirm Delete',
+    message:
+      `Delete this ${itemName}?`,
+    confirmText: 'Delete',
+    type: 'warning'
+  })
+}
 
-    case 'warning': {
-      toastWarning(
-        message
-      )
-      break
-    }
+export {
+  showInlineMessage,
+  showInlineSuccess,
+  showInlineError,
+  showInlineWarning,
+  showInlineInfo,
+  clearInlineFeedback,
+  createFeedbackController,
+  confirmAction
+}
 
-    default: {
-      toastInfo(
-        message
-      )
-    }
-  }
+// =====================================================
+// PRINTING
+// =====================================================
+
+export function printCurrentView() {
+  window.print()
+  return true
 }
 
 // =====================================================
@@ -212,23 +257,20 @@ export function scrollToElement(
   }
 
   element.scrollIntoView({
-    behavior:
-      'smooth',
-    block:
-      'start'
+    behavior: 'smooth',
+    block: 'start'
   })
 
   return true
 }
 
 // =====================================================
-// EMPTY STATES
+// EMPTY / ERROR STATES
 // =====================================================
 
 export function showEmptyState({
   containerId,
-  message =
-  'No records found.'
+  message = 'No records found.'
 }) {
   setHtml(
     containerId,
@@ -244,8 +286,7 @@ export function showEmptyState({
 
 export function showTableError({
   containerId,
-  message =
-  'Unable to load records.'
+  message = 'Unable to load records.'
 }) {
   setHtml(
     containerId,
@@ -261,38 +302,3 @@ export function showTableError({
     `
   )
 }
-
-export async function confirmAction({
-
-  title = 'Confirm',
-
-  message = 'Continue?',
-
-  confirmText = 'Yes'
-
-}) {
-  if (
-    window.Swal
-  ) {
-    const result =
-      await Swal.fire({
-
-        title,
-
-        text: message,
-
-        icon: 'warning',
-
-        showCancelButton: true,
-
-        confirmButtonText:
-          confirmText
-
-      })
-
-    return result.isConfirmed
-  }
-
-  return confirm(message)
-}
-

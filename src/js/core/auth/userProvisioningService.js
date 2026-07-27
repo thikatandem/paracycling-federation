@@ -344,7 +344,7 @@ export async function loadProvisioningRequests(
   profileId
 ) {
   let query =
-    db
+    getDb()
       .from(
         'user_provisioning_requests'
       )

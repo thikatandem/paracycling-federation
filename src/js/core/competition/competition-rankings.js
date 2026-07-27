@@ -2,10 +2,53 @@
 // COMPETITION RANKINGS MODULE
 // =====================================================
 
-/* global coreui */
-/* eslint-disable no-console */
+import {
+  formatFixedNumber as formatNumber
+} from '../services/formattingService.js'
 
-const PAGE_SIZE = 10
+import {
+  createSimplePaginationUpdater
+} from '../services/paginationService.js'
+
+import {
+  createLoadingController
+} from '../services/uiService.js'
+
+import {
+  showInlineError
+} from '../services/feedbackService.js'
+
+import {
+  PAGE_SIZE
+} from '../services/constants.js'
+
+import {
+  getDb,
+  hasDb
+} from '../supabase/getDb.js'
+
+
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'rankingLoading'
+)
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredRankings.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 let rankings = []
 
@@ -32,30 +75,15 @@ const paginationInfo =
   document.getElementById(
     'paginationInfo'
   )
-function showLoading() {
-  rankingLoading?.classList.remove(
-    'd-none'
-  )
-}
 
-function hideLoading() {
-  rankingLoading?.classList.add(
-    'd-none'
-  )
-}
 
-function formatNumber(value) {
-  return Number(
-    value || 0
-  ).toFixed(2)
-}
 
 async function loadCompetitionRankings() {
   try {
     showLoading()
 
     const { data, error } =
-      await db
+      await getDb()
         .from('rankings')
         .select(`
           *,
@@ -85,9 +113,8 @@ async function loadCompetitionRankings() {
 
     renderCompetitionRankings()
   } catch (error) {
-    console.error(error)
 
-    alert(
+    showInlineError(
       'Failed to load competition rankings'
     )
   } finally {
@@ -185,47 +212,6 @@ function renderCompetitionRankings() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredRankings.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
 
 function searchCompetitionRankings() {
   const search =
@@ -331,11 +317,8 @@ function wireEvents() {
 async function initializeCompetitionRankings() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Database client not found'
-      )
 
       return
     }
@@ -346,9 +329,6 @@ async function initializeCompetitionRankings() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
   }
 }
 

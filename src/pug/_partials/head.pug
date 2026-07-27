@@ -31,6 +31,14 @@ link(rel='stylesheet' href='css/vendors/simplebar.css')
 // Main styles for this application
 link(href='css/style.css', rel='stylesheet')
 
+// Warm up remote origins used by authenticated pages.
+link(rel='preconnect', href='https://cdn.jsdelivr.net', crossorigin='anonymous')
+link(rel='preconnect', href='https://ingbnzsiabtttijddenn.supabase.co', crossorigin='anonymous')
+link(rel='dns-prefetch', href='https://ingbnzsiabtttijddenn.supabase.co')
+
+// Load Tom Select styles before body paint to avoid a late style/layout flash.
+link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css')
+
 // We use those styles to show code examples, you should remove them in your application.
 link(href='css/examples.css', rel='stylesheet')
 

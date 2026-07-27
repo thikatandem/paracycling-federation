@@ -1,19 +1,16 @@
 import {
-  getDb
-}
-  from '../supabase/getDb.js'
+  SESSION_CHECK_INTERVAL,
+  INACTIVITY_LIMIT
+} from '../services/constants.js'
+
 import {
   getSession,
-  getProfile,
-  isAuthenticated,
-  getLoginId,
-  clearLoginId
+  isAuthenticated
 }
   from './authStateService.js'
 
 import {
-  logout,
-  initializeAuth
+  logout
 }
   from './authService.js'
 
@@ -26,19 +23,11 @@ let inactivityTimeout =
 let lastActivityTime =
   Date.now()
 
-const SESSION_CHECK_INTERVAL =
-  60 * 1000
-
-const INACTIVITY_LIMIT =
-  60 * 60 * 1000
-
 /* ============================================================
    INITIALIZE SESSION
    ============================================================ */
 
 export async function initializeSession() {
-  await initializeAuth()
-
   if (
     !isAuthenticated()
   ) {
@@ -210,105 +199,10 @@ export async function validateInactivity() {
   }
 }
 
-/* ============================================================
-   LOGIN TRACKING
-   ============================================================ */
-
-export async function trackLogin() {
-  try {
-    const profile =
-      getProfile()
-
-    if (!profile) {
-      return null
-    }
-
-    const {
-      data,
-      error
-    } =
-      await getDb()
-        .from(
-          'login_history'
-        )
-        .insert({
-
-          profile_id:
-            profile.profile_id,
-
-          login_time:
-            new Date()
-              .toISOString(),
-
-          success: true,
-
-          user_agent:
-            navigator.userAgent
-
-        })
-        .select(
-          'login_id'
-        )
-        .single()
-
-    if (error) {
-      throw error
-    }
-
-    return data.login_id
-  } catch (error) {
-    console.error(
-      'Failed to track login',
-      error
-    )
-
-    return null
-  }
-}
-
-/* ============================================================
-   LOGOUT TRACKING
-   ============================================================ */
-
-export async function trackLogout() {
-  try {
-    const profile =
-      getProfile()
-
-    const loginId =
-      getLoginId()
-
-    if (
-      !profile ||
-      !loginId
-    ) {
-      return
-    }
-
-    await getDb()
-      .from(
-        'login_history'
-      )
-      .update({
-
-        logout_time:
-          new Date()
-            .toISOString()
-
-      })
-      .eq(
-        'login_id',
-        loginId
-      )
-
-    clearLoginId()
-  } catch (error) {
-    console.error(
-      'Failed to track logout',
-      error
-    )
-  }
-}
+export {
+  trackLogin,
+  trackLogout
+} from './loginHistoryService.js'
 
 /* ============================================================
    ACTIVE SESSION
@@ -325,6 +219,7 @@ export function hasActiveSession() {
    CURRENT SESSION
    ============================================================ */
 
-export function getCurrentSession() {
-  return getSession()
-}
+
+export {
+  getSession as getCurrentSession
+} from './authStateService.js'

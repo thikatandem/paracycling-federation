@@ -1,11 +1,19 @@
+import {
+  supabaseClient
+} from '../../supabase.js'
+
+export function hasDb() {
+  return Boolean(
+    supabaseClient
+  )
+}
+
 export function getDb() {
-  if (
-    !window.supabaseClient
-  ) {
+  if (!supabaseClient) {
     throw new Error(
-      'Supabase client not initialized.'
+      'Supabase client not initialized. Check that the Supabase browser library loads before the application module.'
     )
   }
 
-  return window.supabaseClient
+  return supabaseClient
 }

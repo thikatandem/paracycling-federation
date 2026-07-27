@@ -298,16 +298,21 @@ export function nonNegative(
 // =====================================================
 
 export function uuid(
-  value
+  value,
+  fieldName = ''
 ) {
   const regex =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-  return regex.test(value) ?
+  return regex.test(
+    value || ''
+  ) ?
     result(true) :
     result(
       false,
-      'Invalid identifier.'
+      fieldName ?
+        `${fieldName} is invalid.` :
+        'Invalid identifier.'
     )
 }
 
@@ -578,77 +583,105 @@ export function validateLocationSelection({
 }
 
 export function guid(
-
   value,
-
   fieldName = 'Id'
-
 ) {
-  const regex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-
-  return regex.test(
-    value || ''
-  ) ?
-
-    result(true) :
-
-    result(
-      false,
-      `${fieldName} is invalid.`
-    )
+  return uuid(
+    value,
+    fieldName
+  )
 }
 
 export function positiveNumber(
-
   value,
-
   fieldName = 'Value'
-
 ) {
-  const valid =
-    Number(value) > 0
-
-  return valid ?
-
-    result(true) :
-
-    result(
-      false,
-      `${fieldName} must be greater than zero.`
-    )
+  return positive(
+    value,
+    fieldName
+  )
 }
 
 export function validateDateRange({
-
   startDate,
-
   endDate
-
 }) {
   if (
     !startDate ||
     !endDate
   ) {
-    return {
-      valid: true
+    return result(true)
+  }
+
+  const validation =
+    dateRange(
+      startDate,
+      endDate
+    )
+
+  if (validation.valid) {
+    return validation
+  }
+
+  return result(
+    false,
+    'End date cannot be earlier than start date.'
+  )
+}
+
+export function timeRange(
+  startTime,
+  endTime,
+  fieldName = 'Time'
+) {
+  if (
+    !startTime ||
+    !endTime
+  ) {
+    return result(true)
+  }
+
+  return endTime > startTime ?
+    result(true) :
+    result(
+      false,
+      `${fieldName} end must be later than start.`
+    )
+}
+
+export function positiveInteger(
+  value,
+  fieldName = 'Value'
+) {
+  const integerResult =
+    integer(
+      value,
+      fieldName
+    )
+
+  if (!integerResult.valid) {
+    return integerResult
+  }
+
+  return positive(
+    value,
+    fieldName
+  )
+}
+
+export function validateRules(
+  rules = []
+) {
+  for (const rule of rules) {
+    const validation =
+      rule.validator()
+
+    if (!validation.valid) {
+      return validation
     }
   }
 
-  return new Date(
-    startDate
-  ) <=
-  new Date(
-    endDate
-  ) ?
-    {
-      valid: true
-    } :
-    {
-      valid: false,
-      message:
-          'End date cannot be earlier than start date.'
-    }
+  return result(true)
 }
 
 export function validateDifferentValues({

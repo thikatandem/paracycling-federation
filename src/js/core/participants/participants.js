@@ -1,12 +1,73 @@
+import {
+  printCurrentView as exportPdf
+} from '../services/uiService.js'
+
+import {
+  createNumberedPaginationRenderer
+} from '../services/paginationService.js'
+
+import {
+  formatDate
+} from '../services/formattingService.js'
+
+import {
+  getParticipantStatusBadge
+} from '../services/badgeService.js'
+
+import {
+  buildActionButtons,
+  buildActionCell,
+  buildStatusCell
+} from '../services/tableRendererService.js'
+
+import {
+  getProgramsForEvent
+} from '../programs/programService.js'
+
 // =====================================================
 // EVENTS MODULE
 // ParaCycling Federation Management System
 // =====================================================
 
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
+import {
+  getInputValue as getValue,
+  setRawValue as setValue } from '../services/domService.js'
+import { showInlineError,
+  createDualFeedbackController } from '../services/feedbackService.js'
+import { PAGE_SIZE as pageSize,
+  ERROR_TIMEOUT,
+  SUCCESS_TIMEOUT
+} from '../services/constants.js'
+import { getDb } from '../supabase/getDb.js'
+import { ensureParticipantRegistryEntry,
+  saveParticipantRegistrations,
+  updateParticipantRegistration } from './participantRegistrationService.js'
+import { createModal,
+  showModal,
+  hideModal
+} from '../services/modalService.js'
+const participantFeedback =
+  createDualFeedbackController({
+    errorContainerId:
+      'participantRegistrationError',
+    successContainerId:
+      'participantRegistrationSuccess',
+    errorOptions: {
+      timeout: ERROR_TIMEOUT
+    },
+    successOptions: {
+      timeout: SUCCESS_TIMEOUT
+    }
+  })
+
+const showError =
+  participantFeedback.error
+    .bind(participantFeedback)
+
+const showSuccess =
+  participantFeedback.success
+    .bind(participantFeedback)
 
 let events = []
 
@@ -28,35 +89,9 @@ let participantRegistrations = []
 let pendingDeleteIds = []
 
 let currentPage = 1
+let registrationSaveInFlight = false
 
-const pageSize = 10
 
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(
-      id
-    )
-
-  if (
-    element
-  ) {
-    element.value =
-      value
-  }
-}
-
-function getValue(
-  id
-) {
-  return (
-    document.getElementById(
-      id
-    )?.value || ''
-  )
-}
 
 const eventId =
   document.getElementById(
@@ -114,61 +149,7 @@ document.addEventListener(
   'DOMContentLoaded',
   initializeParticipants
 )
-function showSuccess(
-  message
-) {
-  const successBox =
-    document.getElementById(
-      'participantRegistrationSuccess'
-    )
 
-  if (
-    successBox
-  ) {
-    successBox.textContent =
-      message
-
-    successBox.classList.remove(
-      'd-none'
-    )
-
-    setTimeout(
-      () =>
-        successBox.classList.add(
-          'd-none'
-        ),
-      3000
-    )
-  }
-}
-
-function showError(
-  message
-) {
-  const errorBox =
-    document.getElementById(
-      'participantRegistrationError'
-    )
-
-  if (
-    errorBox
-  ) {
-    errorBox.textContent =
-      message
-
-    errorBox.classList.remove(
-      'd-none'
-    )
-
-    setTimeout(
-      () =>
-        errorBox.classList.add(
-          'd-none'
-        ),
-      5000
-    )
-  }
-}
 
 function showDeleteConfirmation(
   participantInstanceId = null,
@@ -188,13 +169,9 @@ function showDeleteConfirmation(
 
     `WARNING: You are about to remove ${pendingDeleteIds.length} participants. This action cannot be undone.`
 
-  coreui.Modal
-    .getOrCreateInstance(
-      document.getElementById(
-        'deleteRegistrationModal'
-      )
-    )
-    .show()
+  showModal(
+    'deleteRegistrationModal'
+  )
 }
 
 function toggleBulkDeleteButton() {
@@ -242,15 +219,12 @@ async function initializeParticipants() {
     await loadParticipantStatuses()
 
     await loadParticipantRegistry()
-      loadPrograms()
+    await loadPrograms()
 
     await loadRegistrations()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
   }
 }
 
@@ -399,8 +373,7 @@ async function loadEvents() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'events'
       )
@@ -669,8 +642,7 @@ async function populateCompositionSelectors() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'athletes'
       )
@@ -731,8 +703,7 @@ async function createComposition() {
       data: athletes,
       error: athleteError
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'athletes'
     )
@@ -792,8 +763,7 @@ async function createComposition() {
     const {
       data: existingComposition
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'team_compositions'
     )
@@ -838,8 +808,7 @@ async function createComposition() {
       const {
         data: existingTeam
       } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'team_composition_master'
       )
@@ -863,8 +832,7 @@ async function createComposition() {
           data: newTeam,
           error: teamError
         } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'team_composition_master'
         )
@@ -887,15 +855,11 @@ async function createComposition() {
       }
     }
 
-    console.log(
-      'LOOKUP ACTIVE STATUS'
-    )
     const {
       data: activeStatus,
       error: activeStatusError
     } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'team_composition_status_master'
         )
@@ -914,15 +878,11 @@ async function createComposition() {
       throw activeStatusError
     }
 
-    console.log(
-      'LOOKUP TEAM TYPE'
-    )
     const {
       data: teamType,
       error: teamTypeError
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'team_type_master'
     )
@@ -935,11 +895,6 @@ async function createComposition() {
       'TEMPORARY'
     )
 
-    console.log(
-      'TEAM TYPE LOOKUP',
-      teamType,
-      teamTypeError
-    )
 
     if (
       teamTypeError
@@ -950,8 +905,7 @@ async function createComposition() {
     const {
       error
     } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'team_compositions'
         )
@@ -998,77 +952,11 @@ async function createComposition() {
       throw error
     }
 
-    const {
-      data: compositionParticipantType,
-      error: participantTypeError
-    } =
-  await window
-    .supabaseClient
-    .from(
-      'participant_type_master'
-    )
-    .select(`
-      participant_type_id,
-      participant_type_code
-    `)
-    .eq(
-      'participant_type_code',
-      'COMPOSITION'
-    )
-
-    console.log(
-      'PARTICIPANT TYPE LOOKUP',
-      compositionParticipantType,
-      participantTypeError
-    )
-
-    const compositionParticipantTypeId =
-  compositionParticipantType?.[0]
-    ?.participant_type_id
-
-    if (
-      !compositionParticipantTypeId
-    ) {
-      throw new Error(
-        'COMPOSITION participant type not found'
-      )
-    }
-
-    if (
-      participantTypeError
-    ) {
-      throw participantTypeError
-    }
-
-    const {
-      error: registryError
-    } =
-  await window
-    .supabaseClient
-    .from(
-      'participant_registry'
-    )
-    .insert({
-
-      participant_type_id:
-  compositionParticipantTypeId,
-
-      source_id:
-        compositionTeamId,
-
-      display_name:
-        compositionName,
-
-      is_active:
-        true
-
+    await ensureParticipantRegistryEntry({
+      participantTypeCode: 'COMPOSITION',
+      sourceId: compositionTeamId,
+      displayName: compositionName
     })
-
-    if (
-      registryError
-    ) {
-      throw registryError
-    }
 
     await loadParticipantRegistry()
 
@@ -1084,10 +972,6 @@ async function createComposition() {
         ?.participant_type_code ===
       'COMPOSITION'
   )
-    console.log(
-      'FOUND COMPOSITION',
-      newComposition
-    )
     if (
       newComposition
     ) {
@@ -1122,12 +1006,8 @@ async function createComposition() {
   } catch (
     error
   ) {
-    console.error(
-      'FULL ERROR',
-      error
-    )
 
-    alert(
+    showInlineError(
       JSON.stringify(
         error,
         null,
@@ -1152,8 +1032,7 @@ async function loadOccurrences(
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'event_instances'
       )
@@ -1220,61 +1099,38 @@ async function handleOccurrenceChange() {
   )
 }
 
-async function loadPrograms() {
+async function loadPrograms(
+  selectedEventId = getValue('eventId')
+) {
+  programId.innerHTML = `
+    <option value="">
+      Select Program
+    </option>
+  `
 
-    const {
+  eventPrograms = []
 
-        data,
+  if (!selectedEventId) {
+    return
+  }
 
-        error
+  eventPrograms =
+    await getProgramsForEvent(
+      selectedEventId,
+      {
+        includeSortOrder: true,
+        filterInactivePrograms: true,
+        orderBySequence: true
+      }
+    )
 
-    } =
-    await window
-        .supabaseClient
-        .from(
-            'program_master'
-        )
-        .select(`
-            program_id,
-            program_name
-        `)
-        .eq(
-            'active',
-            true
-        )
-        .order(
-            'sort_order'
-        )
-        .order(
-            'program_name'
-        )
-
-    if (error) {
-
-        throw error
-
-    }
-
-    eventPrograms =
-        data || []
-
-    programId.innerHTML =
-        `
-        <option value="">
-            Select Program
-        </option>
-        `
-
-    for (const program of eventPrograms) {
-
-        programId.innerHTML += `
-            <option
-                value="${program.program_id}">
-                ${program.program_name}
-            </option>
-        `
-    }
-
+  for (const program of eventPrograms) {
+    programId.innerHTML += `
+      <option value="${program.program_id}">
+        ${program.program_name}
+      </option>
+    `
+  }
 }
 
 async function loadOccurrenceDetails(
@@ -1284,8 +1140,7 @@ async function loadOccurrenceDetails(
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'event_instances'
       )
@@ -1386,8 +1241,7 @@ async function loadParticipantRegistry() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'participant_registry'
       )
@@ -1447,15 +1301,10 @@ function renderParticipants() {
         const typeMatch =
   !typeFilter ||
   (
-    typeFilter === 'COMPOSITION' ?
-      participant
-          .participant_type_master
-          ?.participant_type_code ===
-        'ATHLETE' :
-      participant
-          .participant_type_master
-          ?.participant_type_code ===
-        typeFilter
+    participant
+      .participant_type_master
+      ?.participant_type_code ===
+    typeFilter
   )
         return (
           nameMatch &&
@@ -1537,8 +1386,7 @@ async function loadParticipantStatuses() {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'registration_status_master'
       )
@@ -1577,292 +1425,161 @@ async function loadParticipantStatuses() {
   }
 }
 
-async function saveRegistration() {
-  try {
-    const occurrenceId =
-      getValue(
-        'eventInstanceId'
-      )
+function setRegistrationSaveBusy(busy) {
+  registrationSaveInFlight = busy
 
-    const selectedProgramId =
-      getValue(
-        'programId'
-      )
-
-    const participantStatus =
-      getValue(
-        'participantStatusId'
-      )
-
-    const registeredStatus =
-  participantStatuses.find(
-    status =>
-      status.status_code ===
-      'REGISTERED'
-  )
-
-    const participantInstanceId =
-  getValue(
-    'participantInstanceId'
-  )
-
-    if (
-      !occurrenceId
-    ) {
-      showError(
-        'Event Occurrence is required'
-      )
-
-      return
-    }
-
-    if (
-      !selectedProgramId
-    ) {
-      showError(
-        'Program is required'
-      )
-
-      return
-    }
-
-    if (
-      participantInstanceId &&
-  !participantStatus
-    ) {
-      showError(
-        'Participant Status is required'
-      )
-
-      return
-    }
-
-    const checkedParticipants =
-  selectedParticipants.map(
-    participantId => ({
-      value: participantId
-    })
-  )
-
-    if (
-      checkedParticipants.length === 0
-    ) {
-      showError(
-        'Select at least one participant'
-      )
-
-      return
-    }
-
-    if (
-      participantInstanceId
-    ) {
-      const selectedParticipant =
-    checkedParticipants[0]
-
-      const {
-        error
-      } =
-    await window
-      .supabaseClient
-      .from(
-        'participant_instances'
-      )
-      .update({
-
-        event_instance_id:
-          occurrenceId,
-
-        participant_ref_id:
-          selectedParticipant.value,
-        registration_status_id:
-  participantStatus,
-
-        program_id:
-          selectedProgramId
-
-      })
-      .eq(
-        'participant_instance_id',
-        participantInstanceId
-      )
-
-      if (
-        error
-      ) {
-        throw error
-      }
-
-            await loadRegistrations()
-
-    await loadParticipantRegistry()
-
-    renderRegisteredBundle()
-
-    showSuccess(
-      'Participants Updated'
+  const saveButton =
+    document.getElementById(
+      'btnSaveParticipantRegistration'
     )
 
-    renderParticipants()
-
-    return
-      
-    }
-
-    const duplicateParticipants =
-  checkedParticipants.filter(
-    checkbox =>
-
-      participantRegistrations.some(
-        registration =>
-
-          registration
-            .event_instances
-            ?.event_instance_id ===
-          occurrenceId &&
-
-          registration.program_id ===
-          selectedProgramId &&
-
-          registration
-            .participant_registry
-            ?.participant_ref_id ===
-          checkbox.value
-      )
-  )
-
-    if (
-      duplicateParticipants.length > 0 &&
-  !getValue(
-    'participantInstanceId'
-  )
-    ) {
-      showError(
-        'Registration already exists'
-      )
-
-      return
-    }
-
-    const rows =
-      checkedParticipants.map(
-        checkbox => {
-          return {
-
-            event_instance_id:
-              occurrenceId,
-
-            participant_ref_id:
-              checkbox.value,
-
-            registration_status_id:
-             registeredStatus
-             ?.registration_status_id,
-
-            program_id:
-              selectedProgramId
-          }
-        }
-      )
-
-    const {
-      error
-    } =
-      await window
-        .supabaseClient
-        .from(
-          'participant_instances'
-        )
-        .upsert(
-          rows,
-          {
-            onConflict:
-            'event_instance_id,program_id,participant_ref_id'
-          }
-        )
-
-    if (
-      error
-    ) {
-      throw error
-    }
-
-            await loadRegistrations()
-
-    await loadParticipantRegistry()
-
-    renderRegisteredBundle()
-
-    showSuccess(
-      'Participants Registered'
+  const finishButton =
+    document.getElementById(
+      'btnFinishParticipantRegistration'
     )
 
-    renderParticipants()
-  } catch (
-    error
-  ) {
-    console.error(
-      error
-    )
+  if (saveButton) {
+    saveButton.disabled = busy
+  }
 
-    showError(
-      error.message
-    )
+  if (finishButton) {
+    finishButton.disabled = busy
   }
 }
 
+async function persistRegistrationSelection({
+  allowEmpty = false
+} = {}) {
+  const occurrenceId = getValue('eventInstanceId')
+  const selectedProgramId = getValue('programId')
+  const participantStatus = getValue('participantStatusId')
+  const participantInstanceId = getValue('participantInstanceId')
+  const participantRefIds =
+    [...new Set(selectedParticipants.filter(Boolean))]
 
-async function finishRegistration() {
+  if (!occurrenceId) {
+    throw new Error('Event Occurrence is required')
+  }
+
+  if (!selectedProgramId) {
+    throw new Error('Program is required')
+  }
+
+  if (participantInstanceId && !participantStatus) {
+    throw new Error('Participant Status is required')
+  }
+
+  if (participantRefIds.length === 0) {
+    if (allowEmpty) {
+      return false
+    }
+
+    throw new Error('Select at least one participant')
+  }
+
+  if (participantInstanceId) {
+    await updateParticipantRegistration({
+      participantInstanceId,
+      eventInstanceId: occurrenceId,
+      programId: selectedProgramId,
+      participantRefId: participantRefIds[0],
+      registrationStatusId: participantStatus
+    })
+  } else {
+    const registeredStatus = participantStatuses.find(
+      status => status.status_code === 'REGISTERED'
+    )
+
+    if (!registeredStatus?.registration_status_id) {
+      throw new Error(
+        'REGISTERED participant status is not configured.'
+      )
+    }
+
+    await saveParticipantRegistrations({
+      eventInstanceId: occurrenceId,
+      programId: selectedProgramId,
+      participantRefIds,
+      registrationStatusId: registeredStatus.registration_status_id
+    })
+  }
+
+  await loadRegistrations()
+  await loadParticipantRegistry()
+  renderRegisteredBundle()
+
+  selectedParticipants = []
+  renderSelectedBundle()
+  renderParticipants()
+
+  return true
+}
+
+async function saveRegistration() {
+  if (registrationSaveInFlight) {
+    return
+  }
+
+  setRegistrationSaveBusy(true)
 
   try {
+    const participantInstanceId = getValue('participantInstanceId')
 
-    await loadRegistrations()
+    await persistRegistrationSelection()
 
-    await loadParticipantRegistry()
+    showSuccess(
+      participantInstanceId ?
+        'Participants Updated' :
+        'Participants Registered'
+    )
+  } catch (error) {
+    showError(error.message)
+  } finally {
+    setRegistrationSaveBusy(false)
+  }
+}
 
-    renderRegisteredBundle()
+async function finishRegistration() {
+  if (registrationSaveInFlight) {
+    return
+  }
+
+  setRegistrationSaveBusy(true)
+
+  try {
+    if (selectedParticipants.length > 0) {
+      await persistRegistrationSelection()
+    } else {
+      await loadRegistrations()
+      await loadParticipantRegistry()
+      renderRegisteredBundle()
+    }
 
     selectedParticipants = []
-
+    renderSelectedBundle()
     renderParticipants()
 
     showSuccess(
       'All participant bundles have been saved successfully.'
     )
 
-    const modal =
-      coreui.Modal.getOrCreateInstance(
-        document.getElementById(
-          'participantRegistrationModal'
-        )
-      )
-
-    modal.hide()
-
+    hideModal(
+      'participantRegistrationModal'
+    )
     clearRegistrationForm()
-
-  } catch (
-    error
-  ) {
-
-    console.error(
-      error
-    )
-
-    showError(
-      error.message
-    )
-
+  } catch (error) {
+    showError(error.message)
+  } finally {
+    setRegistrationSaveBusy(false)
   }
-
 }
+
 async function loadRegistrations() {
   const {
     data,
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'participant_instances'
       )
@@ -2028,26 +1745,7 @@ async function loadRegisteredParticipants(
   renderParticipants()
 }
 
-function formatDate(
-  value
-) {
-  if (
-    !value
-  ) {
-    return ''
-  }
 
-  return new Date(
-    value
-  ).toLocaleDateString(
-    'en-GB',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }
-  )
-}
 
 function renderRegistrations() {
   const tbody =
@@ -2257,7 +1955,7 @@ function renderRegistrations() {
             <td>
               ${
   registration
-                  .event_programs
+                  .program_master
                   ?.program_name || ''
 }
             </td>
@@ -2279,52 +1977,31 @@ function renderRegistrations() {
 }
             </td>
 
-            <td>
+            ${buildStatusCell(
+    getParticipantStatusBadge(
+      registration
+        .registration_status_master
+        ?.status_name || ''
+    )
+  )}
 
-${(() => {
-    const status =
-    registration
-      .registration_status_master
-      ?.status_name || ''
-
-    const cssClass =
-    `status-${
-      status
-        .toLowerCase()
-        .replaceAll(
-          ' ',
-          '-'
-        )
-    }`
-
-    return `
-    <span
-      class="badge ${cssClass}"
-    >
-      ${status}
-    </span>
-  `
-  })()}
-
-</td>
-
-            <td class="text-nowrap">
-
-              <button
-                class="btn btn-sm btn-primary me-1"
-                onclick="editRegistration('${registration.participant_instance_id}')"
-              >
-                Edit
-              </button>
-
-              <button
-                class="btn btn-sm btn-danger"
-                onclick="deleteRegistration('${registration.participant_instance_id}')"
-              >
-                Remove
-              </button>
-
-            </td>
+            ${buildActionCell(
+    buildActionButtons({
+      buttons: [
+        {
+          type: 'edit',
+          onClick:
+            `editRegistration('${registration.participant_instance_id}')`
+        },
+        {
+          type: 'delete',
+          label: 'Remove',
+          onClick:
+            `deleteRegistration('${registration.participant_instance_id}')`
+        }
+      ]
+    })
+  )}
 
           </tr>
         `
@@ -2429,11 +2106,7 @@ window.editRegistration =
   )
 
     const modal =
-  new coreui.Modal(
-    document.getElementById(
-      'participantRegistrationModal'
-    )
-  )
+  createModal('participantRegistrationModal')
 
     modal.show()
   }
@@ -2459,11 +2132,7 @@ function newRegistration() {
     )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'participantRegistrationModal'
-      )
-    )
+    createModal('participantRegistrationModal')
 
   modal.show()
 }
@@ -2808,49 +2477,21 @@ function updateSummaryCards() {
   }
 }
 
-function renderPagination() {
-  const container =
-    document.getElementById(
-      'paginationContainer'
-    )
+const renderPagination =
+  createNumberedPaginationRenderer({
+    getItemCount: () =>
+      filteredRegistrations.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize,
+    containerId:
+      'paginationContainer',
+    handlerName:
+      'changePage',
+    control:
+      'button'
+  })
 
-  if (
-    !container
-  ) {
-    return
-  }
-
-  const totalPages =
-    Math.ceil(
-      filteredRegistrations.length /
-      pageSize
-    )
-
-  container.innerHTML =
-    ''
-
-  for (
-    let page = 1;
-    page <= totalPages;
-    page++
-  ) {
-    container.innerHTML += `
-
-      <li class="page-item ${page === currentPage ? 'active' : ''}">
-
-        <button
-          class="page-link"
-          onclick="changePage(${page})"
-        >
-
-          ${page}
-
-        </button>
-
-      </li>
-    `
-  }
-}
 
 window.changePage =
   function (
@@ -2897,18 +2538,13 @@ function exportExcel() {
       }
     )
 
-  console.table(
-    rows
-  )
 
   showSuccess(
     'Excel Export Ready'
   )
 }
 
-function exportPdf() {
-  window.print()
-}
+
 
 function bulkDeleteRegistrations() {
   const selectedIds =
@@ -3028,8 +2664,7 @@ async function bulkStatusUpdate() {
   const {
     error
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .from(
         'participant_instances'
       )
@@ -3068,8 +2703,7 @@ async function confirmDeleteRegistrations() {
     const {
       error
     } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'participant_instances'
         )
@@ -3093,13 +2727,9 @@ async function confirmDeleteRegistrations() {
         `${pendingDeleteIds.length} participants removed from the event successfully.`
     )
 
-    coreui.Modal
-      .getOrCreateInstance(
-        document.getElementById(
-          'deleteRegistrationModal'
-        )
-      )
-      .hide()
+    hideModal(
+      'deleteRegistrationModal'
+    )
   } catch (
     error
   ) {

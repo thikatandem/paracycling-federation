@@ -1,0 +1,74 @@
+extends ../../_layout/default
+
+block view
+  .container-fluid
+    .d-flex.flex-wrap.justify-content-between.align-items-center.gap-2.mb-3
+      div
+        h1.h3.mb-1 Competition Rankings
+        p.text-body-secondary.mb-0 Team and individual rankings from the rankings table.
+      button#btnRefreshRankings.btn.btn-outline-primary(type='button') Refresh
+
+    #rankingLoading.d-none.text-center.mb-3
+      .spinner-border.text-primary
+
+    .card.mb-4
+      .card-header
+        strong Rankings
+      .card-body
+        .row.mb-3
+          .col-md-5
+            input#searchRanking.form-control(type='search' placeholder='Search team, individual, ranking type or position')
+        .table-responsive
+          table.table.table-striped.table-hover.align-middle
+            thead
+              tr
+                th Position
+                th Team / Individual
+                th Ranking Type
+                th Competition Score
+                th Average Position
+                th Average Points
+                th Gold
+                th Silver
+                th Bronze
+            tbody#rankingsTableBody
+        .d-flex.justify-content-between.align-items-center.mt-3
+          span#paginationInfo.text-body-secondary
+          .btn-group
+            button#btnPreviousPage.btn.btn-outline-secondary(type='button') Previous
+            button#btnNextPage.btn.btn-outline-secondary(type='button') Next
+
+    .card.mb-4
+      .card-header
+        strong Export Report
+      .card-body.text-center
+        button#btnExportRankingsExcel.btn.btn-success.me-2(type='button') Excel
+        button#btnExportRankingsPdf.btn.btn-primary.me-2(type='button') PDF
+        button#btnExportRankingsCsv.btn.btn-secondary(type='button') CSV
+
+append pageScripts
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.2/dist/jspdf.plugin.autotable.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'
+  )
+
+  script(
+    type='module'
+    src='/js/core/reports/competition-rankings.js'
+  )

@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // IMPORT CONSTANTS
 // ParaCycling Federation Management System
 // =====================================================
@@ -9,11 +9,11 @@
 
 export const SUPPORTED_TYPES = Object.freeze({
 
-    CSV: 'csv',
+  CSV: 'csv',
 
-    XLSX: 'xlsx',
+  XLSX: 'xlsx',
 
-    XLS: 'xls'
+  XLS: 'xls'
 
 })
 
@@ -31,15 +31,15 @@ export const DEFAULT_BATCH_SIZE = 500
 
 export const CSV_OPTIONS = Object.freeze({
 
-    delimiter: ',',
+  delimiter: ',',
 
-    quote: '"',
+  quote: '"',
 
-    escape: '"',
+  escape: '"',
 
-    lineBreak: '\n',
+  lineBreak: '\n',
 
-    hasHeader: true
+  hasHeader: true
 
 })
 
@@ -49,11 +49,11 @@ export const CSV_OPTIONS = Object.freeze({
 
 export const DATE_FORMATS = Object.freeze([
 
-    'YYYY-MM-DD',
+  'YYYY-MM-DD',
 
-    'DD/MM/YYYY',
+  'DD/MM/YYYY',
 
-    'MM/DD/YYYY'
+  'MM/DD/YYYY'
 
 ])
 
@@ -63,9 +63,9 @@ export const DATE_FORMATS = Object.freeze([
 
 export const TIME_FORMATS = Object.freeze([
 
-    'HH:mm',
+  'HH:mm',
 
-    'HH:mm:ss'
+  'HH:mm:ss'
 
 ])
 
@@ -75,21 +75,21 @@ export const TIME_FORMATS = Object.freeze([
 
 export const IMPORT_STATUS = Object.freeze({
 
-    READY: 'ready',
+  READY: 'ready',
 
-    READING: 'reading',
+  READING: 'reading',
 
-    VALIDATING: 'validating',
+  VALIDATING: 'validating',
 
-    RESOLVING: 'resolving',
+  RESOLVING: 'resolving',
 
-    PREVIEWING: 'previewing',
+  PREVIEWING: 'previewing',
 
-    COMMITTING: 'committing',
+  COMMITTING: 'committing',
 
-    FINISHED: 'finished',
+  FINISHED: 'finished',
 
-    FAILED: 'failed'
+  FAILED: 'failed'
 
 })
 

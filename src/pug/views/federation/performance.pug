@@ -375,6 +375,10 @@ block view
           )
             | Delete
 
+
 append pageScripts
 
-  script(src='js/core/performance/performance.js')
+  script(
+    type='module'
+    src='/js/core/performance/performance.js'
+  )

@@ -1,4 +1,8 @@
 import {
+  showInlineInfo
+} from '../services/feedbackService.js'
+
+import {
   getCurrentProfile,
   getCurrentRole,
   logout
@@ -125,7 +129,7 @@ function initializeAccountMenu() {
       event => {
         event.preventDefault()
 
-        alert(
+        showInlineInfo(
           'Session Lock not implemented yet.'
         )
       }

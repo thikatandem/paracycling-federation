@@ -9,9 +9,22 @@ import {
 }
   from './exportConstants.js'
 
-const { ExcelJS } = window
+import {
+  ensureExcelJs,
+  ensureFileSaver
+} from './exportDependencies.js'
 
-const { saveAs } = window
+function getExcelJs() {
+  const ExcelJS = window.ExcelJS
+
+  if (typeof ExcelJS?.Workbook !== 'function') {
+    throw new Error(
+      'ExcelJS is not ready. Call ensureExcelJs() before creating a workbook.'
+    )
+  }
+
+  return ExcelJS
+}
 
 // =====================================================
 // WORKBOOK
@@ -20,6 +33,9 @@ const { saveAs } = window
 export function createWorkbook(
   title = 'Report'
 ) {
+  const ExcelJS =
+    getExcelJs()
+
   const workbook =
     new ExcelJS.Workbook()
 
@@ -52,6 +68,9 @@ export async function saveWorkbook({
   reportName
 
 }) {
+  const saveAs =
+    await ensureFileSaver()
+
   const buffer =
     await workbook.xlsx.writeBuffer()
 
@@ -292,6 +311,8 @@ export async function downloadExcel({
   data
 
 }) {
+  await ensureExcelJs()
+
   const workbook =
     createWorkbook(
       reportName
@@ -330,6 +351,8 @@ export async function downloadExcelWorkbook({
   sheets = []
 
 }) {
+  await ensureExcelJs()
+
   const workbook =
     createWorkbook(
       reportName
@@ -416,6 +439,8 @@ export async function downloadImportTemplate({
   sampleRows = []
 
 }) {
+  await ensureExcelJs()
+
   const workbook =
     createWorkbook(
       reportName
@@ -498,6 +523,8 @@ export async function downloadErrorWorkbook({
   errors = []
 
 }) {
+  await ensureExcelJs()
+
   const workbook =
     createWorkbook(
       reportName

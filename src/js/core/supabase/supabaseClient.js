@@ -1,11 +1,12 @@
-const supabase = window.supabaseClient
+import {
+  getDb,
+  hasDb
+} from './getDb.js'
 
-if (!supabase) {
-  throw new Error(
-    'Supabase client not initialized'
-  )
-}
+export const supabase =
+  getDb()
 
 export {
-  supabase
+  getDb,
+  hasDb
 }

@@ -300,3 +300,73 @@ bottom:0;
 background:white;
 z-index:10;
 }
+
+// =====================================================
+// FEDERATION SHARED UI CONSISTENCY
+// One central rule-set for tables, action buttons, statuses and forms.
+// =====================================================
+
+.table {
+  vertical-align: middle;
+}
+
+.table > :not(caption) > * > * {
+  vertical-align: middle;
+}
+
+.table thead th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+.federation-table-actions,
+.table td:last-child.text-center,
+.table td.text-nowrap.text-center {
+  min-width: 9rem;
+}
+
+.federation-action-button,
+.table .btn.btn-sm {
+  min-width: 4.5rem;
+  white-space: nowrap;
+}
+
+.federation-status,
+.table .badge {
+  min-width: 5.5rem;
+  padding: .45em .65em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.federation-status-cell {
+  white-space: nowrap;
+}
+
+.form-label {
+  margin-bottom: .375rem;
+  font-weight: 600;
+}
+
+.form-control,
+.form-select {
+  min-height: 2.375rem;
+}
+
+textarea.form-control {
+  min-height: auto;
+}
+
+.alert[data-feedback],
+#appInlineFeedback,
+#appInlineConfirmation {
+  width: 100%;
+}
+
+#appInlineConfirmation .btn {
+  min-width: 5rem;
+}

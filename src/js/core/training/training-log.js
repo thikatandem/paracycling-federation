@@ -1,11 +1,108 @@
-﻿/* global coreui */
-/* eslint camelcase: 0 */
-/* eslint-disable no-console */
+import {
+  getProgramsForOccurrence
+} from '../programs/programService.js'
 
-const PAGE_SIZE = 10
+/* eslint camelcase: 0 */
+import {
+  loadTrainingEventOptions } from '../services/lookupService.js'
+import { createLocationFormLoaders } from '../services/locationLookupService.js'
+import { createTrainingMetricCalculators } from '../services/calculationService.js'
+import { createSimplePaginationUpdater } from '../services/paginationService.js'
+import { createDualFeedbackController } from '../services/feedbackService.js'
+import { createLoadingController } from '../services/uiService.js'
+import { getInputValue as getValue,
+  setStringValue as setValue } from '../services/domService.js'
+import { PAGE_SIZE,
+  ERROR_TIMEOUT,
+  SUCCESS_TIMEOUT
+} from '../services/constants.js'
+import { getDb } from '../supabase/getDb.js'
+import { ensureUniqueActivityRecord } from '../services/activityRecordService.js'
+import { createModal,
+  hideModal
+} from '../services/modalService.js'
+const loadTrainingEvents = () =>
+  loadTrainingEventOptions({
+    selectId: 'eventId',
+    onLoad: data => {
+      events = data
+    }
+  })
+
+const {
+  loadCounties,
+  loadSubcounties,
+  loadTowns
+} = createLocationFormLoaders({
+  onCounties: data => {
+    counties = data
+  },
+  onSubcounties: data => {
+    subcounties = data
+  },
+  onTowns: data => {
+    towns = data
+  }
+})
+
+const {
+  calculateDuration,
+  calculateAverageSpeed
+} = createTrainingMetricCalculators({
+  getValue,
+  setValue
+})
+
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'trainingLoading'
+)
+
+const formFeedback =
+  createDualFeedbackController({
+    errorContainerId:
+      'trainingFormError',
+    successContainerId:
+      'trainingFormSuccess',
+    errorOptions: {
+      timeout: ERROR_TIMEOUT
+    },
+    successOptions: {
+      timeout: SUCCESS_TIMEOUT
+    }
+  })
+
+const showError =
+  formFeedback.error
+    .bind(formFeedback)
+
+const showSuccess =
+  formFeedback.success
+    .bind(formFeedback)
+
+const clearError =
+  formFeedback.clearError
+    .bind(formFeedback)
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredTrainingLogs.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 const db =
-  window.supabaseClient
+  getDb()
 
 let trainingLogs = []
 
@@ -48,17 +145,7 @@ const paginationInfo =
     'paginationInfo'
   )
 
-function showLoading() {
-  trainingLoading?.classList.remove(
-    'd-none'
-  )
-}
 
-function hideLoading() {
-  trainingLoading?.classList.add(
-    'd-none'
-  )
-}
 
 async function loadTrainingResults() {
   const {
@@ -266,286 +353,13 @@ function applyTrainingResultRules() {
   }
 }
 
-function showError(
-  message
-) {
-  if (
-    !trainingFormError
-  ) {
-    return
-  }
 
-  trainingFormError.textContent =
-    message
 
-  trainingFormError
-    .classList
-    .remove(
-      'd-none'
-    )
 
-  setTimeout(
-    () => {
-      trainingFormError
-        .classList
-        .add(
-          'd-none'
-        )
-    },
-    5000
-  )
-}
 
-function showSuccess(
-  message
-) {
-  const successBox =
-    document.getElementById(
-      'trainingFormSuccess'
-    )
 
-  if (
-    successBox
-  ) {
-    successBox.textContent =
-      message
 
-    successBox
-      .classList
-      .remove(
-        'd-none'
-      )
 
-    setTimeout(
-      () => {
-        successBox
-          .classList
-          .add(
-            'd-none'
-          )
-      },
-      3000
-    )
-  }
-}
-
-function clearError() {
-  if (
-    trainingFormError
-  ) {
-    trainingFormError.textContent =
-      ''
-  }
-}
-
-function getValue(
-  id
-) {
-  return (
-    document
-      .getElementById(
-        id
-      )
-      ?.value || ''
-  )
-}
-
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(
-      id
-    )
-
-  if (
-    !element
-  ) {
-    return
-  }
-
-  element.value =
-    value === null ||
-    value === undefined ?
-      '' :
-      String(
-        value
-      )
-}
-
-function calculateDuration() {
-  const start =
-    getValue(
-      'startTime'
-    )
-
-  const end =
-    getValue(
-      'endTime'
-    )
-
-  if (
-    !start ||
-    !end
-  ) {
-    return
-  }
-
-  const startDate =
-    new Date(
-      `1970-01-01T${start}`
-    )
-
-  const endDate =
-    new Date(
-      `1970-01-01T${end}`
-    )
-
-  const minutes =
-    Math.round(
-      (
-        endDate -
-        startDate
-      ) / 60000
-    )
-
-  if (
-    minutes >= 0
-  ) {
-    setValue(
-      'durationMinutes',
-      minutes
-    )
-
-    calculateAverageSpeed()
-  }
-}
-
-function calculateAverageSpeed() {
-  const distance =
-    Number(
-      getValue(
-        'distanceKm'
-      )
-    )
-
-  const duration =
-    Number(
-      getValue(
-        'durationMinutes'
-      )
-    )
-
-  if (
-    !distance ||
-    !duration
-  ) {
-    setValue(
-      'avgSpeedKmh',
-      ''
-    )
-
-    return
-  }
-
-  const speed =
-    distance /
-    (
-      duration / 60
-    )
-
-  setValue(
-    'avgSpeedKmh',
-    speed.toFixed(
-      2
-    )
-  )
-}
-
-async function loadTrainingEvents() {
-  const {
-    data: category,
-    error: categoryError
-  } =
-    await db
-      .from(
-        'event_category_master'
-      )
-      .select(
-        'event_category_id'
-      )
-      .eq(
-        'category_code',
-        'TRAINING'
-      )
-      .single()
-
-  if (
-    categoryError
-  ) {
-    throw categoryError
-  }
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'events'
-      )
-      .select(`
-        event_id,
-        event_name
-      `)
-      .eq(
-        'event_category_id',
-        category.event_category_id
-      )
-      .order(
-        'event_name'
-      )
-
-  if (
-    error
-  ) {
-    throw error
-  }
-
-  events =
-    data || []
-
-  const select =
-    document.getElementById(
-      'eventId'
-    )
-
-  if (
-    !select
-  ) {
-    return
-  }
-
-  select.innerHTML = `
-    <option value="">
-      Select Event
-    </option>
-  `
-
-  for (
-    const event
-    of events
-  ) {
-    select.innerHTML += `
-      <option
-        value="${event.event_id}"
-      >
-        ${event.event_name}
-      </option>
-    `
-  }
-}
 
 async function loadPrograms(
   occurrenceId = null
@@ -555,14 +369,10 @@ async function loadPrograms(
       'programId'
     )
 
-  if (
-    !occurrenceId
-  ) {
+  if (!occurrenceId) {
     programs = []
 
-    if (
-      select
-    ) {
+    if (select) {
       select.innerHTML = `
         <option value="">
           Select Program
@@ -573,83 +383,16 @@ async function loadPrograms(
     return
   }
 
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'participant_instances'
-      )
-      .select(`
-        program_id,
-
-        program_master(
-          program_id,
-          program_name,
-          sort_order
-        )
-      `)
-      .eq(
-        'event_instance_id',
-        occurrenceId
-      )
-
-  if (
-    error
-  ) {
-    throw error
-  }
-
-  const uniquePrograms =
-    new Map()
-
-  for (
-    const row
-    of data || []
-  ) {
-    if (
-      row.program_master &&
-      !uniquePrograms.has(
-        row.program_id
-      )
-    ) {
-      uniquePrograms.set(
-        row.program_id,
-        {
-          program_id:
-            row.program_master
-              .program_id,
-
-          program_name:
-            row.program_master
-              .program_name,
-
-          sort_order:
-            row.program_master
-              .sort_order ??
-            9999
-        }
-      )
-    }
-  }
-
   programs =
-    Array.from(
-      uniquePrograms.values()
+    await getProgramsForOccurrence(
+      occurrenceId,
+      {
+        includeSortOrder: true,
+        sortByMasterOrder: true
+      }
     )
-      .sort(
-        (
-          a,
-          b
-        ) =>
-          a.sort_order -
-          b.sort_order
-      )
 
-  if (
-    !select
-  ) {
+  if (!select) {
     return
   }
 
@@ -956,182 +699,8 @@ async function loadSessionTypes() {
   }
 }
 
-async function loadCounties() {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'county_master'
-      )
-      .select(`
-        county_id,
-        county_name
-      `)
-      .order(
-        'county_name'
-      )
 
-  if (
-    error
-  ) {
-    throw error
-  }
 
-  counties =
-    data || []
-
-  const select =
-    document.getElementById(
-      'countyId'
-    )
-
-  if (
-    !select
-  ) {
-    return
-  }
-
-  select.innerHTML = `
-    <option value="">
-      Select County
-    </option>
-  `
-
-  for (
-    const county
-    of counties
-  ) {
-    select.innerHTML += `
-      <option
-        value="${county.county_id}"
-      >
-        ${county.county_name}
-      </option>
-    `
-  }
-}
-
-async function loadSubcounties(
-  countyId
-) {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'subcounty_master'
-      )
-      .select(`
-        subcounty_id,
-        subcounty_name
-      `)
-      .eq(
-        'county_id',
-        countyId
-      )
-      .order(
-        'subcounty_name'
-      )
-
-  if (
-    error
-  ) {
-    throw error
-  }
-
-  subcounties =
-    data || []
-
-  const select =
-    document.getElementById(
-      'subcountyId'
-    )
-
-  if (
-    !select
-  ) {
-    return
-  }
-
-  select.innerHTML = `
-    <option value="">
-      Select Subcounty
-    </option>
-  `
-
-  for (
-    const subcounty
-    of subcounties
-  ) {
-    select.innerHTML += `
-      <option
-        value="${subcounty.subcounty_id}"
-      >
-        ${subcounty.subcounty_name}
-      </option>
-    `
-  }
-}
-
-async function loadTowns(
-  subcountyId
-) {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'town_master'
-      )
-      .select(`
-        town_id,
-        town_name,
-        subcounty_id
-      `)
-      .eq(
-        'subcounty_id',
-        subcountyId
-      )
-      .order(
-        'town_name'
-      )
-
-  if (
-    error
-  ) {
-    throw error
-  }
-
-  towns =
-    data || []
-
-  const datalist =
-    document.getElementById(
-      'townList'
-    )
-
-  if (
-    !datalist
-  ) {
-    return
-  }
-
-  datalist.innerHTML =
-    ''
-
-  for (
-    const town
-    of towns
-  ) {
-    datalist.innerHTML += `
-      <option value="${town.town_name}">
-    `
-  }
-}
 
 async function loadTrainingLogs() {
   try {
@@ -1218,9 +787,6 @@ async function loadTrainingLogs() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       'Failed to load training logs'
@@ -1435,49 +1001,6 @@ function renderTrainingLogs() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredTrainingLogs.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-    previousButton.disabled =
-      currentPage <=
-      1
-  }
-
-  if (
-    nextButton
-  ) {
-    nextButton.disabled =
-      currentPage >=
-      totalPages
-  }
-}
 
 function searchTrainingLogs() {
   const search =
@@ -1712,11 +1235,7 @@ function openNewTrainingModal() {
     )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'trainingModal'
-      )
-    )
+    createModal('trainingModal')
 
   modal.show()
 }
@@ -2099,6 +1618,18 @@ async function saveTraining() {
         'trainingId'
       )
 
+    await ensureUniqueActivityRecord({
+      table: 'training_log',
+      idColumn: 'training_id',
+      currentId: trainingId || null,
+      eventInstanceId,
+      programId,
+      participantInstanceId,
+      dateColumn: 'training_date',
+      dateValue: getValue('trainingDate'),
+      sessionType: getValue('sessionType')
+    })
+
     let error
 
     if (
@@ -2143,13 +1674,9 @@ async function saveTraining() {
       'rebuild_training_rankings'
     )
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'trainingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'trainingModal'
+    )
 
     await loadTrainingLogs()
 
@@ -2161,9 +1688,6 @@ async function saveTraining() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -2428,11 +1952,7 @@ async function (
     true
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'trainingModal'
-      )
-    )
+    createModal('trainingModal')
 
   modal.show()
 }
@@ -2447,11 +1967,7 @@ function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deleteTrainingModal'
-      )
-    )
+    createModal('deleteTrainingModal')
 
   modal.show()
 }
@@ -2516,21 +2032,14 @@ async function deleteTraining() {
       'rebuild_training_rankings'
     )
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'deleteTrainingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'deleteTrainingModal'
+    )
 
     await loadTrainingLogs()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -3018,9 +2527,6 @@ async function initializeTrainingLogs() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message

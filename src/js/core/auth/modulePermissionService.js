@@ -1,117 +1,90 @@
 import {
-  getDb
-}
-  from '../supabase/getDb.js'
-import {
+  getProfile,
   getRole,
   getModulePermissions,
   setModulePermissions
-}
-  from './authStateService.js'
+} from './authStateService.js'
 
-/* ============================================================
-   LOAD MODULE PERMISSIONS
-   ============================================================ */
+import {
+  resolveEffectiveModulePermissions
+} from './accessResolutionService.js'
 
 export async function loadModulePermissions() {
   const role =
     getRole()
+  const profile =
+    getProfile()
 
-  if (!role?.user_role_id) {
+  if (
+    !role?.user_role_id &&
+    !profile?.profile_id
+  ) {
     setModulePermissions([])
-
     return []
   }
 
-  const {
-    data,
-    error
-  } =
-    await getDb()
-      .from(
-        'module_permissions'
-      )
-      .select('*')
-      .eq(
-        'user_role_id',
-        role.user_role_id
-      )
-
-  if (error) {
-    throw error
-  }
+  const permissions =
+    await resolveEffectiveModulePermissions({
+      profileId:
+        profile?.profile_id || null,
+      fallbackUserRoleId:
+        role?.user_role_id || null
+    })
 
   setModulePermissions(
-    data || []
+    permissions
   )
 
-  return getModulePermissions()
+  return permissions
 }
-
-/* ============================================================
-   GET MODULES
-   ============================================================ */
 
 export function getCurrentModulePermissions() {
   return getModulePermissions()
 }
 
-/* ============================================================
-   MODULE VISIBILITY
-   ============================================================ */
+function can(
+  moduleCode,
+  field
+) {
+  return getModulePermissions().some(
+    module =>
+      module.module_code === moduleCode &&
+      Boolean(module[field])
+  )
+}
 
 export function canViewModule(
   moduleCode
 ) {
-  return getModulePermissions().some(
-    module =>
-      module.module_code ===
-        moduleCode &&
-      module.can_view
+  return can(
+    moduleCode,
+    'can_view'
   )
 }
-
-/* ============================================================
-   MODULE CREATE
-   ============================================================ */
 
 export function canCreateModule(
   moduleCode
 ) {
-  return getModulePermissions().some(
-    module =>
-      module.module_code ===
-        moduleCode &&
-      module.can_create
+  return can(
+    moduleCode,
+    'can_create'
   )
 }
-
-/* ============================================================
-   MODULE UPDATE
-   ============================================================ */
 
 export function canUpdateModule(
   moduleCode
 ) {
-  return getModulePermissions().some(
-    module =>
-      module.module_code ===
-        moduleCode &&
-      module.can_update
+  return can(
+    moduleCode,
+    'can_update'
   )
 }
-
-/* ============================================================
-   MODULE DELETE
-   ============================================================ */
 
 export function canDeleteModule(
   moduleCode
 ) {
-  return getModulePermissions().some(
-    module =>
-      module.module_code ===
-        moduleCode &&
-      module.can_delete
+  return can(
+    moduleCode,
+    'can_delete'
   )
 }

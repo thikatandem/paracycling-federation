@@ -7,6 +7,10 @@
 // ELEMENTS
 // =====================================================
 
+import {
+  SUCCESS_TIMEOUT
+} from './constants.js'
+
 export function get(id) {
   return document.getElementById(id)
 }
@@ -62,6 +66,62 @@ export function setValue(
 
   element.value =
     value ?? ''
+
+  return true
+}
+
+// =====================================================
+// EXACT INPUT VALUE HELPERS
+// Central variants preserve the behaviours previously repeated in page files.
+// =====================================================
+
+export function getInputValue(id) {
+  return document.getElementById(id)?.value || ''
+}
+
+export function setRawValue(
+  id,
+  value
+) {
+  const element = get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.value = value
+  return true
+}
+
+export function setFalsyEmptyValue(
+  id,
+  value
+) {
+  const element = get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.value = value || ''
+  return true
+}
+
+export function setStringValue(
+  id,
+  value
+) {
+  const element = get(id)
+
+  if (!element) {
+    return false
+  }
+
+  element.value =
+    value === null ||
+    value === undefined ?
+      '' :
+      String(value)
 
   return true
 }
@@ -190,7 +250,7 @@ export function hideAfter(
 
   id,
 
-  duration = 3000
+  duration = SUCCESS_TIMEOUT
 
 ) {
   setTimeout(
@@ -1037,7 +1097,7 @@ export function showTimedMessage({
 
   type = 'success',
 
-  duration = 3000
+  duration = SUCCESS_TIMEOUT
 
 }) {
   const element =

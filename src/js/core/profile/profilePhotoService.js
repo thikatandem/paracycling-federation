@@ -70,10 +70,6 @@ export function initializeProfilePhotoUpload() {
           file
         )
       } catch (error) {
-        console.error(
-          'Profile photo upload failed',
-          error
-        )
       }
     }
   )
@@ -105,8 +101,7 @@ export async function uploadProfilePhoto(
   const {
     error: uploadError
   } =
-    await window
-      .supabaseClient
+    await getDb()
       .storage
       .from(
         'documents'
@@ -128,8 +123,7 @@ export async function uploadProfilePhoto(
   const {
     data: publicUrlData
   } =
-    window
-      .supabaseClient
+    getDb()
       .storage
       .from(
         'documents'

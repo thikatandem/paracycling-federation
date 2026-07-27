@@ -84,10 +84,6 @@ export async function logAuditEvent({
 
   })
   } catch (error) {
-    console.error(
-      'Audit logging failed',
-      error
-    )
   }
 }
 

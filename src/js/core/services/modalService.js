@@ -2,13 +2,43 @@
 // MODAL SERVICE
 // ParaCycling Federation Management System
 // =====================================================
-/* global coreui */
+
 const modalRegistry =
   new Map()
 
-// =====================================================
-// GET MODAL
-// =====================================================
+function getModalApi() {
+  return (
+    window.coreui
+      ?.Modal ||
+    null
+  )
+}
+
+export function isModalAvailable() {
+  return Boolean(
+    getModalApi()
+  )
+}
+
+export function createModalByElement(
+  element
+) {
+  if (!element) {
+    return null
+  }
+
+  const Modal =
+    getModalApi()
+
+  if (!Modal) {
+    return null
+  }
+
+  return Modal
+    .getOrCreateInstance(
+      element
+    )
+}
 
 export function getModal(
   modalId
@@ -28,14 +58,14 @@ export function getModal(
       modalId
     )
 
-  if (!element) {
-    return null
-  }
-
   const modal =
-    new coreui.Modal(
+    createModalByElement(
       element
     )
+
+  if (!modal) {
+    return null
+  }
 
   modalRegistry.set(
     modalId,
@@ -45,9 +75,13 @@ export function getModal(
   return modal
 }
 
-// =====================================================
-// SHOW
-// =====================================================
+export function createModal(
+  modalId
+) {
+  return getModal(
+    modalId
+  )
+}
 
 export function showModal(
   modalId
@@ -66,10 +100,6 @@ export function showModal(
   return true
 }
 
-// =====================================================
-// HIDE
-// =====================================================
-
 export function hideModal(
   modalId
 ) {
@@ -86,10 +116,6 @@ export function hideModal(
 
   return true
 }
-
-// =====================================================
-// TOGGLE
-// =====================================================
 
 export function toggleModal(
   modalId
@@ -108,21 +134,15 @@ export function toggleModal(
       'show'
     )
   ) {
-    hideModal(
-      modalId
-    )
-  } else {
-    showModal(
+    return hideModal(
       modalId
     )
   }
 
-  return true
+  return showModal(
+    modalId
+  )
 }
-
-// =====================================================
-// DESTROY
-// =====================================================
 
 export function destroyModal(
   modalId
@@ -133,28 +153,28 @@ export function destroyModal(
     )
 
   if (!modal) {
-    return
+    return false
   }
 
   modal.dispose()
-
   modalRegistry.delete(
     modalId
   )
+
+  return true
 }
 
 export function showModalByElement(
   element
 ) {
-  if (!element) {
+  const modal =
+    createModalByElement(
+      element
+    )
+
+  if (!modal) {
     return null
   }
-
-  const modal =
-    coreui.Modal
-      .getOrCreateInstance(
-        element
-      )
 
   modal.show()
 
@@ -164,47 +184,24 @@ export function showModalByElement(
 export function hideModalByElement(
   element
 ) {
-  if (!element) {
+  const modal =
+    createModalByElement(
+      element
+    )
+
+  if (!modal) {
     return null
   }
-
-  const modal =
-    coreui.Modal
-      .getOrCreateInstance(
-        element
-      )
 
   modal.hide()
 
   return modal
 }
 
-export function createModal(
-  modalId
-) {
-  const element =
-    document.getElementById(
-      modalId
-    )
-
-  if (!element) {
-    return null
-  }
-
-  return coreui.Modal
-    .getOrCreateInstance(
-      element
-    )
-}
-
 export function confirmModal({
-
   modalId,
-
   onConfirm,
-
   confirmButtonId
-
 }) {
   const button =
     document.getElementById(
@@ -212,32 +209,32 @@ export function confirmModal({
     )
 
   if (!button) {
-    return
+    return false
   }
 
-  button.addEventListener('click', async () => {
-    await onConfirm?.()
+  button.addEventListener(
+    'click',
+    async () => {
+      await onConfirm?.()
 
-    hideModal(
-      modalId
-    )
-  })
+      hideModal(
+        modalId
+      )
+    }
+  )
+
+  return true
 }
 
 export function openEntityModal({
-
   modalId,
-
   titleId,
-
   title,
-
   beforeOpen = null
-
 }) {
   if (
     typeof beforeOpen ===
-      'function'
+    'function'
   ) {
     beforeOpen()
   }

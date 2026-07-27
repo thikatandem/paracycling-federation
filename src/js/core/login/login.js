@@ -88,21 +88,12 @@ async function handleLogin(
     loginButton.textContent =
       'Signing In...'
 
-    console.log(
-      'LOGIN ATTEMPT:',
-      {
-        email
-      }
-    )
 
     await login(
       email,
       password
     )
 
-    console.log(
-      'LOGIN SUCCESS'
-    )
 
     showMessage(
       'Login successful. Redirecting...',
@@ -112,27 +103,11 @@ async function handleLogin(
     window.location.href =
       '/'
   } catch (error) {
-    console.error(
-      'LOGIN ERROR:',
-      error
-    )
 
     try {
-      console.error(
-        'LOGIN ERROR JSON:',
-        JSON.stringify(
-          error,
-          null,
-          2
-        )
-      )
     } catch (
       jsonError
     ) {
-      console.error(
-        'ERROR SERIALIZATION FAILED:',
-        jsonError
-      )
     }
 
     let message =

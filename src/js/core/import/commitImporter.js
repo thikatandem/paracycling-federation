@@ -1,67 +1,66 @@
-﻿// =====================================================
+// =====================================================
 // COMMIT IMPORTER
 // ParaCycling Federation Management System
 // =====================================================
 
 import {
-    supabase
+  getDb
 }
-from '../supabase/supabaseClient.js'
+  from '../supabase/getDb.js'
 
-
+const db =
+  getDb()
 
 // =====================================================
 // BEGIN IMPORT COMMIT
 // =====================================================
 
 export function begin() {
+  return {
 
-    return {
-
-        startedAt:
+    startedAt:
 
             new Date(),
 
-        completedAt:
+    completedAt:
 
             null,
 
-        committed: 0,
+    committed: 0,
 
-        inserted: 0,
+    inserted: 0,
 
-        updated: 0,
+    updated: 0,
 
-        upserted: 0,
+    upserted: 0,
 
-        failed: 0,
+    failed: 0,
 
-        errors: [],
+    errors: [],
 
-        operations: [],
-        rollbackStack: [],
-identityMap: {
+    operations: [],
+    rollbackStack: [],
+    identityMap: {
 
-    events:
-
-        new Map(),
-
-    occurrences:
+      events:
 
         new Map(),
 
-    sponsors:
+      occurrences:
 
         new Map(),
 
-    eventSponsors:
+      sponsors:
+
+        new Map(),
+
+      eventSponsors:
 
         new Map()
 
-},
+    },
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -70,220 +69,193 @@ identityMap: {
 
 export async function commit(
 
-    context,
+  context,
 
-    commitPlan = {}
+  commitPlan = {}
 
 ) {
-
-    try {
-
-        const stages =
+  try {
+    const stages =
 
             commitPlan.stages || []
 
-        for (
+    for (
 
-            const stage
+      const stage
 
-            of stages
-
-        ) {
-
-            await executeStage(
-
-                context,
-
-                stage
-
-            )
-
-        }
-
-        return context
-
-    }
-
-    catch (
-
-        error
+      of stages
 
     ) {
+      await executeStage(
 
-        await rollback(
+        context,
 
-            context
+        stage
 
-        )
-
-        throw error
-
+      )
     }
 
+    return context
+  } catch (
+
+    error
+
+  ) {
+    await rollback(
+
+      context
+
+    )
+
+    throw error
+  }
 }
 
 async function executeStage(
 
-    context,
+  context,
 
-    stage
+  stage
 
 ) {
+  for (
 
-    for (
+    const operation
 
-        const operation
+    of stage.operations || []
 
-        of stage.operations || []
+  ) {
+    await resolveForeignKeys(
 
-    ) {
+      context,
 
-        await resolveForeignKeys(
-
-            context,
-
-            operation
-
-        )
-
-        const operationType =
-
-    resolveOperation(
-
-        operation.table,
-
-        operation.operation
+      operation
 
     )
 
-switch (
+    const operationType =
 
-    operationType
+    resolveOperation(
 
-) {
+      operation.table,
 
-            case 'insert':
+      operation.operation
 
-                await batchInsert(
+    )
 
-                    context,
+    switch (
 
-                    operation
+      operationType
 
-                )
+    ) {
+      case 'insert':
 
-                break
+        await batchInsert(
 
-            case 'update':
+          context,
 
-                await batchUpdate(
+          operation
 
-                    context,
+        )
 
-                    operation
+        break
 
-                )
+      case 'update':
 
-                break
+        await batchUpdate(
 
-            case 'upsert':
+          context,
 
-                await batchUpsert(
+          operation
 
-                    context,
+        )
 
-                    operation
+        break
 
-                )
+      case 'upsert':
 
-                break
+        await batchUpsert(
 
-        }
+          context,
 
+          operation
+
+        )
+
+        break
     }
-
+  }
 }
 
 function resolveForeignKeys(
 
-    context,
+  context,
 
-    operation
+  operation
 
 ) {
-
-    const foreignKeys =
+  const foreignKeys =
 
         operation.foreignKeys || []
 
+  for (
+
+    const record
+
+    of operation.records || []
+
+  ) {
     for (
 
-        const record
+      const foreignKey
 
-        of operation.records || []
+      of foreignKeys
 
     ) {
-
-        for (
-
-            const foreignKey
-
-            of foreignKeys
-
-        ) {
-
-            const map =
+      const map =
 
                 context.identityMap[
                     foreignKey.identity
                 ]
 
-            if (
+      if (
 
-                !map
+        !map
 
-            ) {
+      ) {
+        continue
+      }
 
-                continue
-
-            }
-
-            const key =
+      const key =
 
                 foreignKey.businessKey(
 
-                    record
+                  record
 
                 )
 
-            const resolvedId =
+      const resolvedId =
 
     map.get(
 
-        key
+      key
 
     )
 
-if (
-
-    resolvedId
-
-) {
-
-    record[
-        foreignKey.field
-    ] =
+      if (
 
         resolvedId
 
-}
+      ) {
+        record[
+        foreignKey.field
+        ] =
 
-        }
-
+        resolvedId
+      }
     }
-
+  }
 }
-
 
 // =====================================================
 //
@@ -334,7 +306,6 @@ if (
 // }
 //
 
-
 // =====================================================
 // DEFAULT OPERATION POLICIES
 //
@@ -347,35 +318,35 @@ if (
 
 export const DEFAULT_OPERATION_POLICIES = Object.freeze({
 
-    events:
+  events:
 
         'upsert',
 
-    athletes:
+  athletes:
 
         'upsert',
 
-    teams:
+  teams:
 
         'upsert',
 
-    sponsor_master:
+  sponsor_master:
 
         'upsert',
 
-    event_instances:
+  event_instances:
 
         'upsert',
 
-    participant_instances:
+  participant_instances:
 
         'insert',
 
-    training_log:
+  training_log:
 
         'update',
 
-    race_results:
+  race_results:
 
         'update'
 
@@ -387,32 +358,28 @@ export const DEFAULT_OPERATION_POLICIES = Object.freeze({
 
 export function resolveOperation(
 
-    table,
+  table,
 
-    requestedOperation = null
+  requestedOperation = null
 
 ) {
+  if (
 
-    if (
+    requestedOperation
 
-        requestedOperation
+  ) {
+    return requestedOperation
+  }
 
-    ) {
+  return (
 
-        return requestedOperation
-
-    }
-
-    return (
-
-        DEFAULT_OPERATION_POLICIES[
+    DEFAULT_OPERATION_POLICIES[
             table
-        ] ||
+    ] ||
 
         'insert'
 
-    )
-
+  )
 }
 // =====================================================
 // =====================================================
@@ -421,69 +388,64 @@ export function resolveOperation(
 
 export async function rollback(
 
-    context
+  context
 
 ) {
-
-    const operations =
+  const operations =
 
         [
 
-            ...(context.rollbackStack || [])
+          ...(context.rollbackStack || [])
 
         ].reverse()
 
-    for (
+  for (
 
-        const operation
+    const operation
 
-        of operations
+    of operations
 
-    ) {
-
-        try {
-
-            const ids =
+  ) {
+    try {
+      const ids =
 
                 operation.rows
 
                     .map(
 
-                        row =>
+                      row =>
 
-                            Object.values(
+                        Object.values(
 
-                                row
+                          row
 
-                            )[0]
+                        )[0]
 
                     )
 
                     .filter(Boolean)
 
-            if (
+      if (
 
-                ids.length === 0
+        ids.length === 0
 
-            ) {
+      ) {
+        continue
+      }
 
-                continue
-
-            }
-
-            const primaryKey =
+      const primaryKey =
 
                 Object.keys(
 
-                    operation.rows[0]
+                  operation.rows[0]
 
                 )[0]
 
-            await supabase
+      await db
 
                 .from(
 
-                    operation.table
+                  operation.table
 
                 )
 
@@ -491,58 +453,51 @@ export async function rollback(
 
                 .in(
 
-                    primaryKey,
+                  primaryKey,
 
-                    ids
+                  ids
 
                 )
+    } catch (
 
-        }
+      error
 
-        catch (
+    ) {
+      context.errors.push({
 
-            error
-
-        ) {
-
-            context.errors.push({
-
-                type:
+        type:
 
                     'rollback',
 
-                severity:
+        severity:
 
                     'error',
 
-                table:
+        table:
 
                     operation.table,
 
-                message:
+        message:
 
                     error.message
 
-            })
-
-        }
-
+      })
     }
+  }
 
-    return {
+  return {
 
-        success:
+    success:
 
             true,
 
-        supported:
+    supported:
 
             true,
 
-        context
+    context
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -551,54 +506,52 @@ export async function rollback(
 
 export function finish(
 
-    context
+  context
 
 ) {
-
-    context.completedAt =
+  context.completedAt =
 
         new Date()
 
-    return {
+  return {
 
-        success:
+    success:
 
             context.failed === 0,
 
-        startedAt:
+    startedAt:
 
             context.startedAt,
 
-        completedAt:
+    completedAt:
 
             context.completedAt,
 
-        inserted:
+    inserted:
 
             context.inserted,
 
-        updated:
+    updated:
 
             context.updated,
 
-        upserted:
+    upserted:
 
             context.upserted,
 
-        failed:
+    failed:
 
             context.failed,
 
-        committed:
+    committed:
 
             context.committed,
 
-        errors:
+    errors:
 
             context.errors
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -607,64 +560,49 @@ export function finish(
 
 async function writeAuditLog(
 
-    table,
+  table,
 
-    action,
+  action,
 
-    oldValues,
+  oldValues,
 
-    newValues
+  newValues
 
 ) {
-
-    try {
-
-        await supabase
+  try {
+    await db
 
             .from(
 
-                'audit_log'
+              'audit_log'
 
             )
 
             .insert({
 
-                table_name:
+              table_name:
 
                     table,
 
-                action_type:
+              action_type:
 
                     action,
 
-                old_values:
+              old_values:
 
                     oldValues,
 
-                new_values:
+              new_values:
 
                     newValues
 
             })
+  } catch (
 
-    }
+    error
 
-    catch (
-
-        error
-
-    ) {
-
-        console.warn(
-
-            'Audit logging failed:',
-
-            error.message
-
-        )
-
-    }
-
+  ) {
+  }
 }
 // =====================================================
 // BATCH INSERT
@@ -672,182 +610,174 @@ async function writeAuditLog(
 
 async function batchInsert(
 
-    context,
+  context,
 
-    operation = {}
+  operation = {}
 
 ) {
+  const {
 
-    const {
+    table,
 
-        table,
+    records = [],
 
-        records = [],
+    options = {}
 
-        options = {}
+  } = operation
 
-    } = operation
+  const {
 
-    const {
+    chunkSize = 500,
 
-        chunkSize = 500,
+    ignoreDuplicates = false,
 
-        ignoreDuplicates = false,
+    returning = true,
 
-        returning = true,
+    continueOnError = false
 
-        continueOnError = false
+  } = options
 
-    } = options
-
-    const chunks =
+  const chunks =
 
         splitIntoChunks(
 
-            records,
+          records,
 
-            chunkSize
+          chunkSize
 
         )
 
-    for (
+  for (
 
-        const chunk
+    const chunk
 
-        of chunks
+    of chunks
 
-    ) {
+  ) {
+    const query =
 
-        const query =
-
-            supabase
+            db
 
                 .from(table)
 
                 .insert(
 
-                    chunk,
+                  chunk,
 
-                    {
+                  {
 
-                        ignoreDuplicates
+                    ignoreDuplicates
 
-                    }
+                  }
 
                 )
 
-        const {
+    const {
 
-            data,
+      data,
 
-            error
+      error
 
-        } = returning
+    } = returning ?
 
-            ? await query.select()
+      await query.select() :
 
-            : await query
+      await query
 
-        if (
+    if (
 
-            error
+      error
 
-        ) {
-
-            context.failed +=
+    ) {
+      context.failed +=
 
                 chunk.length
 
-            context.errors.push({
+      context.errors.push({
 
-                table,
+        table,
 
-                operation: 'insert',
+        operation: 'insert',
 
-                severity: 'error',
+        severity: 'error',
 
-                message:
+        message:
 
                     error.message,
 
-                error
+        error
 
-            })
+      })
 
-            if (
+      if (
 
-                !continueOnError
+        !continueOnError
 
-            ) {
+      ) {
+        throw error
+      }
 
-                throw error
+      continue
+    }
 
-            }
-
-            continue
-
-        }
-
-        context.inserted +=
+    context.inserted +=
 
     data.length
 
-context.committed +=
+    context.committed +=
 
     data.length
 
-captureIdentity(
+    captureIdentity(
 
-    context,
+      context,
 
-    operation,
+      operation,
 
-    chunk,
+      chunk,
 
-    data
+      data
 
-)
+    )
 
-context.operations.push({
+    context.operations.push({
 
-    table,
+      table,
 
-    operation:'insert',
+      operation: 'insert',
 
-    affected:
+      affected:
 
         data.length,
 
-    returned:
+      returned:
 
         data
 
-})
+    })
 
-context.rollbackStack.push({
+    context.rollbackStack.push({
 
-    table,
+      table,
 
-    action:
+      action:
 
         'delete',
 
-    rows:
+      rows:
 
         data
 
-})
+    })
 
+    for (
 
-for (
+      const row
 
-    const row
+      of data
 
-    of data
-
-) {
-
-    await writeAuditLog(
+    ) {
+      await writeAuditLog(
 
         table,
 
@@ -857,105 +787,93 @@ for (
 
         row
 
-    )
-
-}
+      )
     }
-
+  }
 }
 
 function captureIdentity(
 
-    context,
+  context,
 
-    operation,
+  operation,
 
-    sourceRecords = [],
+  sourceRecords = [],
 
-    returnedRows = []
+  returnedRows = []
 
 ) {
-
-    const identity =
+  const identity =
 
         operation.identity
 
-    if (
+  if (
 
-        !identity
+    !identity
 
-    ) {
+  ) {
+    return
+  }
 
-        return
-
-    }
-
-    const map =
+  const map =
 
         context.identityMap[
             identity.collection
         ]
 
-    if (
+  if (
 
-        !map
+    !map
 
-    ) {
+  ) {
+    return
+  }
 
-        return
+  for (
 
-    }
+    let index = 0;
 
-    for (
+    index < returnedRows.length;
 
-        let index = 0;
+    index++
 
-        index < returnedRows.length;
-
-        index++
-
-    ) {
-
-        const source =
+  ) {
+    const source =
 
             sourceRecords[index]
 
-        const returned =
+    const returned =
 
             returnedRows[index]
 
-        if (
+    if (
 
-            !source ||
+      !source ||
 
             !returned
 
-        ) {
+    ) {
+      continue
+    }
 
-            continue
-
-        }
-
-        const key =
+    const key =
 
             identity.businessKey(
 
-                source
+              source
 
             )
 
-        map.set(
+    map.set(
 
-            key,
+      key,
 
-            returned[
+      returned[
                 identity.databaseKey
-            ]
+      ]
 
-        )
-
-    }
-
+    )
+  }
 }
 
 // =====================================================
@@ -964,164 +882,155 @@ function captureIdentity(
 
 async function batchUpdate(
 
-    context,
+  context,
 
-    operation = {}
+  operation = {}
 
 ) {
+  const {
 
-    const {
+    table,
 
-        table,
+    records = [],
 
-        records = [],
+    keyField,
 
-        keyField,
+    options = {}
 
-        options = {}
+  } = operation
 
-    } = operation
+  const {
 
-    const {
+    continueOnError = false,
 
-        continueOnError = false,
+    returning = true
 
-        returning = true
+  } = options
 
-    } = options
+  for (
 
-    for (
+    const record
 
-        const record
+    of records
 
-        of records
-
-    ) {
-
-        const key =
+  ) {
+    const key =
 
             record[keyField]
 
-        const payload =
+    const payload =
 
             {
 
-                ...record
+              ...record
 
             }
 
-        delete payload[keyField]
+    delete payload[keyField]
 
-        const query =
+    const query =
 
-            supabase
+            db
 
                 .from(table)
 
                 .update(
 
-                    payload
+                  payload
 
                 )
 
                 .eq(
 
-                    keyField,
+                  keyField,
 
-                    key
+                  key
 
                 )
 
-        const {
+    const {
 
-            data,
+      data,
 
-            error
+      error
 
-        } = returning
+    } = returning ?
 
-            ? await query.select()
+      await query.select() :
 
-            : await query
+      await query
 
-        if (
+    if (
 
-            error
+      error
 
-        ) {
+    ) {
+      context.failed++
 
-            context.failed++
+      context.errors.push({
 
-            context.errors.push({
+        table,
 
-                table,
+        operation: 'update',
 
-                operation: 'update',
+        severity: 'error',
 
-                severity: 'error',
+        key,
 
-                key,
-
-                message:
+        message:
 
                     error.message,
 
-                error
+        error
 
-            })
+      })
 
-            if (
+      if (
 
-                !continueOnError
+        !continueOnError
 
-            ) {
+      ) {
+        throw error
+      }
 
-                throw error
+      continue
+    }
 
-            }
+    context.updated++
 
-            continue
+    context.committed++
 
-        }
+    context.operations.push({
 
-        context.updated++
+      table,
 
-        context.committed++
-
-        context.operations.push({
-
-    table,
-
-    operation:
+      operation:
 
         'update',
 
-    affected:
+      affected:
 
         data?.length || 1,
 
-    returned:
+      returned:
 
         data || []
 
-})
+    })
 
-await writeAuditLog(
+    await writeAuditLog(
 
-    table,
+      table,
 
-    'UPDATE',
+      'UPDATE',
 
-    null,
+      null,
 
-    payload
+      payload
 
-)
-    }
-
+    )
+  }
 }
-
-
 
 // =====================================================
 // BATCH UPSERT
@@ -1129,197 +1038,190 @@ await writeAuditLog(
 
 async function batchUpsert(
 
-    context,
+  context,
 
-    operation = {}
+  operation = {}
 
 ) {
+  const {
 
-    const {
+    table,
 
-        table,
+    records = [],
 
-        records = [],
+    conflictColumn,
 
-        conflictColumn,
+    identity,
 
-        identity,
+    options = {}
 
-        options = {}
+  } = operation
 
-    } = operation
+  const {
 
-    const {
+    chunkSize = 500,
 
-        chunkSize = 500,
+    returning = true,
 
-        returning = true,
+    continueOnError = false
 
-        continueOnError = false
+  } = options
 
-    } = options
-
-    const chunks =
+  const chunks =
 
         splitIntoChunks(
 
-            records,
+          records,
 
-            chunkSize
+          chunkSize
 
         )
 
-    for (
+  for (
 
-        const chunk
+    const chunk
 
-        of chunks
+    of chunks
 
-    ) {
+  ) {
+    const query =
 
-        const query =
-
-            supabase
+            db
 
                 .from(
 
-                    table
+                  table
 
                 )
 
                 .upsert(
 
-                    chunk,
+                  chunk,
 
-                    {
+                  {
 
-                        onConflict:
+                    onConflict:
 
                             conflictColumn
 
-                    }
+                  }
 
                 )
 
-        const {
+    const {
 
-            data,
+      data,
 
-            error
+      error
 
-        } = returning
+    } = returning ?
 
-            ? await query.select()
+      await query.select() :
 
-            : await query
+      await query
 
-        if (
+    if (
 
-            error
+      error
 
-        ) {
-
-            context.failed +=
+    ) {
+      context.failed +=
 
                 chunk.length
 
-            context.errors.push({
+      context.errors.push({
 
-                table,
+        table,
 
-                operation:
+        operation:
 
                     'upsert',
 
-                severity:
+        severity:
 
                     'error',
 
-                message:
+        message:
 
                     error.message,
 
-                error
+        error
 
-            })
+      })
 
-            if (
+      if (
 
-                !continueOnError
+        !continueOnError
 
-            ) {
+      ) {
+        throw error
+      }
 
-                throw error
+      continue
+    }
 
-            }
-
-            continue
-
-        }
-
-        context.upserted +=
+    context.upserted +=
 
             chunk.length
 
-        context.committed +=
+    context.committed +=
 
             chunk.length
 
-        captureIdentity(
+    captureIdentity(
 
-            context,
+      context,
 
-            operation,
+      operation,
 
-            chunk,
+      chunk,
 
-            data || []
+      data || []
 
-        )
+    )
 
-        context.operations.push({
+    context.operations.push({
 
-            table,
+      table,
 
-            operation:
+      operation:
 
                 'upsert',
 
-            affected:
+      affected:
 
                 data?.length ||
 
                 chunk.length,
 
-            returned:
+      returned:
 
                 data || []
 
-        })
+    })
 
-context.rollbackStack.push({
+    context.rollbackStack.push({
 
-    table,
+      table,
 
-    action:
+      action:
 
         'delete',
 
-    rows:
+      rows:
 
             data || []
 
-})
+    })
 
-for (
+    for (
 
-    const row
+      const row
 
-    of data || []
+      of data || []
 
-) {
-
-    await writeAuditLog(
+    ) {
+      await writeAuditLog(
 
         table,
 
@@ -1329,11 +1231,9 @@ for (
 
         row
 
-    )
-
-}
+      )
     }
-
+  }
 }
 // =====================================================
 // SPLIT INTO CHUNKS
@@ -1341,38 +1241,34 @@ for (
 
 function splitIntoChunks(
 
-    records = [],
+  records = [],
 
-    chunkSize = 500
+  chunkSize = 500
 
 ) {
+  const chunks = []
 
-    const chunks = []
+  for (
 
-    for (
+    let i = 0;
 
-        let i = 0;
+    i < records.length;
 
-        i < records.length;
+    i += chunkSize
 
-        i += chunkSize
+  ) {
+    chunks.push(
 
-    ) {
+      records.slice(
 
-        chunks.push(
+        i,
 
-            records.slice(
+        i + chunkSize
 
-                i,
+      )
 
-                i + chunkSize
+    )
+  }
 
-            )
-
-        )
-
-    }
-
-    return chunks
-
+  return chunks
 }

@@ -581,3 +581,287 @@ export function getPagedRows({
 
   )
 }
+
+
+export function createSimplePaginationUpdater({
+  getItemCount,
+  getCurrentPage,
+  pageSize = PAGE_SIZE,
+  infoElementId = null,
+  previousButtonId = null,
+  nextButtonId = null,
+  includeRecordCount = false
+} = {}) {
+  return function updateSimplePagination() {
+    const itemCount =
+      Math.max(
+        0,
+        Number(
+          getItemCount?.() || 0
+        )
+      )
+
+    const currentPage =
+      Math.max(
+        1,
+        Number(
+          getCurrentPage?.() || 1
+        )
+      )
+
+    const totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          itemCount / pageSize
+        )
+      )
+
+    const info =
+      infoElementId ?
+        document.getElementById(
+          infoElementId
+        ) :
+        null
+
+    if (info) {
+      info.textContent =
+        includeRecordCount ?
+          `Page ${currentPage} of ${totalPages} (${itemCount} records)` :
+          `Page ${currentPage} of ${totalPages}`
+    }
+
+    const previousButton =
+      previousButtonId ?
+        document.getElementById(
+          previousButtonId
+        ) :
+        null
+
+    const nextButton =
+      nextButtonId ?
+        document.getElementById(
+          nextButtonId
+        ) :
+        null
+
+    if (previousButton) {
+      previousButton.disabled =
+        currentPage <= 1
+    }
+
+    if (nextButton) {
+      nextButton.disabled =
+        currentPage >= totalPages
+    }
+
+    return {
+      currentPage,
+      totalPages,
+      itemCount
+    }
+  }
+}
+
+
+export function createPaginatorUiUpdater({
+  paginator,
+  infoElementId,
+  previousButtonId,
+  nextButtonId
+} = {}) {
+  return function updatePaginatorUi() {
+    return updatePaginationUi({
+      paginator,
+      infoElement:
+        document.getElementById(
+          infoElementId
+        ),
+      previousButton:
+        document.getElementById(
+          previousButtonId
+        ),
+      nextButton:
+        document.getElementById(
+          nextButtonId
+        )
+    })
+  }
+}
+
+
+export function createPaginationInfoUpdater({
+  getItemCount,
+  getCurrentPage,
+  pageSize = PAGE_SIZE,
+  infoElementId,
+  includeRecordCount = true
+} = {}) {
+  return function updatePaginationInfo() {
+    const itemCount =
+      Math.max(
+        0,
+        Number(
+          getItemCount?.() || 0
+        )
+      )
+
+    const currentPage =
+      Math.max(
+        1,
+        Number(
+          getCurrentPage?.() || 1
+        )
+      )
+
+    const totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          itemCount /
+          pageSize
+        )
+      )
+
+    const info =
+      document.getElementById(
+        infoElementId
+      )
+
+    if (info) {
+      info.textContent =
+        includeRecordCount ?
+          `Page ${currentPage} of ${totalPages} (${itemCount} records)` :
+          `Page ${currentPage} of ${totalPages}`
+    }
+
+    return {
+      currentPage,
+      totalPages,
+      itemCount
+    }
+  }
+}
+
+export function createNumberedPaginationRenderer({
+  getItemCount,
+  getCurrentPage,
+  pageSize = PAGE_SIZE,
+  containerId = 'paginationContainer',
+  infoElementId = null,
+  infoMode = 'records',
+  handlerName = 'goToPage',
+  control = 'link'
+} = {}) {
+  return function renderNumberedPagination() {
+    const itemCount =
+      Math.max(
+        0,
+        Number(
+          getItemCount?.() || 0
+        )
+      )
+
+    const currentPage =
+      Math.max(
+        1,
+        Number(
+          getCurrentPage?.() || 1
+        )
+      )
+
+    const totalPages =
+      Math.max(
+        1,
+        Math.ceil(
+          itemCount /
+          pageSize
+        )
+      )
+
+    const container =
+      document.getElementById(
+        containerId
+      )
+
+    if (!container) {
+      return {
+        currentPage,
+        totalPages,
+        itemCount
+      }
+    }
+
+    if (infoElementId) {
+      const info =
+        document.getElementById(
+          infoElementId
+        )
+
+      if (info) {
+        if (infoMode === 'records') {
+          info.textContent =
+            `${itemCount} record(s)`
+        } else if (
+          infoMode ===
+          'page-records'
+        ) {
+          info.textContent =
+            `Page ${currentPage} of ${totalPages} (${itemCount} records)`
+        } else {
+          info.textContent =
+            `Page ${currentPage} of ${totalPages}`
+        }
+      }
+    }
+
+    container.innerHTML = ''
+
+    for (
+      let page = 1;
+      page <= totalPages;
+      page++
+    ) {
+      const activeClass =
+        page === currentPage ?
+          ' active' :
+          ''
+
+      const controlHtml =
+        control === 'button' ?
+          `
+            <button
+              type="button"
+              class="page-link"
+              onclick="${handlerName}(${page})"
+            >
+              ${page}
+            </button>
+          ` :
+          `
+            <a
+              href="#"
+              class="page-link"
+              onclick="${handlerName}(${page})"
+            >
+              ${page}
+            </a>
+          `
+
+      container.insertAdjacentHTML(
+        'beforeend',
+        `
+          <li class="page-item${activeClass}">
+            ${controlHtml}
+          </li>
+        `
+      )
+    }
+
+    return {
+      currentPage,
+      totalPages,
+      itemCount
+    }
+  }
+}

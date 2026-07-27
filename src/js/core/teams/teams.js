@@ -1,6 +1,8 @@
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
+import {
+  getDb,
+  hasDb
+} from '../supabase/getDb.js'
 
 import {
   get,
@@ -14,9 +16,9 @@ import {
 
 import {
   showPageLoader,
-  hidePageLoader
-}
-  from '../services/uiService.js'
+  hidePageLoader,
+  createAsyncRefresher
+} from '../services/uiService.js'
 
 import {
   clearMessage,
@@ -38,7 +40,8 @@ import {
   createPaginator,
   updatePaginationUi,
   resetPagination,
-  bindPagination
+  bindPagination,
+  createPaginatorUiUpdater
 } from '../services/paginationService.js'
 
 import {
@@ -67,7 +70,8 @@ import {
   renderCurrentPairingRow,
   renderTeamHistoryRow,
   detectPilotChange,
-  detectStokerChange
+  detectStokerChange,
+  validateTeamForm
 }
   from '../services/teamFormService.js'
 
@@ -77,8 +81,28 @@ import {
 }
   from '../services/lookupService.js'
 
+
+
+const refreshTeams =
+  createAsyncRefresher(
+    loadPilotLookup,
+    loadStokerLookup,
+    loadTeams
+  )
+
 const paginator =
   createPaginator()
+
+const updatePagination =
+  createPaginatorUiUpdater({
+    paginator,
+    infoElementId:
+      'teamPaginationInfo',
+    previousButtonId:
+      'btnPreviousTeamPage',
+    nextButtonId:
+      'btnNextTeamPage'
+  })
 
 const state =
   createPageState()
@@ -178,7 +202,7 @@ async function loadRoleMap() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('role_master')
       .select(`
         role_id,
@@ -210,7 +234,7 @@ async function loadTeams() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from('teams')
         .select(`
           *,
@@ -247,7 +271,7 @@ async function loadTeams() {
       const {
         data: activeMembers
       } =
-    await window.supabaseClient
+    await getDb()
       .from('team_members')
       .select(`
         start_date
@@ -275,7 +299,6 @@ async function loadTeams() {
 
     renderTeamsTable()
   } catch (error) {
-    console.error(error)
 
     showError(
       'teamFormError',
@@ -371,38 +394,11 @@ function renderTeamsTable() {
   updatePagination()
 }
 
-function updatePagination() {
-  updatePaginationUi({
-
-    paginator,
-
-    infoElement:
-      get('teamPaginationInfo'),
-
-    previousButton:
-      get('btnPreviousTeamPage'),
-
-    nextButton:
-      get('btnNextTeamPage')
-
-  })
-}
 
 /* ==========================================
    REFRESH
 ========================================== */
 
-async function refreshTeams() {
-  await Promise.all([
-
-    loadPilotLookup(),
-
-    loadStokerLookup(),
-
-    loadTeams()
-
-  ])
-}
 
 /* ==========================================
    MODAL OPEN
@@ -429,41 +425,6 @@ function openAddTeamModal() {
    VALIDATION
 ========================================== */
 
-function validateTeam() {
-  const pilotId =
-    getValue(
-      'pilotAthleteId'
-    )
-
-  const stokerId =
-    getValue(
-      'stokerAthleteId'
-    )
-
-  const effectiveDate =
-    getValue(
-      'effectiveDate'
-    )
-
-  if (!pilotId) {
-    return 'Pilot is required'
-  }
-
-  if (!stokerId) {
-    return 'Stoker is required'
-  }
-
-  if (pilotId === stokerId) {
-    return 'Pilot and Stoker cannot be the same athlete'
-  }
-
-  if (!effectiveDate) {
-    return 'Effective Date is required'
-  }
-
-  return null
-}
-
 /* ==========================================
    SAVE TEAM
 ========================================== */
@@ -475,7 +436,7 @@ async function saveTeam() {
     )
 
     const validationError =
-      validateTeam()
+      validateTeamForm()
 
     if (validationError) {
       showError(
@@ -499,7 +460,6 @@ async function saveTeam() {
 
     await refreshTeams()
   } catch (error) {
-    console.error(error)
 
     showError(
       'teamFormError',
@@ -526,7 +486,7 @@ async function createTeam() {
     data: teamData,
     error: teamError
   } =
-    await window.supabaseClient
+    await getDb()
       .from('teams')
       .insert(payload)
       .select()
@@ -617,7 +577,7 @@ async function updateTeam() {
   const {
     error
   } =
-  await window.supabaseClient
+  await getDb()
   .from('teams')
   .update(payload)
   .eq(
@@ -665,7 +625,7 @@ async function loadTeamHistory(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('team_members')
       .select(`
         *,
@@ -809,7 +769,7 @@ async function createPilotHistory(
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('team_members')
       .insert({
         team_id:
@@ -845,7 +805,7 @@ async function createStokerHistory(
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('team_members')
       .insert({
         team_id:
@@ -879,7 +839,7 @@ async function closeActiveMember(
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('team_members')
       .update({
         is_active:
@@ -936,7 +896,7 @@ async function editTeam(
       data: activeMembers,
       error: activeMemberError
     } =
-      await window.supabaseClient
+      await getDb()
         .from('team_members')
         .select(`
           start_date
@@ -984,9 +944,6 @@ async function editTeam(
       'teamModal'
     )
   } catch (error) {
-    console.error(
-      error
-    )
 
     showError(
 
@@ -1103,7 +1060,7 @@ async function deleteTeam() {
     const {
       error: historyError
     } =
-  await window.supabaseClient
+  await getDb()
     .from('team_members')
     .delete()
     .eq(
@@ -1118,7 +1075,7 @@ async function deleteTeam() {
     const {
       error: teamError
     } =
-  await window.supabaseClient
+  await getDb()
     .from('teams')
     .delete()
     .eq(
@@ -1136,7 +1093,6 @@ async function deleteTeam() {
 
     await refreshTeams()
   } catch (error) {
-    console.error(error)
 
     showError(
       'teamFormError',
@@ -1207,30 +1163,6 @@ function wireEvents() {
 ========================================== */
 
 /* ==========================================
-   ERROR HANDLING
-========================================== */
-
-window.addEventListener(
-  'error',
-  event => {
-    console.error(
-      'Teams Module Error:',
-      event.error
-    )
-  }
-)
-
-window.addEventListener(
-  'unhandledrejection',
-  event => {
-    console.error(
-      'Unhandled Promise:',
-      event.reason
-    )
-  }
-)
-
-/* ==========================================
    GLOBAL FUNCTIONS
 ========================================== */
 
@@ -1250,11 +1182,8 @@ window.openAddTeamModal =
 async function initializeTeams() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Supabase client not found'
-      )
 
       return
     }
@@ -1283,14 +1212,7 @@ async function initializeTeams() {
 
     await refreshTeams()
 
-    console.log(
-      'Teams module initialized'
-    )
   } catch (error) {
-    console.error(
-      'Initialization Error',
-      error
-    )
   }
 }
 

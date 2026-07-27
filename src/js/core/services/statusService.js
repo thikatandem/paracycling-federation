@@ -1,170 +1,99 @@
-// =====================================================
-// STATUS SERVICE
-// =====================================================
-import { getStatusConfig } from './badgeService.js'
+import {
+  escapeHtml
+} from './formattingService.js'
 
-export const STATUS_CONFIG = {
+export const STATUS_CONFIG =
+  Object.freeze({
+    ACTIVE: { color: 'success' },
+    DEACTIVATED: { color: 'danger' },
+    INACTIVE: { color: 'secondary' },
+    SUSPENDED: { color: 'warning' },
+    ON_LEAVE: { color: 'warning' },
+    TERMINATED: { color: 'danger' },
+    DISBANDED: { color: 'danger' },
+    EXPIRED: { color: 'secondary' },
 
-  // ---------------------------------------------------
-  // ATTENDANCE
-  // ---------------------------------------------------
+    UPCOMING: { color: 'info' },
+    PLANNED: { color: 'secondary' },
+    OPEN: { color: 'primary' },
+    ONGOING: { color: 'success' },
+    COMPLETED: { color: 'secondary' },
+    CANCELLED: { color: 'danger' },
+    RESCHEDULED: { color: 'warning' },
 
-  ABSENT_WITH_APOLOGY: {
-    color: 'warning'
-  },
+    AVAILABLE: { color: 'success' },
+    ASSIGNED: { color: 'primary' },
+    UNDER_MAINTENANCE: { color: 'warning' },
+    RETIRED: { color: 'secondary' },
 
-  ABSENT_WITHOUT_APOLOGY: {
-    color: 'danger'
-  },
+    PRESENT: { color: 'success' },
+    ABSENT: { color: 'danger' },
+    LATE: { color: 'warning' },
+    ABSENT_WITH_APOLOGY: { color: 'warning' },
+    ABSENT_WITHOUT_APOLOGY: { color: 'danger' },
 
-  // ---------------------------------------------------
-  // EQUIPMENT
-  // ---------------------------------------------------
+    FINISHED: { color: 'success' },
+    DNF: { color: 'warning' },
+    DNS: { color: 'secondary' },
+    DISQUALIFIED: { color: 'danger' },
+    DISCONTINUED: { color: 'dark' },
 
-  AVAILABLE: {
-    color: 'success'
-  },
+    REGISTERED: { color: 'primary' },
+    CONFIRMED: { color: 'success' },
+    APPROVED: { color: 'info' },
+    REJECTED: { color: 'danger' },
+    WITHDRAWN: { color: 'warning' }
+  })
 
-  ASSIGNED: {
-    color: 'primary'
-  },
+export function normalizeStatusCode(
+  statusCode
+) {
+  return String(
+    statusCode || ''
+  )
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, '_')
+}
 
-  UNDER_MAINTENANCE: {
-    color: 'warning'
-  },
-
-  RETIRED: {
-    color: 'secondary'
-  },
-
-  // ---------------------------------------------------
-  // EVENT MASTER
-  // ---------------------------------------------------
-
-  ACTIVE: {
-    color: 'success'
-  },
-
-  DEACTIVATED: {
-    color: 'danger'
-  },
-
-  // ---------------------------------------------------
-  // EVENT STATUS
-  // ---------------------------------------------------
-
-  PLANNED: {
-    color: 'secondary'
-  },
-
-  OPEN: {
-    color: 'primary'
-  },
-
-  ONGOING: {
-    color: 'success'
-  },
-
-  COMPLETED: {
-    color: 'dark'
-  },
-
-  CANCELLED: {
-    color: 'danger'
-  },
-
-  RESCHEDULED: {
-    color: 'warning'
-  },
-
-  // ---------------------------------------------------
-  // MEMBERSHIP
-  // ---------------------------------------------------
-
-  INACTIVE: {
-    color: 'secondary'
-  },
-
-  SUSPENDED: {
-    color: 'warning'
-  },
-
-  DISBANDED: {
-    color: 'danger'
-  },
-
-  // ---------------------------------------------------
-  // OUTCOMES
-  // ---------------------------------------------------
-
-  FINISHED: {
-    color: 'success'
-  },
-
-  DNF: {
-    color: 'warning'
-  },
-
-  DNS: {
-    color: 'secondary'
-  },
-
-  DISQUALIFIED: {
-    color: 'danger'
-  },
-
-  DISCONTINUED: {
-    color: 'dark'
-  },
-
-  // ---------------------------------------------------
-  // REGISTRATION
-  // ---------------------------------------------------
-
-  REGISTERED: {
-    color: 'primary'
-  },
-
-  CONFIRMED: {
-    color: 'success'
-  },
-
-  APPROVED: {
-    color: 'info'
-  },
-
-  REJECTED: {
-    color: 'danger'
-  },
-
-  WITHDRAWN: {
-    color: 'warning'
-  },
-
-  // ---------------------------------------------------
-  // TEAM
-  // ---------------------------------------------------
-
-  EXPIRED: {
-    color: 'secondary'
-  }
-
+export function getStatusConfig(
+  statusCode
+) {
+  return (
+    STATUS_CONFIG[
+      normalizeStatusCode(
+        statusCode
+      )
+    ] || {
+      color: 'secondary'
+    }
+  )
 }
 
 export function getStatusBadge(
   statusName,
   statusCode = statusName
 ) {
-  const config =
-    getStatusConfig(
+  const code =
+    normalizeStatusCode(
       statusCode
     )
 
+  const config =
+    getStatusConfig(code)
+
+  const statusClass =
+    code ?
+      `status-${code
+        .toLowerCase()
+        .replace(/_/g, '-')}` :
+      'status-unknown'
+
   return `
     <span
-      class="badge bg-${config.color}"
+      class="badge federation-status ${statusClass} bg-${config.color}"
     >
-      ${statusName || ''}
+      ${escapeHtml(statusName || '')}
     </span>
   `
 }
@@ -173,19 +102,18 @@ export function isActiveStatus(
   statusCode
 ) {
   return [
-
     'ACTIVE',
     'OPEN',
     'ONGOING',
     'AVAILABLE',
     'CONFIRMED',
     'APPROVED',
-    'REGISTERED'
-
+    'REGISTERED',
+    'PRESENT'
   ].includes(
-    String(
+    normalizeStatusCode(
       statusCode
-    ).toUpperCase()
+    )
   )
 }
 
@@ -193,7 +121,6 @@ export function isClosedStatus(
   statusCode
 ) {
   return [
-
     'COMPLETED',
     'CANCELLED',
     'DISQUALIFIED',
@@ -201,12 +128,13 @@ export function isClosedStatus(
     'DNS',
     'DISCONTINUED',
     'EXPIRED',
-    'DISBANDED'
-
+    'DISBANDED',
+    'TERMINATED',
+    'REJECTED',
+    'WITHDRAWN'
   ].includes(
-    String(
+    normalizeStatusCode(
       statusCode
-    ).toUpperCase()
+    )
   )
 }
-

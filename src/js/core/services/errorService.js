@@ -3,17 +3,20 @@
 // ParaCycling Federation Management System
 // =====================================================
 
-// =====================================================
-// ERROR CODES
-// =====================================================
-
 import {
-
-  get,
-
-  showMessage
-
-} from './domService.js'
+  showInlineError,
+  showInlineSuccess,
+  showInlineWarning,
+  showInlineInfo,
+  clearInlineFeedback,
+  createFeedbackController,
+  createDualFeedbackController
+} from './feedbackService.js'
+import {
+  SUCCESS_TIMEOUT,
+  INFO_TIMEOUT,
+  WARNING_TIMEOUT
+} from './constants.js'
 
 export const ERROR_CODES = {
 
@@ -495,17 +498,13 @@ export function logError(
   error,
   context = ''
 ) {
-  console.error({
-
+  return {
     context,
-
     error,
-
     timestamp:
       new Date()
         .toISOString()
-
-  })
+  }
 }
 
 // =====================================================
@@ -605,9 +604,6 @@ export async function executeSafely({
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     const message =
       getFederationFriendlyError(
@@ -627,21 +623,21 @@ export async function executeSafely({
 }
 
 // =====================================================
-// ALERTS
+// INLINE FEEDBACK
 // =====================================================
 
 export function showSuccess(
   containerId,
   message,
-  timeout = 4000
+  timeout = SUCCESS_TIMEOUT
 ) {
-  showMessage({
-    containerId,
+  return showInlineSuccess(
     message,
-    alertClass:
-      'alert-success',
-    timeout
-  })
+    {
+      containerId,
+      timeout
+    }
+  )
 }
 
 export function showError(
@@ -649,56 +645,123 @@ export function showError(
   message,
   timeout = 0
 ) {
-  showMessage({
-    containerId,
+  return showInlineError(
     message,
-    alertClass:
-      'alert-danger',
-    timeout
-  })
+    {
+      containerId,
+      timeout,
+      sticky:
+        timeout === 0
+    }
+  )
 }
 
 export function showWarning(
   containerId,
   message,
-  timeout = 5000
+  timeout = WARNING_TIMEOUT
 ) {
-  showMessage({
-    containerId,
+  return showInlineWarning(
     message,
-    alertClass:
-      'alert-warning',
-    timeout
-  })
+    {
+      containerId,
+      timeout
+    }
+  )
 }
 
 export function showInfo(
   containerId,
   message,
-  timeout = 4000
+  timeout = INFO_TIMEOUT
 ) {
-  showMessage({
-    containerId,
+  return showInlineInfo(
     message,
-    alertClass:
-      'alert-info',
-    timeout
-  })
+    {
+      containerId,
+      timeout
+    }
+  )
 }
 
 export function clearMessage(
   containerId
 ) {
-  const container =
-    get(containerId)
-
-  if (!container) {
-    return
-  }
-
-  container.classList.add(
-    'd-none'
+  return clearInlineFeedback(
+    containerId
   )
+}
 
-  container.textContent = ''
+// =====================================================
+// MESSAGE CONTROLLER
+// =====================================================
+
+export function createMessageController({
+  containerId = null,
+  containerSelector = null
+} = {}) {
+  const feedback =
+    createFeedbackController({
+      containerId,
+      containerSelector
+    })
+
+  return {
+    showErrorMessage(
+      message,
+      timeout = 0
+    ) {
+      return feedback.error(
+        message,
+        {
+          timeout:
+            timeout || null
+        }
+      )
+    },
+
+    showSuccessMessage(
+      message,
+      timeout = SUCCESS_TIMEOUT
+    ) {
+      return feedback.success(
+        message,
+        {
+          timeout
+        }
+      )
+    },
+
+    showWarningMessage(
+      message,
+      timeout = WARNING_TIMEOUT
+    ) {
+      return feedback.warning(
+        message,
+        {
+          timeout
+        }
+      )
+    },
+
+    showInfoMessage(
+      message,
+      timeout = INFO_TIMEOUT
+    ) {
+      return feedback.info(
+        message,
+        {
+          timeout
+        }
+      )
+    },
+
+    clearMessageBox() {
+      return feedback.clear()
+    }
+  }
+}
+
+export {
+  createDualFeedbackController
 }

@@ -1,12 +1,69 @@
-/* global coreui */
-/* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
+import {
+  getProgramsForEvent
+} from '../programs/programService.js'
 
-const PAGE_SIZE = 10
+/* eslint camelcase: 0 */
+import {
+  loadTrainingEventOptions } from '../services/lookupService.js'
+import { createSimplePaginationUpdater } from '../services/paginationService.js'
+import { createLoadingController } from '../services/uiService.js'
+import { getInputValue as getValue,
+  setFalsyEmptyValue as setValue } from '../services/domService.js'
+import { showInlineError,
+  createFeedbackController } from '../services/feedbackService.js'
+import { PAGE_SIZE } from '../services/constants.js'
+import { getDb } from '../supabase/getDb.js'
+import { createModal,
+  hideModal
+} from '../services/modalService.js'
+const loadTrainingEvents = () =>
+  loadTrainingEventOptions({
+    selectId: 'eventId',
+    onLoad: data => {
+      events = data
+    }
+  })
+
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'trainingLoading'
+)
+
+const trainingFeedback =
+  createFeedbackController({
+    containerId: 'trainingFormError',
+    errorOptions: {
+      sticky: true
+    }
+  })
+
+const showError =
+  trainingFeedback.error
+    .bind(trainingFeedback)
+
+const clearError =
+  trainingFeedback.clear
+    .bind(trainingFeedback)
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredTrainingLogs.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
+      'btnNextPage'
+  })
 
 const db =
-  window.supabaseClient
+  getDb()
 
 let trainingLogs = []
 
@@ -44,140 +101,20 @@ const paginationInfo =
   document.getElementById(
     'paginationInfo'
   )
-function showLoading() {
-  trainingLoading?.classList.remove(
-    'd-none'
-  )
-}
 
-function hideLoading() {
-  trainingLoading?.classList.add(
-    'd-none'
-  )
-}
 
-function showError(message) {
-  if (
-    trainingFormError
-  ) {
-    trainingFormError.textContent =
-      message
-  }
-}
 
-function clearError() {
-  if (
-    trainingFormError
-  ) {
-    trainingFormError.textContent = ''
-  }
-}
 
-function getValue(id) {
-  return (
-    document.getElementById(id)
-      ?.value || ''
-  )
-}
 
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(id)
 
-  if (element) {
-    element.value =
-      value || ''
-  }
-}
-
-async function loadTrainingEvents() {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from('events')
-      .select(`
-        event_id,
-        event_name
-      `)
-      .eq(
-        'event_category',
-        'TRAINING'
-      )
-      .order(
-        'event_name'
-      )
-
-  if (error) {
-    throw error
-  }
-
-  events =
-    data || []
-
-  const select =
-    document.getElementById(
-      'eventId'
-    )
-
-  if (!select) {
-    return
-  }
-
-  select.innerHTML =
-    `
-    <option value="">
-      Select Event
-    </option>
-    `
-
-  for (
-    const event
-    of events
-  ) {
-    select.innerHTML += `
-      <option
-        value="${event.event_id}"
-      >
-        ${event.event_name}
-      </option>
-    `
-  }
-}
 
 async function loadPrograms(
   eventId
 ) {
-  const {
-    data,
-    error
-  } =
-    await db
-      .from(
-        'event_programs'
-      )
-      .select(`
-        program_id,
-        program_name
-      `)
-      .eq(
-        'event_id',
-        eventId
-      )
-      .order(
-        'program_name'
-      )
-
-  if (error) {
-    throw error
-  }
-
   programs =
-    data || []
+    await getProgramsForEvent(
+      eventId
+    )
 
   const select =
     document.getElementById(
@@ -246,9 +183,8 @@ async function loadTrainingLogs() {
 
     renderTrainingLogs()
   } catch (error) {
-    console.error(error)
 
-    alert(
+    showInlineError(
       'Failed to load training logs'
     )
   } finally {
@@ -379,47 +315,6 @@ function renderTrainingLogs() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredTrainingLogs.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (
-    paginationInfo
-  ) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
-      'btnNextPage'
-    )
-
-  if (
-    previousButton
-  ) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (
-    nextButton
-  ) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
 
 function searchTrainingLogs() {
   const search =
@@ -517,11 +412,7 @@ function openNewTrainingModal() {
   clearTrainingForm()
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'trainingModal'
-      )
-    )
+    createModal('trainingModal')
 
   modal.show()
 }
@@ -699,21 +590,14 @@ async function saveTraining() {
       throw error
     }
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'trainingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'trainingModal'
+    )
 
     await loadTrainingLogs()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
     showError(
       error.message
@@ -783,11 +667,7 @@ function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'trainingModal'
-      )
-    )
+    createModal('trainingModal')
 
   modal.show()
 }
@@ -802,11 +682,7 @@ function (
   )
 
   const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deleteTrainingModal'
-      )
-    )
+    createModal('deleteTrainingModal')
 
   modal.show()
 }
@@ -837,23 +713,16 @@ async function deleteTraining() {
       throw error
     }
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'deleteTrainingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'deleteTrainingModal'
+    )
 
     await loadTrainingLogs()
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message
     )
   }
@@ -949,7 +818,7 @@ function wireEvents() {
 
 async function initializeTrainingLogs() {
   try {
-    await loadTeams()
+    await loadTrainingEvents()
 
     await loadTrainingLogs()
 
@@ -957,11 +826,8 @@ async function initializeTrainingLogs() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message
     )
   }

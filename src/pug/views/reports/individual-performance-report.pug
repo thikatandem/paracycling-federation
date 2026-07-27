@@ -1,0 +1,74 @@
+extends ../../_layout/default
+
+block view
+  .container-fluid
+    .alert.alert-danger.d-none(
+      id='federationReportError'
+    )
+    .alert.alert-success.d-none(
+      id='federationReportSuccess'
+    )
+
+    input#reportScope(type='hidden' value='individual')
+    .d-flex.flex-wrap.justify-content-between.align-items-end.gap-2.mb-3
+      div
+        h1.h3.mb-1 Individual Performance Report
+        p.text-body-secondary.mb-0 Compare registered individuals or inspect one athlete across distance, speed, attendance, sessions, load and month-to-month growth.
+      span#reportRecordCount.badge.bg-secondary
+    .card.mb-4
+      .card-header
+        strong Report Filters
+      .card-body
+        .row.g-3.align-items-end
+          .col-md-4
+            label.form-label Registered Individual
+            select#filterReportEntity.form-select
+          .col-md-2
+            label.form-label Start Date
+            input#filterReportStartDate.form-control(type='date')
+          .col-md-2
+            label.form-label End Date
+            input#filterReportEndDate.form-control(type='date')
+          .col-md-4.d-flex.gap-2
+            button#btnApplyReportFilters.btn.btn-primary(type='button') Apply
+            button#btnClearReportFilters.btn.btn-outline-secondary(type='button') Clear
+            button#btnRefreshReport.btn.btn-outline-primary(type='button') Refresh
+    #federationReportDashboard
+
+    .card.mb-4
+      .card-header
+        strong Export Report
+      .card-body.text-center
+        button.btn.btn-success.me-2(type='button' id='btnExportTrainingExcel')
+          | Excel
+        button.btn.btn-primary.me-2(type='button' id='btnExportTrainingPdf')
+          | PDF
+        button.btn.btn-secondary(type='button' id='btnExportTrainingCsv')
+          | CSV
+
+append pageScripts
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/jspdf-autotable@5.0.2/dist/jspdf.plugin.autotable.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js'
+  )
+
+  script(
+    src='https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'
+  )
+
+  script(
+    type='module'
+    src='/js/core/reports/federation-analytics-report.js'
+  )

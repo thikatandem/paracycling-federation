@@ -1,11 +1,23 @@
 // =====================================================
 // TRAINING RESULTS REPORT
 // =====================================================
-/* global coreui */
 import {
-  supabase
+  TRAINING_REPORT_PAGE_SIZE as TRAINING_PAGE_SIZE,
+  PARTICIPANT_ANALYSIS_PAGE_SIZE as PARTICIPANT_PAGE_SIZE
+} from '../services/constants.js'
+
+import {
+  showInlineError,
+  createDualFeedbackController
+} from '../services/feedbackService.js'
+
+import {
+  getDb
 }
-  from '../supabase/supabaseClient.js'
+  from '../supabase/getDb.js'
+
+const db =
+  getDb()
 
 import {
   getValue,
@@ -45,6 +57,32 @@ import {
 }
   from '../services/badgeService.js'
 
+
+import {
+  showModal
+} from '../services/modalService.js'
+const trainingReportFeedback =
+  createDualFeedbackController({
+    errorContainerId:
+      'trainingReportError',
+    successContainerId:
+      'trainingReportSuccess',
+    errorOptions: {
+      sticky: true
+    },
+    successOptions: {
+      sticky: true
+    }
+  })
+
+const showError =
+  trainingReportFeedback.error
+    .bind(trainingReportFeedback)
+
+const showSuccess =
+  trainingReportFeedback.success
+    .bind(trainingReportFeedback)
+
 // =====================================================
 // STATE
 // =====================================================
@@ -65,12 +103,7 @@ let statusesLookup = []
 
 let currentTrainingPage = 1
 
-const TRAINING_PAGE_SIZE =
-  25
 const participantAnalysisPage = 1
-
-const PARTICIPANT_PAGE_SIZE =
-  20
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -393,7 +426,6 @@ async function initializeTrainingReport() {
 
     applyTrainingFilters()
   } catch (error) {
-    console.error(error)
 
     showError(
       'Failed to initialize training report'
@@ -512,13 +544,13 @@ async function loadLookups() {
     statusesResponse
   ] = await Promise.all([
 
-    supabase
+    db
     .from('events')
     .select('*')
     .order(
       'event_name'
     ),
-    supabase
+    db
   .from('event_instances')
   .select(`
     event_instance_id,
@@ -529,21 +561,28 @@ async function loadLookups() {
     'event_area'
   ),
 
-    supabase
-    .from('event_programs')
+    db
+    .from('program_master')
     .select('*')
+    .eq(
+      'active',
+      true
+    )
+    .order(
+      'sort_order'
+    )
     .order(
       'program_name'
     ),
 
-    supabase
+    db
     .from('county_master')
     .select('*')
     .order(
       'county_name'
     ),
 
-    supabase
+    db
     .from('status_master')
     .select('*')
     .order(
@@ -592,7 +631,7 @@ async function loadLookups() {
     'filterOccurrenceId',
 
     placeholder:
-    'All Occurrences',
+    'All Event Areas',
 
     options: []
   })
@@ -753,15 +792,15 @@ function handleEventFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-    record
+      record
         .participant_instances
         ?.event_instances
         ?.events
         ?.event_id !==
     eventId
-) {
-    continue
-}
+    ) {
+      continue
+    }
 
     const occurrence =
     record
@@ -923,12 +962,12 @@ function handleOccurrenceFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-    record
+      record
         .participant_instances
         ?.event_instances
         ?.event_instance_id ===
     occurrenceId
-) {
+    ) {
       const program =
     record
         .participant_instances
@@ -989,39 +1028,40 @@ function handleProgramFilterChange() {
 
   for (const record of trainingRecords) {
     if (
-  eventId &&
+      eventId &&
   record
     .participant_instances
     ?.event_instances
     ?.events
     ?.event_id !==
   eventId
-) {
-  continue
-}
+    ) {
+      continue
+    }
 
     if (
-  occurrenceId &&
+      occurrenceId &&
   record
     .participant_instances
     ?.event_instances
     ?.event_instance_id !==
   occurrenceId
-) {
-  continue
-}
+    ) {
+      continue
+    }
+
     if (
-  programId &&
+      programId &&
   record
     .participant_instances
     ?.program_master
     ?.program_id !==
   programId
-) {
-  continue
-}
+    ) {
+      continue
+    }
 
-   const county =
+    const county =
     record
         .participant_instances
         ?.event_instances
@@ -1065,7 +1105,7 @@ async function loadTrainingRecords() {
   const {
     data,
     error
-  } = await supabase
+  } = await db
 
     .from(
       'training_log'
@@ -1148,10 +1188,6 @@ performance(
       }
     )
   if (error) {
-    console.error(
-      'TRAINING REPORT QUERY ERROR',
-      error
-    )
 
     throw error
   }
@@ -1159,31 +1195,8 @@ performance(
   trainingRecords =
     data || []
 
-  console.table(
-    trainingRecords.map(
-      r => ({
-        training_id: r.training_id,
-        hasEventInstance: Boolean(r.event_instances),
-        hasEvent: Boolean(r.event_instances?.events),
-        hasProgram: Boolean(r.event_programs),
-        hasParticipant: Boolean(r.participant_instances)
-      })
-    )
-  )
 
-  console.log(
-    'TRAINING RECORD COUNT',
-    trainingRecords.length
-  )
 
-  console.log(
-    'FIRST RECORD',
-    JSON.stringify(
-      trainingRecords[0],
-      null,
-      2
-    )
-  )
 }
 
 function applyTrainingFilters() {
@@ -1328,41 +1341,7 @@ function applyTrainingFilters() {
   updateTrainingPagination()
 }
 
-function showError(
-  message
-) {
-  setText(
-    'trainingReportError',
-    message
-  )
 
-  document
-    .getElementById(
-      'trainingReportError'
-    )
-    ?.classList
-    .remove(
-      'd-none'
-    )
-}
-
-function showSuccess(
-  message
-) {
-  setText(
-    'trainingReportSuccess',
-    message
-  )
-
-  document
-    .getElementById(
-      'trainingReportSuccess'
-    )
-    ?.classList
-    .remove(
-      'd-none'
-    )
-}
 
 function buildSummaryCards() {
   const totalSessions =
@@ -2179,7 +2158,7 @@ async function viewEventTraining(
     const records =
       filteredTrainingRecords.filter(
         record =>
-         record
+          record
     .participant_instances
     ?.event_instances
     ?.events
@@ -2304,16 +2283,11 @@ async function viewEventTraining(
       `
     )
 
-    new coreui.Modal(
-      document.getElementById(
-        'trainingInsightsModal'
-      )
-    ).show()
+    showModal('trainingInsightsModal')
   } catch (error) {
-    console.error(error)
 
     showError(
-      'Failed to load event intelligence'
+      'Failed to load event details'
     )
   }
 }
@@ -2476,14 +2450,14 @@ async function viewParticipantTraining(
       )
 
       programs.add(
-    record
+        record
         .participant_instances
         ?.program_master
         ?.program_name
-)
+      )
 
       counties.add(
-       record
+        record
     .participant_instances
     ?.event_instances
     ?.county_master
@@ -2581,16 +2555,11 @@ async function viewParticipantTraining(
       `
     )
 
-    new coreui.Modal(
-      document.getElementById(
-        'trainingInsightsModal'
-      )
-    ).show()
+    showModal('trainingInsightsModal')
   } catch (error) {
-    console.error(error)
 
     showError(
-      'Failed to load participant intelligence'
+      'Failed to load participant details'
     )
   }
 }
@@ -3244,7 +3213,7 @@ function buildProgramEffectiveness() {
       ?.program_master
       ?.program_id
 
-const programName =
+    const programName =
     record
       ?.participant_instances
       ?.program_master
@@ -3558,7 +3527,6 @@ async function viewProgramTraining(
   programId
 ) {
   try {
-
     const records =
       filteredTrainingRecords.filter(
         record =>
@@ -3570,7 +3538,6 @@ async function viewProgramTraining(
       )
 
     if (!records.length) {
-
       showError(
         'Program records not found'
       )
@@ -3609,7 +3576,6 @@ async function viewProgramTraining(
     let attendanceCount = 0
 
     for (const record of records) {
-
       const participantRefId =
         record
           ?.participant_instances
@@ -3678,7 +3644,6 @@ async function viewProgramTraining(
         record.performance?.[0]
 
       if (performance) {
-
         if (performance.avg_watts) {
           watts.push(
             Number(
@@ -3703,7 +3668,6 @@ async function viewProgramTraining(
           )
         }
       }
-
     }
 
     const attendanceRate =
@@ -3779,20 +3743,12 @@ async function viewProgramTraining(
       `
     )
 
-    new coreui.Modal(
-      document.getElementById(
-        'trainingInsightsModal'
-      )
-    ).show()
-
+    showModal('trainingInsightsModal')
   } catch (error) {
 
-    console.error(error)
-
     showError(
-      'Failed to load program intelligence'
+      'Failed to load program details'
     )
-
   }
 }
 
@@ -4147,7 +4103,7 @@ function renderTrainingTable() {
 
 <td>
   ${
-record
+  record
     .participant_instances
     ?.event_instances
     ?.event_area || ''
@@ -4176,7 +4132,8 @@ record
   record
     .participant_instances
     ?.event_instances
-    ?.county_master || ''
+    ?.county_master
+    ?.county_name || ''
 }
 </td>
 
@@ -4185,7 +4142,8 @@ record
   record
     .participant_instances
     ?.event_instances
-    ?.town_master || ''
+    ?.town_master
+    ?.town_name || ''
 }
 </td>
 
@@ -4199,10 +4157,13 @@ record
 
 <td>${record.duration_minutes ?? ''}</td>
 
-<td>${record.avg_speed_kmh ?? ''}</td>
+<td>${
+  record.avg_speed_kmh ??
+  record.performance?.[0]?.avg_speed_kmh ??
+  ''
+}</td>
 
-
-
+      </tr>
       `
   }
 
@@ -4253,7 +4214,7 @@ function buildRecommendations() {
   ) {
     recommendations.push(
 
-      `${countyRankings[0]?.countyName} currently leads federation training activity.`
+      `${countyRankings[0]?.countyName} currently leads Thika Tandem training activity.`
     )
   }
 
@@ -4570,7 +4531,10 @@ function exportTrainingCsv() {
         record.duration_minutes || '',
 
       avg_speed_kmh:
-        record.avg_speed_kmh || '',
+        record.avg_speed_kmh ??
+        record.performance?.[0]
+          ?.avg_speed_kmh ??
+        '',
 
       attendance:
         record.attendance ?
@@ -4596,11 +4560,11 @@ function exportTrainingCsv() {
     columns: [
 
       { key: 'training_date', label: 'Training Date' },
-      { key: 'training_week', label: 'Training Week' },
-      { key: 'training_day', label: 'Training Day' },
+      { key: 'training_week', label: 'Week' },
+      { key: 'training_day', label: 'Day' },
 
       { key: 'event', label: 'Event' },
-      { key: 'occurrence', label: 'Occurrence' },
+      { key: 'occurrence', label: 'Event Area' },
       { key: 'program', label: 'Program' },
 
       { key: 'participant', label: 'Participant' },
@@ -4613,11 +4577,11 @@ function exportTrainingCsv() {
       { key: 'start_time', label: 'Start Time' },
       { key: 'end_time', label: 'End Time' },
 
-      { key: 'distance_km', label: 'Distance KM' },
+      { key: 'distance_km', label: 'Distance (km)' },
 
-      { key: 'duration_minutes', label: 'Duration Minutes' },
+      { key: 'duration_minutes', label: 'Duration (minutes)' },
 
-      { key: 'avg_speed_kmh', label: 'Average Speed' },
+      { key: 'avg_speed_kmh', label: 'Average Speed (km/h)' },
 
       { key: 'attendance', label: 'Attendance' },
 
@@ -4864,7 +4828,20 @@ async function exportTrainingExcel() {
           ?.participant_instances
           ?.participant_registry
           ?.participant_type_master
-          ?.participant_type_code || '',
+          ?.participant_type_name ||
+        (
+          String(
+            record
+              ?.participant_instances
+              ?.participant_registry
+              ?.participant_type_master
+              ?.participant_type_code || ''
+          )
+            .toUpperCase()
+            .includes('TEAM') ?
+            'Team' :
+            'Individual'
+        ),
 
       county:
         record
@@ -4896,7 +4873,10 @@ async function exportTrainingExcel() {
         record.duration_minutes || 0,
 
       avg_speed_kmh:
-        record.avg_speed_kmh || 0,
+        record.avg_speed_kmh ??
+        record.performance?.[0]
+          ?.avg_speed_kmh ??
+        0,
 
       attendance:
         record.attendance ?
@@ -4970,7 +4950,7 @@ async function exportTrainingExcel() {
 
             {
               key: 'occurrence',
-              label: 'Occurrence'
+              label: 'Event Area'
             },
 
             {
@@ -5035,17 +5015,17 @@ async function exportTrainingExcel() {
 
             {
               key: 'distance_km',
-              label: 'Distance KM'
+              label: 'Distance (km)'
             },
 
             {
               key: 'duration_minutes',
-              label: 'Duration Minutes'
+              label: 'Duration (minutes)'
             },
 
             {
               key: 'avg_speed_kmh',
-              label: 'Average Speed'
+              label: 'Average Speed (km/h)'
             },
 
             {
@@ -5075,7 +5055,7 @@ async function exportTrainingExcel() {
 
             {
               key: 'training_stress_score',
-              label: 'TSS'
+              label: 'Training Stress Score'
             },
 
             {
@@ -5096,7 +5076,7 @@ async function exportTrainingExcel() {
             { key: 'event', label: 'Event' },
             { key: 'sessions', label: 'Sessions' },
             { key: 'participants', label: 'Participants' },
-            { key: 'distance', label: 'Distance KM' }
+            { key: 'distance', label: 'Distance (km)' }
           ],
 
           data:
@@ -5170,7 +5150,6 @@ async function exportTrainingExcel() {
       'Excel report exported successfully'
     )
   } catch (error) {
-    console.error(error)
 
     showError(
       'Failed to export Excel report'
@@ -5178,9 +5157,6 @@ async function exportTrainingExcel() {
   }
 }
 
-console.log(
-  'PDF CLICKED'
-)
 
 async function exportTrainingPdf() {
   try {
@@ -5205,6 +5181,7 @@ async function exportTrainingPdf() {
       const county =
 
           record
+            ?.participant_instances
             ?.event_instances
             ?.county_master
             ?.county_name ||
@@ -5398,7 +5375,9 @@ async function exportTrainingPdf() {
           ?.event_area || '',
 
       program_name:
-        record.event_programs
+        record
+          ?.participant_instances
+          ?.program_master
           ?.program_name || '',
 
       participant_name:
@@ -5437,8 +5416,10 @@ async function exportTrainingPdf() {
         record.duration_minutes || '',
 
       avg_speed_kmh:
-  record.performance?.[0]
-    ?.avg_speed_kmh || '',
+        record.avg_speed_kmh ??
+        record.performance?.[0]
+          ?.avg_speed_kmh ??
+        '',
 
       attendance:
         record.attendance ?
@@ -5461,18 +5442,13 @@ async function exportTrainingPdf() {
       },
 
       {
-        key: 'training_day',
-        label: 'Day'
-      },
-
-      {
         key: 'event_name',
         label: 'Event'
       },
 
       {
         key: 'occurrence',
-        label: 'Occurrence'
+        label: 'Event Area'
       },
 
       {
@@ -5491,38 +5467,23 @@ async function exportTrainingPdf() {
       },
 
       {
-        key: 'town_name',
-        label: 'Town'
-      },
-
-      {
         key: 'session_type',
         label: 'Session'
       },
 
       {
-        key: 'start_time',
-        label: 'Start'
-      },
-
-      {
-        key: 'end_time',
-        label: 'End'
-      },
-
-      {
         key: 'distance_km',
-        label: 'Distance'
+        label: 'Distance (km)'
       },
 
       {
         key: 'duration_minutes',
-        label: 'Duration'
+        label: 'Duration (min)'
       },
 
       {
         key: 'avg_speed_kmh',
-        label: 'Speed'
+        label: 'Average Speed (km/h)'
       },
 
       {
@@ -5616,6 +5577,27 @@ async function exportTrainingPdf() {
 
       reportPeriod,
 
+      reportTitle:
+        'Training Results Report',
+
+      reportFileName:
+        'Training Results Report',
+
+      dashboardTitle:
+        'Training Results Overview',
+
+      intelligenceTitle:
+        'Training Results Summary',
+
+      detailTitle:
+        'Training Records',
+
+      comparisonPageTitle:
+        'Training Results Comparisons',
+
+      loadPageTitle:
+        'Training Trends and Growth',
+
       filters: {
 
         Event:
@@ -5629,7 +5611,7 @@ async function exportTrainingPdf() {
 
     'All Events',
 
-        Occurrence:
+        'Event Area':
 
     document
       .getElementById(
@@ -5673,13 +5655,13 @@ async function exportTrainingPdf() {
 
     'All Statuses',
 
-        StartDate:
+        'Start Date':
 
     getValue(
       'filterStartDate'
     ) || 'All',
 
-        EndDate:
+        'End Date':
 
     getValue(
       'filterEndDate'
@@ -5733,12 +5715,8 @@ async function exportTrainingPdf() {
 
     })
   } catch (error) {
-    console.error(
-      'PDF EXPORT ERROR',
-      error
-    )
 
-    alert(
+    showInlineError(
       `PDF Export Failed:\n\n${
         error?.message ||
       JSON.stringify(error, null, 2)

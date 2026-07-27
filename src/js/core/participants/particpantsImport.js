@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // PARTICIPANT IMPORT
 // ParaCycling Federation Management System
 //
@@ -23,52 +23,41 @@
 
 import {
 
-    process,
+  process,
 
-    commit,
+  commit,
 
-    finish
+  finish
 
 }
 
-from '../import/importService.js'
+  from '../import/importService.js'
 
 import {
 
-    buildPreview
+  buildPreview
 
 }
 
-from '../import/previewImporter.js'
+  from '../import/previewImporter.js'
 
 import {
 
-    COMMIT_FIELDS,
+  buildSummary,
 
-    buildCommitObject
+  downloadFullPackage
 
 }
 
-from '../import/importHelpers.js'
+  from '../import/importErrors.js'
 
 import {
 
-    buildSummary,
-
-    downloadFullPackage
+  IMPORT_STATUS
 
 }
 
-from '../import/importErrors.js'
-
-import {
-
-    IMPORT_STATUS
-
-}
-
-from '../import/importConstants.js'
-
+  from '../import/importConstants.js'
 
 // =====================================================
 // PUBLIC ENTRY POINT
@@ -76,82 +65,78 @@ from '../import/importConstants.js'
 
 export async function participantImport(
 
-    file
+  file
 
 ) {
-
-    const pipeline =
+  const pipeline =
 
         await process({
 
-            file,
+          file,
 
-            validator:
+          validator:
 
                 validateParticipants,
 
-            resolver:
+          resolver:
 
                 resolveParticipants,
 
-            commitPlanBuilder:
+          commitPlanBuilder:
 
                 buildCommitPlan
 
         })
 
-    return {
+  return {
 
-        approve:
+    approve:
 
             async () => {
-
-                const commitResult =
+              const commitResult =
 
                     await commit(
 
-                        pipeline.commitPlan
+                      pipeline.commitPlan
 
                     )
 
-                const summary =
+              const summary =
 
     buildParticipantSummary(
 
-        commitResult
+      commitResult
 
     )
 
-const downloads =
+              const downloads =
 
     await buildParticipantDownloads(
 
-        summary
+      summary
 
     )
 
-                return finish({
+              return finish({
 
-                    ...commitResult,
+                ...commitResult,
 
-                    summary,
+                summary,
 
-                    downloads
+                downloads
 
-                })
-
+              })
             },
 
-        preview:
+    preview:
 
     buildParticipantPreview(
 
-        pipeline.resolved
+      pipeline.resolved
 
     )
 
-    }
-
+  }
 }
 // =====================================================
 // PARTICIPANT IMPORT FIELDS
@@ -159,37 +144,35 @@ const downloads =
 
 const PARTICIPANT_IMPORT_FIELDS = Object.freeze({
 
-    EVENT_CODE:
+  EVENT_CODE:
 
         'event_code',
 
-    EVENT_AREA:
+  EVENT_AREA:
 
         'event_area',
 
-    PROGRAM_CODE:
+  PROGRAM_CODE:
 
         'program_code',
 
-    PARTICIPANT_TYPE_CODE:
+  PARTICIPANT_TYPE_CODE:
 
         'participant_type_code',
 
-    PARTICIPANT_CODE:
+  PARTICIPANT_CODE:
 
         'participant_code',
 
-    REGISTRATION_STATUS_CODE:
+  REGISTRATION_STATUS_CODE:
 
         'registration_status_code',
 
-    PARTICIPANT_STATUS_CODE:
+  PARTICIPANT_STATUS_CODE:
 
         'participant_status_code'
 
 })
-
-
 
 // =====================================================
 // PARTICIPANT VALIDATION
@@ -200,68 +183,65 @@ const PARTICIPANT_IMPORT_FIELDS = Object.freeze({
 
 export async function validateParticipants(
 
-    importData,
+  importData,
 
-    validation
+  validation
 
 ) {
+  const errors = []
 
-    const errors = []
+  validateHeaders(
 
-    validateHeaders(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateRequiredFields(
 
-    validateRequiredFields(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateParticipantCodes(
 
-    validateParticipantCodes(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  validateDuplicateRows(
 
-    validateDuplicateRows(
+    importData,
 
-        importData,
+    validation,
 
-        validation,
+    errors
 
-        errors
+  )
 
-    )
+  return {
 
-    return {
+    ...importData,
 
-        ...importData,
-
-        valid:
+    valid:
 
             errors.length === 0,
 
-        errors
+    errors
 
-    }
-
+  }
 }
-
 
 // =====================================================
 // PARTICIPANT RESOLUTION
@@ -275,91 +255,82 @@ export async function validateParticipants(
 
 export async function resolveParticipants(
 
-    validatedImport,
+  validatedImport,
 
-    lookup
+  lookup
 
 ) {
+  const errors = [
 
-    const errors = [
+    ...(validatedImport.errors || [])
 
-        ...(validatedImport.errors || [])
+  ]
+
+  const warnings = [
+
+    ...(validatedImport.warnings || [])
+
+  ]
+
+  const objects = []
+
+  for (
+
+    const [
+
+      index,
+
+      row
 
     ]
 
-    const warnings = [
+    of (
 
-        ...(validatedImport.warnings || [])
+      validatedImport.objects || []
 
-    ]
+    ).entries()
 
-    const objects = []
+  ) {
+    try {
+      objects.push(
 
-    for (
+        await resolveParticipantRow(
 
-        const [
+          row,
 
-            index,
+          lookup
 
-            row
+        )
 
-        ]
+      )
+    } catch (
 
-        of (
-
-            validatedImport.objects || []
-
-        ).entries()
+      error
 
     ) {
+      errors.push({
 
-        try {
-
-            objects.push(
-
-                await resolveParticipantRow(
-
-                    row,
-
-                    lookup
-
-                )
-
-            )
-
-        }
-
-        catch (
-
-            error
-
-        ) {
-
-            errors.push({
-
-                row:
+        row:
 
                     index + 1,
 
-                type:
+        type:
 
                     'lookup',
 
-                severity:
+        severity:
 
                     'error',
 
-                message:
+        message:
 
                     error.message
 
-            })
-
-        }
-
+      })
     }
+  }
 
-    const resolved = {
+  const resolved = {
 
     ...validatedImport,
 
@@ -373,16 +344,15 @@ export async function resolveParticipants(
 
     objects
 
-}
+  }
 
-return prepareCommitObjects(
+  return prepareCommitObjects(
 
     resolved,
 
     lookup
 
-)
-
+  )
 }
 
 // =====================================================
@@ -391,152 +361,142 @@ return prepareCommitObjects(
 
 async function resolveParticipantRow(
 
-    row,
+  row,
 
-    lookup
+  lookup
 
 ) {
-
-    const event =
-
-        lookup.requireLookup(
-
-            await lookup.resolveEvent(
-
-                row.event_code
-
-            ),
-
-            row.event_code,
-
-            'Event'
-
-        )
-
-    const occurrence =
+  const event =
 
         lookup.requireLookup(
 
-            await lookup.resolveOccurrence(
+          await lookup.resolveEvent(
 
-                row.event_area
+            row.event_code
 
-            ),
+          ),
 
-            row.event_area,
+          row.event_code,
 
-            'Occurrence'
+          'Event'
 
         )
 
-    const program =
+  const occurrence =
 
         lookup.requireLookup(
 
-            await lookup.resolveProgram(
+          await lookup.resolveOccurrence(
 
-                row.program_code
+            row.event_area
 
-            ),
+          ),
 
-            row.program_code,
+          row.event_area,
 
-            'Program'
+          'Occurrence'
 
         )
 
-    const participantType =
+  const program =
+
+        lookup.requireLookup(
+
+          await lookup.resolveProgramCode(
+
+            row.program_code
+
+          ),
+
+          row.program_code,
+
+          'Program'
+
+        )
+
+  const participantType =
 
         normalizeParticipantType(
 
-            row.participant_type_code
+          row.participant_type_code
 
         )
 
-    const participant =
+  const participant =
 
         await resolveParticipantEntity(
 
-            participantType,
+          participantType,
 
-            row.participant_code,
+          row.participant_code,
 
-            lookup
+          lookup
 
         )
 
-    const registrationStatus =
+  const registrationStatus =
 
-        row.registration_status_code
+        row.registration_status_code            ?
 
-            ?
+          lookup.requireLookup(
 
-            lookup.requireLookup(
+            await lookup.resolveRegistrationStatusCode(
 
-                await lookup.resolveStatus(
+              row.registration_status_code
 
-                    row.registration_status_code
+            ),
 
-                ),
+            row.registration_status_code,
 
-                row.registration_status_code,
+            'Registration Status'
 
-                'Registration Status'
+          )            :
 
-            )
+          null
 
-            :
+  const participantStatus =
 
-            null
+        row.participant_status_code            ?
 
-    const participantStatus =
+          lookup.requireLookup(
 
-        row.participant_status_code
+            await lookup.resolveStatusCode(
 
-            ?
+              row.participant_status_code
 
-            lookup.requireLookup(
+            ),
 
-                await lookup.resolveStatus(
+            row.participant_status_code,
 
-                    row.participant_status_code
+            'Participant Status'
 
-                ),
+          )            :
 
-                row.participant_status_code,
+          null
 
-                'Participant Status'
+  return buildResolvedParticipant(
 
-            )
+    row,
 
-            :
+    {
 
-            null
+      event,
 
-    return buildResolvedParticipant(
+      occurrence,
 
-        row,
+      program,
 
-        {
+      participant,
 
-            event,
+      participantType,
 
-            occurrence,
+      registrationStatus,
 
-            program,
+      participantStatus
 
-            participant,
+    }
 
-            participantType,
-
-            registrationStatus,
-
-            participantStatus
-
-        }
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -545,80 +505,29 @@ async function resolveParticipantRow(
 
 async function resolveParticipantEntity(
 
-    participantType,
+  participantType,
+
+  participantCode,
+
+  lookup
+
+) {
+  return lookup.requireLookup(
+
+    await lookup.resolveParticipant(
+
+      participantType,
+
+      participantCode
+
+    ),
 
     participantCode,
 
-    lookup
+    participantType
 
-) {
-
-    switch (
-
-        participantType
-
-    ) {
-
-        case 'ATHLETE':
-
-            return lookup.requireLookup(
-
-                await lookup.resolveAthlete(
-
-                    participantCode
-
-                ),
-
-                participantCode,
-
-                'Athlete'
-
-            )
-
-        case 'TEAM':
-
-            return lookup.requireLookup(
-
-                await lookup.resolveTeam(
-
-                    participantCode
-
-                ),
-
-                participantCode,
-
-                'Team'
-
-            )
-
-        case 'COMPOSITION':
-
-            return lookup.requireLookup(
-
-                await lookup.resolveParticipant(
-
-                    participantCode
-
-                ),
-
-                participantCode,
-
-                'Composition'
-
-            )
-
-        default:
-
-            throw new Error(
-
-                `Unsupported participant type '${participantType}'.`
-
-            )
-
-    }
-
+  )
 }
-
 
 // =====================================================
 // NORMALIZE PARTICIPANT TYPE
@@ -626,22 +535,19 @@ async function resolveParticipantEntity(
 
 function normalizeParticipantType(
 
-    value
+  value
 
 ) {
+  return String(
 
-    return String(
+    value || ''
 
-        value || ''
-
-    )
+  )
 
         .trim()
 
         .toUpperCase()
-
 }
-
 
 // =====================================================
 // BUILD RESOLVED PARTICIPANT
@@ -649,46 +555,44 @@ function normalizeParticipantType(
 
 function buildResolvedParticipant(
 
-    source,
+  source,
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return {
+    source,
 
-        source,
-
-        event:
+    event:
 
             resolved.event,
 
-        occurrence:
+    occurrence:
 
             resolved.occurrence,
 
-        program:
+    program:
 
             resolved.program,
 
-        participant:
+    participant:
 
             resolved.participant,
 
-        participantType:
+    participantType:
 
             resolved.participantType,
 
-        registrationStatus:
+    registrationStatus:
 
             resolved.registrationStatus,
 
-        participantStatus:
+    participantStatus:
 
             resolved.participantStatus
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -697,38 +601,33 @@ function buildResolvedParticipant(
 
 function buildGeneratedParticipant(
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return buildCommitObject({
+    event_instance_id:
 
-        event:
+            resolved.occurrence.id,
 
-            resolved.event,
+    participant_ref_id:
 
-        occurrence:
+            resolved.participant.participant_ref_id ??
+            resolved.participant.id,
 
-            resolved.occurrence,
+    program_id:
 
-        program:
+            resolved.program.id,
 
-            resolved.program,
+    registration_status_id:
 
-        participant:
+            resolved.registrationStatus?.id ?? null,
 
-            resolved.participant,
+    participant_status_id:
 
-        status:
+            resolved.participantStatus?.id ?? null
 
-            resolved.participantStatus,
-
-        registrationStatus:
-
-            resolved.registrationStatus
-
-    })
-
+  }
 }
 
 // =====================================================
@@ -737,24 +636,22 @@ function buildGeneratedParticipant(
 
 function normalizeResolvedParticipants(
 
-    resolvedImport
+  resolvedImport
 
 ) {
+  return {
 
-    return {
+    ...resolvedImport,
 
-        ...resolvedImport,
-
-        objects:
+    objects:
 
             (resolvedImport.objects || []).map(
 
-                normalizeResolvedParticipant
+              normalizeResolvedParticipant
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -763,24 +660,22 @@ function normalizeResolvedParticipants(
 
 function normalizeResolvedParticipant(
 
-    resolved
+  resolved
 
 ) {
+  return {
 
-    return {
+    ...resolved,
 
-        ...resolved,
-
-        generated:
+    generated:
 
             buildGeneratedParticipant(
 
-                resolved
+              resolved
 
             )
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -789,22 +684,20 @@ function normalizeResolvedParticipant(
 
 function generateCommitObjects(
 
-    resolvedImport
+  resolvedImport
 
 ) {
+  return (
 
-    return (
+    resolvedImport.objects || []
 
-        resolvedImport.objects || []
+  ).map(
 
-    ).map(
+    participant =>
 
-        participant =>
+      participant.generated
 
-            participant.generated
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -813,36 +706,32 @@ function generateCommitObjects(
 
 async function checkExistingRegistrations(
 
-    resolvedImport,
+  resolvedImport,
 
-    lookup
+  lookup
 
 ) {
-
-    const objects =
+  const objects =
 
         resolvedImport.objects || []
 
-    for (
+  for (
 
-        const participant
+    const participant
 
-        of objects
+    of objects
 
-    ) {
-
-        participant.existingRegistration =
+  ) {
+    participant.existingRegistration =
 
             await lookup.resolveParticipantInstance(
 
-                participant.generated
+              participant.generated
 
             )
+  }
 
-    }
-
-    return resolvedImport
-
+  return resolvedImport
 }
 
 // =====================================================
@@ -851,30 +740,26 @@ async function checkExistingRegistrations(
 
 function determineOperations(
 
-    resolvedImport
+  resolvedImport
 
 ) {
+  for (
 
-    for (
+    const participant
 
-        const participant
+    of (
 
-        of (
+      resolvedImport.objects || []
 
-            resolvedImport.objects || []
+    )
 
-        )
-
-    ) {
-
-        participant.operation =
+  ) {
+    participant.operation =
 
             null
+  }
 
-    }
-
-    return resolvedImport
-
+  return resolvedImport
 }
 // =====================================================
 // BUILD READY OBJECTS
@@ -882,40 +767,38 @@ function determineOperations(
 
 async function prepareCommitObjects(
 
-    resolvedImport,
+  resolvedImport,
 
-    lookup
+  lookup
 
 ) {
-
-    let prepared =
+  let prepared =
 
         normalizeResolvedParticipants(
 
-            resolvedImport
+          resolvedImport
 
         )
 
-    prepared =
+  prepared =
 
         await checkExistingRegistrations(
 
-            prepared,
+          prepared,
 
-            lookup
+          lookup
 
         )
 
-    prepared =
+  prepared =
 
         determineOperations(
 
-            prepared
+          prepared
 
         )
 
-    return prepared
-
+  return prepared
 }
 // =====================================================
 // BUILD COMMIT PLAN
@@ -923,32 +806,30 @@ async function prepareCommitObjects(
 
 function buildCommitPlan(
 
-    resolvedImport
+  resolvedImport
 
 ) {
-
-    const objects =
+  const objects =
 
         resolvedImport.objects || []
 
-    return {
+  return {
 
-        description:
+    description:
 
             'Participant Registration Import',
 
-        stages: [
+    stages: [
 
-            buildParticipantStage(
+      buildParticipantStage(
 
-                objects
+        objects
 
-            )
+      )
 
-        ]
+    ]
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -957,42 +838,44 @@ function buildCommitPlan(
 
 function buildParticipantStage(
 
-    objects = []
+  objects = []
 
 ) {
+  return {
 
-    return {
-
-        name:
+    name:
 
             'Participant Registrations',
 
-        operations: [
+    operations: [
 
-            {
+      {
 
-                table:
+        table:
 
                     'participant_instances',
 
-                operation:
+        operation:
 
-                    null,
+                    'upsert',
 
-                records:
+        conflictColumn:
+
+                    'event_instance_id,program_id,participant_ref_id',
+
+        records:
 
                     objects.map(
 
-                        buildParticipantRecord
+                      participant => participant.generated
 
                     )
 
-            }
+      }
 
-        ]
+    ]
 
-    }
-
+  }
 }
 // =====================================================
 // BUILD PARTICIPANT RECORD
@@ -1000,38 +883,36 @@ function buildParticipantStage(
 
 function buildParticipantRecord(
 
-    participant
+  participant
 
 ) {
+  return {
 
-    return {
-
-        operation:
+    operation:
 
             participant.operation,
 
-        identity:
+    identity:
 
             buildParticipantIdentity(
 
-                participant
+              participant
 
             ),
 
-        data:
+    data:
 
             participant.generated,
 
-        source:
+    source:
 
             participant.source,
 
-        resolved:
+    resolved:
 
             participant
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1040,19 +921,17 @@ function buildParticipantRecord(
 
 function buildParticipantIdentity(
 
-    participant
+  participant
 
 ) {
+  if (
 
-    if (
+    participant.existingRegistration
 
-        participant.existingRegistration
+  ) {
+    return {
 
-    ) {
-
-        return {
-
-            participant_instance_id:
+      participant_instance_id:
 
                 participant
 
@@ -1060,32 +939,30 @@ function buildParticipantIdentity(
 
                     .id
 
-        }
-
     }
+  }
 
-    return {
+  return {
 
-        event_instance_id:
+    event_instance_id:
 
             participant.generated
 
                 .event_instance_id,
 
-        program_id:
+    program_id:
 
             participant.generated
 
                 .program_id,
 
-        participant_ref_id:
+    participant_ref_id:
 
             participant.generated
 
                 .participant_ref_id
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -1094,16 +971,14 @@ function buildParticipantIdentity(
 
 function buildParticipantPreview(
 
-    resolvedImport
+  resolvedImport
 
 ) {
+  return buildPreview(
 
-    return buildPreview(
+    resolvedImport
 
-        resolvedImport
-
-    )
-
+  )
 }
 // =====================================================
 // BUILD IMPORT SUMMARY
@@ -1111,16 +986,14 @@ function buildParticipantPreview(
 
 function buildParticipantSummary(
 
-    commitResult
+  commitResult
 
 ) {
+  return buildSummary(
 
-    return buildSummary(
+    commitResult
 
-        commitResult
-
-    )
-
+  )
 }
 // =====================================================
 // BUILD DOWNLOAD PACKAGE
@@ -1128,19 +1001,15 @@ function buildParticipantSummary(
 
 async function buildParticipantDownloads(
 
-    summary
+  summary
 
 ) {
+  return downloadFullPackage(
 
-    return downloadFullPackage(
+    summary
 
-        summary
-
-    )
-
+  )
 }
-
-
 
 // =====================================================
 // REQUIRED FIELD VALIDATION
@@ -1148,126 +1017,118 @@ async function buildParticipantDownloads(
 
 function validateRequiredFields(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
+  const required = [
 
-    const required = [
+    [
 
-        [
+      PARTICIPANT_IMPORT_FIELDS.EVENT_CODE,
 
-            PARTICIPANT_IMPORT_FIELDS.EVENT_CODE,
+      'Event Code'
 
-            'Event Code'
+    ],
 
-        ],
+    [
 
-        [
+      PARTICIPANT_IMPORT_FIELDS.EVENT_AREA,
 
-            PARTICIPANT_IMPORT_FIELDS.EVENT_AREA,
+      'Event Area'
 
-            'Event Area'
+    ],
 
-        ],
+    [
 
-        [
+      PARTICIPANT_IMPORT_FIELDS.PROGRAM_CODE,
 
-            PARTICIPANT_IMPORT_FIELDS.PROGRAM_CODE,
+      'Program Code'
 
-            'Program Code'
+    ],
 
-        ],
+    [
 
-        [
+      PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
 
-            PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_TYPE_CODE,
+      'Participant Type'
 
-            'Participant Type'
+    ],
 
-        ],
+    [
 
-        [
+      PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_CODE,
 
-            PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_CODE,
-
-            'Participant Code'
-
-        ]
+      'Participant Code'
 
     ]
 
+  ]
+
+  for (
+
+    const [
+
+      index,
+
+      row
+
+    ]
+
+    of (
+
+      importData.objects || []
+
+    ).entries()
+
+  ) {
     for (
 
-        const [
+      const [
 
-            index,
+        field,
 
-            row
+        label
 
-        ]
+      ]
 
-        of (
-
-            importData.objects || []
-
-        ).entries()
+      of required
 
     ) {
-
-        for (
-
-            const [
-
-                field,
-
-                label
-
-            ]
-
-            of required
-
-        ) {
-
-            const result =
+      const result =
 
                 validation.validateRequired(
 
-                    row[field],
+                  row[field],
 
-                    label
+                  label
 
                 )
 
-            if (
+      if (
 
-                !result.valid
+        !result.valid
 
-            ) {
+      ) {
+        errors.push({
 
-                errors.push({
-
-                    row:
+          row:
 
                         index + 1,
 
-                    field,
+          field,
 
-                    message:
+          message:
 
                         result.message
 
-                })
-
-            }
-
-        }
-
+        })
+      }
     }
-
+  }
 }
 
 // =====================================================
@@ -1276,47 +1137,45 @@ function validateRequiredFields(
 
 function validateParticipantCodes(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
+  const allowed = [
 
-    const allowed = [
+    'ATHLETE',
 
-        'ATHLETE',
+    'TEAM',
 
-        'TEAM',
+    'COMPOSITION'
 
-        'COMPOSITION'
+  ]
+
+  for (
+
+    const [
+
+      index,
+
+      row
 
     ]
 
-    for (
+    of (
 
-        const [
+      importData.objects || []
 
-            index,
+    ).entries()
 
-            row
-
-        ]
-
-        of (
-
-            importData.objects || []
-
-        ).entries()
-
-    ) {
-
-        const value =
+  ) {
+    const value =
 
             String(
 
-                row.participant_type_code ||
+              row.participant_type_code ||
 
                 ''
 
@@ -1326,36 +1185,32 @@ function validateParticipantCodes(
 
             .toUpperCase()
 
-        if (
+    if (
 
-            !allowed.includes(
+      !allowed.includes(
 
-                value
+        value
 
-            )
+      )
 
-        ) {
+    ) {
+      errors.push({
 
-            errors.push({
-
-                row:
+        row:
 
                     index + 1,
 
-                field:
+        field:
 
                     'participant_type_code',
 
-                message:
+        message:
 
                     `Unknown participant type '${value}'.`
 
-            })
-
-        }
-
+      })
     }
-
+  }
 }
 // =====================================================
 // HEADER VALIDATION
@@ -1363,80 +1218,71 @@ function validateParticipantCodes(
 
 function validateHeaders(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
-
-    const result =
+  const result =
 
         validation.validateHeaders(
 
-            importData.headers,
+          importData.headers,
 
-            Object.values(
+          Object.values(
 
-                PARTICIPANT_IMPORT_FIELDS
+            PARTICIPANT_IMPORT_FIELDS
 
-            )
+          )
 
         )
 
-    if (
+  if (
 
-        result.valid
+    result.valid
 
-    ) {
+  ) {
+    return
+  }
 
-        return
+  if (
 
-    }
+    result.missing.length
 
-    if (
+  ) {
+    errors.push({
 
-        result.missing.length
-
-    ) {
-
-        errors.push({
-
-            type:
+      type:
 
                 'missing_headers',
 
-            message:
+      message:
 
                 `Missing headers: ${result.missing.join(', ')}`
 
-        })
+    })
+  }
 
-    }
+  if (
 
-    if (
+    result.duplicates.length
 
-        result.duplicates.length
+  ) {
+    errors.push({
 
-    ) {
-
-        errors.push({
-
-            type:
+      type:
 
                 'duplicate_headers',
 
-            message:
+      message:
 
                 `Duplicate headers: ${result.duplicates.join(', ')}`
 
-        })
-
-    }
-
+    })
+  }
 }
-
 
 // =====================================================
 // DUPLICATE CSV ROWS
@@ -1444,49 +1290,45 @@ function validateHeaders(
 
 function validateDuplicateRows(
 
-    importData,
+  importData,
 
-    validation,
+  validation,
 
-    errors
+  errors
 
 ) {
-
-    const duplicates =
+  const duplicates =
 
         validation.validateDuplicates(
 
-            importData.objects,
+          importData.objects,
 
-            [
+          [
 
-                PARTICIPANT_IMPORT_FIELDS.EVENT_CODE,
+            PARTICIPANT_IMPORT_FIELDS.EVENT_CODE,
 
-                PARTICIPANT_IMPORT_FIELDS.EVENT_AREA,
+            PARTICIPANT_IMPORT_FIELDS.EVENT_AREA,
 
-                PARTICIPANT_IMPORT_FIELDS.PROGRAM_CODE,
+            PARTICIPANT_IMPORT_FIELDS.PROGRAM_CODE,
 
-                PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_CODE
+            PARTICIPANT_IMPORT_FIELDS.PARTICIPANT_CODE
 
-            ]
+          ]
 
         )
 
-    if (
+  if (
 
-        duplicates.valid
+    duplicates.valid
 
-    ) {
+  ) {
+    return
+  }
 
-        return
+  errors.push(
 
-    }
+    ...(duplicates.value || [])
 
-    errors.push(
-
-        ...(duplicates.value || [])
-
-    )
-
+  )
 }
 

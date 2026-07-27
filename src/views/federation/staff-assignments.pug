@@ -1,0 +1,344 @@
+extends ../../_layout/default
+
+block view
+
+  .container-fluid
+
+    .row
+      .col-12
+
+        .card.mb-4
+
+          .card-header.d-flex.justify-content-between.align-items-center.flex-wrap.gap-2
+
+            div
+              strong Department Access Assignments
+              .small.text-muted
+                | Department is the default access owner. Individual selection is used only for explicit customization.
+
+            .d-flex.gap-2
+              button.btn.btn-outline-secondary(
+                type='button'
+                id='btnManageAccessRoles'
+              )
+                i.fa.fa-shield.me-2
+                | Manage Access Role Powers
+
+              button.btn.btn-outline-primary(
+                type='button'
+                id='btnCustomizeIndividual'
+              )
+                i.fa.fa-user-cog.me-2
+                | Customize Individual
+
+              button.btn.btn-primary(
+                type='button'
+                id='btnAddAssignment'
+              )
+                i.fa.fa-building.me-2
+                | Configure Department Access
+
+          .card-body
+
+            div.alert.d-none.mb-3(
+              id='assignmentPageFeedback'
+              role='status'
+              aria-live='polite'
+            )
+
+            div.d-none.text-center.mb-3(
+              id='assignmentLoading'
+            )
+              .spinner-border.text-primary
+
+            .row.mb-3
+
+              .col-md-5
+                input.form-control(
+                  type='text'
+                  id='searchAssignment'
+                  placeholder='Search department or access role'
+                )
+
+            .table-responsive
+
+              table.table.table-striped.table-hover.align-middle
+
+                thead
+                  tr
+                    th Department
+                    th Default Access Role
+                    th Staff Covered
+                    th Customized Profiles
+                    th Permission Overrides
+                    th Module Overrides
+                    th Status
+                    th Actions
+
+                tbody#assignmentsTableBody
+
+            .row.mt-3
+
+              .col-md-6
+                button.btn.btn-secondary(
+                  type='button'
+                  id='btnRefreshAssignments'
+                )
+                  | Refresh
+
+              .col-md-6.text-end
+                button.btn.btn-outline-primary.me-2(
+                  type='button'
+                  id='btnPreviousAssignmentPage'
+                )
+                  | Previous
+
+                span#assignmentPaginationInfo.mx-2
+                  | Page 1
+
+                button.btn.btn-outline-primary(
+                  type='button'
+                  id='btnNextAssignmentPage'
+                )
+                  | Next
+
+  .modal.fade(
+    id='roleDefinitionModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-xl.modal-dialog-scrollable
+
+      .modal-content
+
+        .modal-header
+          h5.modal-title Access Role Definition
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .alert.alert-info
+            | Access roles are reusable baselines. Define the normal powers of a role here. Department and individual screens then start from these checks and store only their deliberate differences.
+
+          .row.g-3.mb-4
+            .col-md-6
+              label.form-label Access Role
+              select.form-select(
+                id='roleDefinitionRoleId'
+                required
+              )
+
+          h6.mb-3 Module Powers
+          #roleDefinitionModuleMatrix.mb-4
+            .text-muted
+              | Choose an access role.
+
+          h6.mb-3 Detailed Permissions
+          #roleDefinitionPermissionMatrix
+            .text-muted
+              | Choose an access role.
+
+          div.alert.d-none.mt-3(
+            id='roleDefinitionError'
+            role='alert'
+            aria-live='assertive'
+          )
+
+        .modal-footer
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveRoleDefinition'
+          )
+            | Save Role Definition
+
+  .modal.fade(
+    id='assignmentModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-xl.modal-dialog-scrollable
+
+      .modal-content
+
+        .modal-header
+          h5.modal-title#assignmentModalTitle
+            | Configure Department Access
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .alert.alert-info
+            strong Department-first inheritance
+            |  — choose the department and its default access role. The role checks its normal powers automatically. Check more or uncheck less here to create department-level exceptions.
+
+          .row.g-3.mb-4
+
+            .col-md-5
+              label.form-label Department
+              select.form-select(
+                id='assignmentDepartmentId'
+                required
+              )
+
+            .col-md-5
+              label.form-label Default Access Role
+              select.form-select(
+                id='assignmentAccessRoleId'
+                required
+              )
+
+            .col-md-2
+              label.form-label Policy Status
+              select.form-select(
+                id='assignmentIsActive'
+              )
+                option(value='true') Active
+                option(value='false') Inactive
+
+          h6.mb-3 Module Powers
+          #departmentModuleMatrix.mb-4
+
+          h6.mb-3 Detailed Permissions
+          #departmentPermissionMatrix
+
+          div.alert.d-none.mt-3(
+            id='assignmentFormError'
+            role='alert'
+            aria-live='assertive'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveAssignment'
+          )
+            | Save Department Access
+
+  .modal.fade(
+    id='individualAccessModal'
+    tabindex='-1'
+    aria-hidden='true'
+  )
+
+    .modal-dialog.modal-xl.modal-dialog-scrollable
+
+      .modal-content
+
+        .modal-header
+          h5.modal-title
+            | Customize Individual Access
+
+          button.btn-close(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+
+        .modal-body
+
+          .alert.alert-warning
+            strong Exception mode only.
+            |  Staff are not selected during normal access assignment. Choose a person here only when their access must differ from the department default.
+
+          .row.g-3.mb-4
+
+            .col-md-5
+              label.form-label Department
+              select.form-select(
+                id='individualDepartmentId'
+                required
+              )
+
+            .col-md-7
+              label.form-label Staff Member to Customize
+              select.form-select(
+                id='individualStaffId'
+                required
+              )
+
+          input(
+            type='hidden'
+            id='individualProfileId'
+          )
+
+          #individualAccessDetails.d-none
+
+            .card.mb-4
+              .card-body
+
+                .row.g-3.align-items-end
+
+                  .col-md-5
+                    .form-check.form-switch.mt-4
+                      input.form-check-input(
+                        type='checkbox'
+                        id='inheritDepartmentRole'
+                        checked
+                      )
+                      label.form-check-label(
+                        for='inheritDepartmentRole'
+                      )
+                        | Inherit department access role
+
+                  .col-md-7
+                    label.form-label Custom Access Role
+                    select.form-select(
+                      id='individualAccessRoleId'
+                      disabled
+                    )
+
+                .small.text-muted.mt-3#individualBaselineInfo
+
+            h6.mb-3 Module Powers
+            #individualModuleMatrix.mb-4
+
+            h6.mb-3 Detailed Permissions
+            #individualPermissionMatrix
+
+          div.alert.d-none.mt-3(
+            id='individualAccessError'
+            role='alert'
+            aria-live='assertive'
+          )
+
+        .modal-footer
+
+          button.btn.btn-secondary(
+            type='button'
+            data-coreui-dismiss='modal'
+          )
+            | Cancel
+
+          button.btn.btn-success(
+            type='button'
+            id='btnSaveIndividualAccess'
+          )
+            | Save Individual Override
+
+block append pageScripts
+
+  script(
+    type='module'
+    src='js/core/staff/staff-access.js'
+  )

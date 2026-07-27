@@ -1,30 +1,27 @@
-﻿// =====================================================
+// =====================================================
 // IMPORT TEMPLATES
 // ParaCycling Federation Management System
 // =====================================================
 
 import {
-    downloadTemplate as exportTemplate
+  downloadTemplate as exportTemplate
 }
-from '../export/templateExport.js'
-
+  from '../export/templateExport.js'
 
 // =====================================================
 // DOWNLOAD TEMPLATE
 // =====================================================
 
 export async function downloadTemplate(
-    template = {}
+  template = {}
 ) {
+  return exportTemplate(
 
-    return exportTemplate(
-
-        buildTemplatePackage(
-            template
-        )
-
+    buildTemplatePackage(
+      template
     )
 
+  )
 }
 
 // =====================================================
@@ -32,29 +29,27 @@ export async function downloadTemplate(
 // =====================================================
 
 export function buildInstructions(
-    template = {}
+  template = {}
 ) {
+  return {
 
-    return {
-
-        title:
+    title:
 
             template.title ?? '',
 
-        description:
+    description:
 
             template.description ?? '',
 
-        instructions:
+    instructions:
 
             template.instructions ?? [],
 
-        notes:
+    notes:
 
             template.notes ?? []
 
-    }
-
+  }
 }
 
 // =====================================================
@@ -62,11 +57,9 @@ export function buildInstructions(
 // =====================================================
 
 export function buildLookupSheets(
-    template = {}
+  template = {}
 ) {
-
-    return template.lookupSheets ?? []
-
+  return template.lookupSheets ?? []
 }
 
 // =====================================================
@@ -74,11 +67,9 @@ export function buildLookupSheets(
 // =====================================================
 
 export function buildSampleRows(
-    template = {}
+  template = {}
 ) {
-
-    return template.sampleRows ?? []
-
+  return template.sampleRows ?? []
 }
 
 // =====================================================
@@ -86,11 +77,9 @@ export function buildSampleRows(
 // =====================================================
 
 export function highlightRequired(
-    template = {}
+  template = {}
 ) {
-
-    return template.requiredColumns ?? []
-
+  return template.requiredColumns ?? []
 }
 
 // =====================================================
@@ -98,11 +87,9 @@ export function highlightRequired(
 // =====================================================
 
 export function addDropdowns(
-    template = {}
+  template = {}
 ) {
-
-    return template.dropdowns ?? []
-
+  return template.dropdowns ?? []
 }
 
 // =====================================================
@@ -110,57 +97,55 @@ export function addDropdowns(
 // =====================================================
 
 function buildTemplatePackage(
-    template = {}
+  template = {}
 ) {
+  return {
 
-    return {
-
-        title:
+    title:
 
             template.title ?? '',
 
-        description:
+    description:
 
             template.description ?? '',
 
-        worksheet:
+    worksheet:
 
             template.worksheet ?? 'Import',
 
-        headers:
+    headers:
 
             template.headers ?? [],
 
-        requiredColumns:
+    requiredColumns:
 
             highlightRequired(
-                template
+              template
             ),
 
-        lookupSheets:
+    lookupSheets:
 
             buildLookupSheets(
-                template
+              template
             ),
 
-        dropdowns:
+    dropdowns:
 
             addDropdowns(
-                template
+              template
             ),
 
-        sampleRows:
+    sampleRows:
 
             buildSampleRows(
-                template
+              template
             ),
 
-        instructions:
+    instructions:
 
             buildInstructions(
-                template
+              template
             )
 
-    }
-
+  }
 }

@@ -39,6 +39,12 @@
     <link rel="stylesheet" href="css/vendors/simplebar.css">
     <!-- Main styles for this application-->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Warm up remote origins used by authenticated pages.-->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
+    <link rel="preconnect" href="https://ingbnzsiabtttijddenn.supabase.co" crossorigin="anonymous">
+    <link rel="dns-prefetch" href="https://ingbnzsiabtttijddenn.supabase.co">
+    <!-- Load Tom Select styles before body paint to avoid a late style/layout flash.-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
     <!-- We use those styles to show code examples, you should remove them in your application.-->
     <link href="css/examples.css" rel="stylesheet">
     <script src="js/config.js"></script>
@@ -80,9 +86,8 @@
     <!-- CoreUI and necessary plugins-->
     <script src="node_modules/@coreui/coreui/dist/js/coreui.bundle.min.js"></script>
     <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
-    <!-- Supabase Library-->
+    <!-- Supabase browser library is loaded once. Application modules import js/supabase.js.-->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/js/supabase.js"></script>
     <script>
       const header = document.querySelector("header.header");
 
@@ -91,11 +96,60 @@
           header.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
         }
       });
+
+      // Keep normal HTML navigation, but warm the next internal page while
+      // the user is hovering/focusing its link. Browsers treat prefetch as
+      // low priority, so it does not block the current page.
+      (() => {
+        const prefetched = new Set();
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+        if (connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || "")) {
+          return;
+        }
+
+        const prefetch = (target) => {
+          const anchor = target?.closest?.("a[href]");
+
+          if (!anchor) {
+            return;
+          }
+
+          let url;
+
+          try {
+            url = new URL(anchor.href, window.location.href);
+          } catch {
+            return;
+          }
+
+          if (url.origin !== window.location.origin || url.href === window.location.href || !url.pathname.endsWith(".html") || prefetched.has(url.href)) {
+            return;
+          }
+
+          prefetched.add(url.href);
+
+          const link = document.createElement("link");
+          link.rel = "prefetch";
+          link.href = url.href;
+          link.as = "document";
+          document.head.appendChild(link);
+        };
+
+        document.addEventListener("pointerover", (event) => prefetch(event.target), { passive: true });
+        document.addEventListener("focusin", (event) => prefetch(event.target));
+      })();
     </script>
     <script type="module">
       import { initializeAuthentication } from "/js/core/auth/authInitializer.js";
 
-      initializeAuthentication();
+      window.__authReady = initializeAuthentication();
+
+      try {
+        await window.__authReady;
+      } catch (error) {
+        console.error("Authentication initialization failed:", error);
+      }
     </script>
   </body>
 </html>

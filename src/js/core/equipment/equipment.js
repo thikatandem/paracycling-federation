@@ -1,10 +1,13 @@
+import {
+  getDb
+} from '../supabase/getDb.js'
+
 async function loadEvents() {
   const { data, error } =
-  await window.supabaseClient
+  await getDb()
     .from('equipment')
     .select('*')
 
-  console.log(data)
 }
 
 document.addEventListener(

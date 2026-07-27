@@ -1,12 +1,39 @@
-/* global coreui */
 /* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
 
-const PAGE_SIZE = 10
+import {
+  PAGE_SIZE
+} from './services/constants.js'
+import {
+  getDb
+} from './supabase/getDb.js'
+import {
+  getInputValue as getValue,
+  setFalsyEmptyValue as setValue
+} from './services/domService.js'
+import {
+  createDualFeedbackController
+} from './services/feedbackService.js'
+import {
+  createLoadingController
+} from './services/uiService.js'
+import {
+  createSimplePaginationUpdater
+} from './services/paginationService.js'
+import {
+  createModal,
+  showModal,
+  hideModal
+} from './services/modalService.js'
+import {
+  buildActionButtons,
+  buildActionCell
+} from './services/tableRendererService.js'
+import {
+  getRankingBadge
+} from './services/badgeService.js'
 
 const db =
-  window.supabaseClient
+  getDb()
 
 let rankings = []
 let filteredRankings = []
@@ -16,15 +43,7 @@ let teams = []
 
 let currentPage = 1
 
-const rankingLoading =
-  document.getElementById(
-    'rankingLoading'
-  )
 
-const rankingFormError =
-  document.getElementById(
-    'rankingFormError'
-  )
 
 const rankingsTableBody =
   document.getElementById(
@@ -40,50 +59,32 @@ const paginationInfo =
   document.getElementById(
     'paginationInfo'
   )
-function showLoading() {
-  rankingLoading?.classList.remove(
-    'd-none'
-  )
-}
+const {
+  show: showLoading,
+  hide: hideLoading
+} = createLoadingController(
+  'rankingLoading'
+)
 
-function hideLoading() {
-  rankingLoading?.classList.add(
-    'd-none'
-  )
-}
+const rankingFeedback =
+  createDualFeedbackController({
+    errorContainerId:
+      'rankingFormError',
+    successContainerId:
+      'rankingFormSuccess'
+  })
 
-function showError(message) {
-  if (rankingFormError) {
-    rankingFormError.textContent =
-      message
-  }
-}
+const showError =
+  rankingFeedback.error
+    .bind(rankingFeedback)
 
-function clearError() {
-  if (rankingFormError) {
-    rankingFormError.textContent = ''
-  }
-}
+const showSuccess =
+  rankingFeedback.success
+    .bind(rankingFeedback)
 
-function getValue(id) {
-  return (
-    document.getElementById(id)
-      ?.value || ''
-  )
-}
-
-function setValue(
-  id,
-  value
-) {
-  const element =
-    document.getElementById(id)
-
-  if (element) {
-    element.value =
-      value || ''
-  }
-}
+const clearError =
+  rankingFeedback.clearError
+    .bind(rankingFeedback)
 
 async function loadRankingTypes() {
   const { data, error } =
@@ -97,7 +98,10 @@ async function loadRankingTypes() {
       )
 
   if (error) {
-    console.error(error)
+    showError(
+      error.message ||
+      'Unable to load ranking options.'
+    )
     return
   }
 
@@ -147,7 +151,10 @@ async function loadTeams() {
       )
 
   if (error) {
-    console.error(error)
+    showError(
+      error.message ||
+      'Unable to load ranking options.'
+    )
     return
   }
 
@@ -218,9 +225,8 @@ async function loadRankings() {
 
     renderRankings()
   } catch (error) {
-    console.error(error)
 
-    alert(
+    showError(
       'Failed to load rankings'
     )
   } finally {
@@ -296,10 +302,9 @@ function renderRankings() {
         </td>
 
         <td>
-          ${
-  ranking
-              .ranking_position || ''
-}
+          ${getRankingBadge(
+    ranking.ranking_position
+  )}
         </td>
 
         <td>
@@ -323,23 +328,22 @@ function renderRankings() {
 }
         </td>
 
-        <td>
-
-          <button
-            class="btn btn-sm btn-warning me-1"
-            onclick="editRanking('${ranking.ranking_id}')"
-          >
-            Edit
-          </button>
-
-          <button
-            class="btn btn-sm btn-danger"
-            onclick="confirmDeleteRanking('${ranking.ranking_id}')"
-          >
-            Delete
-          </button>
-
-        </td>
+        ${buildActionCell(
+    buildActionButtons({
+      buttons: [
+        {
+          type: 'edit',
+          onClick:
+            `editRanking('${ranking.ranking_id}')`
+        },
+        {
+          type: 'delete',
+          onClick:
+            `confirmDeleteRanking('${ranking.ranking_id}')`
+        }
+      ]
+    })
+  )}
 
       </tr>
     `
@@ -348,41 +352,20 @@ function renderRankings() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredRankings.length /
-        PAGE_SIZE
-      )
-    )
-
-  if (paginationInfo) {
-    paginationInfo.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
-
-  const previousButton =
-    document.getElementById(
-      'btnPreviousPage'
-    )
-
-  const nextButton =
-    document.getElementById(
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredRankings.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'paginationInfo',
+    previousButtonId:
+      'btnPreviousPage',
+    nextButtonId:
       'btnNextPage'
-    )
-
-  if (previousButton) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  if (nextButton) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
+  })
 
 function searchRankings() {
   const search =
@@ -478,14 +461,13 @@ function clearRankingForm() {
 function openNewRankingModal() {
   clearRankingForm()
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'rankingModal'
-      )
-    )
+  createModal(
+    'rankingModal'
+  )
 
-  modal.show()
+  showModal(
+    'rankingModal'
+  )
 }
 
 function validateRanking() {
@@ -624,17 +606,16 @@ async function saveRanking() {
       throw error
     }
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'rankingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'rankingModal'
+    )
 
     await loadRankings()
+
+    showSuccess(
+      'Ranking saved successfully.'
+    )
   } catch (error) {
-    console.error(error)
 
     showError(
       error.message
@@ -694,14 +675,13 @@ function (
     ranking.remarks
   )
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'rankingModal'
-      )
-    )
+  createModal(
+    'rankingModal'
+  )
 
-  modal.show()
+  showModal(
+    'rankingModal'
+  )
 }
 
 window.confirmDeleteRanking =
@@ -713,14 +693,13 @@ function (
     rankingId
   )
 
-  const modal =
-    new coreui.Modal(
-      document.getElementById(
-        'deleteRankingModal'
-      )
-    )
+  createModal(
+    'deleteRankingModal'
+  )
 
-  modal.show()
+  showModal(
+    'deleteRankingModal'
+  )
 }
 
 async function deleteRanking() {
@@ -743,20 +722,20 @@ async function deleteRanking() {
       throw error
     }
 
-    coreui.Modal
-      .getInstance(
-        document.getElementById(
-          'deleteRankingModal'
-        )
-      )
-      ?.hide()
+    hideModal(
+      'deleteRankingModal'
+    )
 
     await loadRankings()
-  } catch (error) {
-    console.error(error)
 
-    alert(
-      error.message
+    showSuccess(
+      'Ranking deleted successfully.'
+    )
+  } catch (error) {
+
+    showError(
+      error.message ||
+      'Unable to complete ranking operation.'
     )
   }
 }
@@ -859,10 +838,10 @@ async function initializeRankings() {
 
     wireEvents()
   } catch (error) {
-    console.error(error)
 
-    alert(
-      error.message
+    showError(
+      error.message ||
+      'Unable to complete ranking operation.'
     )
   }
 }

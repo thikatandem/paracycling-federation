@@ -2,10 +2,7 @@
 // SUPABASE CRUD SERVICE
 // =====================================================
 
-import {
-  supabase
-}
-  from './supabaseClient.js'
+import { getDb } from './getDb.js'
 
 export async function getRecords({
 
@@ -19,7 +16,7 @@ export async function getRecords({
 
 }) {
   let query =
-    window.supabaseClient
+    getDb()
       .from(table)
       .select(select)
 
@@ -59,7 +56,7 @@ export async function getById({
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(table)
       .select(select)
       .eq(
@@ -86,7 +83,7 @@ export async function insertRecord({
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(table)
       .insert(payload)
       .select()
@@ -113,7 +110,7 @@ export async function updateRecord({
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(table)
       .update(payload)
       .eq(
@@ -141,7 +138,7 @@ export async function deleteRecord({
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(table)
       .delete()
       .eq(

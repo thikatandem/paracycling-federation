@@ -4,6 +4,14 @@
 // =====================================================
 
 import {
+  LOOKUP_CACHE_TTL as CACHE_TTL
+} from './constants.js'
+
+import {
+  getDb
+} from '../supabase/getDb.js'
+
+import {
   getRecords
 }
   from '../supabase/supabaseCrudService.js'
@@ -25,9 +33,6 @@ import {
 
 const lookupCache =
   new Map()
-
-const CACHE_TTL =
-  5 * 60 * 1000
 
 // =====================================================
 // CACHE HELPERS
@@ -57,7 +62,7 @@ export async function loadDepartmentLookup() {
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'department_master'
       )
@@ -92,7 +97,7 @@ export async function loadPositionLookupByDepartment(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'position_master'
       )
@@ -131,7 +136,7 @@ export async function loadPositions(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'position_master'
       )
@@ -220,7 +225,7 @@ export async function loadLookup({
 
 }) {
   let query =
-  window.supabaseClient
+  getDb()
     .from(table)
     .select('*')
 
@@ -352,7 +357,7 @@ export async function getMembershipStatusId(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'membership_status_master'
       )
@@ -957,7 +962,7 @@ export async function loadAthletesByRole(
     data,
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from('athletes')
       .select(`
         athlete_id,
@@ -982,4 +987,57 @@ export async function loadAthletesByRole(
   }
 
   return data || []
+}
+
+
+export async function loadTrainingEventOptions({
+  selectId = 'eventId',
+  onLoad = null
+} = {}) {
+  const {
+    data: category,
+    error: categoryError
+  } =
+    await getDb()
+      .from('event_category_master')
+      .select('event_category_id')
+      .eq('category_code', 'TRAINING')
+      .single()
+
+  if (categoryError) {
+    throw categoryError
+  }
+
+  const {
+    data,
+    error
+  } =
+    await getDb()
+      .from('events')
+      .select(`
+        event_id,
+        event_name
+      `)
+      .eq(
+        'event_category_id',
+        category.event_category_id
+      )
+      .order('event_name')
+
+  if (error) {
+    throw error
+  }
+
+  const events = data || []
+  onLoad?.(events)
+
+  populateSelect({
+    selectId,
+    items: events,
+    valueField: 'event_id',
+    textField: 'event_name',
+    placeholder: 'Select Event'
+  })
+
+  return events
 }

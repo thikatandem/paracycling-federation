@@ -1,11 +1,121 @@
-/* global coreui */
-/* eslint camelcase: 0 */
-/* eslint-disable no-console */
-/* eslint-disable no-alert */
+import {
+  get as $
+} from '../services/domService.js'
 
-const PAGE_SIZE = 10
+/* eslint camelcase: 0 */
+import {
+  createSimplePaginationUpdater
+} from '../services/paginationService.js'
+
+import {
+  createPageNavigator
+} from '../services/pageStateService.js'
+
+import {
+  createLoadingStateSetter,
+  createAsyncRefresher
+} from '../services/uiService.js'
+
+import {
+  showInlineError,
+  createFeedbackController
+} from '../services/feedbackService.js'
+
+import {
+  PAGE_SIZE
+} from '../services/constants.js'
+
+import {
+  getGenericBadge
+} from '../services/badgeService.js'
+
+import {
+  buildActionButtons,
+  buildActionCell,
+  buildStatusCell
+} from '../services/tableRendererService.js'
+
+import {
+  getDb,
+  hasDb
+} from '../supabase/getDb.js'
+
+import {
+  ensureParticipantRegistryEntry
+} from '../participants/participantRegistrationService.js'
+
+import {
+  validateTeamForm
+} from '../services/teamFormService.js'
+
+
+
+
+import {
+  createModalByElement
+} from '../services/modalService.js'
+const refreshTeams =
+  createAsyncRefresher(
+    loadPilotLookup,
+    loadStokerLookup,
+    loadTeams
+  )
+
+const updatePagination =
+  createSimplePaginationUpdater({
+    getItemCount: () =>
+      filteredCompositionTeams.length,
+    getCurrentPage: () =>
+      currentPage,
+    pageSize: PAGE_SIZE,
+    infoElementId:
+      'teamPaginationInfo',
+    previousButtonId:
+      'btnPreviousTeamPage',
+    nextButtonId:
+      'btnNextTeamPage'
+  })
+
+const showLoading =
+  createLoadingStateSetter(
+    'teamLoading'
+  )
+
+const teamFeedback =
+  createFeedbackController({
+    containerId: 'teamFormError',
+    errorOptions: {
+      sticky: true
+    }
+  })
+
+const showError =
+  teamFeedback.error
+    .bind(teamFeedback)
 
 let currentPage = 1
+
+const pageNavigator =
+  createPageNavigator({
+    getPage: () =>
+      currentPage,
+    setPage: page => {
+      currentPage = page
+    },
+    getTotalPages: () =>
+      Math.ceil(
+        filteredCompositionTeams.length /
+        PAGE_SIZE
+      ),
+    render:
+      renderTeamsTable
+  })
+
+const nextPage = () =>
+  pageNavigator.next()
+
+const previousPage = () =>
+  pageNavigator.previous()
 
 let compositionTeams = []
 let filteredCompositionTeams = []
@@ -13,49 +123,18 @@ let filteredCompositionTeams = []
 let pilots = []
 let stokers = []
 
-const compositionTeamModal = null
-const deleteCompositionTeamModal = null
+let teamModal = null
+let deleteTeamModal = null
 
 /* ==========================================
    DOM
 ========================================== */
 
-const $ = id =>
-  document.getElementById(id)
-
 /* ==========================================
    HELPERS
 ========================================== */
 
-function showLoading(
-  show = true
-) {
-  const el =
-    $('teamLoading')
 
-  if (!el) {
-    return
-  }
-
-  el.classList.toggle(
-    'd-none',
-    !show
-  )
-}
-
-function showError(
-  message = ''
-) {
-  const el =
-    $('teamFormError')
-
-  if (!el) {
-    return
-  }
-
-  el.textContent =
-    message
-}
 
 function clearForm() {
   $('teamId').value = ''
@@ -85,7 +164,7 @@ async function loadPilotLookup() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from('athletes')
         .select(`
           athlete_id,
@@ -114,9 +193,6 @@ async function loadPilotLookup() {
 
     renderPilotLookup()
   } catch (error) {
-    console.error(
-      error
-    )
   }
 }
 
@@ -163,7 +239,7 @@ async function loadStokerLookup() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from('athletes')
         .select(`
           athlete_id,
@@ -192,9 +268,6 @@ async function loadStokerLookup() {
 
     renderStokerLookup()
   } catch (error) {
-    console.error(
-      error
-    )
   }
 }
 
@@ -243,7 +316,7 @@ async function loadTeams() {
       data,
       error
     } =
-      await window.supabaseClient
+      await getDb()
         .from(
           'team_compositions'
         )
@@ -301,11 +374,8 @@ async function loadTeams() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message ||
       'Failed to load composition teams'
     )
@@ -457,32 +527,36 @@ function renderTeamsTable() {
 }
       </td>
 
-      <td>
-        ${
-  composition
-            .composition_status
-            ?.status_name ||
-          ''
-}
-      </td>
+      ${buildStatusCell(
+    getGenericBadge(
+      composition
+        .composition_status
+        ?.status_name || '',
+      composition
+        .composition_status
+        ?.status_name
+        ?.toUpperCase() === 'ACTIVE' ?
+        'success' :
+        'secondary'
+    )
+  )}
 
-      <td>
-
-        <button
-          class="btn btn-warning btn-sm me-1"
-          onclick="editTeam('${composition.composition_id}')"
-        >
-          Edit
-        </button>
-
-        <button
-          class="btn btn-danger btn-sm"
-          onclick="confirmDeleteTeam('${composition.composition_id}')"
-        >
-          Delete
-        </button>
-
-      </td>
+      ${buildActionCell(
+    buildActionButtons({
+      buttons: [
+        {
+          type: 'edit',
+          onClick:
+            `editTeam('${composition.composition_id}')`
+        },
+        {
+          type: 'delete',
+          onClick:
+            `confirmDeleteTeam('${composition.composition_id}')`
+        }
+      ]
+    })
+  )}
     `
 
     tbody.append(
@@ -493,83 +567,15 @@ function renderTeamsTable() {
   updatePagination()
 }
 
-function updatePagination() {
-  const totalPages =
-    Math.max(
-      1,
-      Math.ceil(
-        filteredCompositionTeams.length /
-        PAGE_SIZE
-      )
-    )
 
-  const info =
-    $('teamPaginationInfo')
 
-  if (info) {
-    info.textContent =
-      `Page ${currentPage} of ${totalPages}`
-  }
 
-  const previousButton =
-    $('btnPreviousTeamPage')
 
-  if (previousButton) {
-    previousButton.disabled =
-      currentPage <= 1
-  }
-
-  const nextButton =
-    $('btnNextTeamPage')
-
-  if (nextButton) {
-    nextButton.disabled =
-      currentPage >= totalPages
-  }
-}
-
-function nextPage() {
-  const totalPages =
-    Math.ceil(
-      filteredCompositionTeams.length /
-      PAGE_SIZE
-    )
-
-  if (
-    currentPage <
-    totalPages
-  ) {
-    currentPage++
-
-    renderTeamsTable()
-  }
-}
-
-function previousPage() {
-  if (
-    currentPage > 1
-  ) {
-    currentPage--
-
-    renderTeamsTable()
-  }
-}
 
 /* ==========================================
    REFRESH
 ========================================== */
 
-async function refreshTeams() {
-  await Promise.all([
-
-    loadPilotLookup(),
-
-    loadStokerLookup(),
-
-    loadTeams()
-
-  ])
-}
 
 /* ==========================================
    MODAL OPEN
@@ -593,35 +599,6 @@ function openAddTeamModal() {
    VALIDATION
 ========================================== */
 
-function validateTeam() {
-  const pilotId =
-    $('pilotAthleteId').value
-
-  const stokerId =
-    $('stokerAthleteId').value
-
-  const effectiveDate =
-  $('effectiveDate').value
-
-  if (!pilotId) {
-    return 'Pilot is required'
-  }
-
-  if (!stokerId) {
-    return 'Stoker is required'
-  }
-
-  if (pilotId === stokerId) {
-    return 'Pilot and Stoker cannot be the same athlete'
-  }
-
-  if (!effectiveDate) {
-    return 'Effective Date is required'
-  }
-
-  return null
-}
-
 /* ==========================================
    SAVE TEAM
 ========================================== */
@@ -631,7 +608,7 @@ async function saveTeam() {
     showError('')
 
     const validationError =
-      validateTeam()
+      validateTeamForm()
 
     if (validationError) {
       showError(
@@ -650,7 +627,6 @@ async function saveTeam() {
 
     await refreshTeams()
   } catch (error) {
-    console.error(error)
 
     showError(
       error.message
@@ -675,7 +651,7 @@ async function createTeam() {
     data: athletes,
     error: athleteError
   } =
-    await window.supabaseClient
+    await getDb()
       .from('athletes')
       .select(`
         athlete_id,
@@ -729,7 +705,7 @@ async function createTeam() {
   const {
     data: existingComposition
   } =
-  await window.supabaseClient
+  await getDb()
     .from(
       'team_compositions'
     )
@@ -764,7 +740,7 @@ async function createTeam() {
   const {
     data: existingTeam
   } =
-  await window.supabaseClient
+  await getDb()
     .from(
       'team_composition_master'
     )
@@ -788,7 +764,7 @@ async function createTeam() {
       data: newTeam,
       error: teamError
     } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'team_composition_master'
       )
@@ -813,7 +789,7 @@ async function createTeam() {
   const {
     data: activeStatus
   } =
-  await window.supabaseClient
+  await getDb()
     .from(
       'team_composition_status_master'
     )
@@ -829,7 +805,7 @@ async function createTeam() {
   const {
     data: temporaryType
   } =
-  await window.supabaseClient
+  await getDb()
     .from(
       'team_type_master'
     )
@@ -845,7 +821,7 @@ async function createTeam() {
   const {
     error: compositionError
   } =
-  await window.supabaseClient
+  await getDb()
     .from(
       'team_compositions'
     )
@@ -888,41 +864,10 @@ async function createTeam() {
     throw compositionError
   }
 
-  const {
-    data: participantType
-  } =
-  await window.supabaseClient
-    .from(
-      'participant_type_master'
-    )
-    .select(
-      'participant_type_id'
-    )
-    .eq(
-      'participant_type_code',
-      'COMPOSITION'
-    )
-    .single()
-
-  await window.supabaseClient
-  .from(
-    'participant_registry'
-  )
-  .insert({
-
-    participant_type_id:
-      participantType
-        ?.participant_type_id,
-
-    source_id:
-      compositionTeamId,
-
-    display_name:
-      compositionName,
-
-    is_active:
-      true
-
+  await ensureParticipantRegistryEntry({
+    participantTypeCode: 'COMPOSITION',
+    sourceId: compositionTeamId,
+    displayName: compositionName
   })
 }
 
@@ -937,7 +882,7 @@ async function updateTeam() {
   const {
     error
   } =
-    await window.supabaseClient
+    await getDb()
       .from(
         'team_compositions'
       )
@@ -1030,11 +975,8 @@ async function editTeam(
 
     teamModal.show()
   } catch (error) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message ||
       'Failed to load team'
     )
@@ -1079,8 +1021,7 @@ async function deleteTeam() {
     const {
       error: detailError
     } =
-      await window
-        .supabaseClient
+      await getDb()
         .from(
           'team_compositions'
         )
@@ -1100,8 +1041,7 @@ async function deleteTeam() {
       data: inactiveStatus,
       error: statusError
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'team_composition_status_master'
     )
@@ -1123,8 +1063,7 @@ async function deleteTeam() {
     const {
       error: masterError
     } =
-  await window
-    .supabaseClient
+  await getDb()
     .from(
       'team_compositions'
     )
@@ -1157,11 +1096,8 @@ async function deleteTeam() {
   } catch (
     error
   ) {
-    console.error(
-      error
-    )
 
-    alert(
+    showInlineError(
       error.message
     )
   }
@@ -1250,12 +1186,9 @@ function initializeModals() {
   const teamModalElement =
     $('teamModal')
 
-  if (
-    teamModalElement &&
-    window.coreui
-  ) {
+  if (teamModalElement) {
     teamModal =
-      new coreui.Modal(
+      createModalByElement(
         teamModalElement
       )
   }
@@ -1263,40 +1196,13 @@ function initializeModals() {
   const deleteModalElement =
     $('deleteTeamModal')
 
-  if (
-    deleteModalElement &&
-    window.coreui
-  ) {
+  if (deleteModalElement) {
     deleteTeamModal =
-      new coreui.Modal(
+      createModalByElement(
         deleteModalElement
       )
   }
 }
-
-/* ==========================================
-   ERROR HANDLING
-========================================== */
-
-window.addEventListener(
-  'error',
-  event => {
-    console.error(
-      'Teams Module Error:',
-      event.error
-    )
-  }
-)
-
-window.addEventListener(
-  'unhandledrejection',
-  event => {
-    console.error(
-      'Unhandled Promise:',
-      event.reason
-    )
-  }
-)
 
 /* ==========================================
    GLOBAL FUNCTIONS
@@ -1324,11 +1230,8 @@ window.previousPage =
 async function initializeTeams() {
   try {
     if (
-      !window.supabaseClient
+      !hasDb()
     ) {
-      console.error(
-        'Supabase client not found'
-      )
 
       return
     }
@@ -1339,14 +1242,7 @@ async function initializeTeams() {
 
     await refreshTeams()
 
-    console.log(
-      'Teams module initialized'
-    )
   } catch (error) {
-    console.error(
-      'Initialization Error',
-      error
-    )
   }
 }
 

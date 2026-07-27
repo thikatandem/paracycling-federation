@@ -1,16 +1,16 @@
-﻿// =====================================================
+// =====================================================
 // CSV IMPORTER
 // ParaCycling Federation Management System
 // =====================================================
 import {
 
-    CSV_OPTIONS,
+  CSV_OPTIONS,
 
-    SUPPORTED_TYPES
+  SUPPORTED_TYPES
 
 }
 
-from './importConstants.js'
+  from './importConstants.js'
 // =====================================================
 // READ CSV FILE
 // =====================================================
@@ -72,13 +72,12 @@ export function parseCsv(
       rows
     )
 
-  
- return {
+  return {
     source: SUPPORTED_TYPES.CSV,
     delimiter,
     headers,
     rows: getRows(rows)
-}
+  }
 }
 
 // =====================================================
@@ -181,8 +180,6 @@ export function getRows(
   )
 }
 
-
-
 // =====================================================
 // EXPORT CSV
 // =====================================================
@@ -190,7 +187,7 @@ export function getRows(
 export function exportCsv(
   rows = [],
   delimiter =
-    CSV_OPTIONS.delimiter
+  CSV_OPTIONS.delimiter
 ) {
   return rows
     .map(
@@ -212,7 +209,7 @@ export function exportCsv(
 function buildCsvRow(
   values = [],
   delimiter =
-    CSV_OPTIONS.delimiter
+  CSV_OPTIONS.delimiter
 ) {
   return values
     .map(
@@ -274,29 +271,26 @@ function escapeCsvValue(
   return stringValue
 }
 
-
 // =====================================================
 // REMOVE UTF-8 BOM
 // =====================================================
 
 function removeUtf8Bom(
 
-    text = ''
+  text = ''
 
 ) {
+  return String(
 
-    return String(
+    text ?? ''
 
-        text ?? ''
+  ).replace(
 
-    ).replace(
+    /^\uFEFF/,
 
-        /^\uFEFF/,
+    ''
 
-        ''
-
-    )
-
+  )
 }
 
 // =====================================================
@@ -305,32 +299,30 @@ function removeUtf8Bom(
 
 function normalizeLineEndings(
 
-    text = ''
+  text = ''
 
 ) {
+  return String(
 
-    return String(
+    text ?? ''
 
-        text ?? ''
-
-    )
+  )
 
         .replace(
 
-            /\r\n/g,
+          /\r\n/g,
 
-            '\n'
+          '\n'
 
         )
 
         .replace(
 
-            /\r/g,
+          /\r/g,
 
-            '\n'
+          '\n'
 
         )
-
 }
 
 // =====================================================
@@ -339,106 +331,94 @@ function normalizeLineEndings(
 
 function splitCsvLines(
 
-    text = ''
+  text = ''
 
 ) {
+  const lines = []
 
-    const lines = []
+  let current = ''
 
-    let current = ''
+  let inQuotes = false
 
-    let inQuotes = false
+  for (
 
-    for (
+    let index = 0;
 
-        let index = 0;
+    index < text.length;
 
-        index < text.length;
+    index++
 
-        index++
-
-    ) {
-
-        const character =
+  ) {
+    const character =
 
             text[index]
 
-        if (
+    if (
 
-            character === '"'
+      character === '"'
 
-        ) {
+    ) {
+      if (
 
-            if (
-
-                inQuotes &&
+        inQuotes &&
 
                 text[index + 1] === '"'
 
-            ) {
+      ) {
+        current += '"'
 
-                current += '"'
+        index++
 
-                index++
+        continue
+      }
 
-                continue
-
-            }
-
-            inQuotes =
+      inQuotes =
 
                 !inQuotes
 
-            current +=
+      current +=
 
                 character
 
-            continue
+      continue
+    }
 
-        }
+    if (
 
-        if (
-
-            character === '\n' &&
+      character === '\n' &&
 
             !inQuotes
 
-        ) {
-
-            lines.push(
-
-                current
-
-            )
-
-            current = ''
-
-            continue
-
-        }
-
-        current +=
-
-            character
-
-    }
-
-   if (
-
-    current.trim().length
-
-) {
-
-    lines.push(
+    ) {
+      lines.push(
 
         current
 
+      )
+
+      current = ''
+
+      continue
+    }
+
+    current +=
+
+            character
+  }
+
+  if (
+
+    current.trim().length
+
+  ) {
+    lines.push(
+
+      current
+
     )
+  }
 
-}
-
-    return lines
-
+  return lines
 }
 
 // =====================================================
@@ -447,96 +427,86 @@ function splitCsvLines(
 
 function parseCsvRow(
 
-    row = '',
+  row = '',
 
-    delimiter = ','
+  delimiter = ','
 
 ) {
+  const values = []
 
-    const values = []
+  let current = ''
 
-    let current = ''
+  let inQuotes = false
 
-    let inQuotes = false
+  for (
 
-    for (
+    let index = 0;
 
-        let index = 0;
+    index < row.length;
 
-        index < row.length;
+    index++
 
-        index++
-
-    ) {
-
-        const character =
+  ) {
+    const character =
 
             row[index]
 
-        if (
+    if (
 
-            character === '"'
+      character === '"'
 
-        ) {
+    ) {
+      if (
 
-            if (
-
-                inQuotes &&
+        inQuotes &&
 
                 row[index + 1] === '"'
 
-            ) {
+      ) {
+        current += '"'
 
-                current += '"'
+        index++
 
-                index++
+        continue
+      }
 
-                continue
-
-            }
-
-            inQuotes =
+      inQuotes =
 
                 !inQuotes
 
-            continue
+      continue
+    }
 
-        }
+    if (
 
-        if (
-
-            character === delimiter &&
+      character === delimiter &&
 
             !inQuotes
 
-        ) {
-
-            values.push(
-
-                current
-
-            )
-
-            current = ''
-
-            continue
-
-        }
-
-        current +=
-
-            character
-
-    }
-
-    values.push(
+    ) {
+      values.push(
 
         current
 
-    )
+      )
 
-    return values
+      current = ''
 
+      continue
+    }
+
+    current +=
+
+            character
+  }
+
+  values.push(
+
+    current
+
+  )
+
+  return values
 }
 
 // =====================================================
@@ -545,20 +515,18 @@ function parseCsvRow(
 
 function escapeQuotes(
 
-    value = ''
+  value = ''
 
 ) {
+  return String(
 
-    return String(
+    value ?? ''
 
-        value ?? ''
+  ).replace(
 
-    ).replace(
+    /"/g,
 
-        /"/g,
+    '""'
 
-        '""'
-
-    )
-
+  )
 }
